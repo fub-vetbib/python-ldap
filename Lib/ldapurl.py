@@ -395,9 +395,7 @@ class LDAPUrl:
     if self.attr2extype.has_key(name):
       extype = self.attr2extype[name]
       if self.extensions.has_key(extype):
-        result = unquote(
-          self.extensions[extype].exvalue
-        )
+        result = unquote(self.extensions[extype].exvalue)
       else:
         return None
     else:
