@@ -66,5 +66,12 @@ print '*** person,organizationalPerson,inetOrgPerson ***'
 print schema.all_attrs(
   ['person','organizationalPerson','inetOrgPerson']
 )
+print schema.all_attrs(
+  ['person','organizationalPerson','inetOrgPerson'],
+  attr_type_filter = [
+    ('no_user_mod',[0]),
+    ('usage',range(2)),
+  ]  
+)
 
 schema.entryDict()

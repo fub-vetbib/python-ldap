@@ -73,36 +73,59 @@ ERRCODE2SCHERR = {
 
 
 def schema_func_wrapper(func,schema_element_str,schema_allow=0):
-    """ Wrapper functions to serialize calls into OpenLDAP libs with       
-        a module-wide thread lock and correct error handling. The schema   
-        parsing functions return an integer in case of an error; in this   
-        case we raise the appropriate exception. If everything is ok, they 
-        return a tuple, which we return to the caller."""
+  """
+  Wrapper functions to serialize calls into OpenLDAP libs with       
+  a module-wide thread lock and correct error handling. The schema   
+  parsing functions return an integer in case of an error; in this   
+  case we raise the appropriate exception. If everything is ok, they 
+  return a tuple, which we return to the caller.
+  """
+
+  def parse_oid(schema_element_str):
+    name_pos = schema_element_str.find('NAME',1)
+    assert name_pos!=-1,SCHERR_UNEXPTOKEN(2,schema_element_str)
+    oid = schema_element_str[1:name_pos].strip()
+    s = '( 0.0.0.0.0.0.0.0.0.0.0.0.0 '+schema_element_str[name_pos:]
+    return oid,s
+
+  if schema_allow==ALLOW_ALL:
+    # This is a work-around as long as OpenLDAP libs
+    # does not accept non-numeric OID
+    oid, fake_str = parse_oid(schema_element_str)
     res = ldap.functions._ldap_function_call(
-        func,schema_element_str,schema_allow
-        )
+      func,fake_str,schema_allow
+    )
     if type(res)==type(0):
-        raise ERRCODE2SCHERR.get(res,SchemaError)(
-            res,schema_element_str
-            )
+      raise ERRCODE2SCHERR.get(res,SchemaError)(res,schema_element_str)
     else:
-        assert type(res)==type([])
-        return res
+      assert type(res)==type([])
+      res[0] = oid
+      return res
+  else:
+    # This is the normal code
+    res = ldap.functions._ldap_function_call(
+      func,schema_element_str,schema_allow
+    )
+    if type(res)==type(0):
+      raise ERRCODE2SCHERR.get(res,SchemaError)(res,schema_element_str)
+    else:
+      assert type(res)==type([])
+      return res
 
 
 # Wrapper functions to serialize calls into OpenLDAP libs with
 # a module-wide thread lock
 def str2objectclass(schema_element_str,schema_allow=0):
-    return schema_func_wrapper(_ldap.str2objectclass,schema_element_str,schema_allow)
+  return schema_func_wrapper(_ldap.str2objectclass,schema_element_str,schema_allow)
 
 def str2attributetype(schema_element_str,schema_allow=0):
-    return schema_func_wrapper(_ldap.str2attributetype,schema_element_str,schema_allow)
+  return schema_func_wrapper(_ldap.str2attributetype,schema_element_str,schema_allow)
 
 def str2syntax(schema_element_str,schema_allow=0):
-    return schema_func_wrapper(_ldap.str2syntax,schema_element_str,schema_allow)
+  return schema_func_wrapper(_ldap.str2syntax,schema_element_str,schema_allow)
 
 def str2matchingrule(schema_element_str,schema_allow=0):
-    return schema_func_wrapper(_ldap.str2matchingrule,schema_element_str,schema_allow)
+  return schema_func_wrapper(_ldap.str2matchingrule,schema_element_str,schema_allow)
 
 
 def key_attr(key,value,quoted=0):
@@ -188,7 +211,7 @@ class AttributeType:
          self.syntax_oid,      #OPTIONAL
          self.syntax_len,      #OPTIONAL
          self.single_value,    #0=no, 1=yes
-         self.collective,     #0=no, 1=yes
+         self.collective,      #0=no, 1=yes
          self.no_user_mod,     #0=no, 1=yes
          self.usage,           #0=userApplications, 1=directoryOperation,
                                #2=distributedOperation, 3=dSAOperation
@@ -289,7 +312,6 @@ class SubSchema:
             continue
           for attr_value in sub_schema_sub_entry[attr_type]:
             se = SCHEMA_CLASS_MAPPING[attr_type](attr_value,schema_allow)
-            assert not self.schema_element.has_key(se.oid), ValueError
             self.schema_element[se.oid] = se
             for name in se.names:
               self.name2oid[name] = se.oid
@@ -317,7 +339,17 @@ class SubSchema:
           del entry[k]
       return entry
 
-    def all_attrs(self,object_class_list):
+    def avail_objectclasses(self):
+      """
+      Returns a list of all available object classes by first name.
+      """
+      return [
+        se.names[0]
+        for se in self.schema_element.values()
+        if se.__class__==ObjectClass
+      ]
+
+    def all_attrs(self,object_class_list,attr_type_filter={}):
       """
       Return a 2-tuple of all must and may attributes including
       all inherited attributes of superior object classes.
@@ -325,6 +357,9 @@ class SubSchema:
 
       object_class_list
           list of strings specifying object class names or OIDs
+      attr_type_filter
+          list of 2-tuples containing lists of class attributes
+          which has to be matched
       """
       oid_cache = {}
       object_class_oids = [
@@ -353,5 +388,17 @@ class SubSchema:
       for a in r_may.keys():
         if r_must.has_key(a):
           del r_may[a]
+      # Apply attr_type_filter to results
+      if attr_type_filter:
+        for l in [r_must,r_may]:
+          for a in l.keys():
+            if self.name2oid.has_key(a):
+              for afk,afv in attr_type_filter:
+                schema_attr_type = self.schema_element[self.name2oid[a]]
+                if not getattr(schema_attr_type,afk) in afv:
+                  del l[a]
+                  break
+            else:
+              raise KeyError,'No schema element found with name %s' % (a)
       return r_must.values(),r_may.values()
 
