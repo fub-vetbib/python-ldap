@@ -1,0 +1,5 @@
+
+* Find someone with MSVC who can build the WIN32 DLL for _ldapmodule.
+* merge in fog's work
+    - move configure script to the top level directory (here)
+
