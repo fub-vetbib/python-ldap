@@ -203,6 +203,93 @@ static char doc_is_ldap_url[] =
 "\tThis function returns true if url `looks like' an LDAP URL\n"
 "\t(as opposed to some other kind of URL).";
 
+/* ldap_set_option */
+
+static PyObject*
+l_ldap_set_option(PyObject* unused, PyObject *args)
+{
+    int res;
+    int option;
+    int intval;
+    char *strval;
+    void *ptr;
+    PyObject *value;
+
+    if (!PyArg_ParseTuple(args, "iO", &option,&value))
+    	return NULL;
+
+    switch(option){
+	case LDAP_OPT_API_INFO:
+	case LDAP_OPT_DESC:
+	case LDAP_OPT_API_FEATURE_INFO:
+	case LDAP_OPT_X_SASL_SSF:
+		PyErr_SetString( LDAPexception_class, "read-only option" );
+    		return NULL;
+	case LDAP_OPT_DEREF:
+	case LDAP_OPT_SIZELIMIT:
+	case LDAP_OPT_TIMELIMIT:
+	case LDAP_OPT_REFERRALS:
+	case LDAP_OPT_RESTART:
+	case LDAP_OPT_PROTOCOL_VERSION:
+	case LDAP_OPT_ERROR_NUMBER:
+	case LDAP_OPT_DEBUG_LEVEL:
+	case LDAP_OPT_X_TLS:
+	case LDAP_OPT_X_TLS_REQUIRE_CERT:
+	case LDAP_OPT_X_SASL_SSF_MIN:
+	case LDAP_OPT_X_SASL_SSF_MAX:
+		if (!PyArg_Parse( value, "i", &intval )) {
+			fprintf(stderr,"Not int!\n");
+	    		PyErr_SetString( PyExc_TypeError, "expected integer" );
+	    		return NULL;
+		}
+		ptr=&intval;
+		break;
+	case LDAP_OPT_HOST_NAME:
+	case LDAP_OPT_URI:
+	case LDAP_OPT_ERROR_STRING:
+	case LDAP_OPT_MATCHED_DN:
+	case LDAP_OPT_X_TLS_CACERTFILE:
+	case LDAP_OPT_X_TLS_CACERTDIR:
+	case LDAP_OPT_X_TLS_CERTFILE:
+	case LDAP_OPT_X_TLS_KEYFILE:
+	case LDAP_OPT_X_TLS_CIPHER_SUITE:
+	case LDAP_OPT_X_TLS_RANDOM_FILE:
+	case LDAP_OPT_X_SASL_SECPROPS:
+		if (!PyArg_Parse( value, "s", &strval )) {
+	    		PyErr_SetString( PyExc_TypeError, "expected string" );
+	    		return NULL;
+		}
+		fprintf(stderr,"Setting %i to '%s'\n",option,strval);
+		ptr=strval;
+		break;
+	case LDAP_OPT_SERVER_CONTROLS:
+	case LDAP_OPT_CLIENT_CONTROLS:
+	case LDAP_OPT_TIMEOUT:
+	case LDAP_OPT_NETWORK_TIMEOUT:
+	case LDAP_OPT_X_TLS_CTX:
+		PyErr_SetString( LDAPexception_class, "option not supported by python-ldap" );
+    		return NULL;
+	default:
+		PyErr_SetString( LDAPexception_class, "option not supported" );
+    		return NULL;
+    }
+	
+    fprintf(stderr,"setting: %i, %p\n",option,ptr);
+    res = ldap_set_option(NULL, option, ptr);
+
+    if (res<0){
+	PyErr_SetString( LDAPexception_class, "set_option failed" );
+	return NULL;
+    }
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static char doc_set_option[] = 
+"set_option(name,value)\n\n"
+"\tSets global option of LDAP module.\n";
+
 /* methods */
 
 static PyMethodDef methods[] = {
@@ -222,6 +309,8 @@ static PyMethodDef methods[] = {
     { "init_templates", (PyCFunction)l_init_templates,		METH_VARARGS,
     	l_init_templates_doc },
 #endif
+    { "set_option", (PyCFunction)l_ldap_set_option,		METH_VARARGS,
+    	doc_set_option },
     { NULL, NULL }
 };
 
