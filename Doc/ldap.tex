@@ -68,7 +68,7 @@ The \module{ldap} module defines the following functions:
 \begin{funcdesc}{initialize}{uri} % -> LDAPObject
   Opens a new connection with an LDAP server, and return an LDAP object
   (see \ref{ldap-objects}) used to perform operations on that server.
-  Parameter \var{uri} has to be a valid LDAP URL
+  Parameter \var{uri} has to be a valid LDAP URL.
   \begin{seealso}
   \seerfc{2255}{The LDAP URL Format}{}
   \end{seealso}
@@ -538,20 +538,16 @@ call does not indicate success.
 % also used to give a filename when generating HTML.
 
 %\noindent
-LDAP objects are returned by \function{open()} when a successful
-connection to an LDAP server is established.
+LDAP objects are returned by \function{open()} and \function{initialize()}.
 The connection is automatically unbound and closed 
 when the LDAP object is deleted.
 
-Most methods on LDAP objects
-initiate an asynchronous request to the LDAP server 
+Most methods on LDAP objects initiate an asynchronous request to the LDAP server 
 and return a message id that can be used later to retrieve the result
-with \method{result()}. 
+with \method{result()}.
 Methods with names ending in `\constant{_s}' are the synchronous form 
 and wait for and return with the server's result, or with
 \constant{None} if no data is expected.
-See below for a description of the \method{result()} method 
-which describes the data structure returned from the server.
 
 LDAP objects, have the following methods:
 
