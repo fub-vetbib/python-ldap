@@ -25,15 +25,15 @@ The timeout handling is done within the method result() which probably leads
 to less exact timing.
 """
 
-__version__ = '0.0.6'
+__version__ = '0.1.0'
 
-__all__ = ['LDAPObject']
+__all__ = ['LDAPObject','SmartLDAPObject']
 
 if __debug__:
   # Tracing is only supported in debugging mode
   import traceback
 
-import sys,time,_ldap,ldap
+import sys,string,time,_ldap,ldap
 
 class LDAPObject:
   """
@@ -97,54 +97,6 @@ class LDAPObject:
           if self._trace_level>=2:
             traceback.print_stack(file=sys.stdout)
     return value
-
-  def supported_ldap_version(self):
-    """
-    supported_ldap_version() -> int
-    Tries to negotiate the highest supported protocol version.
-    First this method binds anonymously with LDAPv3. If
-    that fails with info field 'version not supported' the
-    connection is completely dropped and re-openend like described
-    in RFC2251.
-
-    Mainly this is useful when connecting to a LDAP server without
-    prior knowledge. If you know the highest protocol version
-    supported by your server you won't need this method.
-    Caveat is that it sends an extra BindRequest to the server and
-    it does not work if the server does not allow anonymous bind
-    or mandates SASL bind.
-    
-    The result of this method is an integer containing
-    the negotiated protocol version.
-    """
-    # Try to set protocol version
-    self.set_option(ldap.OPT_PROTOCOL_VERSION,ldap.VERSION3)
-    # first try LDAPv3 bind
-    try:
-      # Try to bind to provoke error reponse at this very time
-      # if protocol version is not supported
-      self.bind_s('','',ldap.AUTH_SIMPLE)
-    except ldap.PROTOCOL_ERROR,e:
-      # Make sure that error just happened because of wrong
-      # protocol version
-      if hasattr(e,'args') and \
-         type(e.args)==type(()) and \
-         type(e.args[0])==type({}) and \
-         e.args[0].get('info','').lower()=='version not supported':
-        # Drop connection completely
-        self.unbind_s() ; del self._l
-        # Reconnect to host
-        self._l = self._ldap_call(_ldap.initialize,self._uri)
-        # Switch to new connection to LDAPv2
-        self.set_option(ldap.OPT_PROTOCOL_VERSION,ldap.VERSION2)
-      else:
-        # Re-raise any other error exception
-        raise
-      # Set currently determined protocol version
-      protocol_version = ldap.VERSION2
-    else:
-      protocol_version = ldap.VERSION3
-    return protocol_version
 
   def abandon(self,msgid):
     """
@@ -572,3 +524,94 @@ class LDAPObject:
 
   def set_option(self,option,invalue):
     self._ldap_call(self._l.set_option,option,invalue)
+
+
+class SmartLDAPObject(LDAPObject):
+  """
+  Mainly the __init__() method does some smarter things.
+  """
+
+  def __init__(
+    self,uri,who='',cred='',start_tls=1,
+    tls_cacertfile=None,tls_clcertfile=None,tls_clkeyfile=None,
+    trace_level=0,trace_file=sys.stdout
+  ):
+    """
+    Return LDAPObject instance by opening LDAP connection to
+    LDAP host specified by LDAP URL.
+
+    Unlike ldap.initialize() this function also trys to bind
+    explicitly with the bind DN and credential given as parameter,
+    probe the supported LDAP version and trys to use
+    StartTLS extended operation if this was specified.
+
+    Because it has a more complex behaviour this function
+    is not suitable for doing fast (re-)connects.
+
+    Compability note:
+    Since the module ldapurl is used this function only works
+    with Python 2.0+.
+
+    Parameters:
+    uri
+        LDAP URL containing at least connection scheme and hostport,
+        e.g. ldap://localhost:389
+    who
+        The Bind-DN to use. If this is empty and the LDAP server
+        supports LDAPv3 no extra BindRequest is done.
+    cred
+        The credential to use for simple bind. If this is empty
+        and the LDAP server supports LDAPv3 no extra BindRequest
+        is done.
+    start_tls
+        Determines if StartTLS extended operation is tried
+        on a LDAPv3 server and if the LDAP URL scheme is ldap:.
+        If LDAP URL scheme is not ldap: (e.g. ldaps: or ldapi:)
+        this parameter is ignored.
+        0       Don't use StartTLS ext op
+        1       Try StartTLS ext op but proceed when unavailable
+        2       Try StartTLS ext op and re-raise ldap.PROTOCOL_ERROR
+                if it fails
+    tls_cacertfile
+
+    tls_clcertfile
+
+    tls_clkeyfile
+
+    trace_level
+        If non-zero a trace output of LDAP calls is generated.
+    trace_file
+        File object where to write the trace output to.
+        Default is to use stdout.
+    """
+    # Strip white-spaces from uri
+    uri = string.strip(uri)
+    # Initialize LDAP connection
+    LDAPObject.__init__(self,uri,trace_level,trace_file)
+    # Set protocol version to LDAPv3
+    self.set_option(ldap.OPT_PROTOCOL_VERSION,ldap.VERSION3)
+    try:
+      self.search_s('',ldap.SCOPE_BASE,'(objectClass=*)',['objectClass'])
+    except ldap.NO_SUCH_OBJECT,ldap.PROTOCOL_ERROR:
+      # Drop connection completely
+      self.unbind_s() ; del self._l
+      self._l = self._ldap_call(_ldap.initialize,self._uri)
+      self.set_option(ldap.OPT_PROTOCOL_VERSION,ldap.VERSION2)
+      self.simple_bind_s(who,cred)
+    protocol_version = self.get_option(ldap.OPT_PROTOCOL_VERSION)
+    # Try to start TLS if requested
+    if start_tls>0 and uri[:5]=='ldap:':
+      if protocol_version>=ldap.VERSION3:
+        try:
+          self.start_tls_s()
+        except ldap.PROTOCOL_ERROR:
+          if start_tls>=2:
+            # Application does not accept clear-text connection
+            # => re-raise exception
+            raise
+      else:
+        if start_tls>=2:
+          raise ValueError,"StartTLS extended operation only possible on LDAPv3+ server!"
+    if protocol_version==ldap.VERSION2 or (who and cred):
+      self.simple_bind_s(who,cred)
+

@@ -1,11 +1,26 @@
-"""The ldap.sasl module provides SASL authentication classes.
+"""
+sasl.py - support for SASL mechanism
+written by Hans Aschauer <Hans.Aschauer@Physik.uni-muenchen.de>
+
+\$Id$
+
+Description:
+The ldap.sasl module provides SASL authentication classes.
 Each class provides support for one SASL mechanism. This is done by
 implementing a callback() - method, which will be called by the
 LDAPObject's sasl_bind_s() method.
 
 Implementing support for new sasl mechanism is very easy --- see
 the examples of digest_md5 and gssapi.
+
+License:
+Public domain. Do anything you want with this module.
+
+Compability:
+- Tested with Python 2.0+ but should work with Python 1.5.x
 """
+
+__version__ = '0.0.1'
 
 class sasl:
     """This class handles SASL interactions for authentication.
@@ -67,6 +82,4 @@ class gssapi(sasl):
     authentication."""
     def __init__(self, authorization=""):
         sasl.__init__(self, {sasl.CB_USER:authorization}, "GSSAPI")
-
-
 
