@@ -1,6 +1,6 @@
-------------------------------
-LDAP client API for Python
-------------------------------
+---------------------------------------
+python-ldap: LDAP client API for Python
+---------------------------------------
 
 What is python-ldap?
 
@@ -15,23 +15,12 @@ Not included: Direct BER support
 
 See TODO for planned features. Contributors welcome.
 
-It is known to compile and work with basic functionality with the
-following versions:
-
-  * Python 2.0+			<http://www.python.org/>
-  * OpenLDAP 2.0.18		<http://www.openldap.org/>
-
 Most parts should still work with Python 1.5.x. See compability notes
 in module headers.
 
 For module documentation, see:
 
 	http://python-ldap.sourceforge.net/
-
-Quick build instructions:
-    edit setup.cfg
-    python setup.py build
-    python setup.py install
 
 Quick usage example:
     import ldap

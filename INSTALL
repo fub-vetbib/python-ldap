@@ -1,0 +1,16 @@
+------------------------------
+Installing python-ldap
+------------------------------
+
+Prerequisites:
+
+    Python (see http://www.python.org)
+
+    OpenLDAP client libs 2.0.13 or newer
+    (see http://www.openldap.org)
+
+Quick build instructions:
+    edit setup.cfg
+    python setup.py build
+    python setup.py install
+
