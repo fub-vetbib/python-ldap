@@ -8,15 +8,15 @@ Modules/
 - Validating server's certificate when calling start_tls_s() or
   ldap.initialize('ldaps://..')
 - Look into OpenLDAP 2's lib ldap_r to make python-ldap re-entrant
-- Support for SASL bind
+- Support for SASL bind by wrapping ldap_sasl_bind()
 - Support for VLV control
 - Support for server-side sorting control
-- Wrap ldap_explode_rdn
+- Wrap ldap_explode_rdn()
 - Support for binding with in DSA control mode
+- Wrap ldap_parse_reference()
 
 Lib/
 - Remove obsolete/unsupported modules
 - LDAPv3 schema support (BNF parser needed)
-- Add ldapurl module from web2ldap
 - LDIF parser for replication logs
 - DSML support
