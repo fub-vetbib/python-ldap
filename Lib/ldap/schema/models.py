@@ -593,7 +593,7 @@ class Entry(UserDict.UserDict):
   def items(self):
     return [
       (k,self[k])
-      for k in self._keytuple2attrtype.values()
+      for k in self.keys()
     ]
 
   def attribute_types(
