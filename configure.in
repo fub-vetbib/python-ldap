@@ -46,6 +46,7 @@ AC_CACHE_CHECK(python version, ac_cv_ver_python, [
  ac_cv_ver_python=`$ac_cv_prog_python -c 'import sys;print sys.version[[:3]]'`])
 AC_CACHE_CHECK(python install prefix, ac_cv_path_python, [
  ac_cv_path_python=`$ac_cv_prog_python -c 'import sys;print sys.prefix'`])
+dnl XXX shouldn't we override $ac_cv_path_python with $prefix when installing???
 LIBDEST="$ac_cv_path_python/lib/python$ac_cv_ver_python"
 PYTHON="$ac_cv_prog_python"
 AC_SUBST(PYTHON)
