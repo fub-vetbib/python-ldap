@@ -296,7 +296,7 @@ class SimpleLDAPObject:
 
   def modify_s(self,dn,modlist):
     msgid = self.modify(dn,modlist)
-    self.result(msgid,all=1,timeout=self.timeout)
+    return self.result(msgid,all=1,timeout=self.timeout)
 
   def modrdn(self,dn,newrdn,delold=1):
     """
@@ -316,6 +316,13 @@ class SimpleLDAPObject:
 
   def modrdn_s(self,dn,newrdn,delold=1):
     self.rename_s(dn,newrdn,None,delold)
+
+  def passwd(self,user,oldpw,newpw,serverctrls=None,clientctrls=None):
+    return self._ldap_call(self._l.passwd,user,oldpw,newpw,serverctrls,clientctrls)
+
+  def passwd_s(self,user,oldpw,newpw,serverctrls=None,clientctrls=None):
+    msgid = self.passwd(user,oldpw,newpw,serverctrls,clientctrls)
+    return self.result(msgid,all=1,timeout=self.timeout)
 
   def rename(self,dn,newrdn,newsuperior=None,delold=1,serverctrls=None,clientctrls=None):
     """
