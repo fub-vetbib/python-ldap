@@ -18,14 +18,15 @@ LDAPexception_class;
 /* list of error objects */
 
 
-#if LDAP_API_VERSION >= 3000
+#if LDAP_VENDOR_VERSION>=20200
+  /* OpenLDAP 2.2+ defines negative error constants */
   #define LDAP_ERROR_MIN          LDAP_REFERRAL_LIMIT_EXCEEDED
   #define LDAP_ERROR_MAX          LDAP_OTHER
-  #define LDAP_ERROR_OFFSET       LDAP_ERROR_MIN
+  #define LDAP_ERROR_OFFSET       -LDAP_ERROR_MIN
 #else
   #define LDAP_ERROR_MIN          0
   #define LDAP_ERROR_MAX          LDAP_REFERRAL_LIMIT_EXCEEDED
-  #define LDAP_ERROR_OFFSET       LDAP_ERROR_MIN
+  #define LDAP_ERROR_OFFSET       0
 #endif
 
 static PyObject* errobjects[ LDAP_ERROR_MAX-LDAP_ERROR_MIN+1 ];
@@ -112,7 +113,7 @@ LDAPerror( LDAP*l, char*msg )
 
 void
 LDAPinit_errors( PyObject*d ) {
-        
+
         /* create the base exception class */
         LDAPexception_class = PyErr_NewException("ldap.LDAPError",
                                                   NULL,
@@ -133,7 +134,7 @@ LDAPinit_errors( PyObject*d ) {
 		PyObject *e = PyErr_NewException("ldap." #n,		\
 				  LDAPexception_class, NULL);		\
 		seterrobj2(n, e);					\
-		Py_DECREF(e);						\
+		Py_INCREF(e);						\
 	}
 
 	seterrobj(ADMINLIMIT_EXCEEDED);
