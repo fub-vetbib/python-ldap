@@ -17,7 +17,7 @@ overridden.
 
 Thread-lock:
 Basically calls into the LDAP lib are serialized by the module-wide
-lock ldap._ldap_lock. To avoid long-time blocking of other threads
+lock self._ldap_object_lock. To avoid long-time blocking of other threads
 synchronous methods like search_s() etc. and the result() method
 were rewritten to do solely asynchronous LDAP lib calls with zero
 timeout.
@@ -46,16 +46,22 @@ class SimpleLDAPObject:
   Drop-in wrapper class around _ldap.LDAPObject
   """
 
-  def __init__(self,uri,trace_level=0,trace_file=sys.stdout):
+  _direct_class_attrs = ['_l','_trace_level','_trace_file','_uri','_ldap_object_lock']
+
+  def __init__(self,uri,trace_level=0,trace_file=sys.stdout,ldap_r=1):
     self._trace_level = trace_level
     self._trace_file = trace_file
     self._uri = uri
-    self._l = self._ldap_call(_ldap.initialize,uri)
+    self._l = ldap._ldap_call(_ldap.initialize,uri)
+    if ldap_r:
+      self._ldap_object_lock = ldap.LDAPLock()
+    else:
+      self._ldap_object_lock = ldap._ldap_module_lock
 
   def _ldap_call(self,func,*args,**kwargs):
     """Wrapper method mainly for trace logs"""
     if __debug__:
-      if self._trace_level>=1 and func.__name__!='result':
+      if self._trace_level>=1:# and func.__name__!='result':
         self._trace_file.write('*** %s.%s (%s,%s)\n' % (
           self.__module__,
           self.__class__.__name__+'.'+func.__name__,
@@ -63,14 +69,19 @@ class SimpleLDAPObject:
         ))
         if self._trace_level>=2:
           traceback.print_stack(file=self._trace_file)
-    result = ldap._ldap_call(func,*args,**kwargs)
+    self._ldap_object_lock.acquire()
+    try:
+      result = apply(func,args,kwargs)
+    finally:
+      pass
+      self._ldap_object_lock.release()
     if __debug__:
       if self._trace_level>=1 and result!=None and result!=(None,None):
         self._trace_file.write('=> result: %s\n' % (repr(result)))
     return result
 
   def __setattr__(self,name,value):
-    if name in ['_l','_trace_level','_trace_file','_uri']:
+    if name in self._direct_class_attrs:
       self.__dict__[name] = value
     else:
       if __debug__:
@@ -80,21 +91,21 @@ class SimpleLDAPObject:
           )
           if self._trace_level>=2:
             traceback.print_stack(file=self._trace_file)
-      ldap._ldap_lock.acquire()
+      self._ldap_object_lock.acquire()
       try:
         setattr(self._l,name,value)
       finally:
-        ldap._ldap_lock.release()
+        self._ldap_object_lock.release()
 
   def __getattr__(self,name):
-    if name in ['_l','_trace_level','_trace_file','_uri']:
+    if name in self._direct_class_attrs:
       return self.__dict__[name]
     else:
-      ldap._ldap_lock.acquire()
+      self._ldap_object_lock.acquire()
       try:
         value = getattr(self._l,name)
       finally:
-        ldap._ldap_lock.release()
+        self._ldap_object_lock.release()
       if __debug__:
         if self._trace_level>=1:
           self._trace_file.write('*** %s:' % (self.__module__),\
@@ -517,56 +528,14 @@ class SimpleLDAPObject:
 
 class NonblockingLDAPObject(SimpleLDAPObject):
 
-  def __init__(self,uri,trace_level=0,trace_file=sys.stdout,result_timeout=0.05):
+  _direct_class_attrs = SimpleLDAPObject._direct_class_attrs+['_result_timeout']
+
+  def __init__(self,uri,trace_level=0,trace_file=sys.stdout,result_timeout=-1):
     self._result_timeout = result_timeout
     SimpleLDAPObject.__init__(self,uri,trace_level,trace_file)
 
   def result(self,msgid=_ldap.RES_ANY,all=1,timeout=-1):
     """
-    result([msgid=RES_ANY [,all=1 [,timeout=-1]]]) -> (result_type, result_data)
-
-        This method is used to wait for and return the result of an
-        operation previously initiated by one of the LDAP asynchronous
-        operation routines (eg search(), modify(), etc.) They all
-        returned an invocation identifier (a message id) upon successful
-        initiation of their operation. This id is guaranteed to be
-        unique across an LDAP session, and can be used to request the
-        result of a specific operation via the msgid parameter of the
-        result() method.
-
-        If the result of a specific operation is required, msgid should
-        be set to the invocation message id returned when the operation
-        was initiated; otherwise RES_ANY should be supplied.
-
-        The all parameter only has meaning for search() responses
-        and is used to select whether a single entry of the search
-        response should be returned, or to wait for all the results
-        of the search before returning.
-
-        A search response is made up of zero or more search entries
-        followed by a search result. If all is 0, search entries will
-        be returned one at a time as they come in, via separate calls
-        to result(). If all is 1, the search response will be returned
-        in its entirety, i.e. after all entries and the final search
-        result have been received.
-
-        The method returns a tuple of the form (result_type,
-        result_data).  The result_type is a string, being one of:
-        'RES_BIND', 'RES_SEARCH_ENTRY', 'RES_SEARCH_RESULT',
-        'RES_MODIFY', 'RES_ADD', 'RES_DELETE', 'RES_MODRDN', or
-        'RES_COMPARE'.
-
-        The constants RES_* are set to these strings, for convenience.
-
-        See search() for a description of the search result's
-        result_data, otherwise the result_data is normally meaningless.
-
-        The result() method will block for timeout seconds, or
-        indefinitely if timeout is negative.  A timeout of 0 will effect
-        a poll.  The timeout can be expressed as a floating-point value.
-
-        If a timeout occurs, a TIMEOUT exception is raised, unless
-        polling (timeout = 0), in which case (None, None) is returned.
     """
     ldap_result = self._ldap_call(self._l.result,msgid,0,self._result_timeout)
     if not all:
@@ -587,6 +556,10 @@ class NonblockingLDAPObject(SimpleLDAPObject):
       all_results.extend(ldap_result[1])
       ldap_result = None,None
     return all_results
+
+  def search_st(self,base,scope,filterstr='(objectClass=*)',attrlist=None,attrsonly=0,timeout=-1):
+    msgid = self.search(base,scope,filterstr,attrlist,attrsonly)
+    return self.result(msgid,all=1,timeout=timeout)
  
 
 class SmartLDAPObject(SimpleLDAPObject):
@@ -685,4 +658,4 @@ class SmartLDAPObject(SimpleLDAPObject):
 # The class called LDAPObject will be used as default for
 # ldap.open() and ldap.initialize()
 LDAPObject = SimpleLDAPObject
-
+#LDAPObject = NonblockingLDAPObject
