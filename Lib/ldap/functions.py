@@ -70,8 +70,7 @@ def initialize(uri,trace_level=0,trace_file=sys.stdout):
         File object where to write the trace output to.
         Default is to use stdout.
   """
-  if not is_ldap_url(uri):
-    raise ValueError,"Parameter uri has to be a LDAP URL."
+  assert is_ldap_url(uri),ValueError("uri has to be a LDAP URL.")
   return LDAPObject(uri,trace_level,trace_file)
 
 
