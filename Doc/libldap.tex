@@ -324,6 +324,9 @@ An alias in the directory points to a nonexistent entry.
 The entry already exists. E.g. the \var{dn} specified with \method{add()}
 already exists in the DIT.
 \end{excdesc}
+\begin{excdesc}{}
+
+\end{excdesc}
 \begin{excdesc}{AUTH_UNKNOWN}
 The authentication method specified to \method{bind()} is not known.
 \end{excdesc}
@@ -409,6 +412,10 @@ A loop was detected.
 A naming violation occurred. This is raised e.g. if the LDAP server
 has constraints about the tree naming.
 \end{excdesc}
+\begin{excdesc}{NO_OBJECT_CLASS_MODS}
+Modifying the objectClass attribute as requested is not allowed
+(e.g. modifying structural object class of existing entry).
+\end{excdesc}
 \begin{excdesc}{NOT_ALLOWED_ON_NONLEAF}
 The operation is not allowed on a non-leaf object.
 \end{excdesc}
@@ -457,7 +464,8 @@ a referral is received when using LDAPv2.
 A violation of the LDAP protocol was detected.
 \end{excdesc}
 \begin{excdesc}{RESULTS_TOO_LARGE}
-(Undocumented.)
+The result does not fit into a UDP packet. This happens only when using
+UDP-based CLDAP (connection-less LDAP) which is not supported anyway.
 \end{excdesc}
 \begin{excdesc}{SASL_BIND_IN_PROGRESS}
 
