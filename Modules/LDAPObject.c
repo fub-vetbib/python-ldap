@@ -1564,6 +1564,33 @@ static char doc_url_search[] =
 "\tURLs wrapped in angle-brackets and/or preceded by 'URL:'\n"
 "\tare tolerated.";
 
+#if defined(HAVE_FILENO_LD_SB_SB_SD) /* || defined(...) */
+#define FILENO_SUPPORTED
+#endif
+
+#if defined(FILENO_SUPPORTED)
+static PyObject*
+l_ldap_fileno(LDAPObject* self, PyObject* args)
+{
+    int fileno;
+
+    if (PyArg_ParseTuple(args, "") == NULL)
+	return NULL;
+    if (!self->valid)
+	fileno = -1;
+    else {
+#if defined(HAVE_FILENO_LD_SB_SB_SD)
+	fileno = self->ldap->ld_sb.sb_sd;
+/* #else ... other techniques */
+#endif
+    }
+    return PyInt_FromLong(fileno);
+}
+static char doc_fileno[] =
+"fileno() -> int\n"
+"\tReturn the file descriptor associated with this connection.";
+#endif /* FILENO_SUPPORTED */
+
 /* methods */
 
 static PyMethodDef methods[] = {
@@ -1636,6 +1663,9 @@ static PyMethodDef methods[] = {
     {"ufn_setprefix",	(PyCFunction)l_ldap_ufn_setprefix,	METH_VARARGS,	doc_ufn},
     {"url_search_s",	(PyCFunction)l_ldap_url_search_st,	METH_VARARGS,	doc_url_search},	
     {"url_search_st",	(PyCFunction)l_ldap_url_search_st,	METH_VARARGS,	doc_url_search},	
+#if defined(FILENO_SUPPORTED)
+    {"fileno",		(PyCFunction)l_ldap_fileno,		METH_VARARGS,	doc_fileno},	
+#endif
     { NULL, NULL }
 };
 
