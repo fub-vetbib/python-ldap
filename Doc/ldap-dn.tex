@@ -1,0 +1,27 @@
+% $Id$
+
+\section{\module{ldap.dn} ---
+  LDAP Distinguished Name handling }
+
+\declaremodule{standard}{ldap.dn}
+
+% Author of the module code;
+\moduleauthor{Michael Str\"oder}{python-ldap-dev@lists.sourceforge.net}
+% Author of the documentation,
+\sectionauthor{Michael Str\"oder}{michael@stroeder.com}
+
+\modulesynopsis{LDAP Distinguished Name handling.}
+
+The \module{ldap.dn} module defines the following functions:
+
+\begin{funcdesc}{escape_dn_chars}{s} % -> string
+
+This function escapes characters in string \var{s} which
+are special in LDAP distinguished names. You should use this function when
+building LDAP DN strings from arbitrary input.
+
+\begin{seealso}
+\seerfc{2253}{Lightweight Directory Access Protocol (v3): UTF-8 String Representation of Distinguished Names}{}
+\end{seealso}
+
+\end{funcdesc}

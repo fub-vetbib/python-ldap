@@ -28,11 +28,62 @@
 
 This module parses and generates LDAP URLs.
 
+It is implemented in pure Python and does not rely on any
+non-standard modules. Therefore it can be used stand-alone without
+the rest of the python-ldap package.
+
 Compability note: This module has been solely tested on Python 2.x and above.
+
+The \module{ldapurl} module exports the following constants:
+
+\begin{datadesc}{SEARCH_SCOPE}
+  This dictionary maps a search scope string identifier
+  to the corresponding integer value used with search operations
+  in \module{ldap}.
+\end{datadesc}
+
+\begin{datadesc}{SEARCH_SCOPE_STR}
+  This dictionary is the inverse to \constant{SEARCH_SCOPE}. It
+  maps a search scope integer value to the corresponding string identifier
+  used in a LDAP URL string representation.
+\end{datadesc}
+
+\begin{datadesc}{LDAP_SCOPE_BASE}
+  
+\end{datadesc}
+
+\begin{datadesc}{LDAP_SCOPE_ONELEVEL}
+  
+\end{datadesc}
+
+\begin{datadesc}{LDAP_SCOPE_SUBTREE}
+  
+\end{datadesc}
+
 
 \begin{seealso}
 \seerfc{2255}{The LDAP URL Format}{}
 \end{seealso}
+
+\subsection{LDAPUrl Objects \label{ldapurl-ldapurl}}
+A \class{LDAPUrl} object represents a complete LDAP URL.
+
+All class methods:
+
+Class attributes:
+
+Instance attributes:
+
+
+\subsection{LDAPUrlExtension Objects \label{ldapurl-ldapurlextension}}
+A \class{LDAPUrlExension} object represents a single LDAP URL extension.
+
+All class methods:
+
+Class attributes:
+
+Instance attributes:
+
 
 \subsection{Example \label{ldapurl-example}}
 

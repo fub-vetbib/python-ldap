@@ -533,9 +533,9 @@ call does not indicate success.
 % also used to give a filename when generating HTML.
 
 %\noindent
-Instances of ldap.LDAPObject are returned by \function{open()}
-and \function{initialize()}. The connection is automatically unbound and closed 
-when the LDAP object is deleted.
+Instances of \class{ldap.LDAPObject} are returned by \function{initialize()}
+and \function{open()} (deprecated). The connection is automatically unbound
+and closed  when the LDAP object is deleted.
 
 Most methods on LDAP objects initiate an asynchronous request to the
 LDAP server and return a message id that can be used later to retrieve
