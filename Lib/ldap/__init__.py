@@ -4,8 +4,6 @@ __version__ = '2.0.0pre05'
 
 from _ldap import *
 
-LIBLDAP_R = 0
-
 try:
   # Check if Python installation was build with thread support
   import threading
