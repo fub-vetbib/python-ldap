@@ -53,7 +53,7 @@ def split_tokens(s):
       elif s[i]==" ":
         if i>start:
           result.append(s[start:i])
-        # Eat whitespaces
+        # Consume space chars
         while i<s_len and s[i]==" ":
           i +=1
         start = i
@@ -67,10 +67,9 @@ def split_tokens(s):
     start = i
     while i<s_len and s[i]!="'":
       i +=1
-    if i>start:
+    if i>=start:
       result.append(s[start:i])
     i +=1
-  assert result[0].strip()=="(" and result[-1].strip()==")",ValueError(repr(s),result)
   return result # split_tokens()
 
 
@@ -78,6 +77,7 @@ def extract_tokens(l,known_tokens={}):
   """
   Returns dictionary of known tokens with all values
   """
+  assert l[0].strip()=="(" and l[-1].strip()==")",ValueError(repr(s),l)
   result = known_tokens
   i = 0
   l_len = len(l)
@@ -522,18 +522,21 @@ class SubSchema:
           del entry[k]
       return entry
 
-    def all_available(self,schema_element_class):
+    def all_available(self,schema_element_class,sorted=0):
       """
       Returns a list of all available schema elements by first name
       of a given class.
       """
-      return [
+      result = [
         oid
         for oid in self.schema_element.keys()
         if isinstance(self.schema_element[oid],schema_element_class)
       ]
+      if sorted:
+        result.sort()
+      return result
 
-    def schema_element_tree(self,schema_element_class):
+    def schema_element_tree(self,schema_element_class,sorted=0):
       """
       Returns a ldap.cidict.cidict dictionary representing the
       tree structure of the schema element inheritance.
@@ -541,7 +544,7 @@ class SubSchema:
       Only object classes with class attribute names set are used.
       """
       assert schema_element_class in [ObjectClass,AttributeType]
-      avail_se = self.all_available(schema_element_class)
+      avail_se = self.all_available(schema_element_class,sorted)
       top_node = {0:'_',1:'2.5.6.0'}[schema_element_class==ObjectClass]
       tree = ldap.cidict.cidict({top_node:[]})
       # 1. Pass: Register all nodes
@@ -582,9 +585,8 @@ class SubSchema:
       """
       # Map object_class_list to object_class_oids (list of OIDs)
       object_class_oids = [
-        self.name2oid[ObjectClass][o]
+        self.name2oid[ObjectClass].get(o,o)
         for o in object_class_list
-        if strict or self.name2oid[ObjectClass].has_key(o)
       ]
       # Initialize
       oid_cache = {}
