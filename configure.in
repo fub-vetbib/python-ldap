@@ -262,7 +262,7 @@ cp "$pymf" Modules/Makefile.pre.in
 
 AC_OUTPUT_COMMANDS([
 	echo bootstrapping makefile
-	if test "$srcdir" == "."; then
+	if test "$srcdir" = "."; then
 		(cd Modules && make -f Makefile.pre.in PYTHON="$PYTHON" boot)
 	else
 		(cd Modules && make -f Makefile.pre.in PYTHON="$PYTHON" \
