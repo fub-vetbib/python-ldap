@@ -10,7 +10,7 @@ with Python 1.5.2 as well.
 """
 
 
-__version__ = '0.0.5'
+__version__ = '0.0.6'
 
 
 import string,ldap
@@ -91,9 +91,8 @@ def modifyModlist(
         modlist.append((ldap.MOD_ADD,attrtype,add_values))
 
     elif old_value and not new_value:
-      # delete an existing attribute because attribute
-      # value list is empty
-      modlist.append((ldap.MOD_DELETE,attrtype,old_value))
+      # Completely delete an existing attribute
+      modlist.append((ldap.MOD_DELETE,attrtype,None))
 
   if not ignore_oldexistent:
     # Remove all attributes of old_entry which are not present
@@ -103,7 +102,7 @@ def modifyModlist(
         # This attribute type is ignored
         continue
       attrtype = attrtype_lower_map[a]
-      modlist.append((ldap.MOD_DELETE,attrtype,old_entry[attrtype]))
+      modlist.append((ldap.MOD_DELETE,attrtype,None))
   return modlist
 
 def test():
@@ -149,9 +148,10 @@ def test():
         'mail':['michael@stroeder.com'],
       },
       [
-        (ldap.MOD_REPLACE,'objectClass',['inetOrgPerson','person']),
-        (ldap.MOD_DELETE,'c',['DE']),
-        (ldap.MOD_DELETE,'sn',['Str\303\266der']),
+        (ldap.MOD_DELETE,'objectClass',['pilotPerson']),
+        (ldap.MOD_ADD,'objectClass',['inetOrgPerson']),
+        (ldap.MOD_DELETE,'c',None),
+        (ldap.MOD_DELETE,'sn',None),
         (ldap.MOD_ADD,'mail',['michael@stroeder.com']),
       ]
     ),
