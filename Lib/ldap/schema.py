@@ -1,6 +1,6 @@
 """
 schema.py - support for subSchemaSubEntry information
-written by Hans Aschauer <Hans.Aschauer@Physik.uni-muenchen.de>
+written by Hans Aschauer <Hans.Aschauer@Physik.uni-muenchen.de>,
 modified by Michael Stroeder <michael@stroeder.com>
 
 \$Id$
@@ -16,7 +16,9 @@ import ldap,ldap.cidict,ldap.functions,_ldap
 
 
 class SchemaError(Exception):
-  pass
+  """
+  Base class for exceptions raised if a schema error is detected.
+  """
 
 
 StringType=type('')
@@ -158,8 +160,8 @@ class ObjectClass:
       assert l[0].strip()=="(" and l[-1].strip()==")",ValueError(repr(schema_element_str),repr(l))
       d = ldap.schema.extract_tokens(
         l,
-        {'NAME':[],'DESC':[None],'OBSOLETE':[None],'SUP':[],
-         'STRUCTURAL':[None],'AUXILIARY':[None],'ABSTRACT':[None],
+        {'NAME':[],'DESC':[None],'OBSOLETE':None,'SUP':[],
+         'STRUCTURAL':None,'AUXILIARY':None,'ABSTRACT':None,
          'MUST':[],'MAY':[]}
       )
       self.oid = l[1]
@@ -169,9 +171,9 @@ class ObjectClass:
       self.sup = [ v for v in d['SUP'] if v!="$"]
       self.must = [ v for v in d['MUST'] if v!="$" ]
       self.may = [ v for v in d['MAY'] if v!="$" ]
+      # Default is STRUCTURAL, see RFC2552 or draft-ietf-ldapbis-syntaxes
+      self.kind = 0
       if d['ABSTRACT']!=None:
-        self.kind = 0
-      elif d['STRUCTURAL']!=None:
         self.kind = 1
       elif d['AUXILIARY']!=None:
         self.kind = 2
@@ -188,7 +190,7 @@ class ObjectClass:
     assert self.oid!=None,ValueError("%s.oid is None" % (self.__class__.__name__))
     assert type(self.names)==type([])
     assert self.desc is None or type(self.desc)==type('')
-    assert type(self.obsolete)==type(0)
+    assert type(self.obsolete)==type(0) and (self.obsolete==0 or self.obsolete==1)
     assert type(self.sup)==type([])
     assert type(self.kind)==type(0)
     assert type(self.must)==type([])
@@ -201,7 +203,7 @@ class ObjectClass:
     result.append(key_attr('DESC',self.desc,quoted=1))
     result.append(key_list('SUP',self.sup))
     result.append({0:'',1:' OBSOLETE'}[self.obsolete])
-    result.append({0:' ABSTRACT',1:' STRUCTURAL',2:' AUXILIARY'}[self.kind])
+    result.append({0:' STRUCTURAL',1:' ABSTRACT',2:' AUXILIARY'}[self.kind])
     result.append(key_list('MUST',self.must,sep=' $ '))
     result.append(key_list('MAY',self.may,sep=' $ '))
     return '( %s )' % ''.join(result)
@@ -253,7 +255,7 @@ class AttributeType:
            'OBSOLETE':None,
            'SUP':[],
            'EQUALITY':[None],
-           'ORDERING':[None],'SUBSTR':[None],
+           'ORDERING':[None],
            'SUBSTR':[None],
            'SYNTAX':[None],
            'SINGLE-VALUE':None,
@@ -292,8 +294,10 @@ class AttributeType:
     assert self.oid!=None,ValueError("%s.oid is None" % (self.__class__.__name__))
     assert type(self.names)==type([])
     assert self.desc is None or type(self.desc)==type('')
-    assert type(self.obsolete)==type(0)
+    assert type(self.obsolete)==type(0) and (self.obsolete==0 or self.obsolete==1)
     assert type(self.sup)==type([])
+    assert self.syntax is None or type(self.syntax)==type('')
+    assert self.syntax_len is None or type(self.syntax_len)==type(0)
 
   def __str__(self):
     result = [str(self.oid)]
@@ -364,14 +368,6 @@ class MatchingRule:
           [ "OBSOLETE" whsp ]
           "SYNTAX" numericoid
       whsp ")"
-
-      MatchingRuleUseDescription = "(" whsp
-          numericoid whsp  ; MatchingRule identifier
-          [ "NAME" qdescrs ]
-          [ "DESC" qdstring ]
-          [ "OBSOLETE" ]
-         "APPLIES" oids    ; AttributeType identifiers
-      whsp ")"
   """
 
   def __init__(self, schema_element_str):
@@ -396,8 +392,52 @@ class MatchingRule:
     assert self.oid!=None,ValueError("%s.oid is None" % (self.__class__.__name__))
     assert type(self.names)==type([])
     assert self.desc is None or type(self.desc)==type('')
-    assert type(self.obsolete)==type(0)
+    assert type(self.obsolete)==type(0) and (self.obsolete==0 or self.obsolete==1)
     assert self.syntax is None or type(self.syntax)==type('')
+
+  def __str__(self):
+    result = [str(self.oid)]
+    result.append(key_list('NAME',self.names,quoted=1))
+    result.append(key_attr('DESC',self.desc,quoted=1))
+    result.append({0:'',1:' OBSOLETE'}[self.obsolete])
+    result.append(key_attr('SYNTAX',self.syntax))
+    return '( %s )' % ''.join(result)
+
+
+class MatchingRuleUse:
+  """
+      MatchingRuleUseDescription = "(" whsp
+         numericoid 
+         [ space "NAME" space qdescrs ]
+         [ space "DESC" space qdstring ]
+         [ space "OBSOLETE" ]
+         space "APPLIES" space oids    ;  AttributeType identifiers
+         extensions
+         whsp ")" 
+  """
+
+  def __init__(self, schema_element_str):
+    l = ldap.schema.split_tokens(schema_element_str)
+    assert l[0].strip()=="(" and l[-1].strip()==")",ValueError(repr(schema_element_str),repr(l))
+    d = ldap.schema.extract_tokens(
+      l,
+      {
+         'NAME':[],
+         'DESC':[None],
+         'OBSOLETE':None,
+         'APPLIES':[],
+      }
+    )
+    self.oid = l[1]
+    self.names = d['NAME']
+    self.desc = d['DESC'][0]
+    self.obsolete = d['OBSOLETE']!=None
+    self.applies = d['APPLIES']
+    assert self.oid!=None,ValueError("%s.oid is None" % (self.__class__.__name__))
+    assert type(self.names)==type([])
+    assert self.desc is None or type(self.desc)==type('')
+    assert type(self.obsolete)==type(0) and (type(self.obsolete)==0 or type(self.obsolete)==1)
+    assert type(self.self.applies)==type([])
 
   def __str__(self):
     result = [str(self.oid)]
@@ -423,7 +463,8 @@ SCHEMA_CLASS_MAPPING = {
   'objectClasses':ObjectClass,
   'attributeTypes':AttributeType,
   'ldapSyntaxes':LDAPSyntax,
-  'matchingRules':MatchingRule
+  'matchingRules':MatchingRule,
+  'matchingRulesUse':MatchingRuleUse,
 }
 SCHEMA_ATTRS = SCHEMA_CLASS_MAPPING.keys()
 
