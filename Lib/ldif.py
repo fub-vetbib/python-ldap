@@ -309,7 +309,7 @@ class LDIFParser:
     """
     Parse a single attribute type and value pair from one or
     more lines of LDIF data
-    """ 
+    """
     # Reading new attribute line
     unfolded_line = self._unfoldLDIFLine()
     # Ignore comments which can also be folded
