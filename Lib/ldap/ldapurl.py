@@ -2,13 +2,9 @@
 ldapurl - handling of LDAP URLs as described in RFC 2255
 (c) by Michael Stroeder <michael@stroeder.com>
 
-This module is distributed under the terms of the
-GPL (GNU GENERAL PUBLIC LICENSE) Version 2
-(see http://www.gnu.org/copyleft/gpl.html)
-
 Python compability note:
 This module only works with Python 2.0+ since all string parameters
-are assumed to be Unicode objects, string methods instead
+are assumed to be Unicode objects, string methods instead of
 string module and list comprehensions are used.
 """
 
