@@ -14,11 +14,6 @@ if subschemasubentry_dn is None:
 
 print '*** Schema from',repr(subschemasubentry_dn)
 
-schema_element_names = schema.name2oid.keys()
-schema_element_names.sort()
-for name in schema_element_names:
-  print repr(name),'->',repr(schema.name2oid[name])
-
 # Display schema
 for attr_type,schema_class in ldap.schema.SCHEMA_CLASS_MAPPING.items():
   print '*'*66
@@ -39,6 +34,14 @@ print schema.all_attrs(
     ('usage',range(2)),
   ]  
 )
+try:
+  drink = schema.schema_element[schema.name2oid[ldap.schema.AttributeType]['favouriteDrink']]
+except KeyError:
+  pass
+else:
+  print '*** drink ***'
+  print drink.names
+
 
 schema.ldap_entry()
 
