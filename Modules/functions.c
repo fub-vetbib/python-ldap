@@ -9,7 +9,6 @@
 #include "functions.h"
 #include "LDAPObject.h"
 #include "errors.h"
-#include "template.h"
 #include "options.h"
 
 static short default_ldap_port(void);
@@ -223,10 +222,6 @@ static PyMethodDef methods[] = {
     	doc_explode_rdn },
     { "is_ldap_url",	(PyCFunction)l_ldap_is_ldap_url,	METH_VARARGS,
     	doc_is_ldap_url },
-#if defined(HAVE_LDAP_INIT_TEMPLATES)
-    { "init_templates", (PyCFunction)l_init_templates,		METH_VARARGS,
-    	l_init_templates_doc },
-#endif
     { "set_option", (PyCFunction)l_ldap_set_option,		METH_VARARGS,
     	doc_set_option },
     { "get_option", (PyCFunction)l_ldap_get_option,		METH_VARARGS,

@@ -25,8 +25,6 @@ class OpenLDAP2:
 			 ('HAVE_LDAP_START_TLS_S', None),
 			 ('HAVE_LDAP_UNCACHE_ENTRY', None),
 			 ('HAVE_LDAP_UNCACHE_REQUEST', None),
-#			 ('HAVE_LDAP_INIT_TEMPLATES', None),
-#			 ('HAVE_DISPTMPL_H', None),
 			]
 
 #-- Read the [_ldap] section of setup.cfg to find out which class to use
@@ -66,7 +64,6 @@ setup(
 			'Modules/ldapmodule.c',
 			'Modules/linkedlist.c',
 			'Modules/message.c',
-			'Modules/template.c',
 			'Modules/version.c',
 			'Modules/options.c',
 		    ],
