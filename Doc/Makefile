@@ -11,7 +11,7 @@ MKPDF=		$(MKHOWTO) --pdf
 TEXINPUTS=	$(PYTHONSRC)/Doc/texinputs::
 ENV=		/usr/bin/env TEXINPUTS=$(TEXINPUTS)
 
-SRCS=	lib.tex libldap.tex
+SRCS=	lib.tex libldap.tex version.tex
 
 all: lib.dvi lib.ps lib.pdf lib/index.html
 
@@ -27,10 +27,15 @@ lib.dvi: $(SRCS) .link
 	$(ENV) $(MKDVI) lib.tex
 lib.pdf: $(SRCS) .link
 	$(ENV) $(MKPDF) lib.tex
+version.tex:
+	v=`cd .. && ${PYTHON} setup.py --version`; \
+	d=`date +"%B %e, %Y"`; \
+	echo "%release{$$v}%setshortversion{$$v}%date{$$d}" | tr % "\\" >$@
 clean:
 	rm -f *~ *.aux *.idx *.ilg *.ind *.log *.toc 
 	rm -f *.bkm *.syn *.pla *.l2h *.how
 	rm -f lib.dvi lib.ps lib.pdf
+	rm -f version.tex
 	rm -rf lib
 	rm -f Python-2.0
 	@rm -f .link
