@@ -32,7 +32,7 @@ import time,threading,ldap
 
 if __debug__:
   import sys,traceback
-  _module_debug_level = 0
+  _module_debug_level = 1
 
 _ldapmodule_lock = threading.Lock()
 
@@ -163,12 +163,12 @@ class LDAPObject:
       result_ldap = None
       start_time = time.time()
       while (result_ldap is None) or (result_ldap==(None,None)):
+        if (timeout>0) and (time.time()-start_time>timeout):
+          self._ldap_call(self._l.abandon,msgid)
+          raise ldap.TIMELIMIT_EXCEEDED(
+            "LDAP time limit (%d secs) exceeded." % (timeout)
+          )
         result_ldap = self._ldap_call(self._l.result,msgid,all,0)
-        if timeout!=-1:
-          if time.time()-start_time>timeout:
-            raise ldap.TIMELIMIT_EXCEEDED(
-              "LDAP time limit (%d secs) exceeded." % (timeout)
-            )
       return result_ldap
 
   def search(self,base,scope,filterstr,attrlist=None,attrsonly=0):
