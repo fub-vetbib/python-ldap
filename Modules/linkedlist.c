@@ -85,7 +85,6 @@ item(obj, index)
 	int index;
 {
 	LinkedListObject *self = (LinkedListObject *)obj;
-	int len;
 	void *pos;
 
 	pos = FIRST(self);

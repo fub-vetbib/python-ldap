@@ -18,7 +18,6 @@ LDAPmessage_to_python( LDAP*ld, LDAPMessage*m )
      */
 
      PyObject* result;
-     int num_entries;
      LDAPMessage* entry;
 
      result = PyList_New(0);

@@ -100,7 +100,7 @@ l_ldap_explode_dn( PyObject* unused, PyObject *args )
     result = PyList_New(0);
     for(i = 0; exploded[i]; i++) {
 	PyObject *s = PyString_FromString(exploded[i]);
-    	PySequence_Append(result, s);
+    	PyList_Append(result, s);
 	Py_DECREF(s);
     }
 

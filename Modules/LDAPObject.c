@@ -97,10 +97,8 @@ Tuple_to_LDAPMod( PyObject* tup, int no_op )
 {
     int op;
     char *type;
-    struct berval *bv;
     PyObject *list, *item;
     LDAPMod *lm = NULL;
-    int empty;
     int i, len, nstrs;
 
     if (no_op) {
