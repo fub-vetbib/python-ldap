@@ -1,6 +1,6 @@
 # $Id$
 
-__version__ = '2.0.0pre04'
+__version__ = '2.0.0pre05'
 
 from _ldap import *
 
