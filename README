@@ -5,8 +5,8 @@ LDAP module for Python
 This module provides access to the LDAP (C language) library. It is 
 known to compile and work with:
 
-  * Python 2.0			<http://www.python.org/>
-  * OpenLDAP 2.0.8		<http://www.openldap.org/>
+  * Python 2.0+			<http://www.python.org/>
+  * OpenLDAP 2.0.18		<http://www.openldap.org/>
 
 For module documentation, see:
 
@@ -36,9 +36,7 @@ Author(s) contact:
    Be warned that questions will be ignored if they can be
    trivially answered by referring to the documentation.
 
-   We are really hoping that someone will add the CLDAP support and 
-   possibly the OpenLDAP extensions such as display templates to this
-   library. If you are interested in helping, please contact the mailing list.
+   If you are interested in helping, please contact the mailing list.
    If you want new features or upgrades, please check the mailing list
    archives and then enquire about any progress.
 
@@ -51,19 +49,12 @@ Notes for Microsoft WIN32:
    If you have MSVC6.0 or equivalent, and want to build the module yourself,
    you should refer to the README.txt file in the win32/ directory.
 
-Obtaining a C LDAP library
-   See http://www.openldap.org/
-   This release only supports compiling against OpenLDAP 2, although
-   with some small effort it should compile against Netscape, UMich,
-   Solaris, etc.  Check the mailing list and contact us if you want to
-   see decent support continue for a particular library.
-
 Copyright and licensing:
-   Different parts of python-ldap have different licenses.  See 
+   Different parts of python-ldap have different licenses.  See
    individual directories for their licensing. In brief, these are:
 	_ldap:		public domain
 	ldapthreadlock:	public domain
-	ldif:		GPL
+	ldif:		public domain
 	win32:		unknown <public domain?>
 
    Although not a condition of the licenses, I strongly urge that any
@@ -71,11 +62,16 @@ Copyright and licensing:
    future versions of this package (under the same free licensing).
 
 Acknowledgements:
+
+   Thanks to Konstantin Chuguev <Konstantin.Chuguev at dante.org.uk>
+   and Steffen Ries <steffen.ries at sympatico.ca> for working
+   on support for OpenLDAP 2.0.x features.
+
    Thanks to Federico Di Gregorio <fog at mixadlive.com> for the 
    ldaplib and perldap migration module.
 
    Thanks to Michael Stroeder <michael at stroeder.com> for the 
-   ldif and ldapthreadlock module.
+   ldif and ldapthreadlock modules.
 
    Thanks to all the guys on the python-ldap-dev mailing list for
    their contributions and input into this package.
