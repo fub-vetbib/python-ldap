@@ -1,4 +1,4 @@
-include Makefile LICENSE CHANGES TODO
+include MANIFEST.in Makefile LICENCE CHANGES TODO
 include Modules/*.c Modules/*.h Modules/LICENSE
 recursive-include Lib *.py
 recursive-include Demo *.py
