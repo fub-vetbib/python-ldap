@@ -167,9 +167,6 @@ LDAPinit_constants( PyObject* d )
 	add_int(d,DEREF_FINDING);
 	add_int(d,DEREF_ALWAYS);
 	add_int(d,NO_LIMIT);
-#ifdef LDAP_OPT_DNS
-	add_int(d,OPT_DNS);
-#endif
 
 	add_int(d,OPT_API_INFO);
 	add_int(d,OPT_DEREF);
