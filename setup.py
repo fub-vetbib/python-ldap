@@ -85,6 +85,7 @@ setup(
                 'ldap',
                 'ldap.ldapurl',
                 'ldap.modlist',
+                'ldap.async',
 		'ldif',
 		'ldapthreadlock',
 		#'perldap',
