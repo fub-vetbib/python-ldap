@@ -28,217 +28,215 @@ for k in SCHEMA_ATTRS:
   SCHEMA_ATTR_MAPPING[SCHEMA_CLASS_MAPPING[k]] = k
 
 
-class SubSchema(UserDict):
+class SubSchema:
     
-    def __init__(self,sub_schema_sub_entry):
-        """
-        sub_schema_sub_entry
-            Dictionary containing the sub schema sub entry
-        """
-        # Initialize all dictionaries
-        UserDict.__init__(self,{})
-        self.name2oid = {}
-        self.sed_class = {}
-        for c in SCHEMA_CLASS_MAPPING.values():
-          self.name2oid[c] = ldap.cidict.cidict()
-          self.sed_class[c] = {}
-
-        e = ldap.cidict.cidict(sub_schema_sub_entry)
-
-        # Build the schema registry
-        for attr_type in SCHEMA_ATTRS:
-          if not e.has_key(attr_type) or \
-             not e[attr_type]:
-            continue
-          for attr_value in e[attr_type]:
-            se_class = SCHEMA_CLASS_MAPPING[attr_type]
-            se_instance = se_class(attr_value)
-            try:
-              self[se_instance.oid] = se_instance
-            except AttributeError:
-              # Ignore schema elements without oid class attribute
-              pass
-            if hasattr(se_instance,'names'):
-              for name in se_instance.names:
-                self.name2oid[se_class][name] = se_instance.oid
-        return # subSchema.__init__()
-
-    def __setitem__(self,oid,element_instance):
-      self.data[oid] = element_instance
-      self.sed_class[element_instance.__class__][oid] = None
-
-    def ldap_entry(self):
+  def __init__(self,sub_schema_sub_entry):
       """
-      Returns a dictionary containing the sub schema sub entry
+      sub_schema_sub_entry
+          Dictionary containing the sub schema sub entry
       """
-      # Initialize the dictionary with empty lists
-      entry = {}
-      # Collect the schema elements and store them in
-      # entry's attributes
-      for se in self.values():
+      # Initialize all dictionaries
+      self.name2oid = {}
+      self.sed = {}
+      for c in SCHEMA_CLASS_MAPPING.values():
+        self.name2oid[c] = ldap.cidict.cidict()
+        self.sed[c] = {}
+
+      e = ldap.cidict.cidict(sub_schema_sub_entry)
+
+      # Build the schema registry
+      for attr_type in SCHEMA_ATTRS:
+        if not e.has_key(attr_type) or \
+           not e[attr_type]:
+          continue
+        for attr_value in e[attr_type]:
+          se_class = SCHEMA_CLASS_MAPPING[attr_type]
+          se_instance = se_class(attr_value)
+          try:
+            self.sed[se_class][se_instance.oid] = se_instance
+          except AttributeError:
+            # Ignore schema elements without oid class attribute
+            pass
+          if hasattr(se_instance,'names'):
+            for name in se_instance.names:
+              self.name2oid[se_class][name] = se_instance.oid
+      return # subSchema.__init__()
+
+  def ldap_entry(self):
+    """
+    Returns a dictionary containing the sub schema sub entry
+    """
+    # Initialize the dictionary with empty lists
+    entry = {}
+    # Collect the schema elements and store them in
+    # entry's attributes
+    for se_class in self.sed.keys():
+      for se in self.sed[se_class].values():
         se_str = str(se)
         try:
-          entry[SCHEMA_ATTR_MAPPING[se.__class__]].append(se_str)
+          entry[SCHEMA_ATTR_MAPPING[se_class]].append(se_str)
         except KeyError:
-          entry[SCHEMA_ATTR_MAPPING[se.__class__]] = [ se_str ]
-      return entry
+          entry[SCHEMA_ATTR_MAPPING[se_class]] = [ se_str ]
+    return entry
 
-    def listall(self,schema_element_class):
-      """
-      Returns a list of OIDs of all available schema
-      elements of a given schema element class.
-      
-      """
-      return self.sed_class[schema_element_class].keys()
+  def listall(self,schema_element_class):
+    """
+    Returns a list of OIDs of all available schema
+    elements of a given schema element class.
 
-    def tree(self,schema_element_class):
-      """
-      Returns a ldap.cidict.cidict dictionary representing the
-      tree structure of the schema elements.
-      """
-      assert schema_element_class in [ObjectClass,AttributeType]
-      avail_se = self.listall(schema_element_class)
-      top_node = {0:'_',1:'2.5.6.0'}[schema_element_class==ObjectClass]
-      tree = ldap.cidict.cidict({top_node:[]})
-      # 1. Pass: Register all nodes
-      for se in avail_se:
-        tree[se] = []
-      # 2. Pass: Register all sup references
-      for se_oid in avail_se:
-        se_obj = self[se_oid]
-        if se_obj.__class__!=schema_element_class:
-          # Ignore schema elements not matching schema_element_class.
-          # This helps with falsely assigned OIDs.
-          continue
-        assert se_obj.__class__==schema_element_class, \
-          "Schema element referenced by %s must be of class %s but was %s" % (
-            se_oid,schema_element_class.__name__,se_obj.__class__
-          )
-        for s in se_obj.sup:
-          sup_oid = self.name2oid[schema_element_class].get(s,s)
-          tree[sup_oid].append(se_oid)
-      return tree
+    """
+    return self.sed[schema_element_class].keys()
 
-    def getoid(self,se_class,nameoroid):
-      """
-      Get an OID by name or OID
-      """
-      se_oid = nameoroid.split(';')[0].strip()
-      return self.name2oid[se_class].get(se_oid,se_oid)
+  def tree(self,schema_element_class):
+    """
+    Returns a ldap.cidict.cidict dictionary representing the
+    tree structure of the schema elements.
+    """
+    assert schema_element_class in [ObjectClass,AttributeType]
+    avail_se = self.listall(schema_element_class)
+    top_node = {0:'_',1:'2.5.6.0'}[schema_element_class==ObjectClass]
+    tree = ldap.cidict.cidict({top_node:[]})
+    # 1. Pass: Register all nodes
+    for se in avail_se:
+      tree[se] = []
+    # 2. Pass: Register all sup references
+    for se_oid in avail_se:
+      se_obj = self.get_obj(schema_element_class,se_oid,None)
+      if se_obj.__class__!=schema_element_class:
+        # Ignore schema elements not matching schema_element_class.
+        # This helps with falsely assigned OIDs.
+        continue
+      assert se_obj.__class__==schema_element_class, \
+        "Schema element referenced by %s must be of class %s but was %s" % (
+          se_oid,schema_element_class.__name__,se_obj.__class__
+        )
+      for s in se_obj.sup:
+        sup_oid = self.name2oid[schema_element_class].get(s,s)
+        tree[sup_oid].append(se_oid)
+    return tree
 
-    def get_obj(self,se_class,nameoroid,default=None):
-      """
-      Get a schema element by name or OID
-      """
-      return self.get(self.getoid(se_class,nameoroid),default)
+  def getoid(self,se_class,nameoroid):
+    """
+    Get an OID by name or OID
+    """
+    se_oid = nameoroid.split(';')[0].strip()
+    return self.name2oid[se_class].get(se_oid,se_oid)
 
-    def get_syntax(self,nameoroid):
-      """
-      Get the syntax of an attribute type specified by name or OID
-      """
-      at_oid = self.getoid(AttributeType,nameoroid)
-      try:
-        at_obj = self[at_oid]
-      except KeyError:
-        return None
-      if at_obj.syntax:
-        return at_obj.syntax
-      elif at_obj.sup:
-        for sup in at_obj.sup:
-          syntax = self.get_syntax(sup)
-          if syntax:
-            return syntax
+  def get_obj(self,se_class,nameoroid,default=None):
+    """
+    Get a schema element by name or OID
+    """
+    return self.sed[se_class].get(self.getoid(se_class,nameoroid),default)
+
+  def get_syntax(self,nameoroid):
+    """
+    Get the syntax of an attribute type specified by name or OID
+    """
+    at_oid = self.getoid(AttributeType,nameoroid)
+    try:
+      at_obj = self.get_obj(AttributeType,at_oid)
+    except KeyError:
       return None
+    if at_obj.syntax:
+      return at_obj.syntax
+    elif at_obj.sup:
+      for sup in at_obj.sup:
+        syntax = self.get_syntax(sup)
+        if syntax:
+          return syntax
+    return None
 
-    def attribute_types(
-      self,object_class_list,attr_type_filter=None,strict=1,raise_keyerror=1
-    ):
-      """
-      Returns a 2-tuple of all must and may attributes including
-      all inherited attributes of superior object classes
-      by walking up classes along the SUP attribute.
-      
-      The attributes are stored in a ldap.cidict.cidict dictionary.
+  def attribute_types(
+    self,object_class_list,attr_type_filter=None,strict=1,raise_keyerror=1
+  ):
+    """
+    Returns a 2-tuple of all must and may attributes including
+    all inherited attributes of superior object classes
+    by walking up classes along the SUP attribute.
 
-      object_class_list
-          list of strings specifying object class names or OIDs
-      attr_type_filter
-          list of 2-tuples containing lists of class attributes
-          which has to be matched
-      """
-      # Map object_class_list to object_class_oids (list of OIDs)
-      object_class_oids = [
-        self.name2oid[ObjectClass].get(o,o)
-        for o in object_class_list
-      ]
-      # Initialize
-      oid_cache = {}
-      r_must,r_may = ldap.cidict.cidict(),ldap.cidict.cidict()
-      while object_class_oids:
-        object_class_oid = object_class_oids.pop(0)
-        # Check whether the objectClass with this OID
-        # has already been processed
-        if oid_cache.has_key(object_class_oid):
-          continue
-        # Cache this OID as already being processed
-        oid_cache[object_class_oid] = None
+    The attributes are stored in a ldap.cidict.cidict dictionary.
+
+    object_class_list
+        list of strings specifying object class names or OIDs
+    attr_type_filter
+        list of 2-tuples containing lists of class attributes
+        which has to be matched
+    """
+    AttributeType = ldap.schema.AttributeType
+    ObjectClass = ldap.schema.ObjectClass
+    # Map object_class_list to object_class_oids (list of OIDs)
+    object_class_oids = [
+      self.name2oid[ObjectClass].get(o,o)
+      for o in object_class_list
+    ]
+    # Initialize
+    oid_cache = {}
+    r_must,r_may = ldap.cidict.cidict(),ldap.cidict.cidict()
+    while object_class_oids:
+      object_class_oid = object_class_oids.pop(0)
+      # Check whether the objectClass with this OID
+      # has already been processed
+      if oid_cache.has_key(object_class_oid):
+        continue
+      # Cache this OID as already being processed
+      oid_cache[object_class_oid] = None
+      try:
+        object_class = self.sed[ObjectClass][object_class_oid]
+      except KeyError:
+        if raise_keyerror:
+          raise
+        # Ignore this object class
+        continue
+      if object_class.__class__!=ObjectClass:
+        # Check if we really have an ObjectClass instance
+        continue
+      assert hasattr(object_class,'must'),ValueError(object_class_oid)
+      assert hasattr(object_class,'may'),ValueError(object_class_oid)
+      for a in object_class.must:
         try:
-          object_class = self[object_class_oid]
+          at_obj = self.sed[AttributeType][self.name2oid[AttributeType][a]]
         except KeyError:
           if raise_keyerror:
             raise
-          # Ignore this object class
-          continue
-        if object_class.__class__!=ObjectClass:
-          # Check if we really have an ObjectClass instance
-          continue
-        assert hasattr(object_class,'must'),ValueError(object_class_oid)
-        assert hasattr(object_class,'may'),ValueError(object_class_oid)
-        for a in object_class.must:
-          try:
-            at_obj = self[self.name2oid[AttributeType][a]]
-          except KeyError:
-            if raise_keyerror:
-              raise
-          r_must[at_obj.oid] = at_obj
-        for a in object_class.may:
-          try:
-            at_obj = self[self.name2oid[AttributeType][a]]
-          except KeyError:
-            if raise_keyerror:
-              raise
-            else:
-              continue
-          r_may[at_obj.oid] = at_obj
-        object_class_oids.extend([
-          self.name2oid[ObjectClass].get(o,o)
-          for o in object_class.sup
-        ])
-      # Removed all mandantory attribute types from
-      # optional attribute type list
-      for a in r_may.keys():
-        if r_must.has_key(a):
-          del r_may[a]
-      # Apply attr_type_filter to results
-      if attr_type_filter:
-        for l in [r_must,r_may]:
-          for a in l.keys():
-            if self.has_key(a):
-              for afk,afv in attr_type_filter:
-                schema_attr_type = self[a]
-                try:
-                  if not getattr(schema_attr_type,afk) in afv:
-                    del l[a]
-                    break
-                except AttributeError:
-                  if raise_keyerror:
-                    raise
-                  else:
-                    try: del l[a]
-                    except KeyError: pass
-            else:
-              raise KeyError,'No schema element found with name %s' % (a)
-      return r_must,r_may
+        r_must[at_obj.oid] = at_obj
+      for a in object_class.may:
+        try:
+          at_obj = self.sed[AttributeType][self.name2oid[AttributeType][a]]
+        except KeyError:
+          if raise_keyerror:
+            raise
+          else:
+            continue
+        r_may[at_obj.oid] = at_obj
+      object_class_oids.extend([
+        self.name2oid[ObjectClass].get(o,o)
+        for o in object_class.sup
+      ])
+    # Removed all mandantory attribute types from
+    # optional attribute type list
+    for a in r_may.keys():
+      if r_must.has_key(a):
+        del r_may[a]
+    # Apply attr_type_filter to results
+    if attr_type_filter:
+      for l in [r_must,r_may]:
+        for a in l.keys():
+          if self.sed[AttributeType].has_key(a):
+            for afk,afv in attr_type_filter:
+              schema_attr_type = self.sed[AttributeType][a]
+              try:
+                if not getattr(schema_attr_type,afk) in afv:
+                  del l[a]
+                  break
+              except AttributeError:
+                if raise_keyerror:
+                  raise
+                else:
+                  try: del l[a]
+                  except KeyError: pass
+          else:
+            raise KeyError,'No schema element found with name %s' % (a)
+    return r_must,r_may # attribute_types()
 
 
 def urlfetch(uri,trace_level=0):

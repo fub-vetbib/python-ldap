@@ -17,11 +17,11 @@ print '*** Schema from',repr(subschemasubentry_dn)
 # Display schema
 for attr_type,schema_class in ldap.schema.SCHEMA_CLASS_MAPPING.items():
   print '*'*66
-  for oid,se in schema.items():
-    if isinstance(se,schema_class):
-      print attr_type,str(se)
+  for oid in schema.listall(schema_class):
+    se = schema.get_obj(schema_class,oid)
+    print attr_type,str(se)
 print '*** Testing object class inetOrgPerson ***'
-inetOrgPerson = schema[schema.name2oid[ldap.schema.ObjectClass]['inetOrgPerson']]
+inetOrgPerson = schema.get_obj(ldap.schema.ObjectClass,'inetOrgPerson')
 print inetOrgPerson.must,inetOrgPerson.may
 print '*** person,organizationalPerson,inetOrgPerson ***'
 print schema.attribute_types(
@@ -35,7 +35,7 @@ print schema.attribute_types(
   ]  
 )
 try:
-  drink = schema[schema.name2oid[ldap.schema.AttributeType]['favouriteDrink']]
+  drink = schema.get_obj(ldap.schema.AttributeType,'favouriteDrink')
 except KeyError:
   pass
 else:
@@ -45,6 +45,8 @@ else:
 
 print schema.ldap_entry()
 
-schema.listall(ldap.schema.ObjectClass)
+print str(schema.get_obj(ldap.schema.MatchingRule,'2.5.13.11'))
 
-schema.listall(ldap.schema.AttributeType)
+print str(schema.get_obj(ldap.schema.MatchingRuleUse,'2.5.13.11'))
+
+print schema.ldap_entry()
