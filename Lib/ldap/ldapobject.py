@@ -272,14 +272,14 @@ class LDAPObject:
   def modrdn_s(self,dn,newrdn,delold=1):
     self.rename_s(dn,newrdn,None,delold)
 
-  def rename(self,dn,newrdn,newSuperior=None,delold=1):
+  def rename(self,dn,newrdn,newsuperior=None,delold=1):
     """
-    rename(dn, newrdn [, newSuperior=None] [,delold=1]) -> int
-    rename_s(dn, newrdn [, newSuperior=None] [,delold=1]) -> None
+    rename(dn, newrdn [, newsuperior=None] [,delold=1]) -> int
+    rename_s(dn, newrdn [, newsuperior=None] [,delold=1]) -> None
         Perform a rename entry operation. These routines take dn, the
         DN of the entry whose RDN is to be changed, newrdn, the
-        new RDN, and newSuperior, the new parent DN, to give to the entry.
-        If newSuperior is None then only the RDN is modified.
+        new RDN, and newsuperior, the new parent DN, to give to the entry.
+        If newsuperior is None then only the RDN is modified.
         The optional parameter delold is used to specify whether the
         old RDN should be kept as an attribute of the entry or not.
         The asynchronous version returns the initiated message id.
@@ -287,10 +287,10 @@ class LDAPObject:
         This actually corresponds to the rename* routines in the
         LDAP-EXT C API library.
     """
-    return self._ldap_call(self._l.rename,dn,newrdn,newSuperior,delold)
+    return self._ldap_call(self._l.rename,dn,newrdn,newsuperior,delold)
 
-  def rename_s(self,dn,newrdn,newSuperior=None,delold=1):
-    msgid = self.rename(dn,newrdn,newSuperior,delold)
+  def rename_s(self,dn,newrdn,newsuperior=None,delold=1):
+    msgid = self.rename(dn,newrdn,newsuperior,delold)
     self.result(msgid)
 
   def result(self,msgid=_ldap.RES_ANY,all=1,timeout=-1):
