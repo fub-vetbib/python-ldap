@@ -229,6 +229,12 @@ class LDAPSyntax:
          self.ext     #OPTIONAL
          ) = str2syntax(schema_element_str,schema_allow)
 
+    def __str__(self):
+      result = [str(self.oid)]
+      result.append(key_list('NAME',self.names,quoted=1))
+      result.append(key_attr('DESC',self.desc,quoted=1))
+      return '( %s )' % ''.join(result)
+
 
 class MatchingRule:
 
@@ -241,6 +247,14 @@ class MatchingRule:
          self.ext          #OPTIONAL
          ) = str2matchingrule(schema_element_str,schema_allow)
 
+    def __str__(self):
+      result = [str(self.oid)]
+      result.append(key_list('NAME',self.names,quoted=1))
+      result.append(key_attr('DESC',self.desc,quoted=1))
+      result.append({0:'',1:' OBSOLETE'}[self.obsolete])
+      result.append(key_attr('SYNTAX',self.syntax_oid))
+      return '( %s )' % ''.join(result)
+
 
 SCHEMA_CLASS_MAPPING = {
   'objectClasses':ObjectClass,
@@ -250,6 +264,10 @@ SCHEMA_CLASS_MAPPING = {
 }
 SCHEMA_ATTRS = SCHEMA_CLASS_MAPPING.keys()
 
+# Create the reverse of SCHEMA_CLASS_MAPPING
+SCHEMA_ATTR_MAPPING = {}
+for k in SCHEMA_ATTRS:
+  SCHEMA_ATTR_MAPPING[SCHEMA_CLASS_MAPPING[k]] = k
 
 class SubSchema:
     
@@ -277,6 +295,27 @@ class SubSchema:
               self.name2oid[name] = se.oid
 
         return # subSchema.__init__()        
+
+    def entryDict(self):
+      """
+      Returns a dictionary containing the sub schema sub entry
+      """
+      # Initialize the dictionary with empty lists
+      entry = {
+        'objectClasses':[],
+        'attributeTypes':[],
+        'ldapSyntaxes':[],
+        'matchingRules':[]
+      }
+      # Collect the schema elements and store them in
+      # entry's attributes
+      for se in self.schema_element.values():
+        entry[SCHEMA_ATTR_MAPPING[se.__class__]].append(str(se))
+      # Remove empty attribute lists
+      for k in entry.keys():
+        if not entry[k]:
+          del entry[k]
+      return entry
 
     def all_attrs(self,object_class_list):
       """

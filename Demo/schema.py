@@ -1,8 +1,7 @@
 import sys,time,ldap,ldap.schema,ldapurl
 
 schema_allow = ldap.schema.ALLOW_ALL
-
-schema_attrs = ['objectClasses','attributeTypes']
+schema_attrs = ldap.schema.SCHEMA_ATTRS
 
 ldap_url = ldapurl.LDAPUrl(sys.argv[1])
 
@@ -67,3 +66,5 @@ print '*** person,organizationalPerson,inetOrgPerson ***'
 print schema.all_attrs(
   ['person','organizationalPerson','inetOrgPerson']
 )
+
+schema.entryDict()
