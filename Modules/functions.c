@@ -182,6 +182,41 @@ static char doc_explode_dn[] =
 "\treturned as either [\"cn=Bob\", \"c=US\"] or [\"Bob\",\"US\"]\n"
 "\tdepending on whether notypes was 0 or 1, respectively.";
 
+/* ldap_explode_rdn */
+
+static PyObject*
+l_ldap_explode_rdn( PyObject* unused, PyObject *args )
+{
+    char *rdn;
+    int notypes = 0;
+    char **exploded;
+    PyObject *result;
+    int i;
+
+    if (!PyArg_ParseTuple( args, "s|i", &rdn, &notypes )) return NULL;
+
+    exploded = ldap_explode_rdn(rdn, notypes);
+
+    if (exploded == NULL) 
+    	return PyErr_SetFromErrno(LDAPexception_class);
+
+    result = PyList_New(0);
+    for(i = 0; exploded[i]; i++) {
+	PyObject *s = PyString_FromString(exploded[i]);
+    	PyList_Append(result, s);
+	Py_DECREF(s);
+    }
+
+    ldap_value_free(exploded);
+    return result;
+}
+
+static char doc_explode_rdn[] =
+"explode_rdn(dn [, notypes=0]) -> list\n\n"
+"\tThis function takes the RDN and breaks it up into its component parts.\n"
+"\tThe notypes parameter is used to specify that only the component's\n"
+"\tattribute values be returned and not the attribute types.\n";
+
 /* ldap_is_ldap_url */
 
 static PyObject*
@@ -247,6 +282,8 @@ static PyMethodDef methods[] = {
     	doc_dn2ufn },
     { "explode_dn",	(PyCFunction)l_ldap_explode_dn,		METH_VARARGS,
     	doc_explode_dn },
+    { "explode_rdn",	(PyCFunction)l_ldap_explode_rdn,	METH_VARARGS,
+    	doc_explode_rdn },
     { "is_ldap_url",	(PyCFunction)l_ldap_is_ldap_url,	METH_VARARGS,
     	doc_is_ldap_url },
 #if defined(HAVE_LDAP_INIT_TEMPLATES)

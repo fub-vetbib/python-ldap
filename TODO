@@ -11,7 +11,6 @@ Modules/
 - Support for SASL bind by wrapping ldap_sasl_bind()
 - Support for VLV control
 - Support for server-side sorting control
-- Wrap ldap_explode_rdn()
 - Support for binding with in DSA control mode
 - Wrap ldap_parse_reference()
 
