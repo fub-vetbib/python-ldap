@@ -46,9 +46,10 @@ class SubSchema:
         if not e.has_key(attr_type) or \
            not e[attr_type]:
           continue
-        for attr_value in e[attr_type]:
+        for attr_value in filter(None,e[attr_type]):
           se_class = SCHEMA_CLASS_MAPPING[attr_type]
           se_instance = se_class(attr_value)
+          print '***',se_instance.__class__.__name__,str(se_instance)
           self.sed[se_class][se_instance.get_id()] = se_instance
           if hasattr(se_instance,'names'):
             for name in se_instance.names:
