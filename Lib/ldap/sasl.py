@@ -82,3 +82,9 @@ class gssapi(sasl):
     def __init__(self, authorization=""):
         sasl.__init__(self, {sasl.CB_USER:authorization}, "GSSAPI")
 
+class sasl_external(sasl):
+    """This class handles SASL EXTERNAL authentication
+    (i.e. X.509 client certificate)"""
+    def __init__(self):
+        sasl.__init__(self, {}, "EXTERNAL")
+

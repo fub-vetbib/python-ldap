@@ -10,6 +10,10 @@ ldap.ldapobject:
 * Added class attribute LDAPObject.network_timeout mapped to
   set_option(ldap.OPT_NETWORK_TIMEOUT,..)
 
+ldap.sasl:
+* Added class ldap.sasl.sasl_external for handling
+  the SASL mechanism EXTERNAL
+
 ldap.schema:
 * More graceful handling of KeyError in SubSchema.attribute_types()
 * New method SubSchema.get_inheritedattr() for retrieving inherited
