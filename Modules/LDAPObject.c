@@ -218,6 +218,12 @@ List_to_LDAPMods( PyObject *list, int no_op ) {
 
     len = PySequence_Length(list);
 
+    if (len < 0) {
+       PyErr_SetObject( PyExc_TypeError, Py_BuildValue("sO",
+                       "expected list of tuples", list ));
+       return NULL;
+    }
+
     lms = PyMem_NEW(LDAPMod *, len + 1);
     if (lms == NULL) 
 	goto nomem;
