@@ -1,5 +1,8 @@
 2000-02-11  Federico Di Gregorio  <fog@debian.org>
 
+	* lappo: added GtkPane, better widget disposition, search filter
+	works.
+	
 	* connection.py, entry.py: susbstituted ugly (!(dn=*)) filter with
 	objectclass=*. that's not only nicier, it also guarantee that the
 	returned objects actually have an objectclass.

@@ -19,9 +19,10 @@
 #
 
 import sys, re, string, getopt, _gtk
-import ldap, ldap.connection, ldap.widgets, ldap.parse
+import ldap, ldap.connection, ldap.parse
 from gtk import *
 from gnome.ui import *
+from ldap.widgets import *
 
 
 #################################################### global variables #########
@@ -275,12 +276,6 @@ def app_area_build(connection):
     "Builds the widgets used in the application main window area."
 
     global W, O
-  
-    # main vbox
-    vbox = GtkVBox(0, 0)
-    vbox.set_border_width(4)
-    vbox.show()
-    W['vbox'] = vbox
 
     # search/browse options
     table = GtkTable(2, 2, 0)
@@ -301,7 +296,7 @@ def app_area_build(connection):
     else: basedn = O['basedn']
     frame2 = GtkFrame('LDAP directory at '+basedn)
     frame2.show()
-    frame2.add(vbox2)
+    #frame2.add(vbox2)
     # save a handle to frame2 to be able to change its label
     W['frame'] = frame2
     
@@ -314,11 +309,11 @@ def app_area_build(connection):
     l = GtkLabel('Search'); l.show()
     e = GtkEntry(); e.show();
     table.attach(l, 0,1, 1,2, xoptions=FILL)
-    table.attach(e, 1,2, 1,2, xoptions=FILL+EXPAND)
+    table.attach(e, 1,2, 1,2, xoptions=FILL+EXPAND+SHRINK)
     W['search'] = e
 
     # the main directory tree (with a scrolled window)
-    tree = ldap.widgets.GtkLDAPDirectoryTree(connection) 
+    tree = GtkLDAPDirectoryTree(connection) 
     tree.show()
     W['tree'] = tree
     scr = GtkScrolledWindow()
@@ -331,23 +326,44 @@ def app_area_build(connection):
     entry.show()
     W['entry'] = entry
 
-    # the change-this-value table
-    #ocs = 
-    
     vbox2.pack_start(scr, TRUE, TRUE)
     vbox2.pack_start(entry, FALSE, TRUE)
+    vbox2.set_usize(300, -1)
+    
+    # add/delete stuff
+    vbox3 = GtkVBox(0, 0)
+    vbox3.set_border_width(4)
+    vbox3.show()
+    frame3 = GtkFrame('Add/Modify')
+    frame3.show()
+    frame3.add(vbox3)
 
+    ocs = GtkLDAPClassEntry(O['ocd'])
+    ocs.show()
+    vbox3.pack_start(ocs)
+
+    # main boxes
+    vbox = GtkVBox(0, 0)
+    vbox.set_border_width(4)
     vbox.set_spacing(4)
-    vbox.pack_start(frame2, TRUE, TRUE)
+    vbox.show()
+
+    vbox.pack_start(frame3, FALSE, TRUE)
     vbox.pack_start(frame, FALSE, TRUE)
 
+    pane = GtkHPaned()
+    pane.pack1(vbox2, 1, 1)
+    pane.pack2(vbox, 1, 0)
+    pane.show()
+    
     # connect signals
     tree.connect('tree-unselect-row', tree_unselect_row, (tree, entry))
     tree.connect('tree-select-row', tree_select_row, (tree, entry))
     entry.connect('changed', entry_changed, tree)
     W['search'].connect('activate', search_activate, tree)
-    
-    return vbox
+
+    W['main_box'] = pane
+    return pane
 
 
 ################################################ main application loop ########
@@ -382,7 +398,7 @@ app = GnomeApp('lappo', 'lappo')
 app.set_wmclass('lappo', 'Lappo')
 app.connect('delete_event', dialog_quit)
 app.connect('destroy', mainquit)
-app.set_default_size(400,300) 
+app.set_default_size(500,300) 
 app.create_menus(menu_build())
 app.set_contents(app_area_build(L))
 app.show()

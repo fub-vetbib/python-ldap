@@ -38,7 +38,7 @@ class LDAPConnection:
         self.base = binding_dn
         self.use_rdn = 0
         self.timeout = 60
-        self.filter = 'cn=*'
+        self.filter = 'objectclass=*'
         self.attrl = None
         self.__connection = ldap.open(host, port)
         self.__connection.bind_s(binding_dn, auth_token, auth_type)

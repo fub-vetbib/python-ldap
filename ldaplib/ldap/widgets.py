@@ -45,7 +45,7 @@ class GtkLDAPClassEntry(GtkOptionMenu):
             child = GtkMenuItem(k); child.show()
             child.connect('activate-item', self.__activate_item, self)
             self.menu.append(child)
-        self.set_menu(menu)
+        self.set_menu(self.menu)
         self.attr_entry = None
 
     def __activate_item(child, self):
