@@ -221,12 +221,12 @@ class LDAPObject:
     """
     self._ldap_call(self._l.flush_cache)
 
-  def manage_dsa_it(self,enable):
+  def manage_dsa_it(self,enable,critical=0):
     """
     manage_dsa_it() -> None
     Enable or disable manageDSAit mode (see draft-zeilenga-ldap-namedref)
     """
-    self._ldap_call(self._l.manage_dsa_it,enable)
+    self._ldap_call(self._l.manage_dsa_it,enable,critical)
   
   def modify(self,dn,modlist):
     """
@@ -518,8 +518,8 @@ class LDAPObject:
   def url_search_s(self,url,attrsonly=0):
     return self.url_search_st(url,attrsonly,timeout=-1)
 
-  def get_option(self,*args,**kwargs):
-    return self._ldap_call(self._l.get_option,*args,**kwargs)
+  def get_option(self,option):
+    return self._ldap_call(self._l.get_option,option)
 
-  def set_option(self,*args,**kwargs):
-    self._ldap_call(self._l.set_option,*args,**kwargs)
+  def set_option(self,option,invalue):
+    self._ldap_call(self._l.set_option,option,invalue)
