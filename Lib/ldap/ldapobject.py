@@ -652,16 +652,32 @@ class ReconnectLDAPObject(SimpleLDAPObject):
     self._start_tls = 0
     self._reconnects_done = 0L
 
+  def __getstate__(self):
+    """return data representation for pickled object"""
+    d = {}
+    for k,v in self.__dict__.items():
+      if k!='_l':
+        d[k] = v
+    return d
+
+  def __setstate__(self,d):
+    """set up the object from pickled data"""
+    self.__dict__.update(d)
+    self.reconnect(self._uri)
+
   def _apply_last_bind(self):
     if self._last_bind!=None:
       func,args,kwargs = self._last_bind
       apply(func,args,kwargs)
 
+  def _restore_options(self):
+    """Restore all recorded options"""
+    for k,v in self._options.items():
+      SimpleLDAPObject.set_option(self,k,v)
+
   def reconnect(self,uri):
     # Drop and clean up old connection completely
     # Reconnect
-    self.unbind_s()
-    del self._l
     reconnect_counter = self._retry_max
     while reconnect_counter:
       if __debug__ and self._trace_level>=1:
@@ -671,13 +687,11 @@ class ReconnectLDAPObject(SimpleLDAPObject):
       try:
         # Do the connect
         self._l = ldap._ldap_function_call(_ldap.initialize,uri)
-        # Restore all recorded options
-        for k,v in self._options.items():
-          SimpleLDAPObject.set_option(self,k,v)
+        self._restore_options()
         # StartTLS extended operation in case this was called before
         if self._start_tls:
           self.start_tls_s()
-        # Repeat last simple of SASL bind
+        # Repeat last simple or SASL bind
         self._apply_last_bind()
       except:
         if __debug__ and self._trace_level>=1:
