@@ -95,9 +95,9 @@ class SimpleLDAPObject:
     else:
       if __debug__:
         if self._trace_level>=1:
-          self._trace_file.write('*** %s:' % (self.__module__),\
-            self.__class__.__name__+'.__setattr__(%s,%s)' % (name,value)
-          )
+          self._trace_file.write('*** %s\n' % (
+            self.__module__+self.__class__.__name__+'.__setattr__(%s,%s)' % (name,value)
+          ))
           if self._trace_level>=2:
             traceback.print_stack(file=self._trace_file)
       self._ldap_object_lock.acquire()
@@ -117,9 +117,9 @@ class SimpleLDAPObject:
         self._ldap_object_lock.release()
       if __debug__:
         if self._trace_level>=1:
-          self._trace_file.write('*** %s:' % (self.__module__),\
-            self.__class__.__name__+'.__getattr__(%s)' % (name),'=>',value
-          )
+          self._trace_file.write('*** %s\n' % (
+            self.__module__+self.__class__.__name__+'.__getattr__(%s)' % (name),'=>',value
+          ))
           if self._trace_level>=2:
             traceback.print_stack(file=sys.stdout)
     return value
