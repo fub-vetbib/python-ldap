@@ -54,7 +54,7 @@ class SimpleLDAPObject:
 
   def __init__(
     self,uri,
-    trace_level=0,trace_file=None,trace_stack_limit=None
+    trace_level=0,trace_file=None,trace_stack_limit=5
   ):
     self._trace_level = trace_level
     self._trace_file = trace_file or sys.stdout
@@ -561,7 +561,7 @@ class SimpleLDAPObject:
 
 class NonblockingLDAPObject(SimpleLDAPObject):
 
-  def __init__(self,uri,trace_level=0,trace_file=sys.stdout,result_timeout=-1):
+  def __init__(self,uri,trace_level=0,trace_file=None,result_timeout=-1):
     self._result_timeout = result_timeout
     SimpleLDAPObject.__init__(self,uri,trace_level,trace_file)
 
@@ -614,15 +614,26 @@ class ReconnectLDAPObject(SimpleLDAPObject):
 
   def __init__(
     self,uri,
-    trace_level=0,trace_file=sys.stdout,trace_stack_limit=None,
+    trace_level=0,trace_file=None,trace_stack_limit=5,
     retry_max=1,retry_delay=60.0
   ):
+    """
+    Parameters like SimpleLDAPObject.__init__() with these
+    additional arguments:
+
+    retry_max
+        Maximum count of reconnect trials
+    retry_delay
+        Time span to wait between two reconnect trials
+    """
     self._uri = uri
     self._options = {}
     self._last_bind = None
     SimpleLDAPObject.__init__(
       self,uri,
-      trace_level,trace_file,trace_stack_limit
+      trace_level,
+      trace_file,
+      trace_stack_limit
     )
     self._retry_max = retry_max
     self._retry_delay = retry_delay
@@ -634,7 +645,6 @@ class ReconnectLDAPObject(SimpleLDAPObject):
     d = {}
     for k,v in self.__dict__.items():
       if not self.__transient_attrs__.has_key(k):
-        print k,v
         d[k] = v
     return d
 
@@ -741,12 +751,15 @@ class ReconnectLDAPObject(SimpleLDAPObject):
 
 class SmartLDAPObject(ReconnectLDAPObject):
   """
-  Mainly the __init__() method does some smarter things.
+  Mainly the __init__() method does some smarter things
+  like negotiating the LDAP protocol version and calling
+  LDAPObject.start_tls_s().
   """
 
   def __init__(
     self,uri,
-    trace_level=0,trace_file=sys.stdout,
+    trace_level=0,trace_file=None,trace_stack_limit=5,
+    retry_max=1,retry_delay=60.0,
     who='',cred='',
     start_tls=1,
     tls_cacertfile=None,tls_cacertdir=None,
@@ -761,17 +774,11 @@ class SmartLDAPObject(ReconnectLDAPObject):
     probe the supported LDAP version and trys to use
     StartTLS extended operation if this was specified.
 
-    Parameters:
-    uri
-        LDAP URL containing at least connection scheme and hostport,
-        e.g. ldap://localhost:389
-    who
-        The Bind-DN to use. If this is empty and the LDAP server
-        supports LDAPv3 no extra BindRequest is done.
-    cred
-        The credential to use for simple bind. If this is empty
-        and the LDAP server supports LDAPv3 no extra BindRequest
-        is done.
+    Parameters like ReconnectLDAPObject.__init__() with these
+    additional arguments:
+    who,cred
+        The Bind-DN and credential to use for simple bind
+        right after connecting.
     start_tls
         Determines if StartTLS extended operation is tried
         on a LDAPv3 server and if the LDAP URL scheme is ldap:.
@@ -779,44 +786,46 @@ class SmartLDAPObject(ReconnectLDAPObject):
         this parameter is ignored.
         0       Don't use StartTLS ext op
         1       Try StartTLS ext op but proceed when unavailable
-        2       Try StartTLS ext op and re-raise ldap.PROTOCOL_ERROR
-                if it fails
+        2       Try StartTLS ext op and re-raise exception if it fails
     tls_cacertfile
 
     tls_clcertfile
 
     tls_clkeyfile
 
-    trace_level
-        If non-zero a trace output of LDAP calls is generated.
-    trace_file
-        File object where to write the trace output to.
-        Default is to use stdout.
     """
-    # Strip white-spaces from uri
-    uri = string.strip(uri)
     # Initialize LDAP connection
-    SimpleLDAPObject.__init__(self,uri,trace_level,trace_file)
+    ReconnectLDAPObject.__init__(
+      self,uri,
+      trace_level=trace_level,
+      trace_file=trace_file,
+      trace_stack_limit=trace_stack_limit,
+      retry_max=retry_max,
+      retry_delay=retry_delay
+    )
     # Set protocol version to LDAPv3
     self.protocol_version = ldap.VERSION3
+    self.started_tls = 0
     try:
-      self.search_s('',ldap.SCOPE_BASE,'(objectClass=*)',['objectClass'])
-    except ldap.NO_SUCH_OBJECT,ldap.PROTOCOL_ERROR:
+      self.simple_bind_s(who,cred)
+    except ldap.PROTOCOL_ERROR:
       # Drop connection completely
       self.unbind_s() ; del self._l
       self._l = self._ldap_call(_ldap.initialize,self._uri)
-      self.protocol_version =ldap.VERSION2
+      self.protocol_version = ldap.VERSION2
       self.simple_bind_s(who,cred)
     # Try to start TLS if requested
     if start_tls>0 and uri[:5]=='ldap:':
       if self.protocol_version>=ldap.VERSION3:
         try:
           self.start_tls_s()
-        except ldap.PROTOCOL_ERROR:
+        except (ldap.PROTOCOL_ERROR,ldap.CONNECT_ERROR):
           if start_tls>=2:
             # Application does not accept clear-text connection
             # => re-raise exception
             raise
+        else:
+          self.started_tls = 1
       else:
         if start_tls>=2:
           raise ValueError,"StartTLS extended operation only possible on LDAPv3+ server!"

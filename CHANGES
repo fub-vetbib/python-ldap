@@ -15,6 +15,10 @@ ldap.ldapobject:
 * LDAPObject.protocol_version is set to LDAPv3 as default
   (this might make code changes necessary in a real LDAPv2
    environment)
+* Default for key-word argument trace_stack_limit passed to
+  __init__() is 5
+* Updated __doc__ strings
+* Aligned and tested ReconnectLDAPObject and SmartLDAPObject
 
 ldap.async:
 * LDIFWriter uses ldif.LDIFWriter instead of calling
