@@ -115,6 +115,9 @@ The \module{ldap} module defines the following functions:
 \begin{funcdesc}{is_ldap_url}{url} % -> boolean
   This function returns true if \var{url} `looks like' an LDAP URL 
   (as opposed to some other kind of URL). 
+  \begin{seealso}
+    \seerfc{2255}{The LDAP URL Format}{}
+  \end{seealso}
 \end{funcdesc}
 
 \begin{funcdesc}{get_option}{option} % -> None
@@ -746,14 +749,14 @@ See \method{search()} for a description of the search result's
 %%------------------------------------------------------------
 %% search
 
-\begin{methoddesc}[LDAP]{search}{base, scope, filter \optional{, 
-	attrlist=\constant{None} \optional{, attrsonly=\constant{0}}}} %->int
-     \methodline[LDAP]{search_s}{base, scope, filter \optional{, 
-     	attrlist=\constant{None} \optional{, attrsonly=\constant{0}}}} 
+\begin{methoddesc}[LDAP]{search}{base, scope \optional{,filterstr=\constant{'(objectClass=*)'} \optional{, 
+	attrlist=\constant{None} \optional{, attrsonly=\constant{0}}}}} %->int
+     \methodline[LDAP]{search_s}{base, scope \optional{,filterstr=\constant{'(objectClass=*)'} \optional{, 
+     	attrlist=\constant{None} \optional{, attrsonly=\constant{0}}}}} 
 		%->list|None
-    \methodline[LDAP]{search_st}{base, scope, filter \optional{,
+    \methodline[LDAP]{search_st}{base, scope \optional{,filterstr=\constant{'(objectClass=*)'} \optional{,
     	attrlist=\constant{None} \optional{, attrsonly=\constant{0} 
-	\optional{, timeout=\constant{-1}}}}}
+	\optional{, timeout=\constant{-1}}}}}}
 		%->list|None
 Perform an LDAP search operation, with \var{base} as the DN of the entry
 at which to start the search, \var{scope} being one of 
@@ -762,9 +765,8 @@ at which to start the search, \var{scope} being one of
 \constant{SCOPE_SUBTREE} (to search the object and all its descendants).
 
 The
-\var{filter} argument is a string representation of the filter to apply in
-the search. Simple filters can be specified as
-\code{"\var{attribute_type}=\var{attribute_value}"}.
+\var{filterstr} argument is a string representation of the filter to apply in
+the search.
 
 \begin{seealso}
 \seerfc{2254}{The String Representation of LDAP Search Filters}{}
