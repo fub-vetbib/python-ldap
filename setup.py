@@ -32,7 +32,6 @@ class OpenLDAP2:
 	include_dirs =	[]
         extra_compile_args = []
         extra_objects = []
-
 	libs =		['ldap', 'lber']
 	defines =	[ ]
 
@@ -42,9 +41,13 @@ LDAP_CLASS = OpenLDAP2
 cfg = ConfigParser()
 cfg.read('setup.cfg')
 if cfg.has_section('_ldap'):
-    for name in LDAP_CLASS.__dict__.keys():
+    for name in dir(LDAP_CLASS):
 	if cfg.has_option('_ldap', name):
-	    setattr(LDAP_CLASS, name, string.split(cfg.get('_ldap', name)))
+          print cfg.get('_ldap', name)
+	  setattr(LDAP_CLASS, name, string.split(cfg.get('_ldap', name)))
+
+for i in range(len(LDAP_CLASS.defines)):
+  LDAP_CLASS.defines[i]=((LDAP_CLASS.defines[i],None))
 
 #-- Let distutils do the rest
 setup(
@@ -77,7 +80,7 @@ setup(
 		    library_dirs = LDAP_CLASS.library_dirs,
                     extra_compile_args = LDAP_CLASS.extra_compile_args,
                     extra_objects = LDAP_CLASS.extra_objects,
-		    runtime_library_dirs = LDAP_CLASS.library_dirs,                    
+#		    runtime_library_dirs = LDAP_CLASS.library_dirs,
 		    define_macros =	LDAP_CLASS.defines + \
               ('ldap_r' in LDAP_CLASS.libs)*[('HAVE_LIBLDAP_R',None)] + \
               ('sasl' in LDAP_CLASS.libs or 'sasl2' in LDAP_CLASS.libs)*[('HAVE_SASL',None)] + \
