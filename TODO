@@ -12,7 +12,7 @@ Modules/
   - Binding in DSA control mode (rewrite necessary)
   - Persistent search control
 - Support for Win32 (and other platforms?)
-- Support Extended Operations by wrapping
+- Support LDAP Extended Operations by wrapping
   ldap_extended_operation() and ldap_parse_extended_result()
   - Set Password ext. op.
   - Whoami ext. op.
@@ -21,7 +21,9 @@ Modules/
   ldap_dn_normalize and implement explode_dn() and
   explode_rdn() in ldap.functions module with these
   functions.
-- Check for deprecated functions in OpenLDAP's ldap.h
+- Add l_ldap_sasl_bind() and abandon l_ldap_bind().
+  l_ldap_sasl_bind_s() should be replaced by a wrapper
+  method in ldap.ldapobject.LDAPObject.
 
 Lib/
 - Caching of search requests for each LDAPObject instance
@@ -31,7 +33,7 @@ Lib/
 Tests/
 - Clean up and finish the mess of small test scripts started.
 - Create a test script that exercises everything with a server
-  holding the BLITS 2.5 test data set
+  holding the BLITS test data set
 
 ------------------------------------------------------------------
 $Id$
