@@ -248,7 +248,7 @@ class LDIFParser:
     unfolded_line = self._unfoldLDIFLine()
     # Ignore comments which can also be folded
     while unfolded_line and unfolded_line[0]=='#':
-      unfolded_line,self._line = self._unfoldLDIFLine()
+      unfolded_line = self._unfoldLDIFLine()
     if not unfolded_line or unfolded_line=='\n' or unfolded_line=='\r\n':
       return None,None
     attr_type,attr_value = string.split(unfolded_line,' ',1)
