@@ -28,12 +28,9 @@ __all__ = [
   'LDAPUrlExtension','LDAPUrl'
 ]
 
-import sys
+import UserDict
 
 from urllib import quote,quote_plus,unquote_plus
-
-# Some widely used types
-StringType = type('')
 
 LDAP_SCOPE_BASE = 0
 LDAP_SCOPE_ONELEVEL = 1
@@ -48,6 +45,10 @@ SEARCH_SCOPE = {
   'one':LDAP_SCOPE_ONELEVEL,
   'sub':LDAP_SCOPE_SUBTREE,
 }
+
+# Some widely used types
+StringType = type('')
+TupleType=type(())
 
 
 def isLDAPUrl(s):
@@ -84,11 +85,10 @@ class LDAPUrlExtension:
   """
 
   def __init__(self,extensionStr=None,critical=0,extype=None,exvalue=None):
-    if extensionStr is None:
-      self.critical = critical
-      self.extype = extype
-      self.exvalue = exvalue
-    else:
+    self.critical = critical
+    self.extype = extype
+    self.exvalue = exvalue
+    if extensionStr:
       self._parse(extensionStr)
 
   def _parse(self,extension):
@@ -114,7 +114,12 @@ class LDAPUrlExtension:
     return self.unparse()
 
   def __repr__(self):
-    return '<%s: %s>' % (self.__class__.__name__,self.__dict__)
+    return '<%s.%s instance at %s: %s>' % (
+      self.__class__.__module__,
+      self.__class__.__name__,
+      hex(id(self)),
+      self.__dict__
+    )
 
   def __eq__(self,other):
     return \
@@ -124,6 +129,70 @@ class LDAPUrlExtension:
 
   def __ne__(self,other):
     return not self.__eq__(other)
+
+
+class LDAPUrlExtensions(UserDict.UserDict):
+  """
+  Models a collection of LDAP URL extensions as
+  dictionary type
+  """
+
+  def __init__(self,default={}):
+    UserDict.UserDict.__init__(self,default)
+
+  def __getitem__(self,name):
+    """
+    This always returns LDAPUrlExtension instance
+    """
+    critical,exvalue = self.data[name]
+    return LDAPUrlExtension(
+      critical=critical,extype=name,exvalue=exvalue
+    )
+
+  def __setitem__(self,name,value):
+    """
+    value
+        Either LDAPUrlExtension instance, (critical,exvalue)
+        or string'ed exvalue
+    """
+    assert type(value)==TupleType or \
+           type(value)==StringType or \
+           isinstance(value,LDAPUrlExtension),TypeError
+    if type(value)==StringType:
+      self.data[name] = 0,value
+    elif type(value)==TupleType and len(value==2):
+      self.data[name] = value
+    elif isinstance(value,LDAPUrlExtension):
+      assert name==value.extype
+      self.data[name] = value.critical,value.exvalue
+
+  def __str__(self):
+    return ','.join(map(str,self.values()))
+
+  def __repr__(self):
+    return '<%s.%s instance at %s: %s>' % (
+      self.__class__.__module__,
+      self.__class__.__name__,
+      hex(id(self)),
+      self.data
+    )
+
+  def __eq__(self,other):
+    result = (self.data==other.data)
+    
+  def parse(self,extListStr):
+    extensions = [
+      LDAPUrlExtension(extension)
+      for extension in extListStr.strip().split(',')
+    ]
+    for e in extensions:
+      self[e.extype] = e
+
+  def unparse(self):
+    return ','.join([
+      self[k].unparse()
+      for k in self.keys()
+    ])
 
 
 class LDAPUrl:
@@ -170,14 +239,9 @@ class LDAPUrl:
     self,
     ldapUrl=None,
     urlscheme='ldap',
-    hostport='',
-    dn=None,
-    attrs=None,
-    scope=None,
-    filterstr=None,
-    extensions = {},
-    who=None,
-    cred=None,
+    hostport='',dn=None,attrs=None,scope=None,filterstr=None,
+    extensions=LDAPUrlExtensions(),
+    who=None,cred=None
   ):
     self.urlscheme=urlscheme
     self.hostport=hostport
@@ -186,49 +250,12 @@ class LDAPUrl:
     self.scope=scope
     self.filterstr=filterstr
     self.extensions=extensions
+    if ldapUrl!=None:
+      self._parse(ldapUrl)
     if who!=None:
       self.who = who
     if cred!=None:
       self.cred = cred
-    if ldapUrl!=None:
-      self._parse(ldapUrl)
-
-  def __getattr__(self,name):
-    if self.attr2extype.has_key(name):
-      extype = self.attr2extype[name]
-      if self.extensions.has_key(extype):
-        result = unquote_plus(
-          self.extensions[extype].exvalue
-        )
-      else:
-        result = None
-    else:
-      raise AttributeError,'No attribute %s in instance of %s.' % (
-        name,self.__class__.__name__
-      )
-    return result # __getattr__()
-
-  def __setattr__(self,name,value):
-    if (name=='who' or name=='cred'):
-      extype = self.attr2extype[name]
-      if value is None and self.extensions.has_key(extype):
-        # A value of None means that extension is deleted
-        del self.extensions[extype]
-      elif value!=None:
-        # Add appropriate extension
-        self.extensions[extype] = LDAPUrlExtension(
-          extype=extype,exvalue=unquote_plus(value)
-        )
-    else:
-      self.__dict__[name] = value
-
-
-  def __delattr__(self,name):
-    if (name=='who' or name=='cred'):
-      extype = self.attr2extype[name]
-      del self.extensions[extype]
-    else:
-      del self.__dict__[name]
 
   def __eq__(self,other):
     return \
@@ -238,7 +265,7 @@ class LDAPUrl:
       self.attrs==other.attrs and \
       self.scope==other.scope and \
       self.filterstr==other.filterstr and \
-      self.extensions.__eq__(other.extensions)
+      self.extensions==other.extensions
 
   def __ne__(self,other):
     return not self.__eq__(other)
@@ -293,18 +320,25 @@ class LDAPUrl:
       else:
         self.filterstr = unquote_plus(filterstr)
     if paramlist_len>=5:
-      extensions = [
-        LDAPUrlExtension(extension)
-        for extension in paramlist[4].strip().split(',')
-      ]
-      self.extensions = {}
-      for e in extensions:
-        self.extensions[e.extype] = e
+      self.extensions = LDAPUrlExtensions()
+      self.extensions.parse(paramlist[4])
     return
 
   def _urlEncoding(self,s):
     """Returns URL encoding of string s"""
     return quote(s).replace(',','%2C').replace('/','%2F')
+
+  def applyDefaults(self,defaults):
+    """
+    Apply defaults to all class attributes which are None.
+
+    defaults
+        Dictionary containing a mapping from class attributes
+        to default values
+    """
+    for k in defaults:
+      if getattr(self,k) is None:
+        setattr(self,k,defaults[k])
 
   def initializeUrl(self):
     """
@@ -341,12 +375,7 @@ class LDAPUrl:
       hostport,dn,attrs_str,scope_str,filterstr
     )
     if self.extensions:
-      ldap_url = ldap_url+'?'+','.join(
-        [
-          e.unparse()
-          for e in self.extensions.values()
-        ]
-      )
+      ldap_url = ldap_url+'?'+self.extensions.unparse()
     return ldap_url.encode('ascii')
   
   def htmlHREF(self,urlPrefix='',hrefText=None,hrefTarget=None):
@@ -368,5 +397,49 @@ class LDAPUrl:
     return self.unparse()
 
   def __repr__(self):
-    return '<%s: %s>' % (self.__class__.__name__,self.__dict__)
+    return '<%s.%s instance at %s: %s>' % (
+      self.__class__.__module__,
+      self.__class__.__name__,
+      hex(id(self)),
+      self.__dict__
+    )
+
+  def __getattr__(self,name):
+    if self.attr2extype.has_key(name):
+      extype = self.attr2extype[name]
+      if self.extensions.has_key(extype):
+        result = unquote_plus(
+          self.extensions[extype].exvalue
+        )
+      else:
+        return None
+    else:
+      raise AttributeError,"%s has no attribute %s" % (
+        self.__class__.__name__,name
+      )
+    return result # __getattr__()
+
+  def __setattr__(self,name,value):
+    if self.attr2extype.has_key(name):
+      extype = self.attr2extype[name]
+      if value is None:
+        # A value of None means that extension is deleted
+        delattr(self,name)
+      elif value!=None:
+        # Add appropriate extension
+        self.extensions[extype] = LDAPUrlExtension(
+          extype=extype,exvalue=unquote_plus(value)
+        )
+    else:
+      self.__dict__[name] = value
+
+  def __delattr__(self,name):
+    if self.attr2extype.has_key(name):
+      extype = self.attr2extype[name]
+      try:
+        del self.extensions[extype]
+      except KeyError:
+        pass
+    else:
+      del self.__dict__[name]
 
