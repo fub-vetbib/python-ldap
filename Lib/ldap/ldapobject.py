@@ -549,6 +549,8 @@ class SimpleLDAPObject:
         dn,ldap.SCOPE_BASE,'(objectClass=*)',['subschemaSubentry']
       )
     except ldap.NO_SUCH_OBJECT:
+      pass
+    except ldap.UNDEFINED_TYPE:
       return None
     try:
       if r:
