@@ -1,14 +1,16 @@
-import ldap,ldap.schema
+import sys,ldap,ldap.schema,ldapurl
+
+ldap_url = ldapurl.LDAPUrl(sys.argv[1])
 
 ldap.set_option(ldap.OPT_DEBUG_LEVEL,0)
 
 # Connect and bind as LDAPv3
-l=ldap.initialize('ldap://localhost:1389',trace_level=0)
+l=ldap.initialize(ldap_url.initializeUrl(),trace_level=0)
 l.version = ldap.VERSION3
 l.simple_bind_s('','')
 
 # Search for DN of sub schema sub entry
-subschemasubentry_dn = l.search_subschemasubentry_s('')
+subschemasubentry_dn = l.search_subschemasubentry_s(ldap_url.dn.encode('utf-8'))
 
 subschemasubentry_entry = l.read_subschemasubentry_s(
   subschemasubentry_dn
@@ -22,7 +24,7 @@ else:
   print '*** Schema from',repr(subschemasubentry_dn)
 
   # Read the schema entry
-  schema = ldap.schema.subSchema(subschemasubentry_entry)
+  schema = ldap.schema.subSchema(subschemasubentry_entry,schema_allow=31)
 
   # Display schema
   for attr_type,schema_class in ldap.schema.SCHEMA_CLASS_MAPPING.items():
