@@ -900,6 +900,41 @@ static char doc_start_tls[] = "";
 ;
 #endif
 
+/* ldap_manage_dsa_it */
+
+static PyObject*
+l_ldap_manage_dsa_it( LDAPObject* self, PyObject* args )
+{
+    int result, manageDSAit;
+    LDAPControl c;
+    LDAPControl *ctrls[2];
+    ctrls[0] = &c;
+    ctrls[1] = NULL;
+
+    if (!PyArg_ParseTuple( args, "i", &manageDSAit )) return NULL;
+    if (not_valid(self)) return NULL;
+
+    if ( manageDSAit ) {
+        c.ldctl_oid = LDAP_CONTROL_MANAGEDSAIT;
+        c.ldctl_value.bv_val = NULL;
+        c.ldctl_value.bv_len = 0;
+        c.ldctl_iscritical = 0;
+        result = ldap_set_option( self->ldap, LDAP_OPT_SERVER_CONTROLS, ctrls );
+    } else {
+        result = ldap_set_option( self->ldap, LDAP_OPT_SERVER_CONTROLS, NULL );
+    }
+
+    if ( result != LDAP_SUCCESS ){
+	return LDAPerror( self->ldap, "ldap_manage_dsa_it" );
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static char doc_manage_dsa_it[] = "";
+;
+
 /* ldap_url_search */
 
 static PyObject*
@@ -1026,6 +1061,7 @@ static PyMethodDef methods[] = {
 #ifdef HAVE_LDAP_START_TLS_S
     {"start_tls_s",	(PyCFunction)l_ldap_start_tls_s,	METH_VARARGS,	doc_start_tls},
 #endif
+    {"manage_dsa_it",	(PyCFunction)l_ldap_manage_dsa_it,	METH_VARARGS,	doc_manage_dsa_it},
     {"url_search",	(PyCFunction)l_ldap_url_search,	        METH_VARARGS,	doc_url_search},
     {"set_option",	(PyCFunction)l_ldap_set_option,		METH_VARARGS,	doc_set_option},
     {"get_option",	(PyCFunction)l_ldap_get_option,		METH_VARARGS,	doc_get_option},
