@@ -51,6 +51,7 @@ LDAPmessage_to_python( LDAP*ld, LDAPMessage*m )
 	 if (attrdict == NULL) {
 		Py_DECREF(result);
 		ldap_msgfree( m );
+		free(dn);
 		return NULL;
 	 }
 
@@ -79,6 +80,7 @@ LDAPmessage_to_python( LDAP*ld, LDAPMessage*m )
 		Py_DECREF(attrdict);
 		Py_DECREF(result);
 		ldap_msgfree( m );
+		free(dn);
 		return NULL;
 	     }
 
@@ -96,6 +98,7 @@ LDAPmessage_to_python( LDAP*ld, LDAPMessage*m )
 			Py_DECREF(valuestr);
 			Py_DECREF(valuelist);
 			ldap_msgfree( m );
+			free(dn);
 			return NULL;
 		    }
 		    Py_DECREF(valuestr);
@@ -109,6 +112,7 @@ LDAPmessage_to_python( LDAP*ld, LDAPMessage*m )
 	 Py_DECREF(attrdict);
 	 PyList_Append(result, entrytuple);
 	 Py_DECREF(entrytuple);
+         free(dn);
      }
      ldap_msgfree( m );
      return result;
