@@ -16,6 +16,7 @@ Modules/
   - binding in DSA control mode
 - Wrap ldap_parse_reference()
 - Support for Win32 (and other platforms?)
+- Support Extended Operations
 
 Lib/
 - Remove obsolete/unsupported modules
