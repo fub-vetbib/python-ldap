@@ -1131,6 +1131,8 @@ l_ldap_get_option(PyObject* self, PyObject *args)
 
 /* ldap_passwd */
 
+#if LDAP_VENDOR_VERSION>=20100
+
 static PyObject *
 l_ldap_passwd( LDAPObject* self, PyObject *args )
 {
@@ -1182,6 +1184,7 @@ l_ldap_passwd( LDAPObject* self, PyObject *args )
     return PyInt_FromLong( msgid );
 }
 
+#endif
 
 /* methods */
 
