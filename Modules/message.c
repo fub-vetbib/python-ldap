@@ -79,6 +79,8 @@ LDAPmessage_to_python( LDAP*ld, LDAPMessage*m )
 	     if (valuelist == NULL) {
 		Py_DECREF(attrdict);
 		Py_DECREF(result);
+		if (ber != NULL)
+		    ber_free(ber, 0);
 		ldap_msgfree( m );
 		free(dn);
 		return NULL;
@@ -97,6 +99,8 @@ LDAPmessage_to_python( LDAP*ld, LDAPMessage*m )
 			Py_DECREF(result);
 			Py_DECREF(valuestr);
 			Py_DECREF(valuelist);
+			if (ber != NULL)
+			    ber_free(ber, 0);
 			ldap_msgfree( m );
 			free(dn);
 			return NULL;
