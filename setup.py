@@ -22,16 +22,7 @@ class OpenLDAP2:
         extra_objects = []
 
 	libs =		['ldap', 'lber']
-	defines =	[
-                         # DEFINEs for caching feature in OpenLDAP libs
-#			 ('HAVE_LDAP_DESTROY_CACHE', None),
-#			 ('HAVE_LDAP_DISABLE_CACHE', None),
-#			 ('HAVE_LDAP_ENABLE_CACHE', None),
-#			 ('HAVE_LDAP_FLUSH_CACHE', None),
-#			 ('HAVE_LDAP_SET_CACHE_OPTIONS', None),
-#			 ('HAVE_LDAP_UNCACHE_ENTRY', None),
-#			 ('HAVE_LDAP_UNCACHE_REQUEST', None),
-			]
+	defines =	[ ]
 
 LDAP_CLASS = OpenLDAP2
 
