@@ -369,20 +369,28 @@ class LDAPObject:
         If a timeout occurs, a TIMEOUT exception is raised, unless
         polling (timeout = 0), in which case (None, None) is returned.
     """
-    if timeout==0:
-      return self._ldap_call(self._l.result,msgid,all,0)
-    else:
-      result_ldap = None
-      start_time = time.time()
-      while (result_ldap is None) or (result_ldap==(None,None)):
-        if (timeout>0) and (time.time()-start_time>timeout):
+    start_time = time.time()
+    return_result = []
+    ldap_result = self._ldap_call(self._l.result,msgid,0,0)
+
+    while all and ldap_result==(None,None):
+      while ldap_result==(None,None):
+        if (timeout>=0) and (time.time()-start_time>timeout):
           self._ldap_call(self._l.abandon,msgid)
           raise _ldap.TIMELIMIT_EXCEEDED(
             "LDAP time limit (%d secs) exceeded." % (timeout)
           )
-        result_ldap = self._ldap_call(self._l.result,msgid,all,0)
-      return result_ldap
+        ldap_result = self._ldap_call(self._l.result,msgid,0,0)
+      if ldap_result[1] is None:
+        break
+      return_result.append(ldap_result)
+      ldap_result = None,None
 
+    if all:
+      return return_result
+    else:
+      return ldap_result
+ 
   def search(self,base,scope,filterstr,attrlist=None,attrsonly=0):
     """
     search(base, scope, filter [,attrlist=None [,attrsonly=0]]) -> int
@@ -435,12 +443,10 @@ class LDAPObject:
 
   def search_st(self,base,scope,filterstr,attrlist=None,attrsonly=0,timeout=-1):
     msgid = self.search(base,scope,filterstr,attrlist,attrsonly)
-    result = []
-    result_type,result_data = self.result(msgid,0,timeout)
-    while result_data:
-      result.extend(result_data)
-      result_type,result_data = self.result(msgid,0,timeout)
-    return result
+    search_results = []
+    for res_type,res_data in self.result(msgid,all=1,timeout=timeout):
+      search_results.extend(res_data)
+    return search_results
 
   def set_cache_options(self,*args,**kwargs):
     """
@@ -529,23 +535,25 @@ class LDAPObject:
     """
     return self._ldap_call(self._l.uncache_request,msgid)
 
-  def url_search_s(self,url,attrsonly=0):
+  def url_search(self,url,attrsonly=0):
     """
+    url_search(url [,attrsonly=0])
     url_search_s(url [,attrsonly=0])
     url_search_st(url [,attrsonly=0 [,timeout=-1]])
         These routine works much like search_s*, except that many
         search parameters are pulled out of the URL url (see RFC 2255).
     """
-    return self.url_search_st(url,attrsonly,timeout=-1)
+    return self._ldap_call(self._l.url_search,url,attrsonly)
 
   def url_search_st(self,url,attrsonly=0,timeout=-1):
-    msgid = self.url_search(url,attrsonly,timeout)
-    result = []
-    result_type,result_data = self.result(msgid,0,timeout)
-    while result_data:
-      result.extend(result_data)
-      result_type,result_data = self.result(msgid,0,timeout)
-    return result
+    msgid = self.url_search(url,attrsonly)
+    search_results = []
+    for res_type,res_data in self.result(msgid,all=1,timeout=timeout):
+      search_results.extend(res_data)
+    return search_results
+
+  def url_search_s(self,url,attrsonly=0):
+    return self.url_search_st(url,attrsonly,timeout=-1)
 
   def get_option(self,*args,**kwargs):
     return self._ldap_call(self._l.get_option,*args,**kwargs)
