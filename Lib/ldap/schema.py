@@ -550,14 +550,18 @@ class SubSchema:
           tree[sup_oid].append(se_oid)
       return tree
 
+    def getoid(self,se_class,nameoroid):
+      """
+      Get an OID by name or OID
+      """
+      se_oid = nameoroid.split(';')[0].strip()
+      return self.name2oid[se_class].get(se_oid,se_oid)
+
     def get(self,se_class,nameoroid,default=None):
       """
       Get a schema element by name or OID
       """
-      se_name = nameoroid.split(';')[0].strip()
-      return self.sed.get(
-        self.name2oid[se_class].get(se_name,se_name),default
-      )        
+      return self.sed.get(self.getoid(se_class,nameoroid),default)
 
     def attribute_types(
       self,object_class_list,attr_type_filter={},strict=1,raise_keyerror=1
