@@ -20,8 +20,6 @@
  * XXX I forget whose idea this originally was, but its a good one. - d
  */
 
-#include "Python.h"
-
 /*
  * Return a new object representing a lowercased version of the argument.
  * Typically this is a string -> string conversion.

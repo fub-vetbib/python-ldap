@@ -13,8 +13,6 @@
 #include "LDAPObject.h"
 #include "message.h"
 
-#include "Python.h"
-
 /* constructor */
 
 LDAPObject*
@@ -1636,7 +1634,6 @@ getattr( LDAPObject* self, char* name )
 		return PyInt_FromLong(self->valid);
 
 	return Py_FindMethod( methods, (PyObject*)self, name );
-	return NULL;
 }
 
 /* set attribute */
