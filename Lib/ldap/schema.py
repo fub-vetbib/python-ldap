@@ -14,37 +14,18 @@ __version__ = '0.0.3'
 
 import ldap,ldap.cidict,ldap.functions,_ldap
 
-
-def subschemasubentry_dn(l,dn=''):
-  """
-  Returns the distinguished name of the sub schema sub entry
-  for a part of a DIT specified by dn
-  """
-  r = l.search_s(
-    dn,ldap.SCOPE_BASE,'(objectClass=*)',['subschemaSubentry']
-  )
-  if r:
-    e = ldap.cidict.cidict(r[0][1])
-    return e.get('subschemaSubentry',[None])[0]
-  else:
-    # Fall back to directly read attribute subschemaSube
-    # from RootDSE
-    r = l.search_s(
-      '',ldap.SCOPE_BASE,'(objectClass=*)',['subschemaSubentry']
-    )
-    e = ldap.cidict.cidict(r[0][1])
-    return e.get('subschemaSubentry',[None])[0]
-  
-
 # Wrapper functions to serialize calls into OpenLDAP libs with
 # a module-wide thread lock
-def str2objectclass(schema_element_str):
+def str2objectclass(schema_element_str,schema_allow):
     return ldap.functions._ldap_function_call(_ldap.str2objectclass,schema_element_str)
-def str2attributetype(schema_element_str):
+
+def str2attributetype(schema_element_str,schema_allow):
     return ldap.functions._ldap_function_call(_ldap.str2attributetype,schema_element_str)
-def str2syntax(schema_element_str):
+
+def str2syntax(schema_element_str,schema_allow):
     return ldap.functions._ldap_function_call(_ldap.str2syntax,schema_element_str)
-def str2matchingrule(schema_element_str):
+
+def str2matchingrule(schema_element_str,schema_allow):
     return ldap.functions._ldap_function_call(_ldap.str2matchingrule,schema_element_str)
 
 
@@ -111,33 +92,23 @@ SCHEMA_ATTRS = SCHEMA_CLASS_MAPPING.keys()
 
 class subSchema:
     
-    def __init__(self,l,schema_dn):
+    def __init__(self,sub_schema_sub_entry,schema_allow=0):
         """
-        l
-                LDAPObject instance
-        schema_dn
-                Distinguished name of sub schema sub entry to read
+        sub_schema_sub_entry
+            Dictionary containing the sub schema sub entry
+        schema_allow
+            Integer with flags defining workarounds for
+            broken schema data
         """
         self.schema_element = {}
         self.name2oid = ldap.cidict.cidict()
-        result = l.search_s(
-          schema_dn,
-          ldap.SCOPE_BASE,"(objectClass=*)",
-          SCHEMA_ATTRS
-        )
 
-        if not result:
-          # Nothing to do for empty search result
-          return
-
-        # Sub schema sub entry's data
-        sub_schema_sub_entry = result[0][1]
         # Build the schema registry
         for attr_type in SCHEMA_ATTRS:
           if not sub_schema_sub_entry[attr_type]:
             continue
           for attr_value in sub_schema_sub_entry[attr_type]:
-            se = SCHEMA_CLASS_MAPPING[attr_type](attr_value)
+            se = SCHEMA_CLASS_MAPPING[attr_type](attr_value,schema_allow)
             assert not self.schema_element.has_key(se.oid), ValueError
             self.schema_element[se.oid] = se
             for name in se.names:
