@@ -154,8 +154,8 @@ class LDAPUrl:
     filterstr='(objectclass=*)',
     extensions = {},
     charset='utf-8',
-    who='',
-    cred='',
+    who=None,
+    cred=None,
   ):
     self.urlscheme=urlscheme
     self.hostport=hostport
@@ -165,8 +165,8 @@ class LDAPUrl:
     self.filterstr=filterstr
     self.extensions=extensions
     self.charset=charset
-    self.who=who
-    self.cred=cred
+    if who!=None: self.who=who
+    if cred!=None: self.cred=cred
     if ldapUrl!=None:
       self._parse(ldapUrl)
 
@@ -178,7 +178,7 @@ class LDAPUrl:
           self.extensions[extype].exvalue
         )
       else:
-        None
+        return None
     else:
       raise AttributeError,'No attribute %s in instance of %s.' % (
         name,self.__class__.__name__
