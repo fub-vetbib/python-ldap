@@ -10,6 +10,11 @@ ldap.ldapobject:
 * Trace log writes LDAP URI of connection instead of module name
 * search_s() passes self.timeout as argument timeout when
   calling search_ext_s()
+* Key-word arguments for simple_bind() and simple_bind_s()
+  with defaults for anonymous bind.
+* LDAPObject.protocol_version is set to LDAPv3 as default
+  (this might make code changes necessary in a real LDAPv2
+   environment)
 
 ldif:
 * Abandoned argument all_records of LDIFRecordList.__init__()
