@@ -52,7 +52,7 @@ setup(
 	name =		'python-ldap',
 	version =	version,
 	description =	'Various LDAP-related Python modules',
-	author =	'David Leonard et al.', 
+	author =	'David Leonard, Michael Stroeder, et al.',
 	author_email =	'python-ldap-dev@lists.sourceforge.net',
 	url =		'http://python-ldap.sourceforge.net/',
 	#-- C extension modules
@@ -102,7 +102,8 @@ setup(
 		'ldap.schema.subentry',
 		'ldap.schema.tokenizer',
 	],
-	#-- where to find the python modules
-	package_dir = { '': 'Lib' },
+	package_dir = {
+          '': 'Lib',
+        },
 )
 
