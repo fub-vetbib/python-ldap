@@ -656,6 +656,27 @@ The asynchronous version returns the initiated message id.
 \end{methoddesc}
 
 %%------------------------------------------------------------
+%% passwd
+
+\begin{methoddesc}[LDAPObject]{passwd}{user,oldpw,newpw}
+		%-> int
+     \methodline[LDAPObject]{passwd_s}{user,oldpw,newpw}
+		% -> None
+Perform a `LDAP Password Modify Extended Operation' operation
+on the entry specified by \var{user}.
+The old password in \var{oldpw} is replaced with the new
+password in \var{newpw} by a LDAP server supporting this operation.
+
+The asynchronous version returns the initiated message id.
+
+\begin{seealso}
+\seerfc{3062}{LDAP Password Modify Extended Operation}{}
+\end{seealso}
+
+\end{methoddesc}
+
+
+%%------------------------------------------------------------
 %% rename
 
 \begin{methoddesc}[LDAPObject]{rename}{dn, newrdn \optional{, newsuperior=\constant{None}} \optional{, delold=\constant{1}}}
