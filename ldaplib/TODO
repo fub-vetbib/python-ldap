@@ -1,5 +1,0 @@
-* at now dictionary keys (attributes names) are simply converted to
-lowercase. find a way to do case-insensitive compares (idict?)
-
-* add more parsing functions to LDAPSchema to support, at least, the
-default configuration files distributed with OpenLDAP.
