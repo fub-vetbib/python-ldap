@@ -564,7 +564,7 @@ class SubSchema:
       )        
 
     def all_attrs(
-      self,object_class_list,attr_type_filter={},strict=1,raise_keyerror=0
+      self,object_class_list,attr_type_filter={},strict=1,raise_keyerror=1
     ):
       """
       Returns a 2-tuple of all must and may attributes including
@@ -596,7 +596,13 @@ class SubSchema:
           continue
         # Cache this OID as already being processed
         oid_cache[object_class_oid] = None
-        object_class = self.schema_element[object_class_oid]
+        try:
+          object_class = self.schema_element[object_class_oid]
+        except KeyError:
+          if raise_keyerror:
+            raise
+          # Ignore this object class
+          continue
         assert hasattr(object_class,'must'),ValueError(object_class_oid)
         assert hasattr(object_class,'may'),ValueError(object_class_oid)
         for a in object_class.must:
