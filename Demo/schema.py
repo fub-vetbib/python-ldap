@@ -2,6 +2,8 @@ import sys,time,ldap,ldap.schema,ldapurl
 
 schema_allow = ldap.schema.ALLOW_ALL
 
+schema_attrs = ['objectClasses']
+
 ldap_url = ldapurl.LDAPUrl(sys.argv[1])
 
 ldap.set_option(ldap.OPT_DEBUG_LEVEL,0)
@@ -25,7 +27,7 @@ print 'Time elapsed search sub schema sub entry: %0.3f' % (time_mark1-time_mark0
 # Read the sub schema sub entry
 
 subschemasubentry_entry = l.read_subschemasubentry_s(
-  subschemasubentry_dn
+  subschemasubentry_dn,attrs=schema_attrs
 )
 
 time_mark2 = time.time()
@@ -48,17 +50,18 @@ else:
 
   print 'Time elapsed parsing sub schema sub entry: %0.3f' % (time_mark3-time_mark2)
 
+  schema_element_names = schema.name2oid.keys()
+  schema_element_names.sort()
+  for name in schema_element_names:
+    print repr(name),'->',repr(schema.name2oid[name])
+
   # Display schema
   for attr_type,schema_class in ldap.schema.SCHEMA_CLASS_MAPPING.items():
     print '***',repr(attr_type),'***'
     for oid,se in schema.schema_element.items():
       if isinstance(se,schema_class):
         print repr(oid),repr(se)
-  schema_element_names = schema.name2oid.keys()
-  schema_element_names.sort()
-  for name in schema_element_names:
-    print repr(name),'->',repr(schema.name2oid[name])
-  print '*** inetOrgPerson ***'
+  print '*** Testing object class inetOrgPerson ***'
   inetOrgPerson = schema.schema_element[schema.name2oid['inetOrgPerson']]
   print inetOrgPerson.must,inetOrgPerson.may
   print '*** person,organizationalPerson,inetOrgPerson ***'

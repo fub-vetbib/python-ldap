@@ -39,7 +39,7 @@ if __debug__:
   # Tracing is only supported in debugging mode
   import traceback
 
-import sys,string,time,_ldap,ldap
+import sys,string,time,_ldap,ldap,ldap.schema
 
 from ldap import LDAPError
 
@@ -552,14 +552,14 @@ class SimpleLDAPObject:
     except IndexError:
       return None
 
-  def read_subschemasubentry_s(self,subschemasubentry_dn):
+  def read_subschemasubentry_s(self,subschemasubentry_dn,attrs=ldap.schema.SCHEMA_ATTRS):
     """
     Returns the sub schema sub entry's data
     """
     return self.search_s(
       subschemasubentry_dn,ldap.SCOPE_BASE,
       '(objectClass=subschema)',
-      ldap.schema.SCHEMA_ATTRS
+      attrs
     )[0][1]
 
 
