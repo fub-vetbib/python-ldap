@@ -9,7 +9,7 @@ License:
 Public domain. Do anything you want with this module.
 """
 
-__version__ = '0.0.6'
+__version__ = '0.1.0'
 
 
 import ldap,ldap.cidict,ldap.functions,_ldap
@@ -105,7 +105,7 @@ def str2matchingrule(schema_element_str,schema_allow=0):
     return schema_func_wrapper(_ldap.str2matchingrule,schema_element_str,schema_allow)
 
 
-class objectClass:
+class ObjectClass:
 
     def __init__(
       self,schema_element_str=None,schema_allow=0,
@@ -136,7 +136,7 @@ class objectClass:
         self.ext = ext
 
 
-class attributeType:
+class AttributeType:
 
     def __init__(self, schema_element_str,schema_allow=0):
         (self.oid,             #REQUIRED
@@ -158,7 +158,7 @@ class attributeType:
          ) = str2attributetype(schema_element_str,schema_allow)
 
 
-class ldapSyntax:
+class LDAPSyntax:
 
     def __init__(self, schema_element_str,schema_allow=0):
         (self.oid,    #REQUIRED
@@ -168,7 +168,7 @@ class ldapSyntax:
          ) = str2syntax(schema_element_str,schema_allow)
 
 
-class matchingRule:
+class MatchingRule:
 
     def __init__(self, schema_element_str,schema_allow=0):
         (self.oid,         #REQUIRED
@@ -181,15 +181,15 @@ class matchingRule:
 
 
 SCHEMA_CLASS_MAPPING = {
-  'objectClasses':objectClass,
-  'attributeTypes':attributeType,
-  'ldapSyntaxes':ldapSyntax,
-  'matchingRules':matchingRule
+  'objectClasses':ObjectClass,
+  'attributeTypes':AttributeType,
+  'ldapSyntaxes':LDAPSyntax,
+  'matchingRules':MatchingRule
 }
 SCHEMA_ATTRS = SCHEMA_CLASS_MAPPING.keys()
 
 
-class subSchema:
+class SubSchema:
     
     def __init__(self,sub_schema_sub_entry,schema_allow=0):
         """

@@ -40,7 +40,7 @@ print 'Time elapsed reading sub schema sub entry: %0.3f' % (time_mark2-time_mark
 print '*** Schema from',repr(subschemasubentry_dn)
 
 # Parse the schema entry
-schema = ldap.schema.subSchema(
+schema = ldap.schema.SubSchema(
   subschemasubentry_entry,schema_allow=schema_allow
 )
 
