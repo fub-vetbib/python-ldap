@@ -48,7 +48,7 @@ else:
 #-- Let distutils do the rest
 setup(
 	#-- Package description
-	name =		'Python-LDAP',
+	name =		'python-ldap',
 	version =	version,
 	description =	'Various LDAP-related Python modules',
 	author =	'David Leonard et al.', 
