@@ -40,6 +40,12 @@ LDAP \C library, or see \rfc{1823}.
 
 This documentation is current for the Python LDAP module, version
 $1.10$.
+Source and binaries are available from
+\url{http://python-ldap.sourceforge.net/}.
+
+Much of this documentation has been derived from \rfc{1823} and
+the manual pages accompanying the University of Michigan's original
+LDAP library implementation.
 
 % ==== 3. ====
 % List the public functions defined by the module.  Begin with a
@@ -68,7 +74,7 @@ The \module{_ldap} module defines the following functions:
 \begin{funcdesc}{open}{host \optional{, port=\constant{PORT}}} % -> LDAPObject
   Opens a new connection with an LDAP server, and return an LDAP object
   used to perform operations on that server.
-  (See section~\ref{ldap-objects} for details.)
+  (See section~\ref{ldap-objects} for information on the LDAP object.)
 \end{funcdesc}
 
 \begin{funcdesc}{dn2ufn}{dn} % -> string
@@ -115,6 +121,7 @@ The module defines the following constants:
 % constructor parameters must be ommitted.
 
 \subsection{Exceptions}
+\label{subsec:exceptfrommeth}
 
 The module defines the following exceptions:
 
@@ -148,7 +155,7 @@ for the lowest entry (object or alias) that was matched.
 	The entry already exists.
 \end{excdesc}
 \begin{excdesc}{AUTH_UNKNOWN}
-	The authentication method specified to \method{bind} is not known.
+	The authentication method specified to \method{bind()} is not known.
 \end{excdesc}
 \begin{excdesc}{BUSY}
 	The DSA is busy.
@@ -177,7 +184,7 @@ for the lowest entry (object or alias) that was matched.
 \end{excdesc}
 \begin{excdesc}{FILTER_ERROR}
 	An  invalid  filter  was  supplied  to
-	\method{search} (e.g., unbalanced parentheses).
+	\method{search()} (e.g., unbalanced parentheses).
 \end{excdesc}
 \begin{excdesc}{INAPPROPRIATE_AUTH}
 	Inappropriate authentication was spec-
@@ -192,7 +199,7 @@ for the lowest entry (object or alias) that was matched.
 	   The user has  insufficient  access  to perform the operation.
 \end{excdesc}
 \begin{excdesc}{INVALID_CREDENTIALS}
-	Invalid   credentials  were  presented during \method{bind}.
+	Invalid   credentials  were  presented during \method{bind()}.
 	(e.g., the wrong password).
 \end{excdesc}
 \begin{excdesc}{INVALID_DN_SYNTAX}
@@ -287,10 +294,10 @@ for the lowest entry (object or alias) that was matched.
 	The  DSA  is  unwilling to perform the operation.
 \end{excdesc}
 \begin{excdesc}{USER_CANCELLED}
-	The operation was cancelled via the \method{abandon} method.
+	The operation was cancelled via the \method{abandon()} method.
 \end{excdesc}
 
-These exceptions are raised when a result code from an underlying API
+The above exceptions are raised when a result code from an underlying API
 call does not indicate success.
 
 % ---- 3.4. ----
@@ -315,12 +322,12 @@ call does not indicate success.
 
 \subsection{Example \label{ldap-example}}
 
-The following example demonstrates how to open an ldap server using the
+The following example demonstrates how to open an LDAP server using the
 \module{_ldap} module.
 
 \begin{verbatim}
 >>> import _ldap
->>> l = _ldap.open("my_ldap_server.my_domain")
+>>> l = _ldap.open("my-ldap-server.my-domain")
 >>> l.simple_bind_s("","")
 >>> l.search_s("o=My Organisation, c=AU", _ldap.SCOPE_SUBTREE, "objectclass=*")
 \end{verbatim}
@@ -338,21 +345,22 @@ The following example demonstrates how to open an ldap server using the
 % also used to give a filename when generating HTML.
 
 %\noindent
-Spam objects, as returned by \function{open()} above, have the
-following methods:
-LDAP objects are returned by \function{open()} above, when a
+LDAP objects are returned by \function{open()} when a successful
 connection to an LDAP server is established.
 The connection is automatically unbound and closed 
 when the LDAP object is deleted.
 
-Most methods initiate an asynchronous request to the LDAP server 
+Most methods on LDAP objects
+initiate an asynchronous request to the LDAP server 
 and return a message id that can be used later to retrieve the result
 with \method{result()}. 
 Methods with names ending in `\constant{_s}' are the synchronous form 
 and wait for and return with the server's result, or with
 \constant{None} if no data is expected.
-See the description of the \method{result()} method
-for a description of the data structure returned from the server.
+See below for a description of the \method{result()} method 
+which describes the data structure returned from the server.
+
+LDAP objects, have the following methods:
 
 %%------------------------------------------------------------
 %% fileno
@@ -371,7 +379,7 @@ with the \module{select} module.
 \begin{methoddesc}[LDAP]{abandon}{msgid}
 Abandons or cancels an LDAP operation in progress. The \var{msgid} argument
 should be the message ID of an outstanding LDAP operation as returned by
-the asynchronous methods \method{search()}, \method{modify()} etc. 
+the asynchronous methods \method{search()}, \method{modify()}, etc. 
 The caller can expect that the result
 of an abandoned operation will not be returned from a future call to 
 \method{result()}.
@@ -403,8 +411,8 @@ attempted over the connection, a bind operation must be performed.
 
 This method attempts to bind with the LDAP server using 
 either simple authentication, or Kerberos (if available).
-The general method \method{bind()}
-takes a third parameter, \var{method} which can be one of
+The first and most general method, \method{bind()},
+takes a third parameter, \var{method}, which can be one of
 \constant{AUTH_SIMPLE}, \constant{AUTH_KRBV41} or \constant{AUTH_KRBV42}.
 The \var{cred} parameter is ignored for Kerberos authentication and
 should be \constant{None}.
@@ -421,11 +429,11 @@ available in the underlying library.
 Perform an LDAP comparison between the attribute named \var{attr} of 
 entry \var{dn}, and the value \var{value}. The synchronous form
 returns \constant{0} for false, or \constant{1} for true.
-The asynchronous form returns the message ID of the initiates request, 
+The asynchronous form returns the message ID of the initiated request, 
 and the result of the asynchronous compare can be obtained using 
 \method{result()}.  
 
-Note that this latter technique yields the answer
+Note that the asynchronous technique yields the answer
 by raising the exception objects \constant{COMPARE_TRUE} or
 \constant{COMPARE_FALSE}.
 
@@ -464,7 +472,7 @@ may be \constant{None} indicating that all attributes are to be deleted.
 The asynchronous method \method{modify()} returns the message ID of the 
 initiated request.
 
-%See the \method{ber_*} methods for decoding Basic Encoded ASN.1 values.
+%See the \method{ber_*()} methods for decoding Basic Encoded ASN.1 values.
 %(To be implemented.)
 \end{methoddesc}
 
@@ -483,8 +491,8 @@ whether the old RDN should be kept as an attribute of the entry or not.
 (Note: This may not actually be supported by the underlying library.)
 The asynchronous version returns the initiated message id.
 
-If they are available, the \emph{modrdn2*} routines in the \C\ library
-are used instead of \emph{modrdn}.
+If they are available, the \cfunction{modrdn2*()} routines in the \C\ library
+are used instead of \cfunction{modrdn()}.
 \end{methoddesc}
 
 %%------------------------------------------------------------
@@ -498,7 +506,7 @@ previously initiated by one of the LDAP \emph{asynchronous} operations
 The \var{msgid} parameter is the integer identifier returned by that
 method. 
 The identifier is guaranteed to be unique across an LDAP session,
-and tells the \method{result} method to request the result of that
+and tells the \method{result()} method to request the result of that
 specific operation.
 If a result is desired from any one of the in-progress operations,
 \var{msgid} should be specified as the constant \constant{RES_ANY}.
@@ -519,7 +527,7 @@ a value of \constant{0} effects a poll.
 If a timeout does occur, the tuple \constant{(None,None)} is returned.
 (This should really have been a \exception{TIMEOUT} exception!)
 
-The \method{result} method returns a tuple of the form 
+The \method{result()} method returns a tuple of the form 
 \code{(\textit{result-type}, \textit{result-data})}.
 The first element, \textit{result-type} is a string, being one of:
 \constant{'RES_BIND'}, \constant{'RES_SEARCH_ENTRY'},
@@ -530,24 +538,24 @@ The first element, \textit{result-type} is a string, being one of:
 for your convenience.)
 
 If \var{all} is \constant{0}, one response at a time is returned on
-each call to \method{result}, with termination indicated by 
+each call to \method{result()}, with termination indicated by 
 \textit{result-data} being an empty list.
 
 See \method{search()} for a description of the search result's 
-\var{result_data}, otherwise the \var{result_data} is normally meaningless.
+\var{result-data}, otherwise the \var{result-data} is normally meaningless.
 
 \end{methoddesc}
 
 %%------------------------------------------------------------
 %% search
 
-\begin{methoddesc}[LDAP]{search}{base, scope, filter\optional{, 
-	attrlist=\constant{None}\optional{, attrsonly=\constant{0}}}} %->int
-     \methodline[LDAP]{search_s}{base, scope, filter\optional{, 
-     	attrlist=\constant{None}\optional{, attrsonly=\constant{0}}}} 
+\begin{methoddesc}[LDAP]{search}{base, scope, filter \optional{, 
+	attrlist=\constant{None} \optional{, attrsonly=\constant{0}}}} %->int
+     \methodline[LDAP]{search_s}{base, scope, filter \optional{, 
+     	attrlist=\constant{None} \optional{, attrsonly=\constant{0}}}} 
 		%->list|None
-    \methodline[LDAP]{search_st}{base, scope, filter\optional{,
-    	attrlist=\constant{None}\optional{, attrsonly=\constant{0} 
+    \methodline[LDAP]{search_st}{base, scope, filter \optional{,
+    	attrlist=\constant{None} \optional{, attrsonly=\constant{0} 
 	\optional{, timeout=\constant{-1}}}}}
 		%->list|None
 Perform an LDAP search operation, with \var{base} as the DN of the entry
@@ -556,23 +564,24 @@ at which to start the search, \var{scope} being one of
 \constant{SCOPE_ONELEVEL} (to search the object's immediate children), or
 \constant{SCOPE_SUBTREE} (to search the object and all its descendants).
 
-\var{filter} is a string representation of the filter to apply in
+The
+\var{filter} argument is a string representation of the filter to apply in
 the search. Simple filters can be specified as
 \code{"\var{attribute_type}=\var{attribute_value}"}. 
 More complex filters are specified using a prefix notation according to 
 the following BNF:
 \begin{eqnarray*}
-	\var{filter}	&::=& \code{"("} \ \var{filtercomp} \ \code{")"}
+	\var{filter}	&::=& \bfcode{(} \ \var{filtercomp} \ \bfcode{)}
 \\	\var{filtercomp}&::=& \var{and} \ |\ \var{or}\ |\ \var{not} 
 			      \ |\ \var{simple}
-\\	\var{and}	&::=& \code{"\&"} \ \var{filterlist}
-\\	\var{or}	&::=& \code{"|"} \ \var{filterlist}
-\\	\var{not}	&::=& \code{"!"} \ \var{filter}
+\\	\var{and}	&::=& \bfcode{\&} \ \var{filterlist}
+\\	\var{or}	&::=& \bfcode{|} \ \var{filterlist}
+\\	\var{not}	&::=& \bfcode{!} \ \var{filter}
 \\	\var{filterlist}&::=& \var{filter} \ |\ \var{filter} \ \var{filterlist}
 \\	\var{simple}	&::=& \var{attributetype}\ \var{filtertype} 
 			      \ \var{attributevalue}
-\\	\var{filtertype}&::=& \code{"="} \ |\ \code{"\~="}\ |\ \code{"<="}
-		              \ |\ \code{">="}
+\\	\var{filtertype}&::=& \bfcode{=} \ |\ \bfcode{\~=}\ |\ \bfcode{<=}
+		              \ |\ \bfcode{>=}
 \end{eqnarray*}
 
 When using the asynchronous form and \method{result()}, the \var{all}
@@ -631,9 +640,9 @@ available if support is available in the underlying library (LDAP_REFERRALS).
 
 \begin{methoddesc}[LDAP]{ufn_setfilter}{filtername}	% -> None
        \methodline[LDAP]{ufn_setprefix}{prefix}		% -> None
-       \methodline[LDAP]{ufn_search_s}{url\optional{, attrsonly=\constant{0}}}
+       \methodline[LDAP]{ufn_search_s}{url \optional{, attrsonly=\constant{0}}}
 		% -> list
-       \methodline[LDAP]{ufn_search_st}{url\optional{, attrsonly=\constant{0} \optional{, timeout=\constant{-1}}}}
+       \methodline[LDAP]{ufn_search_st}{url \optional{, attrsonly=\constant{0} \optional{, timeout=\constant{-1}}}}
 		% -> list
 See the underlying LDAP library manual pages for information on these
 `user-friendly name' functions:
@@ -661,8 +670,8 @@ synchronous in nature
 %%------------------------------------------------------------
 %% url_search
 
-\begin{methoddesc}[LDAP]{url_search_s}{url, \optional{attrsonly=\constant{0}}}
-       \methodline[LDAP]{url_search_s}{url, \optional{attrsonly=\constant{0} \optional{, timeout=\constant{-1}}}}
+\begin{methoddesc}[LDAP]{url_search_s}{url \optional{, attrsonly=\constant{0}}}
+       \methodline[LDAP]{url_search_s}{url \optional{, attrsonly=\constant{0} \optional{, timeout=\constant{-1}}}}
 These routine works much like the \method{search()} family of methods, 
 except that many of the search parameters are extracted from the \var{url}
 argument.
@@ -740,7 +749,7 @@ those that result in a \exception{SIZELIMIT_EXCEEDED} exception.
 
 \begin{methoddesc}[LDAP]{uncache_entry}{dn}
 Removes all cached entries that make reference to \var{dn}. This should be
-used, for example, after doing a \method{modify} involving \var{dn}.
+used, for example, after doing a \method{modify()} involving \var{dn}.
 \end{methoddesc}
 
 %%------------------------------------------------------------
@@ -794,7 +803,7 @@ These attributes are mutable unless described as read-only.
 \begin{memberdesc}[LDAP]{options} % -> int
     General options. This field is the bitiwse OR of the flags
 	\constant{OPT_REFERRALS} (follow referrals), and
-	\constant{OPT_RESTART}   (restart the \var{select} system call
+	\constant{OPT_RESTART}   (restart the \cfunction{select()} system call
 			      when interrupted).
 \end{memberdesc}
 
@@ -826,7 +835,7 @@ These attributes are mutable unless described as read-only.
 %% valid
 
 \begin{memberdesc}[LDAP]{valid} % -> int
-    If zero, the connection has been unbound. See \method{unbind} for
+    If zero, the connection has been unbound. See \method{unbind()} for
     more information.
     (read-only)
 \end{memberdesc}
