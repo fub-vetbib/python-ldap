@@ -24,7 +24,7 @@ The timeout handling is done within the method result() which probably leads
 to less exact timing.
 """
 
-__version__ = '0.0.4'
+__version__ = '0.1.0'
 
 import time,threading,ldap
 
@@ -40,14 +40,6 @@ def _ldap_call(func,*args,**kwargs):
     _ldapmodule_lock.release()
   return result
 
-LDAPMODULE_ATTRS = [
-  'deref','errno','error','matched',
-  'lberoptions','options','refhoplimit','sizelimit','timelimit',
-  'valid',
-  # OpenLDAP 2.0.x attributes
-  'alias','version','referrals','restart',
-]
-
 class LDAPObject:
   """
   Thread-safe drop-in wrapper class around ldap.LDAPObject.
@@ -55,18 +47,23 @@ class LDAPObject:
   def __init__(self,host):
     self._l = _ldap_call(ldap.open,host)
 
+  def __hasattr__(self,name):
+    if name!='_l':
+      return hasattr(self._l,name)
+    else:
+      self.__dict__.has_key(name)
+
   def __setattr__(self,name,value):
-    if name in LDAPMODULE_ATTRS:
+    if name!='_l':
       setattr(self._l,name,value)
     else:
-      d = vars(self)
-      d[name] = value
+      self.__dict__[name] = value
 
   def __getattr__(self,name):
-    if name in LDAPMODULE_ATTRS:
+    if name!='_l':
       return getattr(self._l,name)
     else:
-      return vars(self)[name]
+      return self.__dict__[name]
 
   def abandon(self,msgid):
     return _ldap_call(self._l.abandon,msgid)
@@ -169,6 +166,9 @@ class LDAPObject:
   def simple_bind_s(self,who,passwd):
     return self.bind_s(who,passwd,ldap.AUTH_SIMPLE)
 
+  def start_tls_s(self,*args,**kwargs):
+    return _ldap_call(self._l.start_tls_s,*args,**kwargs)
+  
   def ufn_search_s(self,*args,**kwargs):
     return _ldap_call(self._l.ufn_search_s,*args,**kwargs)
 
