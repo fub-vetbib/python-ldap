@@ -2,9 +2,7 @@ import ldap
 from getpass import getpass
 
 # Create LDAPObject instance
-l = ldap.initialize('ldap://localhost:1389')
-
-print l.rename_s.__doc__
+l = ldap.open('localhost:1389',trace_level=1)
 
 print 'Password:'
 cred = getpass()
@@ -25,8 +23,6 @@ try:
     'dc=stroeder,dc=com',
     0
   )
-  print 'uid=fred,ou=Unstructured testing tree,dc=stroeder,dc=com'
-  print '=> cn=Fred Feuerstein,dc=stroeder,dc=com'
 
   l.rename_s(
     'cn=Fred Feuerstein,dc=stroeder,dc=com',
@@ -34,10 +30,6 @@ try:
     'ou=Unstructured testing tree,dc=stroeder,dc=com',
     0
   )
-  print 'cn=Fred Feuerstein,dc=stroeder,dc=com'
-  print '=> uid=fred,ou=Unstructured testing tree,dc=stroeder,dc=com'
-
-  print 'Using rename():'
 
   m = l.rename(
     'uid=fred,ou=Unstructured testing tree,dc=stroeder,dc=com',
@@ -46,8 +38,6 @@ try:
     0
   )
   r = l.result(m,1)
-  print 'uid=fred,ou=Unstructured testing tree,dc=stroeder,dc=com'
-  print '=> cn=Fred Feuerstein,dc=stroeder,dc=com'
 
   m = l.rename(
     'cn=Fred Feuerstein,dc=stroeder,dc=com',
@@ -56,9 +46,6 @@ try:
     0
   )
   r = l.result(m,1)
-
-  print 'cn=Fred Feuerstein,dc=stroeder,dc=com'
-  print '=> uid=fred,ou=Unstructured testing tree,dc=stroeder,dc=com'
 
 finally:
 
