@@ -183,7 +183,7 @@ class ObjectClass:
         self.may = may
         self.ext = ext
       assert self.oid!=None,ValueError("%s.oid is None" % (self.__class__.__name__))
-      assert self.names,ValueError("%s.names empty" % (self.__class__.__name__))
+#      assert self.names,ValueError("%s.names empty" % (self.__class__.__name__))
       return # ObjectClass.__init__()
 
     def __str__(self):
@@ -352,8 +352,17 @@ class SubSchema:
       return [
         se.names[0]
         for se in self.schema_element.values()
-        if se.__class__==ObjectClass
+        if se.__class__==ObjectClass and se.names
       ]
+
+    def get_schema_element(self,name,default=None):
+      """
+      Get a schema element by name
+      """
+      element_name = name.split(';')[0].strip()
+      return self.schema_element.get(
+        self.name2oid.get(element_name,element_name),None
+      )        
 
     def all_attrs(self,object_class_list,attr_type_filter={}):
       """

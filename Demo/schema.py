@@ -1,6 +1,7 @@
 import sys,time,ldap,ldap.schema,ldapurl
 
 schema_allow = ldap.schema.ALLOW_ALL
+schema_ignore_errors = 1
 schema_attrs = ldap.schema.SCHEMA_ATTRS
 
 ldap_url = ldapurl.LDAPUrl(sys.argv[1])
@@ -40,7 +41,9 @@ print '*** Schema from',repr(subschemasubentry_dn)
 
 # Parse the schema entry
 schema = ldap.schema.SubSchema(
-  subschemasubentry_entry,schema_allow=schema_allow
+  subschemasubentry_entry,
+  schema_allow=schema_allow,
+  ignore_errors=schema_ignore_errors
 )
 
 time_mark3 = time.time()
