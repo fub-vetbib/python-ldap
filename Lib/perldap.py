@@ -1,7 +1,11 @@
 # python
+# $Id$
 
 '''PerLDAP-like interface to the Python LDAP library
 '''
+
+__author__ = "David Leonard"
+__version__ = "$Revision$"
 
 class Conn:
 	def __init__(self, host, port = str(_ldap.PORT), 
