@@ -93,12 +93,8 @@ else:
 
   print '*** Object class tree ***\n'
   print
-  PrintSchemaTree(schema,ldap.schema.ObjectClass,oc_tree,'2.5.6.0',0)
+  PrintSchemaTree(schema,ldap.schema.ObjectClass,oc_tree,'_',0)
 
   print '\n*** Attribute types tree ***\n'
-  print
-  for a in schema.listall(ldap.schema.AttributeType):
-    if at_tree[a]:
-      PrintSchemaTree(schema,ldap.schema.AttributeType,at_tree,a,0)
-      print
+  PrintSchemaTree(schema,ldap.schema.AttributeType,at_tree,'_',0)
 

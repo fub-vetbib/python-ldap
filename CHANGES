@@ -6,6 +6,11 @@ Changes since 2.0.0pre12:
 ldap.schema:
 - ldap.schema.subentry.SubSchema.attribute_types() now correctly
   handles attribute types without NAME set
+- If SUP is not defined for a structural object class 'top' is
+  assumed to be the only super-class by default
+- '_' is now the abstract top node in SubSchema.tree() for all
+  schema element classes since ABSTRACT and AUXILIARY object
+  classes are not derived from 'top' by default
 
 ----------------------------------------------------------------
 Released 2.0.0pre12 2003-05-27

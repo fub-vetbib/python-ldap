@@ -87,7 +87,7 @@ class SubSchema:
     """
     assert schema_element_class in [ObjectClass,AttributeType]
     avail_se = self.listall(schema_element_class)
-    top_node = {0:'_',1:'2.5.6.0'}[schema_element_class==ObjectClass]
+    top_node = '_'
     tree = ldap.cidict.cidict({top_node:[]})
     # 1. Pass: Register all nodes
     for se in avail_se:
@@ -103,7 +103,7 @@ class SubSchema:
         "Schema element referenced by %s must be of class %s but was %s" % (
           se_oid,schema_element_class.__name__,se_obj.__class__
         )
-      for s in se_obj.sup:
+      for s in se_obj.sup or ('_',):
         sup_oid = self.name2oid[schema_element_class].get(s,s)
         try:
           tree[sup_oid].append(se_oid)

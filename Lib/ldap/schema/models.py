@@ -119,7 +119,6 @@ class ObjectClass(SchemaElement):
     self.obsolete = d['OBSOLETE']!=None
     self.names = d['NAME']
     self.desc = d['DESC'][0]
-    self.sup = d['SUP']
     self.must = d['MUST']
     self.may = d['MAY']
     # Default is STRUCTURAL, see RFC2552 or draft-ietf-ldapbis-syntaxes
@@ -128,6 +127,11 @@ class ObjectClass(SchemaElement):
       self.kind = 1
     elif d['AUXILIARY']!=None:
       self.kind = 2
+    if self.kind==0:
+      # STRUCTURAL object classes are sub-classes of 'top' be default
+      self.sup = d['SUP'] or ('top',)
+    else:
+      self.sup = d['SUP']
     assert type(self.names)==TupleType
     assert self.desc is None or type(self.desc)==StringType
     assert type(self.obsolete)==BooleanType and (self.obsolete==0 or self.obsolete==1)
