@@ -8,24 +8,26 @@ known to compile and work with:
   * Python 2.0+			<http://www.python.org/>
   * OpenLDAP 2.0.18		<http://www.openldap.org/>
 
+Most parts should still work with Python 1.5.x. See compability notes
+in module headers.
+
 For module documentation, see:
 
 	http://python-ldap.sourceforge.net/
 
 Quick build instructions:
     edit setup.cfg
-    make
-    make install
+    python setup.py build
+    python setup.py install
 
 Quick usage example:
-    import _ldap
-    l = _ldap.open("my_ldap_server.my_domain")
+    import ldap
+    l = ldap.open("my_ldap_server.my_domain")
     l.simple_bind_s("","")
-    l.search_s("o=My Organisation, c=AU", _ldap.SCOPE_SUBTREE, "objectclass=*")
+    l.search_s("o=My Organisation, c=AU", ldap.SCOPE_SUBTREE, "objectclass=*")
 
 Not included:
    Direct BER support
-   CLDAP 
 
 Author(s) contact:
    http://python-ldap.sourceforge.net/
@@ -50,11 +52,11 @@ Notes for Microsoft WIN32:
    you should refer to the README.txt file in the win32/ directory.
 
 Copyright and licensing:
-   Different parts of python-ldap have different licenses.  See
+   Different parts of python-ldap might have different licenses.  See
    individual directories for their licensing. In brief, these are:
-	_ldap:		public domain
-	ldapthreadlock:	public domain
+	ldap:		public domain
 	ldif:		public domain
+	ldapurl:	public domain
 	win32:		unknown <public domain?>
 
    Although not a condition of the licenses, I strongly urge that any
@@ -71,7 +73,7 @@ Acknowledgements:
    ldaplib and perldap migration module.
 
    Thanks to Michael Stroeder <michael at stroeder.com> for the 
-   ldif and ldapthreadlock modules.
+   modules ldif, ldap/*.py modules.
 
    Thanks to all the guys on the python-ldap-dev mailing list for
    their contributions and input into this package.
