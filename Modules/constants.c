@@ -18,7 +18,7 @@ static PyObject* forward;
 PyObject*
 LDAPconstant( int val ) {
     PyObject *i = PyInt_FromLong( val );
-    PyObject *s = PyMapping_GetItem( reverse, i );
+    PyObject *s = PyObject_GetItem( reverse, i );
     if (s == NULL) {
     	PyErr_Clear();
 	return i;
