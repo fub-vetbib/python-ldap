@@ -14,8 +14,9 @@
 #include "message.h"
 #include "options.h"
 
+#ifdef HAVE_SASL
 #include <sasl.h>
-
+#endif
 
 static void free_attrs(char***);
 
@@ -395,7 +396,9 @@ static char doc_add[] = "";
 
 static char doc_bind[] = "";
 
+#ifdef HAVE_SASL
 static char doc_sasl_bind_s[] = "";
+#endif
 
 /* ldap_bind */
 
@@ -417,6 +420,7 @@ l_ldap_bind( LDAPObject* self, PyObject* args )
 }
 
 
+#ifdef HAVE_SASL
 /* The following functions implement SASL binds. A new method
    sasl_bind_s(bind_dn, sasl_mechanism) has been introduced.
 
@@ -590,7 +594,7 @@ l_ldap_sasl_bind_s( LDAPObject* self, PyObject* args )
     	return LDAPerror( self->ldap, "ldap_sasl_bind_s" );
     return PyInt_FromLong( msgid );
 }
-
+#endif
 
 #if 0 
 /* removed until made OpenLDAP2 compatible */
@@ -1179,7 +1183,9 @@ static PyMethodDef methods[] = {
     {"abandon",		(PyCFunction)l_ldap_abandon,		METH_VARARGS,	doc_abandon},
     {"add",		(PyCFunction)l_ldap_add,		METH_VARARGS,	doc_add},
     {"bind",		(PyCFunction)l_ldap_bind,		METH_VARARGS,	doc_bind},
+#ifdef HAVE_SASL
     {"sasl_bind_s",	(PyCFunction)l_ldap_sasl_bind_s,	METH_VARARGS,	doc_sasl_bind_s},
+#endif
 #if 0    
     {"set_rebind_proc",	(PyCFunction)l_ldap_set_rebind_proc,	METH_VARARGS,	doc_set_rebind_proc},
 #endif

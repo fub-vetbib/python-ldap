@@ -50,11 +50,12 @@ LDAP_set_option(LDAPObject *self, int option, PyObject *value)
     case LDAP_OPT_API_INFO:
     case LDAP_OPT_DESC:
     case LDAP_OPT_API_FEATURE_INFO:
+#ifdef HAVE_SASL
     case LDAP_OPT_X_SASL_SSF:
+#endif
 	    /* Read-only options */
 	    PyErr_SetString(PyExc_ValueError, "read-only option");
 	    return -1;
-
     case LDAP_OPT_REFERRALS:
     case LDAP_OPT_RESTART:
 	    /* Truth-value options */
@@ -69,14 +70,15 @@ LDAP_set_option(LDAPObject *self, int option, PyObject *value)
     case LDAP_OPT_DEBUG_LEVEL:
     case LDAP_OPT_X_TLS:
     case LDAP_OPT_X_TLS_REQUIRE_CERT:
+#ifdef HAVE_SASL
     case LDAP_OPT_X_SASL_SSF_MIN:
     case LDAP_OPT_X_SASL_SSF_MAX:
+#endif
 	    /* integer value options */
 	    if (!PyArg_Parse(value, "i:set_option", &intval))
 		return NULL;
 	    ptr = &intval;
 	    break;
-
     case LDAP_OPT_HOST_NAME:
     case LDAP_OPT_URI:
     case LDAP_OPT_ERROR_STRING:
@@ -87,13 +89,14 @@ LDAP_set_option(LDAPObject *self, int option, PyObject *value)
     case LDAP_OPT_X_TLS_KEYFILE:
     case LDAP_OPT_X_TLS_CIPHER_SUITE:
     case LDAP_OPT_X_TLS_RANDOM_FILE:
+#ifdef HAVE_SASL
     case LDAP_OPT_X_SASL_SECPROPS:
+#endif
 	    /* String valued options */
 	    if (!PyArg_Parse(value, "s:set_option", &strval))
 		return NULL;
 	    ptr = strval;
 	    break;
-
     case LDAP_OPT_SERVER_CONTROLS:
     case LDAP_OPT_CLIENT_CONTROLS:
     case LDAP_OPT_TIMEOUT:
@@ -163,7 +166,9 @@ LDAP_get_option(LDAPObject *self, int option)
 	    Py_DECREF(extensions);
 	    return v;
 
+#ifdef HAVE_SASL
     case LDAP_OPT_X_SASL_SSF:
+#endif
     case LDAP_OPT_REFERRALS:
     case LDAP_OPT_RESTART:
     case LDAP_OPT_DESC:
@@ -175,8 +180,10 @@ LDAP_get_option(LDAPObject *self, int option)
     case LDAP_OPT_DEBUG_LEVEL:
     case LDAP_OPT_X_TLS:
     case LDAP_OPT_X_TLS_REQUIRE_CERT:
+#ifdef HAVE_SASL
     case LDAP_OPT_X_SASL_SSF_MIN:
     case LDAP_OPT_X_SASL_SSF_MAX:
+#endif
 	    /* Integer-valued options */
 	    if (self) LDAP_BEGIN_ALLOW_THREADS(self);
 	    res = ldap_get_option(ld, option, &intval);
@@ -195,7 +202,9 @@ LDAP_get_option(LDAPObject *self, int option)
     case LDAP_OPT_X_TLS_KEYFILE:
     case LDAP_OPT_X_TLS_CIPHER_SUITE:
     case LDAP_OPT_X_TLS_RANDOM_FILE:
+#ifdef HAVE_SASL
     case LDAP_OPT_X_SASL_SECPROPS:
+#endif
 	    /* String-valued options */
 	    if (self) LDAP_BEGIN_ALLOW_THREADS(self);
 	    res = ldap_get_option(ld, option, &strval);

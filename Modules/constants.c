@@ -94,7 +94,9 @@ LDAPinit_constants( PyObject* d )
 	add_int(d,TAG_EXOP_REQ_VALUE);
 	add_int(d,TAG_EXOP_RES_OID);
 	add_int(d,TAG_EXOP_RES_VALUE);
+#ifdef HAVE_SASL
 	add_int(d,TAG_SASL_RES_CREDS);
+#endif
 #endif
 
 	/* reversibles */
