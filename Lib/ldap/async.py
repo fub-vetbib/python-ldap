@@ -85,7 +85,8 @@ class AsyncSearchHandler:
 
   def preProcessing(self):
     """
-    Do anything you want before receiving and processing results
+    Do anything you want after starting search but
+    before receiving and processing results
     """
 
   def postProcessing(self):
@@ -132,7 +133,7 @@ class AsyncSearchHandler:
     finally:
       if self._msgId!=None:
         self._l.abandon(self._msgId)
-    self.preProcessing()
+    self.postProcessing()
     return partial # processResults()
 
   def _processSingleResult(self,resultType,resultItem):
@@ -186,13 +187,15 @@ class FileWriter(AsyncSearchHandler):
 
   def preProcessing(self):
     """
-    Do anything you want before receiving and processing results
+    The headerStr is written to output after starting search but
+    before receiving and processing results.
     """
     self._f.write(self.headerStr)
 
   def postProcessing(self):
     """
-    Do anything you want after receiving and processing results
+    The footerStr is written to output after receiving and
+    processing results.
     """
     self._f.write(self.footerStr)
 
