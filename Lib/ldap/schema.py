@@ -105,6 +105,30 @@ def str2matchingrule(schema_element_str,schema_allow=0):
     return schema_func_wrapper(_ldap.str2matchingrule,schema_element_str,schema_allow)
 
 
+def key_attr(key,value,quoted=0):
+  assert type(value)==type(''),TypeError("value has to be of StringType")
+  if value:
+    if quoted:
+      return ' %s %s' % (key,repr(value))
+    else:
+      return ' %s %s' % (key,value)
+  else:
+    return ''
+
+def key_list(key,values,sep=' ',quoted=0):
+  assert type(values)==type([]),TypeError("values has to be of ListType")
+  if quoted:
+    quoted_values = [repr(n) for n in values]
+  else:
+    quoted_values = values
+  if not values:
+    return ''
+  elif len(values)==1:
+    return ' %s %s' % (key,quoted_values[0])
+  else:
+    return ' %s ( %s )' % (key,sep.join(quoted_values))
+
+
 class ObjectClass:
 
     def __init__(
@@ -134,6 +158,20 @@ class ObjectClass:
         self.must = must
         self.may = may
         self.ext = ext
+      assert self.oid!=None,ValueError("%s.oid is None" % (self.__class__.__name__))
+      assert self.names,ValueError("%s.names empty" % (self.__class__.__name__))
+      return # ObjectClass.__init__()
+
+    def __str__(self):
+      result = [str(self.oid)]
+      result.append(key_list('NAME',self.names,quoted=1))
+      result.append(key_attr('DESC',self.desc,quoted=1))
+      result.append(key_list('SUP',self.sup))
+      result.append({0:'',1:' OBSOLETE'}[self.obsolete])
+      result.append({0:' ABSTRACT',1:' STRUCTURAL',2:' AUXILIARY'}[self.kind])
+      result.append(key_list('MUST',self.must,sep=' $ '))
+      result.append(key_list('MAY',self.may,sep=' $ '))
+      return '( %s )' % ''.join(result)
 
 
 class AttributeType:
@@ -156,6 +194,31 @@ class AttributeType:
                                #2=distributedOperation, 3=dSAOperation
          self.ext              #OPTIONAL
          ) = str2attributetype(schema_element_str,schema_allow)
+
+    def __str__(self):
+      result = [str(self.oid)]
+      result.append(key_list('NAME',self.names,quoted=1))
+      result.append(key_attr('DESC',self.desc,quoted=1))
+      result.append(key_attr('SUP',self.sup_oid))
+      result.append({0:'',1:' OBSOLETE'}[self.obsolete])
+      result.append(key_attr('EQUALITY',self.equality_oid))
+      result.append(key_attr('ORDERING',self.ordering_oid))
+      result.append(key_attr('SUBSTR',self.substr_oid))
+      result.append(key_attr('SYNTAX',self.syntax_oid))
+      result.append('{%d}' % (self.syntax_len))
+      result.append({0:'',1:' SINGLE-VALUE'}[self.single_value])
+      result.append({0:'',1:' COLLECTIVE'}[self.collective])
+      result.append({0:'',1:' NO-USER-MODIFICATION'}[self.no_user_mod])
+      result.append(
+        " USAGE "+\
+        {
+          0:"userApplications",
+          1:"directoryOperation",
+          2:"distributedOperation",
+          3:"dSAOperation",
+        }[self.usage]
+      )
+      return '( %s )' % ''.join(result)
 
 
 class LDAPSyntax:

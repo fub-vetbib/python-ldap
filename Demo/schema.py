@@ -2,7 +2,7 @@ import sys,time,ldap,ldap.schema,ldapurl
 
 schema_allow = ldap.schema.ALLOW_ALL
 
-schema_attrs = ['objectClasses']
+schema_attrs = ['objectClasses','attributeTypes']
 
 ldap_url = ldapurl.LDAPUrl(sys.argv[1])
 
@@ -59,6 +59,7 @@ for attr_type,schema_class in ldap.schema.SCHEMA_CLASS_MAPPING.items():
   for oid,se in schema.schema_element.items():
     if isinstance(se,schema_class):
       print repr(oid),repr(se)
+      print str(se)
 print '*** Testing object class inetOrgPerson ***'
 inetOrgPerson = schema.schema_element[schema.name2oid['inetOrgPerson']]
 print inetOrgPerson.must,inetOrgPerson.may
