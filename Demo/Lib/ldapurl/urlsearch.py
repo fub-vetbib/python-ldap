@@ -14,7 +14,7 @@ except IndexError:
 
 for a in [
   'urlscheme','hostport','dn','attrs','scope',
-  'filterstr','extensions','charset','who','cred'
+  'filterstr','extensions','who','cred'
 ]:
   print a,repr(getattr(ldapUrl,a))
 
@@ -27,4 +27,6 @@ if ldapUrl.who!=None:
     cred=getpass.getpass()
   l.simple_bind_s(ldapUrl.who,cred)
 
-l.search_s(ldapUrl.dn,ldapUrl.scope,ldapUrl.filterstr,ldapUrl.attrs)
+res = l.search_s(ldapUrl.dn,ldapUrl.scope,ldapUrl.filterstr,ldapUrl.attrs)
+
+print len(res),'search results'
