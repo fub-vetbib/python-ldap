@@ -114,6 +114,8 @@ def StripLineSep(s):
     return s[:-2]
   elif s[-1]=='\n':
     return s[:-1]
+  else:
+    return s
 
 
 def ParseLDIF(f,ignore_attrs=[],maxentries=0):
@@ -161,8 +163,7 @@ def ParseLDIF(f,ignore_attrs=[],maxentries=0):
         binary = 0
 
       # Strip the line separators 
-      data = StripLineSep(string.lstrip(data))
-
+      data = StripLineSep(data[1:])
       s = f.readline()
 
       # Reading continued multi-line data
@@ -181,7 +182,7 @@ def ParseLDIF(f,ignore_attrs=[],maxentries=0):
 
         # Add attr: data to entry
 	if attr=='dn':
-          dn = string.strip(data) ; attr = '' ; data = ''
+          dn = string.strip(data) ; attr = None ; data = None
           if not is_dn(dn):
 	    raise ValueError, 'No valid string-representation of distinguished name.'
 	else:
