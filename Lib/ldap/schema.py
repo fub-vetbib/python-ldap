@@ -1,12 +1,8 @@
 """
 schema.py - support for subSchemaSubEntry information
-written by Hans Aschauer <Hans.Aschauer@Physik.uni-muenchen.de>,
-modified by Michael Stroeder <michael@stroeder.com>
+written by Michael Stroeder <michael@stroeder.com>
 
 \$Id$
-
-License:
-Public domain. Do anything you want with this module.
 """
 
 __version__ = '0.1.0'
@@ -535,8 +531,10 @@ class Entry(UserDict):
   """
 
   def __init__(self,schema,entry={}):
+    self._keys = {}
     self._s = schema
-    UserDict.__init__(self,entry)
+    UserDict.__init__(self,{})
+    self.update(entry)
 
   def _oid(self,nameoroid):
     return self._s.name2oid[ldap.schema.AttributeType].get(nameoroid,nameoroid)
@@ -545,15 +543,20 @@ class Entry(UserDict):
     return self.data[self._oid(nameoroid)]
 
   def __setitem__(self,nameoroid,schema_obj):
-    oid = self._oid(key)
-    self._keys[oid] = key
-    self.data[oid] = value
+    oid = self._oid(nameoroid)
+    if oid!=nameoroid:
+      self._keys[oid] = nameoroid
+    self.data[oid] = schema_obj
 
   def __delitem__(self,nameoroid):
     del self.data[self._oid(nameoroid)]
 
   def has_key(self,nameoroid):
     return UserDict.has_key(self,self._oid(nameoroid))
+
+  def update(self,entry):
+    for k in entry.keys():
+      self[k] = entry[k]
 
   def get(self,nameoroid,failobj):
     try:
