@@ -1,5 +1,8 @@
 *** List of things to-do in no particular order ***
 
+General:
+- Define common license for all modules
+
 Modules/
 - Completion of start_tls_s() with SSL context
 - Support for LDAP over SSL
@@ -11,6 +14,8 @@ Modules/
 - Support for binding with in DSA control mode
 
 Lib/
+- Remove obsolete/unsupported modules
 - LDAPv3 schema support (BNF parser needed)
 - Add ldapurl module from web2ldap
 - LDIF parser for replication logs
+- DSML support
