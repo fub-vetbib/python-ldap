@@ -19,12 +19,11 @@ PyObject*
 LDAPconstant( int val ) {
     PyObject *i = PyInt_FromLong( val );
     PyObject *s = PyDict_GetItem( reverse, i );
-    if (s==NULL) {
+    if (s == NULL) {
     	PyErr_Clear();
 	return i;
     }
     Py_DECREF(i);
-    Py_DECREF(s);
     return s;
 }
 
@@ -152,10 +151,10 @@ LDAPinit_constants( PyObject* d )
 	add_int(d,DEREF_FINDING);
 	add_int(d,DEREF_ALWAYS);
 	add_int(d,NO_LIMIT);
-#ifdef LDAP_DNS
+#ifdef LDAP_OPT_DNS
 	add_int(d,OPT_DNS);
 #endif
-#ifdef LDAP_REFERRALS
+#ifdef LDAP_OPT_REFERRALS
 	add_int(d,OPT_REFERRALS);
 #endif
 	add_int(d,OPT_RESTART);
