@@ -127,9 +127,9 @@ class ObjectClass(SchemaElement):
       self.kind = 1
     elif d['AUXILIARY']!=None:
       self.kind = 2
-    if self.kind==0:
-      # STRUCTURAL object classes are sub-classes of 'top' be default
-      self.sup = d['SUP'] or ('top',)
+    if self.kind==0 and not d['SUP'] and self.oid!='2.5.6.0':
+      # STRUCTURAL object classes are sub-classes of 'top' by default
+      self.sup = ('top',)
     else:
       self.sup = d['SUP']
     assert type(self.names)==TupleType

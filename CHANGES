@@ -6,6 +6,9 @@ Changes since 2.0.5:
 Lib/:
 * Added sub-module ldap.dn
 * Added function ldap.dn.escape_dn_chars()
+* Special check when implicitly setting SUP 'top' to
+  structural object classes without SUP defined to avoid
+  a loop in the super class chain.
 
 ----------------------------------------------------------------
 Released 2.0.5 2004-11-11
