@@ -362,7 +362,7 @@ The following example demonstrates how to open an LDAP server using the
 >>> import ldap
 >>> l = ldap.initialize("ldap://my-ldap-server.my-domain:389")
 >>> l.simple_bind_s("","")
->>> l.search_s("o=My Organisation, c=AU", _ldap.SCOPE_SUBTREE, "objectclass=*")
+>>> l.search_s("o=My Organisation, c=AU", ldap.SCOPE_SUBTREE, "objectclass=*")
 \end{verbatim}
 % Note that there is no trailing ">>> " prompt shown.
 
