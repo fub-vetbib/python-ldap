@@ -11,7 +11,7 @@ This module is known to work with Python 2.0+ but should work
 with Python 1.5.2 as well.
 """
 
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 
 
 import string,ldap
@@ -84,19 +84,22 @@ def modifyModlist(
       modlist.append((ldap.MOD_ADD,attrtype,new_value))
     elif old_value and new_value:
       # Replace existing attribute
-      old_value_dict={}
-      for v in old_value: old_value_dict[v]=None
-      new_value_dict={}
-      for v in new_value: new_value_dict[v]=None
-      delete_values = []
-      for v in old_value:
-        if not new_value_dict.has_key(v):
-          delete_values.append(v)
-      add_values = []
-      for v in new_value:
-        if not old_value_dict.has_key(v):
-          add_values.append(v)
-      if add_values or delete_values:
+      replace_attr_value = len(old_value)!=len(new_value)
+      if not replace_attr_value:
+        old_value_dict=list_dict(old_value)
+        new_value_dict=list_dict(new_value)
+        delete_values = []
+        for v in old_value:
+          if not new_value_dict.has_key(v):
+            replace_attr_value = 1
+            break
+        add_values = []
+        if not replace_attr_value:
+          for v in new_value:
+            if not old_value_dict.has_key(v):
+              replace_attr_value = 1
+              break
+      if replace_attr_value:
         modlist.append((ldap.MOD_DELETE,attrtype,None))
         modlist.append((ldap.MOD_ADD,attrtype,new_value))
     elif old_value and not new_value:
