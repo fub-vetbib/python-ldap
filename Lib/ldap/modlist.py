@@ -9,22 +9,26 @@ This module is known to work with Python 2.0+ but should work
 with Python 1.5.2 as well.
 """
 
-__version__ = '0.0.2'
+
+__version__ = '0.0.3'
+
 
 import string,ldap
 
-def addModlist(entry):
+
+def addModlist(entry,ignore_attr_types=[]):
   """Build modify list for call of method LDAPObject.add()"""
+  ignore_attr_types = map(string.lower,ignore_attr_types)
   modlist = []
   for attrtype in entry.keys():
+    if string.lower(attrtype) in ignore_attr_types:
+      # This attribute type is ignored
+      continue
     modlist.append((attrtype,entry[attrtype]))
   return modlist
 
-def modifyModlist(
-  old_entry,
-  new_entry,
-  ignore_attr_types=[]
-):
+
+def modifyModlist(old_entry,new_entry,ignore_attr_types=[]):
   """Build differential modify list for call of method LDAPObject.modify()"""
   ignore_attr_types = map(string.lower,ignore_attr_types)
   modlist = []
