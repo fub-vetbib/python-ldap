@@ -24,7 +24,7 @@ The timeout handling is done within the method result() which probably leads
 to less exact timing.
 """
 
-_version = '0.0.4'
+__version__ = '0.0.4'
 
 import time,threading,ldap
 
