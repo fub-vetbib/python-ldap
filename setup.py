@@ -74,7 +74,7 @@ setup(
 		    libraries =		LDAP_CLASS.libs,
 		    include_dirs =	['Modules'] + LDAP_CLASS.include_dirs,
 		    library_dirs =	LDAP_CLASS.library_dirs,
-		    runtime_library_dirs = LDAP_CLASS.library_dirs,
+#		    runtime_library_dirs = LDAP_CLASS.library_dirs,
 		    define_macros =	LDAP_CLASS.defines + [
 						('LDAPMODULE_VERSION', version),
 					],
