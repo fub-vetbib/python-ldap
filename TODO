@@ -3,16 +3,19 @@
 General:
 - Define common license for all modules
 - Create a test script that exercises everything with a public server
+  holding the BLITS 2.5 test data set
 
 Modules/
 - Validating server's certificate when calling start_tls_s() or
   ldap.initialize('ldaps://..')
 - Look into OpenLDAP 2's lib ldap_r to make python-ldap re-entrant
 - Support for SASL bind by wrapping ldap_sasl_bind()
-- Support for VLV control
-- Support for server-side sorting control
-- Support for binding with in DSA control mode
+- Support for controls:
+  - VLV control
+  - server-side sorting control
+  - binding in DSA control mode
 - Wrap ldap_parse_reference()
+- Support for Win32 (and other platforms?)
 
 Lib/
 - Remove obsolete/unsupported modules
