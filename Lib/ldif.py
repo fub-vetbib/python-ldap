@@ -158,15 +158,29 @@ class LDIFWriter:
   def _unparseChangeRecord(self,modlist):
     """
     modlist
-        list of modifications
+        list of additions (2-tuple) or modifications (3-tuple)
     """
-    for mod_op,mod_type,mod_vals in modlist:
-      self._unparseAttrTypeandValue('changetype','modify')
-      self._unparseAttrTypeandValue(MOD_OP_STR[mod_op],mod_type)
-      if type(mod_vals)==types.StringType:
-        mod_vals = [mod_vals]
-      for mod_val in mod_vals:
-        self._unparseAttrTypeandValue(mod_type,mod_val)
+    mod_len = len(modlist[0])
+    if mod_len==2:
+      changetype = 'add'
+    elif mod_len==3:
+      changetype = 'modify'
+    else:
+      raise ValueError,"modlist item of wrong length"
+    self._unparseAttrTypeandValue('changetype',changetype)
+    for mod in modlist:
+      if mod_len==2:
+        mod_type,mod_vals = mod
+      elif mod_len==3:
+        mod_op,mod_type,mod_vals = mod
+        self._unparseAttrTypeandValue(MOD_OP_STR[mod_op],mod_type)
+      else:
+        raise ValueError,"Subsequent modlist item of wrong length"
+      if mod_vals:
+        for mod_val in mod_vals:
+          self._unparseAttrTypeandValue(mod_type,mod_val)
+      if mod_len==3:
+        self._output_file.write('-'+self._line_sep)
 
   def unparse(self,dn,record):
     """
