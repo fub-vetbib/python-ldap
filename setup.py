@@ -86,6 +86,7 @@ setup(
                 'ldap',
                 'ldap.async',
                 'ldap.functions',
+		'ldap.sasl',
 		'ldap.schema',
                 'ldap.ldapobject',
                 'ldap.modlist',
