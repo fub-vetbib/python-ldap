@@ -1,6 +1,12 @@
 ----------------------------------------------------------------
 Released 2.1.0 2005-02-xx
 
+Lib:/
+* New algorithm in ldap.schema.tokenizer.split_tokens()
+  contributed by Wido Depping which is more robust
+  when parsing very broken schema elements
+  (e.g. Oracle's OID).
+
 ----------------------------------------------------------------
 Released 2.0.6 2004-12-03
 
