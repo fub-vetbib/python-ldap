@@ -545,7 +545,7 @@ class Entry(ldap.cidict.cidict):
     return self._s.getoid(ldap.schema.AttributeType,nameoroid)
 
   def __getitem__(self,nameoroid):
-    return self.data[self._at_oid(nameoroid)]
+    return ldap.cidict.cidict.__getitem__(self,self._at_oid(nameoroid))
 
   def __setitem__(self,nameoroid,schema_obj):
     oid = self._at_oid(nameoroid)
