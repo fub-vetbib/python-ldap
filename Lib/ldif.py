@@ -27,7 +27,7 @@ except ImportError:
   from StringIO import StringIO
 
 attrtype_pattern = r'[\w;.]+(;[\w_-]+)*'
-attrvalue_pattern = r'(([^,]|\\,)*|".*?")'
+attrvalue_pattern = r'(([^,]|\\,)+|".*?")'
 rdn_pattern = attrtype_pattern + r'[ ]*=[ ]*' + attrvalue_pattern
 dn_pattern   = rdn_pattern + r'([ ]*,[ ]*' + rdn_pattern + r')*[ ]*'
 dn_regex   = re.compile('^%s$' % dn_pattern)

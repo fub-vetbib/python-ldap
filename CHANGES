@@ -1,12 +1,10 @@
 ----------------------------------------------------------------
-Released 2.0.0pre22 2004-04-xx
+Released 2.0.0pre22 2004-05-xx
 
 Changes since 2.0.0pre21:
 
 ldif:
 * Empty records are simply ignored in ldif.LDIFWriter.unparse()
-* Relaxed pattern for attribute values in DNs to allow
-  empty strings
 
 ----------------------------------------------------------------
 Released 2.0.0pre21 2004-03-29
