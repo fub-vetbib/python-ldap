@@ -9,6 +9,8 @@ srcdir=		@srcdir@
 
 MAKEVARS=	srcdir=$(srcdir)/Modules VPATH=$(srcdir)/Modules
 
+all:	 build
+
 build:   _ldapmodule-build 
 install: _ldapmodule-install 
 
