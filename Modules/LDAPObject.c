@@ -559,13 +559,6 @@ l_ldap_sasl_bind_s( LDAPObject* self, PyObject* args )
     void *defaults;
     static unsigned sasl_flags = LDAP_SASL_AUTOMATIC;
 
-    /* first check if we are a LDAPv3 client */
-    version = LDAP_VERSION3;
-    if (ldap_set_option(self->ldap, 
-			LDAP_OPT_PROTOCOL_VERSION, 
-			&version) != LDAP_OPT_SUCCESS)
-      return NULL;
-
     if (!PyArg_ParseTuple(args, 
 			  "sO",
 			  &bind_dn,
