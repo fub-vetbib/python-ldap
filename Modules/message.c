@@ -94,6 +94,7 @@ LDAPmessage_to_python( LDAP*ld, LDAPMessage*m )
 			Py_DECREF(attrdict);
 			Py_DECREF(result);
 			Py_DECREF(valuestr);
+			Py_DECREF(valuelist);
 			ldap_msgfree( m );
 			return NULL;
 		    }

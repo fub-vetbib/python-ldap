@@ -36,7 +36,9 @@ dealloc( LDAPObject* self )
 {
     if (self->ldap) {
 	if (self->valid) {
+	    LDAP_BEGIN_ALLOW_THREADS( self );
 	    ldap_unbind( self->ldap );
+	    LDAP_END_ALLOW_THREADS( self );
 	    self->valid = 0;
 	}
 	self->ldap = NULL;
@@ -86,8 +88,9 @@ LDAPMod_DEL( LDAPMod* lm )
  * or (str, [str,...]) if no_op is true, into an LDAPMod structure.
  * See ldap_modify(3) for details.
  *
- * XXX assumes the strings last longer than the LDAPMod structure
- *     (ie incompatible with ldap_mods_free)
+ * NOTE: the resulting LDAPMod structure has pointers directly into
+ *       the Python string storage, so LDAPMod structures MUST have a
+ *	 shorter lifetime than the tuple passed in.
  */
 
 /* XXX - there is no way to pass complex-structured BER objects in here! */
@@ -184,7 +187,10 @@ LDAPMods_DEL( LDAPMod** lms ) {
     PyMem_DEL(lms);
 }
 
-/* convert a list of tuples into a LDAPMod*[] array structure */
+/* 
+ * convert a list of tuples into a LDAPMod*[] array structure 
+ * NOTE: list of tuples must live longer than the LDAPMods
+ */
 
 static LDAPMod**
 List_to_LDAPMods( PyObject *list, int no_op ) {
@@ -432,7 +438,9 @@ static char doc_bind[] =
 "simple_bind(who, passwd) -> int\n"
 "simple_bind_s(who, passwd) -> None\n"
 #ifdef WITH_KERBEROS
+#ifdef HAVE_LDAP_KERBEROS_BIND_S
 "kerberos_bind_s(who) -> None\n"
+#endif
 #ifdef HAVE_LDAP_KERBEROS_BIND1
 "kerberos_bind1(who) -> None\n"
 #endif
@@ -666,6 +674,7 @@ l_ldap_simple_bind_s( LDAPObject *self, PyObject *args )
 
 #ifdef WITH_KERBEROS
 
+#ifdef HAVE_LDAP_KERBEROS_BIND_S	/* tsk. some libraries omit this.. */
 /* ldap_kerberos_bind_s */
 
 static PyObject*
@@ -684,6 +693,7 @@ l_ldap_kerberos_bind_s( LDAPObject *self, PyObject *args )
     Py_INCREF(Py_None);
     return Py_None;
 }
+#endif
 
 #ifdef HAVE_LDAP_KERBEROS_BIND1
 /* ldap_kerberos_bind1 */
@@ -1570,7 +1580,9 @@ static PyMethodDef methods[] = {
     {"simple_bind",	(PyCFunction)l_ldap_simple_bind,	METH_VARARGS,	doc_bind},	
     {"simple_bind_s",	(PyCFunction)l_ldap_simple_bind_s,	METH_VARARGS,	doc_bind},	
 #ifdef WITH_KERBEROS
+#ifdef HAVE_LDAP_KERBEROS_BIND_S
     {"kerberos_bind_s",	(PyCFunction)l_ldap_kerberos_bind_s,	METH_VARARGS,	doc_bind},	
+#endif
 #ifdef HAVE_LDAP_KERBEROS_BIND1
     {"kerberos_bind1",	(PyCFunction)l_ldap_kerberos_bind1,	METH_VARARGS,	doc_bind},	
 #endif

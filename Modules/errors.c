@@ -28,40 +28,59 @@ LDAPerror( LDAP*l, char*msg )
 {
 	if (l == NULL) {
 		PyErr_SetFromErrno( LDAPexception_class );
-	} else {
-		int errnum;
-		PyObject* errobj;
-		PyObject *info;
-
+		return NULL;
+	}
 #ifdef LDAP_TYPE_IS_OPAQUE
+	else {
 		PyErr_SetString(LDAPexception_class,
 			"unknown error (C API does not expose error)");
+		return NULL;
+	}
 #else
+	else {
+		int errnum;
+		PyObject *errobj;
+		PyObject *info;
+		PyObject *str;
+
 		errnum = l->ld_errno;
 		if (errnum<0 || errnum>=NUM_LDAP_ERRORS)
-		    	Py_FatalError("LDAPerror - invalid error");
-
-		errobj = errobjects[errnum];
+			errobj = LDAPexception_class;	/* unknown error XXX */
+		else
+			errobj = errobjects[errnum];
 		
 		if (errnum == LDAP_NO_MEMORY)
-			PyErr_NoMemory();
+			return PyErr_NoMemory();
 
 		info = PyDict_New();
+		if (info == NULL)
+			return NULL;
 
-		PyDict_SetItemString( info, "desc", 
-				PyString_FromString(ldap_err2string(errnum)));
+		str = PyString_FromString(ldap_err2string(errnum));
+		if (str)
+			PyDict_SetItemString( info, "desc", str );
+		Py_XDECREF(str);
 
 		if (l->ld_matched != NULL && *l->ld_matched != '\0') 
-		   PyDict_SetItemString( info, "matched", 
-		   		PyString_FromString(l->ld_matched) );
+		{
+		   str = PyString_FromString(l->ld_matched);
+		   if (str)
+			   PyDict_SetItemString( info, "matched", str );
+		   Py_XDECREF(str);
+		}
 
 		if (l->ld_error != NULL && *l->ld_error != '\0') 
-		   PyDict_SetItemString( info, "info", 
-		   		PyString_FromString(l->ld_error) );
+		{
+		   str = PyString_FromString(l->ld_error);
+		   if (str)
+			   PyDict_SetItemString( info, "info", str );
+		   Py_XDECREF(str);
+		}
 		PyErr_SetObject( errobj, info );
-#endif
+		Py_DECREF(info);
+		return NULL;
 	}
-	return NULL;
+#endif
 }
 
 
