@@ -113,11 +113,17 @@ class LDAPUrlExtension:
   def __str__(self):
     return self.unparse()
 
+  def __repr__(self):
+    return '<%s: %s>' % (self.__class__.__name__,self.__dict__)
+
   def __eq__(self,other):
     return \
       (self.critical==other.critical) and \
       (self.extype==other.extype) and \
       (self.exvalue==other.exvalue)
+
+  def __ne__(self,other):
+    return not self.__eq__(other)
 
 
 class LDAPUrl:
@@ -180,8 +186,10 @@ class LDAPUrl:
     self.scope=scope
     self.filterstr=filterstr
     self.extensions=extensions
-    self.who = who
-    self.cred = cred
+    if who!=None:
+      self.who = who
+    if cred!=None:
+      self.cred = cred
     if ldapUrl!=None:
       self._parse(ldapUrl)
 
@@ -224,14 +232,16 @@ class LDAPUrl:
 
   def __eq__(self,other):
     return \
-      self.ldapUrl==other.ldapUrl and \
       self.urlscheme==other.urlscheme and \
       self.hostport==other.hostport and \
       self.dn==other.dn and \
       self.attrs==other.attrs and \
       self.scope==other.scope and \
       self.filterstr==other.filterstr and \
-      self.extensions ==other.extensions
+      self.extensions.__eq__(other.extensions)
+
+  def __ne__(self,other):
+    return not self.__eq__(other)
 
   def _parse(self,ldap_url):
     """
@@ -272,8 +282,6 @@ class LDAPUrl:
       self.attrs = unquote_plus(paramlist[1].strip()).split(',')
     if paramlist_len>=3:
       scope = paramlist[2].strip()
-      if not scope:
-        scope = 'base'
       try:
         self.scope = SEARCH_SCOPE[scope]
       except KeyError:
@@ -358,3 +366,7 @@ class LDAPUrl:
 
   def __str__(self):
     return self.unparse()
+
+  def __repr__(self):
+    return '<%s: %s>' % (self.__class__.__name__,self.__dict__)
+

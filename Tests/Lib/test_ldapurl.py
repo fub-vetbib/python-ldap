@@ -33,78 +33,110 @@ for ldap_url in is_ldap_url_tests.keys():
     )
 
 print '\nTesting class LDAPUrl:'
-parse_ldap_url_tests = {
-  'ldap://root.openldap.org/dc=openldap,dc=org':(
-    'ldap',
-    u'root.openldap.org', u'dc=openldap,dc=org',None,LDAP_SCOPE_BASE,'(objectclass=*)',[]
+parse_ldap_url_tests = [
+  (
+    'ldap://root.openldap.org/dc=openldap,dc=org',
+    LDAPUrl(
+      hostport='root.openldap.org',
+      dn='dc=openldap,dc=org'
+    )
   ),
-  'ldap://localhost/dc=stroeder,dc=com??sub?':(
-    'ldap',
-    u'localhost', u'dc=stroeder,dc=com',None,LDAP_SCOPE_SUBTREE,'(objectclass=*)',[]
+  (
+    'ldap://root.openldap.org/dc%3dboolean%2cdc%3dnet???%28objectClass%3d%2a%29',
+    LDAPUrl(
+      hostport='root.openldap.org',
+      dn='dc=boolean,dc=net',
+      filterstr='(objectClass=*)'
+    )
   ),
-  'ldap://localhost??one?':(
-    'ldap',
-    u'localhost', u'',None,LDAP_SCOPE_ONELEVEL,'(objectclass=*)',[]
+  (
+    'ldap://root.openldap.org/dc=openldap,dc=org??sub?',
+    LDAPUrl(
+      hostport='root.openldap.org',
+      dn='dc=openldap,dc=org',
+      scope=ldapurl.LDAP_SCOPE_SUBTREE
+    )
   ),
-  'ldap://x500.mh.se/o=Mitthogskolan,c=se????1.2.752.58.10.2=T.61':(
-    'ldap',
-    u'x500.mh.se',
-    u'o=Mitthogskolan,c=se',None,
-    LDAP_SCOPE_BASE,
-    u'(objectclass=*)',
-    [u'1.2.752.58.10.2=T.61']
+  (
+    'ldap://root.openldap.org/dc=openldap,dc=org??one?',
+    LDAPUrl(
+      hostport='root.openldap.org',
+      dn='dc=openldap,dc=org',
+      scope=ldapurl.LDAP_SCOPE_ONELEVEL
+    )
   ),
-  'ldap://ldap.openldap.org/uid%3dkurt%2cdc%3dboolean%2cdc%3dnet??base?%28objectclass%3d%2a%29':(
-    'ldap',
-    'ldap.openldap.org',
-    u'uid=kurt,dc=boolean,dc=net',
-    None,
-    LDAP_SCOPE_BASE,
-    u'(objectclass=*)',
-    []
+  (
+    'ldap://root.openldap.org/dc=openldap,dc=org??base?',
+    LDAPUrl(
+      hostport='root.openldap.org',
+      dn='dc=openldap,dc=org',
+      scope=ldapurl.LDAP_SCOPE_BASE
+    )
   ),
-  'ldap://localhost:12345/dc=stroeder,dc=com????bindname=cn=Michael%2Cdc=stroeder%2Cdc=com,X-BINDPW=secretpassword':(
-    'ldap',
-    'localhost:12345',
-    u'dc=stroeder,dc=com',
-    None,
-    LDAP_SCOPE_BASE,
-    u'(objectclass=*)',
-    [u'bindname=cn=Michael%2Cdc=stroeder%2Cdc=com',u'X-BINDPW=secretpassword']
+  (
+    'ldap://x500.mh.se/o=Mitthogskolan,c=se????1.2.752.58.10.2=T.61',
+    LDAPUrl(
+      hostport='x500.mh.se',
+      dn='o=Mitthogskolan,c=se',
+      extensions={
+        '1.2.752.58.10.2':LDAPUrlExtension(
+          critical=0,extype='1.2.752.58.10.2',exvalue='T.61'
+        )
+      }
+    )
   ),
-  'ldaps://localhost:12345/dc=stroeder,dc=com????bindname=cn=Michael%2Cdc=stroeder%2Cdc=com,X-BINDPW=secretpassword':(
-    'ldaps',
-    'localhost:12345',
-    u'dc=stroeder,dc=com',
-    None,
-    LDAP_SCOPE_BASE,
-    u'(objectclass=*)',
-    [u'bindname=cn=Michael%2Cdc=stroeder%2Cdc=com',u'X-BINDPW=secretpassword']
+  (
+    'ldap://localhost:12345/dc=stroeder,dc=com????!bindname=cn=Michael%2Cdc=stroeder%2Cdc=com,!X-BINDPW=secretpassword',
+    LDAPUrl(
+      hostport='localhost:12345',
+      dn='dc=stroeder,dc=com',
+      extensions={
+        'bindname':LDAPUrlExtension(
+          critical=1,extype='bindname',exvalue='cn=Michael,dc=stroeder,dc=com'
+        ),
+        'X-BINDPW':LDAPUrlExtension(
+          critical=1,extype='X-BINDPW',exvalue='secretpassword'
+        ),
+      },
+    )
   ),
-  'ldapi://%2ftmp%2fopenldap2-1389/dc=stroeder,dc=com????bindname=cn=Michael%2Cdc=stroeder%2Cdc=com,X-BINDPW=secretpassword':(
-    'ldapi',
-    '/tmp/openldap2-1389',
-    u'dc=stroeder,dc=com',
-    None,
-    LDAP_SCOPE_BASE,
-    u'(objectclass=*)',
-    [u'bindname=cn=Michael%2Cdc=stroeder%2Cdc=com',u'X-BINDPW=secretpassword']
+  (
+    'ldap://localhost:54321/dc=stroeder,dc=com????bindname=cn=Michael%2Cdc=stroeder%2Cdc=com,X-BINDPW=secretpassword',
+    LDAPUrl(
+      hostport='localhost:54321',
+      dn='dc=stroeder,dc=com',
+      who='cn=Michael,dc=stroeder,dc=com',
+      cred='secretpassword'
+    )
   ),
-}
-for ldap_url in parse_ldap_url_tests.keys():
-  print 72*'#','\nTesting LDAP URL:',ldap_url
-  ldapUrl = LDAPUrl(ldapUrl=ldap_url)
-  print 'Unparsed LDAP URL',ldapUrl.unparse()
-  if (
-       ldapUrl.urlscheme,ldapUrl.hostport,ldapUrl.dn,ldapUrl.attrs,
-       ldapUrl.scope,ldapUrl.filterstr,map(str,ldapUrl.extensions.values())
-     ) != \
-     parse_ldap_url_tests[ldap_url]:
+  (
+    'ldaps://localhost:12345/dc=stroeder,dc=com',
+    LDAPUrl(
+      urlscheme='ldaps',
+      hostport='localhost:12345',
+      dn='dc=stroeder,dc=com',
+    ),
+  ),
+  (
+    'ldapi://%2ftmp%2fopenldap2-1389/dc=stroeder,dc=com',
+    LDAPUrl(
+      urlscheme='ldapi',
+      hostport='/tmp/openldap2-1389',
+      dn='dc=stroeder,dc=com',
+    ),
+  ),
+]
+
+for ldap_url_str,test_ldap_url_obj in parse_ldap_url_tests:
+#  print '\nTesting LDAP URL:',repr(ldap_url)
+  ldap_url_obj = LDAPUrl(ldapUrl=ldap_url_str)
+  if ldap_url_obj.__ne__(test_ldap_url_obj):
     print 'Attributes of LDAPUrl(%s) are:\n%s\ninstead of:\n%s\n' % (
-      repr(ldap_url),
-      (
-       ldapUrl.urlscheme,ldapUrl.hostport,ldapUrl.dn,ldapUrl.attrs,
-       ldapUrl.scope,ldapUrl.filterstr,map(str,ldapUrl.extensions.values())
-      ),
-      repr(parse_ldap_url_tests[ldap_url])
+      repr(ldap_url_str),repr(ldap_url_obj),repr(test_ldap_url_obj)
+    )
+  unparsed_ldap_url_str = test_ldap_url_obj.unparse()
+  unparsed_ldap_url_obj = LDAPUrl(ldapUrl=unparsed_ldap_url_str)
+  if unparsed_ldap_url_obj.__ne__(test_ldap_url_obj):
+    print 'Unparsed LDAP URL differs:\n%s\n%s' % (
+      repr(unparsed_ldap_url_str),repr(unparsed_ldap_url_obj)
     )
