@@ -1,0 +1,19 @@
+$Id$
+
+BUILD NOTES
+-----------
+
+This directory is for scripts helpful for building releases.
+
+Some effort has been put into enabling build directories separate from
+the source tree. This way, you can have one source tree and multiple
+build directories. 
+
+The general idea is to make a fresh build directory, cd there, then run 
+the configure script in the source tree. Configure will notice this and
+create Makefiles etc in the build directory.
+
+In order to create packages after building, create a 'destdir' directory
+and run a 'make install' with the DESTDIR variable set to the destdir
+directory.
+
