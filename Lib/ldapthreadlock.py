@@ -42,7 +42,7 @@ if __debug__:
 _ldapmodule_lock = threading.Lock()
 
 
-def _ldap_call(self,func,*args,**kwargs):
+def _ldap_call(func,*args,**kwargs):
   """Wrapper function which locks calls to func with via ldap_module_lock"""
   _ldapmodule_lock.acquire()
   try:
@@ -66,7 +66,7 @@ class LDAPObject:
           repr(args),repr(kwargs)
         if _module_debug_level>=2:
           traceback.print_stack(file=sys.stdout)
-    result = _ldap_call(self,func,*args,**kwargs)
+    result = _ldap_call(func,*args,**kwargs)
     if __debug__:
       if _module_debug_level>=1 and result!=None:
         print '=> result:',result
