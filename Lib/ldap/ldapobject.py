@@ -48,12 +48,12 @@ class SimpleLDAPObject:
 
   _direct_class_attrs = ['_l','_trace_level','_trace_file','_uri','_ldap_object_lock']
 
-  def __init__(self,uri,trace_level=0,trace_file=sys.stdout,ldap_r=0):
+  def __init__(self,uri,trace_level=0,trace_file=sys.stdout):
     self._trace_level = trace_level
     self._trace_file = trace_file
     self._uri = uri
     self._l = ldap._ldap_call(_ldap.initialize,uri)
-    if ldap_r:
+    if ldap.LIBLDAP_R:
       self._ldap_object_lock = ldap.LDAPLock()
     else:
       self._ldap_object_lock = ldap._ldap_module_lock
@@ -73,7 +73,6 @@ class SimpleLDAPObject:
     try:
       result = apply(func,args,kwargs)
     finally:
-      pass
       self._ldap_object_lock.release()
     if __debug__:
       if self._trace_level>=1 and result!=None and result!=(None,None):
