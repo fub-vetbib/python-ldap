@@ -200,52 +200,6 @@ class SimpleLDAPObject:
     msgid = self.delete(dn)
     self.result(msgid)
 
-  def destroy_cache(self):
-    """
-    destroy_cache() -> None    
-        Turns off caching and removed it from memory.
-    """
-    self._ldap_call(self._l.destroy_cache,)
-
-  def disable_cache(self):
-    """
-    disable_cache() -> None    
-        Temporarily disables use of the cache. New requests are
-        not cached, and the cache is not checked when returning
-        results. Cache contents are not deleted.
-    """
-    self._ldap_call(self._l.disable_cache,)
-
-  def enable_cache(self,timeout=_ldap.NO_LIMIT,maxmem=_ldap.NO_LIMIT):
-    """
-    enable_cache([timeout=NO_LIMIT, [maxmem=NO_LIMIT]]) -> None    
-        Using a cache often greatly improves performance. By default
-        the cache is disabled. Specifying timeout in seconds is used
-        to decide how long to keep cached requests. The maxmem value
-        is in bytes, and is used to set an upper bound on how much
-        memory the cache will use. A value of NO_LIMIT for either
-        indicates unlimited.  Subsequent calls to enable_cache()
-        can be used to adjust these parameters.
-
-        This and other caching methods are not available if the library
-        and the ldap module were compiled with support for it.
-    """
-    self._ldap_call(self._l.enable_cache,timeout,maxmem)
-
-  def fileno(self):
-    """
-    fileno() -> int
-        Return the file descriptor associated with this connection.
-    """
-    return self._ldap_call(self._l.fileno,)
-
-  def flush_cache(self):
-    """
-    flush_cache() -> None    
-        Deletes the cache's contents, but does not affect it in any other way.
-    """
-    self._ldap_call(self._l.flush_cache)
-
   def manage_dsa_it(self,enable,critical=0):
     """
     manage_dsa_it() -> None
