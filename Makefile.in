@@ -38,7 +38,7 @@ _ldapmodule-filelist:
 	echo "$(LIBDEST)/site-packages/ldap.pth" >> filelist
 	echo "$(LIBDEST)/site-packages/python-ldap/_ldapmodule.so" >> filelist
 	for ff in $(srcdir)/Lib/*.py; do \
-		f=`basename $$f .py`; \
+		f=`basename $$ff .py`; \
 		echo "$(LIBDEST)/site-packages/python-ldap/$$f.py"; \
 		echo "$(LIBDEST)/site-packages/python-ldap/$$f.pyc"; \
 		echo "$(LIBDEST)/site-packages/python-ldap/$$f.pyo"; \
