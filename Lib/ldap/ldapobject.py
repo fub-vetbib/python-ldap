@@ -338,7 +338,7 @@ class SimpleLDAPObject:
     msgid = self.rename(dn,newrdn,newsuperior,delold)
     self.result(msgid,all=1,timeout=self.timeout)
 
-  def result(self,msgid=_ldap.RES_ANY,all=1,timeout=None):
+  def result(self,msgid=ldap.RES_ANY,all=1,timeout=None):
     """
     result([msgid=RES_ANY [,all=1 [,timeout=None]]]) -> (result_type, result_data)
 
