@@ -6,10 +6,10 @@
 % \refbimodindex, \refstmodindex, \refexmodindex or \refmodindex, as
 % appropriate.
 
-\section{\module{_ldap} ---
+\section{\module{ldap} ---
          LDAP library interface module}
 
-\declaremodule[ldap]{extension}{_ldap}		% not standard, in C
+\declaremodule[ldap]{extension}{ldap}		% not standard, in C
 
 \platform{UNIX}
 
@@ -55,7 +55,7 @@ LDAP library implementation.
 
 \subsection{Functions}
 
-The \module{_ldap} module defines the following functions:
+The \module{ldap} module defines the following functions:
 
 % ---- 3.1. ----
 % For each function, use a ``funcdesc'' block.  This has exactly two
@@ -71,17 +71,28 @@ The \module{_ldap} module defines the following functions:
 % least once in the description; each usage (even inside \code{...})
 % should be enclosed in \var{...}.
 
+\begin{funcdesc}{initialize}{uri} % -> LDAPObject
+  Opens a new connection with an LDAP server, and return an LDAP object
+  (see section~\ref{ldap-objects}) used to perform operations on that server.
+  Parameter \var{uri} has to be a valid LDAP URL
+  \begin{seealso}
+  \seerfc{2255}{The LDAP URL Format}{}
+  \end{seealso}
+\end{funcdesc}
+
 \begin{funcdesc}{open}{host \optional{, port=\constant{PORT}}} % -> LDAPObject
   Opens a new connection with an LDAP server, and return an LDAP object
-  used to perform operations on that server.
-  (See section~\ref{ldap-objects} for information on the LDAP object.)
+  (see section~\ref{ldap-objects}) used to perform operations on that server.
+  \var{host} is a string containing solely the host name. \var{port}
+  is an integer specifying the port where the LDAP server is
+  listening (default is 389).
+  Note: Using this function is deprecated.
 \end{funcdesc}
 
 \begin{funcdesc}{dn2ufn}{dn} % -> string
   Turns \var{dn} into a more user-friendly form, stripping off type names.
   \begin{seealso}
-  \seerfc{1781}{Using the Directory to Achieve User Friendly Naming}{
-	for more details on the UFN format.}
+  \seerfc{1781}{Using the Directory to Achieve User Friendly Naming}{}
   \end{seealso}
 \end{funcdesc}
 
@@ -94,11 +105,32 @@ The \module{_ldap} module defines the following functions:
   returned as either \code{["cn=Bob", "c=US"]} or \code{["Bob","US"]}
   depending on whether \var{notypes} was \constant{0} or \constant{1},
   respectively.
+  \begin{seealso}
+  \seerfc{2253}{Lightweight Directory Access Protocol (v3):
+           UTF-8 String Representation of Distinguished Names}{}
+  \end{seealso}
+\end{funcdesc}
+
+\begin{funcdesc}{explode_rdn}{rdn \optional{, notypes=\constant{0}}} % -> list
+  This function takes a (multi-valued) \var{rdn} and breaks it up
+  into a list of characteristic attributes. The
+  \var{notypes} parameter is used to specify that only the RDN values be 
+  returned and not their types.
 \end{funcdesc}
 
 \begin{funcdesc}{is_ldap_url}{url} % -> boolean
   This function returns true if \var{url} `looks like' an LDAP URL 
   (as opposed to some other kind of URL). 
+\end{funcdesc}
+
+\begin{funcdesc}{get_option}{option} % -> None
+  This function returns the value of the global option
+  specified by \var{option}.
+\end{funcdesc}
+
+\begin{funcdesc}{set_option}{option, invalue} % -> None
+  This function sets the value of the global option
+  specified by \var{option} to \var{invalue}.
 \end{funcdesc}
 
 
@@ -324,11 +356,11 @@ call does not indicate success.
 \subsection{Example \label{ldap-example}}
 
 The following example demonstrates how to open an LDAP server using the
-\module{_ldap} module.
+\module{ldap} module.
 
 \begin{verbatim}
->>> import _ldap
->>> l = _ldap.open("my-ldap-server.my-domain")
+>>> import ldap
+>>> l = ldap.initialize("ldap://my-ldap-server.my-domain:389")
 >>> l.simple_bind_s("","")
 >>> l.search_s("o=My Organisation, c=AU", _ldap.SCOPE_SUBTREE, "objectclass=*")
 \end{verbatim}
@@ -402,24 +434,14 @@ integer is omitted from the tuples in \var{modlist}.
      \methodline[LDAP]{bind_s}{who, cred, method} % -> None
      \methodline[LDAP]{simple_bind}{who, passwd} % -> None
      \methodline[LDAP]{simple_bind_s}{who, passwd} % -> None
-     \methodline[LDAP]{kerberos_bind_s}{who} % -> None
-     \methodline[LDAP]{kerberos_bind1}{who} % -> int
-     \methodline[LDAP]{kerberos_bind1_s}{who} % -> None
-     \methodline[LDAP]{kerberos_bind2}{who} % -> int
-     \methodline[LDAP]{kerberos_bind2_s}{who} % -> None
 After an LDAP object is created, and before any other operations can be
 attempted over the connection, a bind operation must be performed.
 
 This method attempts to bind with the LDAP server using 
 either simple authentication, or Kerberos (if available).
 The first and most general method, \method{bind()},
-takes a third parameter, \var{method}, which can be one of
-\constant{AUTH_SIMPLE}, \constant{AUTH_KRBV41} or \constant{AUTH_KRBV42}.
-The \var{cred} parameter is ignored for Kerberos authentication and
-should be \constant{None}.
-
-Kerberos authentication support is only available if it is 
-available in the underlying library.
+takes a third parameter, \var{method}, which can currently solely
+be \constant{AUTH_SIMPLE}.
 \end{methoddesc}
 
 %%------------------------------------------------------------
@@ -491,9 +513,24 @@ give to the entry. The optional parameter \var{delold} is used to specify
 whether the old RDN should be kept as an attribute of the entry or not.
 (Note: This may not actually be supported by the underlying library.)
 The asynchronous version returns the initiated message id.
+\end{methoddesc}
 
-If they are available, the \cfunction{modrdn2*()} routines in the \C\ library
-are used instead of \cfunction{modrdn()}.
+%%------------------------------------------------------------
+%% modrdn
+
+\begin{methoddesc}[LDAP]{rename}{dn, newrdn \optional{, newsuperior=\constant{None}} \optional{, delold=\constant{1}}}
+		%-> int
+     \methodline[LDAP]{rename_s}{dn, newrdn \optional{, newsuperior=\constant{None} \optional{, delold=\constant{1}}}}
+		% -> None
+Perform a `Rename' operation, (i.e. a renaming operation).
+These routines take \var{dn} (the DN
+of the entry whose RDN is to be changed, and \var{newrdn}, the new RDN to
+give to the entry.
+The optional parameter \var{newsuperior} is used to specify
+a new parent DN for moving an entry in the tree
+(not all LDAP servers support this).
+The optional parameter \var{delold} is used to specify
+whether the old RDN should be kept as an attribute of the entry or not.
 \end{methoddesc}
 
 %%------------------------------------------------------------
@@ -568,22 +605,11 @@ at which to start the search, \var{scope} being one of
 The
 \var{filter} argument is a string representation of the filter to apply in
 the search. Simple filters can be specified as
-\code{"\var{attribute_type}=\var{attribute_value}"}. 
-More complex filters are specified using a prefix notation according to 
-the following BNF:
-\begin{eqnarray*}
-	\var{filter}	&::=& \bfcode{(} \ \var{filtercomp} \ \bfcode{)}
-\\	\var{filtercomp}&::=& \var{and} \ |\ \var{or}\ |\ \var{not} 
-			      \ |\ \var{simple}
-\\	\var{and}	&::=& \bfcode{\&} \ \var{filterlist}
-\\	\var{or}	&::=& \bfcode{|} \ \var{filterlist}
-\\	\var{not}	&::=& \bfcode{!} \ \var{filter}
-\\	\var{filterlist}&::=& \var{filter} \ |\ \var{filter} \ \var{filterlist}
-\\	\var{simple}	&::=& \var{attributetype}\ \var{filtertype} 
-			      \ \var{attributevalue}
-\\	\var{filtertype}&::=& \bfcode{=} \ |\ \bfcode{\~=}\ |\ \bfcode{<=}
-		              \ |\ \bfcode{>=}
-\end{eqnarray*}
+\code{"\var{attribute_type}=\var{attribute_value}"}.
+
+\begin{seealso}
+\seerfc{2254}{The String Representation of LDAP Search Filters}{}
+\end{seealso}
 
 When using the asynchronous form and \method{result()}, the \var{all}
 parameter affects how results come in.
@@ -637,24 +663,6 @@ available if support is available in the underlying library (LDAP_REFERRALS).
 \end{methoddesc}
 
 %%------------------------------------------------------------
-%% ufn_setfilter
-
-\begin{methoddesc}[LDAP]{ufn_setfilter}{filtername}	% -> None
-       \methodline[LDAP]{ufn_setprefix}{prefix}		% -> None
-       \methodline[LDAP]{ufn_search_s}{url \optional{, attrsonly=\constant{0}}}
-		% -> list
-       \methodline[LDAP]{ufn_search_st}{url \optional{, attrsonly=\constant{0} \optional{, timeout=\constant{-1}}}}
-		% -> list
-See the underlying LDAP library manual pages for information on these
-`user-friendly name' functions:
-	\manpage{ldap_ufn_setfilter}{3},
-	\manpage{ldap_ufn_setprefix}{3}, and
-	\manpage{ldap_ufn_search_s}{3}.
-Explanation of LDAP filter files are out 
-of the scope of this document.  
-\end{methoddesc}
-
-%%------------------------------------------------------------
 %% unbind
 
 \begin{methoddesc}[int]{unbind}{}
@@ -677,15 +685,19 @@ These routine works much like the \method{search()} family of methods,
 except that many of the search parameters are extracted from the \var{url}
 argument.
 
-LDAP URLs are fully described in \rfc{2255}, and look like this: 
+LDAP URLs are fully described in \rfc{2255}.
+\end{methoddesc}
 
-\code{"ldap://\var{host}\optional{:\var{port}}/\var{dn}\optional{?\var{attributes}\optional{?\var{scope}\optional{?\var{filter}}}}"}
+\subsubsection{LDAP options}
 
-where \var{scope} is one of \code{base} (default), \code{one} or \code{sub},
-and \var{attributes} is a comma-separated list of attributes to be retrieved.
+\begin{methoddesc}[LDAP]{get_option}{option} % -> None
+  This function returns the value of the LDAPObject option
+  specified by \var{option}.
+\end{methoddesc}
 
-URLs wrapped in angle-brackets and/or preceded by \code{"URL:"} are 
-tolerated.
+\begin{methoddesc}[LDAP]{set_option}{option, invalue} % -> None
+  This function sets the value of the LDAPObject option
+  specified by \var{option} to \var{invalue}.
 \end{methoddesc}
 
 \subsubsection{Cache control}
