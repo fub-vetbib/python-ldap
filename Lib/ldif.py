@@ -1,10 +1,6 @@
 """
 ldif.py - generate and parse LDIF data
 
-This module is distributed under the terms of the
-GPL (GNU GENERAL PUBLIC LICENSE) Version 2
-(see http://www.gnu.org/copyleft/gpl.html)
-
 $Id$
 """
 
