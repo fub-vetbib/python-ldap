@@ -129,7 +129,7 @@ class LDAPUrlExtension:
     self.extype = self.extype.strip()
     self.exvalue = unquote_plus(self.exvalue.strip())
 
-  def __str__(self):
+  def unparse(self):
     return '%s%s=%s' % (
       '!'*(self.critical>0),
       self.extype,self.exvalue.replace(',',r'%2C')
@@ -361,7 +361,7 @@ class LDAPUrl:
     if self.extensions:
       ldap_url = ldap_url+'?'+','.join(
         [
-          str(e)
+          e.unparse()
           for e in self.extensions.values()
         ]
       )
