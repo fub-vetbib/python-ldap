@@ -5,6 +5,8 @@ Changes since 2.0.0pre13:
 
 setup.py:
 * Some modifications to ease building for Win32
+* Added directory Build/ mainly intended for platform-specific
+  examples of setup.cfg
 
 ldap.ldapobject:
 * Added class attribute LDAPObject.network_timeout mapped to
