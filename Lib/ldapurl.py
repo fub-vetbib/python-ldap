@@ -26,7 +26,7 @@ __all__ = [
 
 import UserDict
 
-from urllib import quote,unquote_plus
+from urllib import quote,unquote
 
 LDAP_SCOPE_BASE = 0
 LDAP_SCOPE_ONELEVEL = 1
@@ -104,7 +104,7 @@ class LDAPUrlExtension:
       extension = extension[1:].strip()
     self.extype,self.exvalue = extension.split('=',1)
     self.extype = self.extype.strip()
-    self.exvalue = unquote_plus(self.exvalue.strip())
+    self.exvalue = unquote(self.exvalue.strip())
 
   def unparse(self):
     return '%s%s=%s' % (
@@ -276,18 +276,18 @@ class LDAPUrl:
     qemark_pos = rest.find('?')
     if (slash_pos==-1) and (qemark_pos==-1):
       # No / and ? found at all
-      self.hostport = unquote_plus(rest)
+      self.hostport = unquote(rest)
       self.dn = ''
       return
     else:
       if slash_pos!=-1 and (qemark_pos==-1 or (slash_pos<qemark_pos)):
         # Slash separates DN from hostport
-        self.hostport = unquote_plus(rest[:slash_pos])
+        self.hostport = unquote(rest[:slash_pos])
         # Eat the slash from rest
         rest = rest[slash_pos+1:]
       elif qemark_pos!=1 and (slash_pos==-1 or (slash_pos>qemark_pos)):
         # Question mark separates hostport from rest, DN is assumed to be empty
-        self.hostport = unquote_plus(rest[:qemark_pos])
+        self.hostport = unquote(rest[:qemark_pos])
         # Do not eat question mark
         rest = rest[qemark_pos:]
       else:
@@ -295,9 +295,9 @@ class LDAPUrl:
     paramlist=rest.split('?')
     paramlist_len = len(paramlist)
     if paramlist_len>=1:
-      self.dn = unquote_plus(paramlist[0]).strip()
+      self.dn = unquote(paramlist[0]).strip()
     if (paramlist_len>=2) and (paramlist[1]):
-      self.attrs = unquote_plus(paramlist[1].strip()).split(',')
+      self.attrs = unquote(paramlist[1].strip()).split(',')
     if paramlist_len>=3:
       scope = paramlist[2].strip()
       try:
@@ -309,7 +309,7 @@ class LDAPUrl:
       if not filterstr:
         self.filterstr = None
       else:
-        self.filterstr = unquote_plus(filterstr)
+        self.filterstr = unquote(filterstr)
     if paramlist_len>=5:
       self.extensions = LDAPUrlExtensions()
       self.extensions.parse(paramlist[4])
@@ -395,7 +395,7 @@ class LDAPUrl:
     if self.attr2extype.has_key(name):
       extype = self.attr2extype[name]
       if self.extensions.has_key(extype):
-        result = unquote_plus(
+        result = unquote(
           self.extensions[extype].exvalue
         )
       else:
@@ -415,7 +415,7 @@ class LDAPUrl:
       elif value!=None:
         # Add appropriate extension
         self.extensions[extype] = LDAPUrlExtension(
-          extype=extype,exvalue=unquote_plus(value)
+          extype=extype,exvalue=unquote(value)
         )
     else:
       self.__dict__[name] = value
