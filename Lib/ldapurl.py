@@ -357,7 +357,7 @@ class LDAPUrl:
       hostport = ldapUrlEscape(self.hostport)
     else:
       hostport = self.hostport
-    ldap_url = u'%s://%s/%s?%s?%s?%s' % (
+    ldap_url = '%s://%s/%s?%s?%s?%s' % (
       self.urlscheme,
       hostport,dn,attrs_str,scope_str,filterstr
     )
