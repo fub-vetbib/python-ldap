@@ -95,7 +95,7 @@ class LDAPEntry:
             l.append((k, self.data[k][0]))
         return l
 
-    # basic operations on *single* attribute values
+    # basic operations on *single* attribute values  (get is pretty bad)
     def get(self, key, default=None):
         return self.data.get(key, (default,))[0]
     def set(self, key, value):
@@ -131,7 +131,7 @@ class LDAPEntry:
     def set_connection(self, connection):
         """Set the connection this object should use for directory access."""
         self._connection = connection
-        self.reload(self, self.dn, self.attrl)
+        self.reload(self.dn, self.attrl)
         
     def set_ancestor(self, ancestor):
         """Set the ancestor and calculate rdn."""
@@ -151,15 +151,16 @@ class LDAPEntry:
            this entry is marked as NEW."""
         self.__check_connection()
         self.attrl = attrl
-        data = self._connection._raw_search('objectclass=*',
-                                              dn, ldap.SCOPE_BASE, attrl)
-        if len(new) == 0:
-            self.status = LDAPEntry.STATUS_NEW
-        else:
+        try:
+	    data = self._connection._raw_search('objectclass=*',
+                                                dn, ldap.SCOPE_BASE, attrl)
+            data = data[0][1]
+            for k in data.keys():
+                LDAPEntry.__setitem__(self, k, data[k], 0)
             self.status = LDAPEntry.STATUS_REAL
-            for k in data[0].keys():
-                LDAPEntry.__setitem__(self, k, data[0][k], 0)
-        
+	except ldap.NO_SUCH_OBJECT:
+	    self.status = LDAPEntry.STATUS_NEW
+	    
     def browse(self, filter=None, attrl=None):
         """Retrieve childrens from the database.
 
@@ -194,21 +195,19 @@ class LDAPEntry:
            an ADD for every new attribute and a MODIFY for every modified
            one. Attributes not found in this object are deleted!
         """
+	mod = []
         if self.status == LDAPEntry.STATUS_GHOST:
             raise LDAPError('cannot commit a ghost entry')
         elif self.status == LDAPEntry.STATUS_ZOMBIE:
             self._connection._delete(self.dn)
             self.status = LDAPEntry.STATUS_NEW
-            print "DELETE:", self.dn, "\n"
         elif self.status == LDAPEntry.STATUS_NEW:
             for k in self.keys():
                 mod.append((k, self.data[k][0]))
-                self._connection._add(self.dn, mod)
+            self._connection._add(self.dn, mod)
             self.status = LDAPEntry.STATUS_REAL
-            print "CREATE:", self.dn, "\n"
         elif self.status == LDAPEntry.STATUS_REAL:
             old = self._connection.find(self.dn)
-            mod = []
             for k in self.keys():
                 if old.has_key(k):
                     if self.data[k][1] == 2:    # delete attribute from server
@@ -218,9 +217,6 @@ class LDAPEntry:
                     else:
                         if self.data[k][1] == 1:
                             mod.append((ldap.MOD_ADD, k, self.data[k][0]))
-            print "OLD:", old
-            print "NEW:", self
-            print "MODIFICATION:", mod, "\n"
             self._connection._modify(self.dn, mod)
             self.__purge__()
 

@@ -52,7 +52,7 @@ class LDAPConnection:
             base_dn = self.base
         elif self.use_rdn == 1:
             base_dn = canonical_dn(base_dn, self.base)
-        return base_dn
+	return base_dn
 
     # some functions used internally by the LDAPEntry object
     def _modify(self, dn, modlist):
@@ -62,7 +62,7 @@ class LDAPConnection:
 
     def _add(self, dn, modlist):
         """Add to dn the given list of attributes."""
-        if modlist and len(modlist) > 0:
+	if modlist and len(modlist) > 0:
             self.__connection.add_s(self.__check_base(dn), modlist)
 
     def _delete(self, dn):
@@ -90,7 +90,10 @@ class LDAPConnection:
     def search(self, filter=None, base_dn=None,
                scope=ldap.SCOPE_SUBTREE, attrl=None):
         """Search the directory, return an array of LDAPEntry instances."""
-        data = self._raw_search(filter, base_dn, scope, attrl)
+        try:
+            data = self._raw_search(filter, base_dn, scope, attrl)
+        except ldap.NO_SUCH_OBJECT:
+            data = None
         array = []
         if data == None: return array 
         for edata in data:

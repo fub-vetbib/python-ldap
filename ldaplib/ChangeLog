@@ -1,3 +1,7 @@
+2000-02-17  Federico Di Gregorio  <fog@debian.org>
+
+	* connection.py, entry.py: lots of fixes. no new features.
+
 2000-02-15  Federico Di Gregorio  <fog@debian.org>
 
 	* connection.py, entry.py: genereal cleanup and better integration
