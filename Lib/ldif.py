@@ -268,7 +268,6 @@ class LDIFParser:
     Continously read from LDIF file and parse input
     """
     self._line = self._inputfile.readline()
-#    print '1->',repr(self._line)
 
     while self._line and \
           (not self._max_entries or self.records_read<self._max_entries):
@@ -277,8 +276,6 @@ class LDIFParser:
       version = None; dn = None; changetype = None; modop = None; entry = {}
 
       attr_type,attr_value = self._parseAttrTypeandValue()
-#      print '2->',repr(attr_type),repr(attr_value)
-#      print '2->',repr(self._line)
 
       while attr_type!=None and attr_value!=None:
         if attr_type=='dn':
@@ -288,7 +285,6 @@ class LDIFParser:
           if not is_dn(attr_value):
 	    raise ValueError, 'No valid string-representation of distinguished name %s.' % (repr(attr_value))
           dn = attr_value
-#          print '***start of LDIF data set',repr(dn),repr(entry)
         elif attr_type=='version' and dn is None:
           version = 1
         elif attr_type=='changetype':
@@ -300,7 +296,6 @@ class LDIFParser:
           if not valid_changetype_dict.has_key(attr_value):
 	    raise ValueError, 'changetype value %s is invalid.' % (repr(attr_value))
           dn = attr_value
-#          print '***start of LDIF data set',repr(dn),repr(entry)
         elif not self._ignored_attr_types.has_key(string.lower(attr_type)):
           # Add the attribute to the entry if not ignored attribute
           if entry.has_key(attr_type):
@@ -310,12 +305,8 @@ class LDIFParser:
 
         # Read the next line within an entry
         attr_type,attr_value = self._parseAttrTypeandValue()
-#        print '3->',repr(attr_type),repr(attr_value)
-#        print '3->',repr(self._line)
 
-#      print '***end of LDIF data set',repr(dn),repr(entry)
       if entry:
-        print entry
         # append entry to result list
         self.handle(dn,entry)
         self.records_read = self.records_read+1
