@@ -84,7 +84,7 @@ LDAP_set_option(LDAPObject *self, int option, PyObject *value)
 #endif
 	    /* integer value options */
 	    if (!PyArg_Parse(value, "i:set_option", &intval))
-		return NULL;
+		return 0;
 	    ptr = &intval;
 	    break;
     case LDAP_OPT_HOST_NAME:
@@ -102,14 +102,14 @@ LDAP_set_option(LDAPObject *self, int option, PyObject *value)
 #endif
 	    /* String valued options */
 	    if (!PyArg_Parse(value, "s:set_option", &strval))
-		return NULL;
+		return 0;
 	    ptr = strval;
 	    break;
     case LDAP_OPT_TIMEOUT:
     case LDAP_OPT_NETWORK_TIMEOUT:
 	    /* Float valued timeval options */
 	    if (!PyArg_Parse(value, "d:set_option", &doubleval))
-		return NULL;
+		return 0;
             if (doubleval >= 0) {
 	        set_timeval_from_double( &tv, doubleval );
                 ptr = &tv;
