@@ -9,7 +9,7 @@ GPL (GNU GENERAL PUBLIC LICENSE) Version 2
 (see http://www.gnu.org/copyleft/gpl.html)
 """
 
-_version = '0.2.7'
+__version__ = '0.2.8'
 
 import sys,string,binascii,re
 
@@ -42,82 +42,80 @@ def is_valid_ldif_value(s):
   """
   return non_ldif_value_re.search(s) is None
 
-def BinaryAttribute(attr,buf,col=77):
+
+def BinaryAttribute(attrtype,value,cols=66):
   """
-  Convert buf to a binary attribute representation
+  Convert value to a binary attribute representation (base64 encoded)
+
+  attrtype
+        string of attribute type
+  value
+        string containing the attribute value
+  cols
+        Number of text columns to use for base64 output
   """
-  b64buf = '%s:: ' % (attr)
-  buflen = len(buf)
+  b64buf = '%s:: ' % (attrtype)
+  buflen = len(value)
   pos=0
   while pos<buflen:
-    b64buf = '%s%s' % (b64buf,binascii.b2a_base64(buf[pos:min(buflen,pos+57)])[:-1])
+    b64buf = '%s%s' % (b64buf,binascii.b2a_base64(value[pos:min(buflen,pos+57)])[:-1])
     pos = pos+57
-
   b64buflen = len(b64buf)
-  pos=col
-  result = b64buf[0:min(b64buflen,col)]
+  pos=cols
+  result = b64buf[0:min(b64buflen,cols)]
   while pos<b64buflen:
-    result = '%s\n %s' % (result,b64buf[pos:min(b64buflen,pos+col-1)])
-    pos = pos+col-1
+    result = '%s\n %s' % (result,b64buf[pos:min(b64buflen,pos+cols-1)])
+    pos = pos+cols-1
   return '%s\n' % result
 
 
-def CreateLDIF(
-  dn,			# string-representation of distinguished name
-  entry={},		# dictionary holding the LDAP entry {attr:data}
-  binary_attrs=[]	# Attribute types to be base64-encoded
-):
+def CreateLDIF(dn,entry={},binary_attrs=[]):
   """
-  Create LDIF formatted entry.
+  Create LDIF formatted entry without trailing empty line.
   
-  The trailing empty line is NOT added.
+  dn
+        string-representation of distinguished name
+  entry
+        dictionary holding the LDAP entry {attrtype:data}
+  binary_attrs
+        list of attribute types to be base64-encoded in any case
   """
+  # Get all attribute types
+  attrs = entry.keys()[:]
+  attrs.sort()
   # Write line dn: first
   if is_valid_ldif_value(dn):
     result = ['dn: %s\n' % (dn)]
   else:
     result = [BinaryAttribute('dn',dn)]
-
-  objectclasses = entry.get('objectclass',entry.get('objectClass',[]))
-  for oc in objectclasses:
-    result.append('objectclass: %s\n' % oc)
-  attrs = entry.keys()[:]
-  try:
-    attrs.remove('objectclass')
-  except ValueError:
-    pass
-  try:
-    attrs.remove('objectClass')
-  except ValueError:
-    pass
-  attrs.sort()
+  # Write all attrtype: value lines
   for attr in attrs:
-    if attr in binary_attrs:
-      for data in entry[attr]:
+    # Write all values of an attribute
+    for data in entry[attr]:
+      if (attr in binary_attrs) or not is_valid_ldif_value(data):
         result.append(BinaryAttribute(attr,data))
-    else:
-      for data in entry[attr]:
-        if is_valid_ldif_value(data):
-  	  result.append('%s: %s\n' % (attr,data))
-	else:
-          result.append(BinaryAttribute(attr,data))
+      else:
+  	result.append('%s: %s\n' % (attr,data))
   return string.join(result,'')
 
 
-def ParseLDIF(
-  f=StringIO(),		# file-object for reading LDIF input
-  ignore_attrs=[],	# list of attribute types to ignore
-  maxentries=0		# (if non-zero) specifies the maximum number of
-  			# entries to be read from f
-):
+def ParseLDIF(f,ignore_attrs=[],maxentries=0):
   """
   Parse LDIF data read from file object f
+
+  f
+        file-object for reading LDIF input
+  ignore_attrs
+        list of attributes to be ignored
+  maxentries
+        if non-zero) specifies the maximum number of
+  	entries to be read from f
   """
   
   result = []
 
   # lower-case all
-  ignored_attrs = map(string.lower,ignore_attrs)
+  ignore_attrs = map(string.lower,ignore_attrs)
 
   # Read very first line
   s = f.readline()
@@ -155,9 +153,9 @@ def ParseLDIF(
         s = f.readline()
         s = string.rstrip(s)
 
-      attr = string.lower(string.strip(attr))
+      attr = string.strip(attr)
 
-      if not attr in ignored_attrs:
+      if not string.lower(attr) in ignore_attrs:
 
 	if binary:
           # binary data has to be BASE64 decoded
@@ -187,3 +185,26 @@ def ParseLDIF(
     s = f.readline()
 
   return result
+
+
+def test():
+  test_entry = {
+    'objectClass':['test'],
+    'cn':['Michael Str\303\266der'],
+    'bin':['\000\001\002'*200],
+    'extraspace':[' bla'],
+  }
+  ldif = CreateLDIF(
+    'cn=Michael Str\303\266der,dc=stroeder,dc=com',test_entry,['bin']
+  )
+  print ldif
+  test_result = ParseLDIF(StringIO(ldif))
+  print test_result
+  for a in test_entry.keys():
+    if test_entry[a]!=test_result[0][1][a]:
+      print 'Error in attribute %s: "%s"!="%s"' % (
+        a,repr(test_entry[a]),repr(test_result[0][1][a])
+      )
+
+if __name__ == '__main__':
+  test()
