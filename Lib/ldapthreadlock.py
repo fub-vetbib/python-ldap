@@ -26,7 +26,7 @@ The timeout handling is done within the method result() which probably leads
 to less exact timing.
 """
 
-__version__ = '0.2.0'
+__version__ = '0.2.1'
 
 import time,threading,ldap
 
@@ -46,7 +46,7 @@ class LDAPObject:
     """Wrapper function which locks calls to func with via ldap_module_lock"""
     if __debug__:
       if _module_debug_level>=1:
-        print '*** %s:',self.__module__,\
+        print '*** %s:' % (self.__module__),\
           self.__class__.__name__+'.'+func.__name__,\
           repr(args),repr(kwargs)
         if _module_debug_level>=2:
@@ -57,7 +57,7 @@ class LDAPObject:
     finally:
       _ldapmodule_lock.release()
     if __debug__:
-      if _module_debug_level>=1:
+      if _module_debug_level>=1 and result!=None:
         print '=> result:',result
     return result
 
@@ -72,7 +72,7 @@ class LDAPObject:
             self.__class__.__name__+'.__setattr__(%s,%s)' % (name,value)
           if _module_debug_level>=2:
             traceback.print_stack(file=sys.stdout)
-        _ldapmodule_lock.acquire()
+      _ldapmodule_lock.acquire()
       try:
         setattr(self._l,name,value)
       finally:
