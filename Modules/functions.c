@@ -238,7 +238,6 @@ l_ldap_set_option(PyObject* unused, PyObject *args)
 	case LDAP_OPT_X_SASL_SSF_MIN:
 	case LDAP_OPT_X_SASL_SSF_MAX:
 		if (!PyArg_Parse( value, "i", &intval )) {
-			fprintf(stderr,"Not int!\n");
 	    		PyErr_SetString( PyExc_TypeError, "expected integer" );
 	    		return NULL;
 		}
@@ -259,7 +258,6 @@ l_ldap_set_option(PyObject* unused, PyObject *args)
 	    		PyErr_SetString( PyExc_TypeError, "expected string" );
 	    		return NULL;
 		}
-		fprintf(stderr,"Setting %i to '%s'\n",option,strval);
 		ptr=strval;
 		break;
 	case LDAP_OPT_SERVER_CONTROLS:
@@ -274,7 +272,6 @@ l_ldap_set_option(PyObject* unused, PyObject *args)
     		return NULL;
     }
 	
-    fprintf(stderr,"setting: %i, %p\n",option,ptr);
     res = ldap_set_option(NULL, option, ptr);
 
     if (res<0){
