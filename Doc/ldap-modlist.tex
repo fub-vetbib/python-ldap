@@ -15,8 +15,40 @@
 The \module{ldap.modlist} module defines the following functions:
 
 \begin{funcdesc}{addModlist}{entry \optional{, ignore_attr_types=\constant{[]}}} % -> list
+
+This function builds a list suitable for passing it
+directly as argument \var{modlist} to method \method{add()} or
+its synchronous counterpart \method{add_s()}.
+
+\var{entry} is a dictionary like returned when
+receiving search results.
+
 \end{funcdesc}
 
 \begin{funcdesc}{modifyModlist}{ old_entry, new_entry \optional{, ignore_attr_types=\constant{[]} \optional{, ignore_oldexistent=\constant{0}}}} % -> list
+
+This function builds a list suitable for passing it directly as argument
+\var{modlist} to method \method{modify()} or its synchronous counterpart
+\method{modify_s()}.
+
+Roughly when applying the resulting modify list to an entry holding
+the data \var{old_entry} it will be modified in such a way that the
+entry holds \var{new_entry} after the modify operation. It is handy in
+situations when it is impossible to track user changes to an entry's
+data or for synchronizing operations.
+
+\var{old_entry} and \var{new_entry} are dictionaries
+like returned when receiving search results.
+
+\var{ignore_attr_types} is a list of attribute type names which
+shall be ignored completely. These attribute types will not appear
+in the result.
+
+If \var{ignore_oldexistent} is non-zero attribute type names which
+are in \var{old_entry} but are not found in \var{new_entry} at all
+are not deleted. This is handy for situations where your application
+sets attribute value to '' for deleting an attribute.
+In most cases leave zero.
+
 \end{funcdesc}
 
