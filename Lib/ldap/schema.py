@@ -339,10 +339,10 @@ class AttributeType(SchemaElement):
 
 class LDAPSyntax(SchemaElement):
   """
-      SyntaxDescription = "(" whsp
-          numericoid whsp
-          [ "DESC" qdstring ]
-          whsp ")"
+  SyntaxDescription = "(" whsp
+      numericoid whsp
+      [ "DESC" qdstring ]
+      whsp ")"
   """
   schema_attribute = 'ldapSyntaxes'
 
@@ -373,13 +373,13 @@ class LDAPSyntax(SchemaElement):
 
 class MatchingRule(SchemaElement):
   """
-      MatchingRuleDescription = "(" whsp
-          numericoid whsp  ; MatchingRule identifier
-          [ "NAME" qdescrs ]
-          [ "DESC" qdstring ]
-          [ "OBSOLETE" whsp ]
-          "SYNTAX" numericoid
-      whsp ")"
+  MatchingRuleDescription = "(" whsp
+      numericoid whsp  ; MatchingRule identifier
+      [ "NAME" qdescrs ]
+      [ "DESC" qdstring ]
+      [ "OBSOLETE" whsp ]
+      "SYNTAX" numericoid
+  whsp ")"
   """
   schema_attribute = 'matchingRules'
 
@@ -418,14 +418,14 @@ class MatchingRule(SchemaElement):
 
 class MatchingRuleUse(SchemaElement):
   """
-      MatchingRuleUseDescription = "(" whsp
-         numericoid 
-         [ space "NAME" space qdescrs ]
-         [ space "DESC" space qdstring ]
-         [ space "OBSOLETE" ]
-         space "APPLIES" space oids    ;  AttributeType identifiers
-         extensions
-         whsp ")" 
+  MatchingRuleUseDescription = "(" whsp
+     numericoid 
+     [ space "NAME" space qdescrs ]
+     [ space "DESC" space qdstring ]
+     [ space "OBSOLETE" ]
+     space "APPLIES" space oids    ;  AttributeType identifiers
+     extensions
+     whsp ")" 
   """
   schema_attribute = 'matchingRuleUses'
 
@@ -460,20 +460,53 @@ class MatchingRuleUse(SchemaElement):
     return '( %s )' % ''.join(result)
 
 
-class DITStructureRules(SchemaElement):
+class DITStructureRule(SchemaElement):
   """
+  DITStructureRuleDescription = LPAREN WSP
+      ruleid                     ; rule identifier
+      [ SP "NAME" SP qdescrs ]   ; short names
+      [ SP "DESC" SP qdstring ]  ; description
+      [ SP "OBSOLETE" ]          ; not active
+      SP "FORM" SP oid           ; NameForm
+      [ SP "SUP" ruleids ]       ; superior rules
+      extensions WSP RPAREN      ; extensions
+
+  ruleids = ruleid / LPAREN WSP ruleidlist WSP RPAREN
+
+  ruleidlist = [ ruleid *( SP ruleid ) ]
+
+  ruleid = number
   """
   schema_attribute = 'dITStructureRules'
 
 
-class DITContentRules(SchemaElement):
+class DITContentRule(SchemaElement):
   """
+  DITContentRuleDescription = LPAREN WSP
+      numericoid                 ; object identifer
+      [ SP "NAME" SP qdescrs ]   ; short names
+      [ SP "DESC" SP qdstring ]  ; description
+      [ SP "OBSOLETE" ]          ; not active
+      [ SP "AUX" SP oids ]       ; auxiliary object classes
+      [ SP "MUST" SP oids ]      ; attribute types
+      [ SP "MAY" SP oids ]       ; attribute types
+      [ SP "NOT" SP oids ]       ; attribute types
+      extensions WSP RPAREN      ; extensions
   """
   schema_attribute = 'dITContentRules'
 
 
-class NameForms(SchemaElement):
+class NameForm(SchemaElement):
   """
+  NameFormDescription = LPAREN WSP
+      numericoid                 ; object identifer
+      [ SP "NAME" SP qdescrs ]   ; short names
+      [ SP "DESC" SP qdstring ]  ; description
+      [ SP "OBSOLETE" ]          ; not active
+      SP "OC" SP oid             ; structural object class
+      SP "MUST" SP oids          ; attribute types
+      [ SP "MAY" SP oids ]       ; attribute types
+      extensions WSP RPAREN      ; extensions
   """
   schema_attribute = 'nameForms'
 
