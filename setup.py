@@ -105,6 +105,7 @@ setup(
   		'ldap',
   		'ldap.async',
   		'ldap.cidict',
+  		'ldap.filter',
   		'ldap.functions',
   		'ldap.ldapobject',
   		'ldap.modlist',
