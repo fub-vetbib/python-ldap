@@ -1,17 +1,12 @@
-"""
-ldap.schema - handle sub schema sub entry
-written by Hans Aschauer <Hans.Aschauer@epost.de>
+""" schema.py - RootDSE schema information support for
+python_ldap.
+
+Written by Hans Aschauer <Hans.Aschauer@epost.de>
 
 \$Id$
 
-This module is part of the python-ldap project:
-http://python-ldap.sourceforge.net
-
 License:
 Public domain. Do anything you want with this module.
-
-Python compability note:
-Tested on Python 2.0+ but should run on Python 1.5.x.
 """
 
 __version__ = '0.0.1'
@@ -19,26 +14,18 @@ __version__ = '0.0.1'
 
 import ldap, _ldap
 
-# Simple wrapper functions around the C lib functions in _ldap
-# which are likely not thread-safe
-
 def str2objectclass(str):
     return ldap._ldap_call(_ldap.str2objectclass,str)
-
 def str2attributetype(str):
     return ldap._ldap_call(_ldap.str2attributetype,str)
-
 def str2syntax(str):
     return ldap._ldap_call(_ldap.str2syntax,str)
-
 def str2matchingrule(str):
     return ldap._ldap_call(_ldap.str2matchingrule,str)
 
 
+
 class objectClass:
-    """
-    Class for modeling a object class definition
-    """
     def __init__(self, str):
         (self.oid,           #REQUIRED 
          self.names,         #OPTIONAL
@@ -51,11 +38,7 @@ class objectClass:
          self.ext,           #OPTIONAL
          ) = str2objectclass(str)
 
-
 class attributeType:
-    """
-    Class for modeling a attribute type definition
-    """
     def __init__(self, str):
         (self.oid,             #REQUIRED				    
          self.names,           #OPTIONAL				    
@@ -93,13 +76,13 @@ class matchingRule:
          self.ext          #OPTIONAL
          ) = str2matchingrule(str)
 
-class SubSchemaSubEntry:
+class rootDSESchema:
     oc="objectClasses"
     at="attributeTypes"
     syn="ldapSyntaxes"
     mr="matchingRules"
     
-    def __init__(self,l):
+    def __init__(self, l):
         self.objectClasses = {}
         self.objectClassesByName = {}
         self.attributeTypes = {}
@@ -156,5 +139,6 @@ class SubSchemaSubEntry:
 if __name__ == '__main__':
     l=ldap.initialize("ldap://localhost:1389")
     l.simple_bind_s("","")
-    schema = SubSchemaSubEntry(l)
+
+    schema = rootDSESchema(l)
     
