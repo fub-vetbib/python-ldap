@@ -83,7 +83,8 @@ def schema_func_wrapper(func,schema_element_str,schema_allow=0):
 
   def parse_oid(schema_element_str):
     name_pos = schema_element_str.find('NAME',1)
-    assert name_pos!=-1,SCHERR_UNEXPTOKEN(2,schema_element_str)
+    if name_pos==-1:
+      SCHERR_UNEXPTOKEN(2,schema_element_str)
     oid = schema_element_str[1:name_pos].strip()
     s = '( 0.0.0.0.0.0.0.0.0.0.0.0.0 '+schema_element_str[name_pos:]
     return oid,s
@@ -294,7 +295,7 @@ for k in SCHEMA_ATTRS:
 
 class SubSchema:
     
-    def __init__(self,sub_schema_sub_entry,schema_allow=0):
+    def __init__(self,sub_schema_sub_entry,schema_allow=0,ignore_errors=0):
         """
         sub_schema_sub_entry
             Dictionary containing the sub schema sub entry
@@ -311,10 +312,15 @@ class SubSchema:
              not sub_schema_sub_entry[attr_type]:
             continue
           for attr_value in sub_schema_sub_entry[attr_type]:
-            se = SCHEMA_CLASS_MAPPING[attr_type](attr_value,schema_allow)
-            self.schema_element[se.oid] = se
-            for name in se.names:
-              self.name2oid[name] = se.oid
+            try:
+              se = SCHEMA_CLASS_MAPPING[attr_type](attr_value,schema_allow)
+            except SchemaError:
+              if not ignore_errors:
+                raise
+            else:
+              self.schema_element[se.oid] = se
+              for name in se.names:
+                self.name2oid[name] = se.oid
 
         return # subSchema.__init__()        
 
