@@ -1674,7 +1674,7 @@ l_ldap_set_option(PyObject* self, PyObject *args)
 }
 
 static char doc_set_option[] = 
-"set_option(name,value)\n\n"
+"set_option(option,value)\n\n"
 "\tSets value of LDAP option.\n";
 
 /* ldap_get_option */
@@ -1796,7 +1796,7 @@ l_ldap_get_option(PyObject* self, PyObject *args)
 }
 
 static char doc_get_option[] = 
-"get_option(name,value)\n\n"
+"get_option(option)\n\n"
 "\tGets value of LDAP option.\n";
 
 /* methods */
