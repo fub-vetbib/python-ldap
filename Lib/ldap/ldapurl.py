@@ -4,6 +4,9 @@ written by Michael Stroeder <michael@stroeder.com>
 
 \$Id$
 
+This module is part of the python-ldap project:
+http://python-ldap.sourceforge.net
+
 License:
 Public domain. Do anything you want with this module.
 
