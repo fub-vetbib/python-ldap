@@ -2,6 +2,27 @@
 
 %%============================================================
 %% LDAP Module
+\chapter{Introduction}
+
+This module provides access to the University of Michigan's LDAP 
+(Lightweight Directory Access Protocol) \C\ interface. 
+It is more-or-less compliant with the interface described in \rfc{1823},
+with the notable differences that lists are manipulated via Python
+list operations, and errors appear as exceptions.
+
+The latest release of this software can be found at
+\url{http://python-ldap.sourceforge.net/}.
+
+For more detailed information on the \C\ interface, 
+please see the documentation that accompanies the package available from
+\url{ftp://terminator.rs.itd.umich.edu/ldap/ldap-3.3.tar.Z}
+or from
+\url{http://www.openldap.org/}.
+
+This documentation is current for the Python LDAP module, version
+$1.10$.
+
+\chapter{Usage}
 
 \section{\module{_ldap} --- 
 	Access to an underlying LDAP library}
@@ -10,19 +31,6 @@
   \platform{Unix}
 \modulesynopsis{Access to underlying LDAP library.}
 \moduleauthor{David Leonard}{david.leonard@csee.uq.edu.au}
-
-This module provides access to the University of Michigan's LDAP 
-(Lightweight Directory Access Protocol) \C\ interface. 
-It is more-or-less compliant with the interface described in \rfc{1823},
-with the notable differences that lists are manipulated via Python
-list operations, and errors appear as exceptions.
-
-For more detailed information on the \C\ interface, 
-please see the documentation that accompanies the package available from
-\code{ftp://terminator.rs.itd.umich.edu/ldap/ldap-3.3.tar.Z}.
-
-This documentation is current for the python ldap module, version
-$1.4$.
 
 \input{constants}
 
