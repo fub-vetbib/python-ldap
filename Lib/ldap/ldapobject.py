@@ -408,11 +408,11 @@ class LDAPObject:
       ldap_result = None,None
     return all_results
  
-  def search(self,base,scope,filterstr,attrlist=None,attrsonly=0):
+  def search(self,base,scope,filterstr='(objectClass=*)',attrlist=None,attrsonly=0):
     """
-    search(base, scope, filter [,attrlist=None [,attrsonly=0]]) -> int
-    search_s(base, scope, filter [,attrlist=None [,attrsonly=0]])
-    search_st(base, scope, filter [,attrlist=None [,attrsonly=0 [,timeout=-1]]])
+    search(base, scope [,filterstr='(objectClass=*)' [,attrlist=None [,attrsonly=0]]) -> int
+    search_s(base, scope [,filterstr='(objectClass=*)' [,attrlist=None [,attrsonly=0]])
+    search_st(base, scope [,filterstr='(objectClass=*)' [,attrlist=None [,attrsonly=0 [,timeout=-1]]])
 
         Perform an LDAP search operation, with base as the DN of
         the entry at which to start the search, scope being one of
@@ -455,10 +455,10 @@ class LDAPObject:
     """
     return self._ldap_call(self._l.search,base,scope,filterstr,attrlist,attrsonly)
 
-  def search_s(self,base,scope,filterstr,attrlist=None,attrsonly=0):
+  def search_s(self,base,scope,filterstr='(objectClass=*)',attrlist=None,attrsonly=0):
     return self.search_st(base,scope,filterstr,attrlist,attrsonly,timeout=-1)
 
-  def search_st(self,base,scope,filterstr,attrlist=None,attrsonly=0,timeout=-1):
+  def search_st(self,base,scope,filterstr='(objectClass=*)',attrlist=None,attrsonly=0,timeout=-1):
     msgid = self.search(base,scope,filterstr,attrlist,attrsonly)
     return self.result(msgid,all=1,timeout=timeout)
 
