@@ -84,7 +84,6 @@ class SchemaElement:
     """
     Returns dictionary of known tokens with all values
     """
-    print l
     assert l[0].strip()=="(" and l[-1].strip()==")",ValueError(repr(s),l)
     result = known_tokens
     i = 0
@@ -731,6 +730,9 @@ class SubSchema(UserDict):
           if raise_keyerror:
             raise
           # Ignore this object class
+          continue
+        if object_class.__class__!=ObjectClass:
+          # Check if we really have an ObjectClass instance
           continue
         assert hasattr(object_class,'must'),ValueError(object_class_oid)
         assert hasattr(object_class,'may'),ValueError(object_class_oid)
