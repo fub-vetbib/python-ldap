@@ -18,7 +18,7 @@ import ldap
 l = ldap.initialize('ldap://localhost:1389')
 
 # Set LDAP protocol version used
-l.version = 3
+l.set_option(ldap.OPT_PROTOCOL_VERSION,3)
 
 # Try a bind to provoke failure if protocol version is not supported
 l.bind('','',ldap.AUTH_SIMPLE)
@@ -37,7 +37,7 @@ l.unbind_s()
 l = ldap.initialize('ldaps://localhost:1636')
 
 # Set LDAP protocol version used
-l.version = 3
+l.set_option(ldap.OPT_PROTOCOL_VERSION,3)
 
 # Try a bind to provoke failure if protocol version is not supported
 l.bind('','',ldap.AUTH_SIMPLE)
@@ -53,7 +53,7 @@ l.unbind_s()
 l = ldap.initialize('ldapi://%2ftmp%2fopenldap2')
 
 # Set LDAP protocol version used
-l.version = 3
+l.set_option(ldap.OPT_PROTOCOL_VERSION,3)
 
 # Try a bind to provoke failure if protocol version is not supported
 l.bind('','',ldap.AUTH_SIMPLE)
