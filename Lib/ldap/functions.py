@@ -19,7 +19,7 @@ Basically calls into the LDAP lib are serialized by the module-wide
 lock _ldapmodule_lock.
 """
 
-__version__ = '0.0.2'
+__version__ = '0.1.0'
 
 __all__ = [
   'open','initialize','init',
@@ -29,8 +29,38 @@ __all__ = [
 
 import sys,_ldap
 
-from ldap import _ldap_function_call
+from ldap import _trace_level,_trace_file,_trace_stack_limit,_ldap_module_lock,LDAPError
+
 from ldap.ldapobject import LDAPObject
+
+
+def _ldap_function_call(func,*args,**kwargs):
+  """
+  Wrapper function which locks calls to func with via
+  module-wide ldap_lock
+  """
+  if __debug__:
+    if _trace_level>=1:
+      _trace_file.write('*** %s.%s (%s,%s)\n' % (
+        '_ldap',repr(func),
+        repr(args),repr(kwargs)
+      ))
+      if _trace_level>=3:
+        traceback.print_stack(limit=_trace_stack_limit,file=_trace_file)
+  _ldap_module_lock.acquire()
+  try:
+    try:
+      result = func(*args,**kwargs)
+    finally:
+      _ldap_module_lock.release()
+  except LDAPError,e:
+    if __debug__ and _trace_level>=2:
+      _trace_file.write('=> LDAPError: %s\n' % (str(e)))
+    raise
+  if __debug__ and _trace_level>=2:
+    if result!=None and result!=(None,None):
+      _trace_file.write('=> result: %s\n' % (repr(result)))
+  return result
 
 
 def initialize(uri,trace_level=0,trace_file=sys.stdout,trace_stack_limit=None):

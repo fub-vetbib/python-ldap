@@ -43,33 +43,5 @@ else:
 # into underlying LDAP lib
 _ldap_module_lock = LDAPLock()
 
-def _ldap_function_call(func,*args,**kwargs):
-  """
-  Wrapper function which locks calls to func with via
-  module-wide ldap_lock
-  """
-  if __debug__:
-    if _trace_level>=1:
-      _trace_file.write('*** %s.%s (%s,%s)\n' % (
-        '_ldap',repr(func),
-        repr(args),repr(kwargs)
-      ))
-      if _trace_level>=3:
-        traceback.print_stack(limit=_trace_stack_limit,file=_trace_file)
-  _ldap_module_lock.acquire()
-  try:
-    try:
-      result = apply(func,args,kwargs)
-    finally:
-      _ldap_module_lock.release()
-  except LDAPError,e:
-    if __debug__ and _trace_level>=2:
-      _trace_file.write('=> LDAPError: %s\n' % (str(e)))
-    raise
-  if __debug__ and _trace_level>=2:
-    if result!=None and result!=(None,None):
-      _trace_file.write('=> result: %s\n' % (repr(result)))
-  return result
+from functions import open,initialize,init,explode_dn,explode_rdn,get_option,set_option
 
-
-from functions import *

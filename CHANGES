@@ -1,5 +1,5 @@
 ----------------------------------------------------------------
-Released 2.0.0pre16 2003-11-xx
+Released 2.0.0pre16 2003-12-xx
 
 Changes since 2.0.0pre15:
 
@@ -18,6 +18,10 @@ dsml:
 
 ldap.ldapobject:
 - Simplified LDAPObject.search_subschemasubentry_s()
+
+ldap.functions:
+- Moved ldap._ldap_function_call() into ldap.functions.
+- apply() is not used anymore since it seems deprecated
 
 ldap.async:
 - Added class DSMLWriter
