@@ -2,8 +2,6 @@
 
 General:
 - Define common license for all modules
-- Create a test script that exercises everything with a public server
-  holding the BLITS 2.5 test data set
 
 Modules/
 - Validating server's certificate when calling start_tls_s() or
@@ -25,7 +23,8 @@ Lib/
 - Caching of search requests for each LDAPObject instance
 - LDIF parser for replication logs
 - DSML support
-- Support for SASL mechanims GSS-API
 
 Tests/
-Clean up and finish the mess of test scripts started.
+- Clean up and finish the mess of small test scripts started.
+- Create a test script that exercises everything with a server
+  holding the BLITS 2.5 test data set
