@@ -6,8 +6,7 @@
 % \refbimodindex, \refstmodindex, \refexmodindex or \refmodindex, as
 % appropriate.
 
-\section{\module{ldap} ---
-         LDAP library interface module}
+\section{\module{ldap} --- LDAP library interface module}
 
 \declaremodule[ldap]{extension}{ldap}		% not standard, in C
 
@@ -21,7 +20,6 @@
 % Leave at least one blank line after this, to simplify ad-hoc tools
 % that are sometimes used to massage these files.
 \modulesynopsis{Access to an underlying LDAP C library.}
-
 
 % ==== 2. ====
 % Give a short overview of what the module does.
@@ -864,3 +862,20 @@ These attributes are mutable unless described as read-only.
     more information.
     (read-only)
 \end{memberdesc}
+
+
+\subsection{\module{ldap.async} ---
+  framework for stream-processing of large search results }
+
+
+\subsection{\module{ldap.modlist} ---
+  generate modify lists }
+
+The \module{ldap.modlist} module defines the following functions:
+
+\begin{funcdesc}{addModlist}{entry \optional{, ignore_attr_types=\constant{[]}}} % -> list
+\end{funcdesc}
+
+\begin{funcdesc}{modifyModlist}{ old_entry, new_entry \optional{, ignore_attr_types=\constant{[]} \optional{, ignore_oldexistent=\constant{0}}}} % -> list
+\end{funcdesc}
+
