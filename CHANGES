@@ -3,8 +3,6 @@ Released 2.0.0pre11 2003-05-xx
 
 Changes since 2.0.0pre10:
 
-Added new module dsml for parsing and generating DSMLv1.
-
 ldap.ldapobject:
 * Cosmetic change: Named argument list for LDAPObject.compare()
   instead of *args,**kwargs.
@@ -20,6 +18,11 @@ ldap.modlist:
 ldap.schema:
 * Zero-length attribute values for schema elements are ignored
   (needed on e.g. Active Directory)
+
+dsml:
+Added support for parsing and generating DSMLv1.
+Still experimental though.
+
 
 ----------------------------------------------------------------
 Released 2.0.0pre10 2003-04-19
