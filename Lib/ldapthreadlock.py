@@ -131,19 +131,16 @@ class LDAPObject:
     if timeout==0:
       return _ldap_call(self._l.result,msgid,all,0)
     else:
-      result_interval = 0.2
-      interval_counter = int(timeout/result_interval)
-      result = _ldap_call(self._l.result,msgid,all,0)
-      while (result is None):
-        time.sleep(result_interval)
+      result_ldap = None
+      start_time = time.time()
+      while (result_ldap is None) or (result_ldap==(None,None)):
+        result_ldap = _ldap_call(self._l.result,msgid,all,0)
         if timeout!=-1:
-          interval_counter = interval_counter-1
-          if interval_counter<=0:
+          if time.time()-start_time>timeout:
             raise ldap.TIMELIMIT_EXCEEDED(
               "LDAP time limit (%d secs) exceeded." % (timeout)
             )
-        result = _ldap_call(self._l.result,msgid,all,0)
-      return result
+      return result_ldap
 
   def search(self,base,scope,filterstr,attrlist=None,attrsonly=0):
     return _ldap_call(self._l.search,base,scope,filterstr,attrlist,attrsonly)
