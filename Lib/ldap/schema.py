@@ -487,9 +487,6 @@ for _name in dir():
 
 SCHEMA_ATTRS = SCHEMA_CLASS_MAPPING.keys()
 
-print SCHEMA_ATTRS
-print SCHEMA_CLASS_MAPPING
-
 # Create the reverse of SCHEMA_CLASS_MAPPING
 SCHEMA_ATTR_MAPPING = {}
 for k in SCHEMA_ATTRS:
