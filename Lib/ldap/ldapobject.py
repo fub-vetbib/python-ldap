@@ -84,7 +84,7 @@ class SimpleLDAPObject:
     self._ldap_object_lock.acquire()
     try:
       try:
-        result = apply(func,args,kwargs)
+        result = func(*args,**kwargs)
       finally:
         self._ldap_object_lock.release()
     except LDAPError,e:
@@ -635,7 +635,7 @@ class ReconnectLDAPObject(SimpleLDAPObject):
   def _apply_last_bind(self):
     if self._last_bind!=None:
       func,args,kwargs = self._last_bind
-      apply(func,args,kwargs)
+      func(*args,**kwargs)
 
   def _restore_options(self):
     """Restore all recorded options"""
@@ -681,12 +681,12 @@ class ReconnectLDAPObject(SimpleLDAPObject):
 
   def _apply_method_s(self,func,*args,**kwargs):
     try:
-      return apply(func,args,kwargs)
+      return func(*args,**kwargs)
     except ldap.SERVER_DOWN:
       # Reconnect
       self.reconnect(self._uri)
       # Re-try last operation
-      return apply(func,args,kwargs)
+      return func(*args,**kwargs)
 
   def set_option(self,option,invalue):
     self._options[option] = invalue

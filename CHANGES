@@ -5,6 +5,9 @@ Changes since 2.0.0pre08:
 
 Modified setup.py to support Cyrus-SASL 2.x.
 
+ldap.ldapobject:
+* apply() is not used anymore since it seems deprecated
+
 ldap.schema:
 * Completed classes for nameForms, dITStructureRules and
   dITContentRules
