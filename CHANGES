@@ -3,8 +3,13 @@ Released 2.0.0pre16 2003-11-xx
 
 Changes since 2.0.0pre15:
 
-Lib/
-Fixed some subtle bugs/oddities mentioned by pychecker.
+Modules/:
+- Removed definition of unused constant RES_EXTENDED_PARTIAL since
+  the corresponding symbol LDAP_RES_EXTENDED_PARTIAL seems to not
+  be available in OpenLDAP-HEAD (pre 2.2) anymore.
+
+All in Lib/:
+- Fixed some subtle bugs/oddities mentioned by pychecker.
 
 dsml:
 - Renamed DSMLWriter._f to DSMLWriter._output_file
@@ -14,10 +19,10 @@ dsml:
 ldap.async:
 - Added class DSMLWriter
 
-Modules:
-- Removed definition of unused constant RES_EXTENDED_PARTIAL since
-  the corresponding symbol LDAP_RES_EXTENDED_PARTIAL seems to not
-  be available in OpenLDAP-HEAD (pre 2.2) anymore.
+ldap.schema:
+- Removed unused key-word argument strict from
+  ldap.schema.subentry.SubSchema.attribute_types()
+
 ----------------------------------------------------------------
 Released 2.0.0pre15 2003-11-11
 
