@@ -34,9 +34,9 @@ class cidict(UserDict):
   def __delitem__(self,key):
     del self.data[lower(key)]
 
-  def update(self,entry):
-    for k in entry.keys():
-      self[k] = entry[k]
+  def update(self,dict):
+    for key in dict.keys():
+      self[key] = dict[key]
 
   def has_key(self,key):
     return UserDict.has_key(self,lower(key))
