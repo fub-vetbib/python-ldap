@@ -523,7 +523,7 @@ for k in SCHEMA_ATTRS:
   SCHEMA_ATTR_MAPPING[SCHEMA_CLASS_MAPPING[k]] = k
 
 
-class Entry(UserDict):
+class Entry(ldap.cidict.cidict):
   """
   Schema-aware implementation of an LDAP entry class.
   
@@ -532,47 +532,38 @@ class Entry(UserDict):
   """
 
   def __init__(self,schema,entry={}):
-    self._keys = {}
+    self._at_oid2name = {}
     self._s = schema
-    UserDict.__init__(self,{})
-    self.update(entry)
+    ldap.cidict.cidict.__init__(self,entry)
 
-  def _oid(self,nameoroid):
+  def _at_oid(self,nameoroid):
+    """
+    Return OID of attribute type specified in nameoroid or
+    nameoroid itself if nameoroid was not found in schema's
+    name->OID registry (self._s.name2oid).
+    """
     return self._s.name2oid[ldap.schema.AttributeType].get(nameoroid,nameoroid)
 
   def __getitem__(self,nameoroid):
-    return self.data[self._oid(nameoroid)]
+    return self.data[self._at_oid(nameoroid)]
 
   def __setitem__(self,nameoroid,schema_obj):
-    oid = self._oid(nameoroid)
+    oid = self._at_oid(nameoroid)
     if oid!=nameoroid:
-      self._keys[oid] = nameoroid
+      self._at_oid2name[oid] = nameoroid
     self.data[oid] = schema_obj
 
   def __delitem__(self,nameoroid):
-    del self.data[self._oid(nameoroid)]
+    del self.data[self._at_oid(nameoroid)]
 
   def has_key(self,nameoroid):
-    return UserDict.has_key(self,self._oid(nameoroid))
-
-  def update(self,entry):
-    for k in entry.keys():
-      self[k] = entry[k]
+    return ldap.cidict.cidict.has_key(self,self._at_oid(nameoroid))
 
   def get(self,nameoroid,failobj):
     try:
-      return self[self._oid(nameoroid)]
+      return self[self._at_oid(nameoroid)]
     except KeyError:
       return failobj
-
-  def keys(self):
-    return self._keys.values()
-
-  def items(self):
-    result = []
-    for k in self._keys.values():
-      result.append((k,self[k]))
-    return result
 
 
 class SubSchema(UserDict):
