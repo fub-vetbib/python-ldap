@@ -18,10 +18,10 @@ def escape_filter_chars(assertion_value):
   Replace all special characters found in assertion_value
   by quoted notation  
   """
-  s = assertion_value.replace('*', '\\2a')
-  s = s.replace('(', '\\28')
-  s = s.replace(')', '\\29')
-  s = s.replace('\\', '\\5c')
-  s = s.replace('\x00', '\\00')
+  s = assertion_value.replace('\\', r'\5c')
+  s = s.replace(r'*', r'\2a')
+  s = s.replace(r'(', r'\28')
+  s = s.replace(r')', r'\29')
+  s = s.replace('\x00', r'\00')
   return s 
 
