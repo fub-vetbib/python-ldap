@@ -11,6 +11,8 @@ import UserDict,ldap.cidict
 
 from ldap.schema.tokenizer import split_tokens,extract_tokens
 
+if __debug__:
+  from types import TupleType,StringType,IntType
 
 NOT_HUMAN_READABLE_LDAP_SYNTAXES = {
   '1.3.6.1.4.1.1466.115.121.1.4':None,  # Audio
@@ -38,7 +40,7 @@ class SchemaElement:
     if schema_element_str:
       l = split_tokens(schema_element_str)
       self.oid = l[1]
-      assert type(self.oid)==type('')
+      assert type(self.oid)==StringType
       d = extract_tokens(l,self.token_defaults)
       self._set_attrs(l,d)
 
@@ -47,7 +49,7 @@ class SchemaElement:
     return # SchemaElement.__init__()
 
   def key_attr(self,key,value,quoted=0):
-    assert value is None or type(value)==type(''),TypeError("value has to be of StringType, was %s" % repr(value))
+    assert value is None or type(value)==StringType,TypeError("value has to be of StringType, was %s" % repr(value))
     if value:
       if quoted:
         return ' %s %s' % (key,repr(value))
@@ -57,7 +59,7 @@ class SchemaElement:
       return ''
 
   def key_list(self,key,values,sep=' ',quoted=0):
-    assert type(values)==type((())),TypeError("values has to be of ListType")
+    assert type(values)==TupleType,TypeError("values has to be of ListType")
     if not values:
       return ''
     if quoted:
@@ -115,13 +117,13 @@ class ObjectClass(SchemaElement):
       self.kind = 1
     elif d['AUXILIARY']!=None:
       self.kind = 2
-    assert type(self.names)==type((()))
-    assert self.desc is None or type(self.desc)==type('')
-    assert type(self.obsolete)==type(0) and (self.obsolete==0 or self.obsolete==1)
-    assert type(self.sup)==type((()))
-    assert type(self.kind)==type(0)
-    assert type(self.must)==type((()))
-    assert type(self.may)==type((()))
+    assert type(self.names)==TupleType
+    assert self.desc is None or type(self.desc)==StringType
+    assert type(self.obsolete)==IntType and (self.obsolete==0 or self.obsolete==1)
+    assert type(self.sup)==TupleType
+    assert type(self.kind)==IntType
+    assert type(self.must)==TupleType
+    assert type(self.may)==TupleType
     return # ObjectClass.__init__()
 
   def __str__(self):
@@ -217,13 +219,13 @@ class AttributeType(SchemaElement):
     except KeyError:
       raise
     self.usage = AttributeUsage.get(d['USAGE'][0],0)
-    assert type(self.names)==type((()))
-    assert self.desc is None or type(self.desc)==type('')
-    assert type(self.sup)==type((())),'attribute sup has type %s' % (type(self.sup))
-    assert type(self.obsolete)==type(0) and (self.obsolete==0 or self.obsolete==1)
-    assert type(self.single_value)==type(0) and (self.single_value==0 or self.single_value==1)
-    assert type(self.no_user_mod)==type(0) and (self.no_user_mod==0 or self.no_user_mod==1)
-    assert self.syntax is None or type(self.syntax)==type('')
+    assert type(self.names)==TupleType
+    assert self.desc is None or type(self.desc)==StringType
+    assert type(self.sup)==TupleType,'attribute sup has type %s' % (type(self.sup))
+    assert type(self.obsolete)==IntType and (self.obsolete==0 or self.obsolete==1)
+    assert type(self.single_value)==IntType and (self.single_value==0 or self.single_value==1)
+    assert type(self.no_user_mod)==IntType and (self.no_user_mod==0 or self.no_user_mod==1)
+    assert self.syntax is None or type(self.syntax)==StringType
     assert self.syntax_len is None or type(self.syntax_len)==type(0L)
     return # AttributeType.__init__()
 
@@ -271,7 +273,7 @@ class LDAPSyntax(SchemaElement):
     self.not_human_readable = \
       NOT_HUMAN_READABLE_LDAP_SYNTAXES.has_key(self.oid) or \
       d['X-NOT-HUMAN-READABLE'][0]=='TRUE'
-    assert self.desc is None or type(self.desc)==type('')
+    assert self.desc is None or type(self.desc)==StringType
     return # LDAPSyntax.__init__()
                                   
   def __str__(self):
@@ -306,10 +308,10 @@ class MatchingRule(SchemaElement):
     self.desc = d['DESC'][0]
     self.obsolete = d['OBSOLETE']!=None
     self.syntax = d['SYNTAX'][0]
-    assert type(self.names)==type((()))
-    assert self.desc is None or type(self.desc)==type('')
-    assert type(self.obsolete)==type(0) and (self.obsolete==0 or self.obsolete==1)
-    assert self.syntax is None or type(self.syntax)==type('')
+    assert type(self.names)==TupleType
+    assert self.desc is None or type(self.desc)==StringType
+    assert type(self.obsolete)==IntType and (self.obsolete==0 or self.obsolete==1)
+    assert self.syntax is None or type(self.syntax)==StringType
     return # MatchingRule.__init__()
 
   def __str__(self):
@@ -345,10 +347,10 @@ class MatchingRuleUse(SchemaElement):
     self.desc = d['DESC'][0]
     self.obsolete = d['OBSOLETE']!=None
     self.applies = d['APPLIES']
-    assert type(self.names)==type((()))
-    assert self.desc is None or type(self.desc)==type('')
-    assert type(self.obsolete)==type(0) and (self.obsolete==0 or self.obsolete==1)
-    assert type(self.applies)==type((()))
+    assert type(self.names)==TupleType
+    assert self.desc is None or type(self.desc)==StringType
+    assert type(self.obsolete)==IntType and (self.obsolete==0 or self.obsolete==1)
+    assert type(self.applies)==TupleType
     return # MatchingRuleUse.__init__()
 
   def __str__(self):
