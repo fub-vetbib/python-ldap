@@ -32,11 +32,11 @@ class DummyLock:
 
 try:
   # Check if Python installation was build with thread support
-  import threading
+  import thread
 except ImportError:
-  _ldap_module_lock = DummyLock()
   LDAPLock = DummyLock
 else:
+  import threading
   LDAPLock = threading.Lock
 
 # Create module-wide lock for serializing all calls
