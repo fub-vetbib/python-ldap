@@ -7,7 +7,7 @@ See http://python-ldap.sourceforge.net for details.
 \$Id$
 """
 
-import ldap.cidict
+import UserDict,ldap.cidict
 
 from ldap.schema.tokenizer import split_tokens,extract_tokens
 
@@ -350,7 +350,7 @@ class MatchingRuleUse(SchemaElement):
     assert type(self.names)==type([])
     assert self.desc is None or type(self.desc)==type('')
     assert type(self.obsolete)==type(0) and (type(self.obsolete)==0 or type(self.obsolete)==1)
-    assert type(self.self.applies)==type([])
+    assert type(self.applies)==type([])
     return # MatchingRuleUse.__init__()
 
   def __str__(self):
@@ -358,7 +358,7 @@ class MatchingRuleUse(SchemaElement):
     result.append(self.key_list('NAME',self.names,quoted=1))
     result.append(self.key_attr('DESC',self.desc,quoted=1))
     result.append({0:'',1:' OBSOLETE'}[self.obsolete])
-    result.append(self.key_attr('SYNTAX',self.syntax))
+    result.append(self.key_attr('APPLIES',self.applies))
     return '( %s )' % ''.join(result)
 
 
@@ -413,7 +413,7 @@ class NameForm(SchemaElement):
   schema_attribute = 'nameForms'
 
 
-class Entry(ldap.cidict.cidict):
+class Entry(UserDict.UserDict):
   """
   Schema-aware implementation of an LDAP entry class.
   
@@ -422,44 +422,61 @@ class Entry(ldap.cidict.cidict):
   """
 
   def __init__(self,schema,entry=None):
-    self._at_oid2name = {}
+    self._keytuple2attrtype = {}
+    self._attrtype2keytuple = {}
     self._s = schema
-    ldap.cidict.cidict.__init__(self,(entry or {}))
+    UserDict.UserDict.__init__(self,(entry or {}))
+    self.update(entry or {})
 
-  def _at_oid(self,nameoroid):
+  def _at2key(self,nameoroid):
     """
-    Return OID of attribute type specified in nameoroid or
-    nameoroid itself if nameoroid was not found in schema's
-    name->OID registry (self._s.name2oid).
+    Return tuple of OID and all sub-types of attribute type specified
+    in nameoroid.
     """
-    return self._s.getoid(ldap.schema.AttributeType,nameoroid)
+    try:
+      # Mapping already in cache
+      return self._attrtype2keytuple[nameoroid]
+    except KeyError:
+      # Mapping has to be constructed
+      oid = self._s.getoid(ldap.schema.AttributeType,nameoroid)
+      l = nameoroid.lower().split(';')
+      l[0] = oid
+      t = tuple(l)
+      self._attrtype2keytuple[nameoroid] = t
+      return t
+
+  def update(self,dict):
+    for key in dict.keys():
+      self[key] = dict[key]
 
   def __getitem__(self,nameoroid):
-    return ldap.cidict.cidict.__getitem__(self,self._at_oid(nameoroid))
+    return self.data[self._at2key(nameoroid)]
 
-  def __setitem__(self,nameoroid,schema_obj):
-    oid = self._at_oid(nameoroid)
-    self._at_oid2name[oid] = nameoroid
-    ldap.cidict.cidict.__setitem__(self,oid,schema_obj)
+  def __setitem__(self,nameoroid,attr_values):
+    k = self._at2key(nameoroid)
+    self._keytuple2attrtype[k] = nameoroid
+    self.data[k] = attr_values
 
   def __delitem__(self,nameoroid):
-    del self.data[self._at_oid(nameoroid)]
+    k = self._at2key(nameoroid)
+    del self.data[k]
 
   def has_key(self,nameoroid):
-    return ldap.cidict.cidict.has_key(self,self._at_oid(nameoroid))
+    k = self._at2key(nameoroid)
+    return self.data.has_key(k)
 
   def get(self,nameoroid,failobj):
     try:
-      return self[self._at_oid(nameoroid)]
+      return self[nameoroid]
     except KeyError:
       return failobj
 
   def keys(self):
-    return self._at_oid2name.values()
+    return self._keytuple2attrtype.values()
 
   def items(self):
     result = []
-    for k in self._at_oid2name.values():
+    for k in self._keytuple2attrtype.values():
       result.append((k,self[k]))
     return result
 
