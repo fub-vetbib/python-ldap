@@ -88,7 +88,6 @@ setup(
                 'ldap.modlist',
                 'ldapurl',
 		'ldif',
-		#'perldap',
 	],
 	#-- where to find the python modules
 	package_dir = { '': 'Lib' },
