@@ -45,3 +45,8 @@
  * Are templates available?
  */
 #undef HAVE_LDAP_INIT_TEMPLATES 
+
+/*
+ * Can we find out the LDAP file descriptor?
+ */
+#undef HAVE_FILENO_LD_SB_SB_SD

@@ -228,13 +228,29 @@ fi
 if test yes != ${ac_cv_func_ldap_modrdn2_s}; then
 	AC_CACHE_CHECK([number of arguments to ldap_modrdn_s()],
 		ac_cv_ldap_modrdn_s,
-		[AC_TRY_COMPILE([#include <lber.h>
+		[AC_TRY_COMPILE([
+#include <lber.h>
 #include <ldap.h>],
-	[(void)ldap_modrdn_s(0,0,0,0);],
-	ac_cv_ldap_modrdn_s=4, ac_cv_ldap_modrdn_s=3)])
+		 [(void)ldap_modrdn_s(0,0,0,0);],
+		 ac_cv_ldap_modrdn_s=4, ac_cv_ldap_modrdn_s=3)])
 	if test "$ac_cv_ldap_modrdn_s" = 3; then
 		AC_DEFINE(LDAP_MODRDN_S_3ARGS)
 	fi
+fi
+
+dnl-- see if we can see the sb_sd field in the lber Sockbuf structure
+AC_CACHE_CHECK([if we can get an LDAP fileno],
+		ac_cv_ldab_ber_fileno_avail,
+		[AC_TRY_COMPILE([
+#include <lber.h>
+#include <ldap.h>],
+		[int fda;
+		 LDAP *l;
+		 fda = l->ld_sb.sb_sd;],
+		ac_cv_ldab_ber_fileno_avail=yes,
+		ac_cv_ldab_ber_fileno_avail=no)])
+if test "$ac_cv_ldab_ber_fileno_avail" = yes; then
+	AC_DEFINE(HAVE_FILENO_LD_SB_SB_SD)
 fi
 
 dnl-- check for case-insensitive dictionary to be used
