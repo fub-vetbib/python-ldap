@@ -862,31 +862,6 @@ l_ldap_manage_dsa_it( LDAPObject* self, PyObject* args )
 }
 
 
-#if defined(HAVE_FILENO_LD_SB_SB_SD) /* || defined(...) */
-#define FILENO_SUPPORTED
-#endif
-
-#if defined(FILENO_SUPPORTED)
-static PyObject*
-l_ldap_fileno(LDAPObject* self, PyObject* args)
-{
-    int fileno;
-
-    if (PyArg_ParseTuple(args, "") == NULL)
-	return NULL;
-    if (!self->valid)
-	fileno = -1;
-    else {
-#if defined(HAVE_FILENO_LD_SB_SB_SD)
-	fileno = self->ldap->ld_sb.sb_sd;
-/* #else ... other techniques */
-#endif
-    }
-    return PyInt_FromLong(fileno);
-}
-static char doc_fileno[] = "";
-#endif /* FILENO_SUPPORTED */
-
 /* ldap_set_option */
 
 static PyObject*
