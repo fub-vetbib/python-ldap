@@ -120,7 +120,6 @@ LDAPinit_constants( PyObject* d )
 
 	add_int_r(d,RES_SEARCH_REFERENCE);
 	add_int_r(d,RES_EXTENDED);
-	add_int_r(d,RES_EXTENDED_PARTIAL);
 	add_int_r(d,RES_UNSOLICITED);
 
 	/* non-reversibles */

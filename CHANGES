@@ -11,6 +11,10 @@ dsml:
 ldap.async:
 - Added class DSMLWriter
 
+Modules:
+- Removed definition of unused constant RES_EXTENDED_PARTIAL since
+  the corresponding symbol LDAP_RES_EXTENDED_PARTIAL seems to not
+  be available in OpenLDAP-HEAD (pre 2.2) anymore.
 ----------------------------------------------------------------
 Released 2.0.0pre15 2003-11-11
 
