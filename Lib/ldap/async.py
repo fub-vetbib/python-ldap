@@ -207,25 +207,28 @@ class FileWriter(AsyncSearchHandler):
     self._f.write(self.footerStr)
 
 
-import ldif
-
 class LDIFWriter(FileWriter):
   """
   Class for writing a stream LDAP search results to a LDIF file
   """
 
-  def __init__(self,l,f,headerStr='',footerStr=''):
+  def __init__(self,l,writer_obj,headerStr='',footerStr=''):
     """
     Initialize a StreamResultHandler
     
     Parameters:
     l
         LDAPObject instance
-    f
-        File object instance where the LDIF data is written to
+    writer_obj
+        Either a file-like object or a ldif.LDIFWriter instance
+        used for output
     """
-    FileWriter.__init__(self,l,f,headerStr,footerStr)
-    self._ldif_writer = ldif.LDIFWriter(f)
+    if isinstance(writer_obj,file):
+      import ldif
+      self._ldif_writer = ldif.LDIFWriter(writer_obj)
+    else:
+      self._ldif_writer = writer_obj
+    FileWriter.__init__(self,l,self._ldif_writer._output_file,headerStr,footerStr)
 
   def _processSingleResult(self,resultType,resultItem):
     if _entryResultTypes.has_key(resultType):
