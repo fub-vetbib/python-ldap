@@ -14,6 +14,27 @@ __version__ = '0.0.4'
 
 import ldap,ldap.cidict,ldap.functions,_ldap
 
+
+# Flags that control how liberal the parsing routines are.
+
+# Allow missing oid
+ALLOW_NO_OID = 0x01
+# Allow bogus extra quotes
+ALLOW_QUOTED = 0x02
+# Allow descr instead of OID
+ALLOW_DESCR = 0x04
+# Allow descr as OID prefix    
+ALLOW_DESCR_PREFIX = 0x08
+# Allow OID macros in slapd    
+ALLOW_OID_MACRO = 0x10
+
+# Combined constants
+# Strict parsing
+ALLOW_NONE = 0x00
+# Be very liberal in parsing
+ALLOW_ALL = 0x1f
+
+
 # Wrapper functions to serialize calls into OpenLDAP libs with
 # a module-wide thread lock
 def str2objectclass(schema_element_str,schema_allow=0):
