@@ -103,7 +103,9 @@ static PySequenceMethods default_methods = {
         (intintargfunc)0,	/* sq_slice */
         (intobjargproc)0,	/* sq_ass_item */
         (intintobjargproc)0,	/* sq_ass_slice */
+#if defined(PY_MAJOR_VERSION) && PY_VERSION_HEX >= 0x01060000
         (objobjproc)0		/* sq_contains */
+#endif
 };
 
 static PyTypeObject default_type = {
