@@ -233,6 +233,7 @@ LDAP_get_option(LDAPObject *self, int option)
 	    if (res != LDAP_OPT_SUCCESS)
 		return LDAPerr(res);
 	    return PyString_FromString(strval);
+
     case LDAP_OPT_TIMEOUT:
     case LDAP_OPT_NETWORK_TIMEOUT:
 	    /* Double-valued timeval options */
@@ -242,8 +243,9 @@ LDAP_get_option(LDAPObject *self, int option)
 	    if (res != LDAP_OPT_SUCCESS)
 		return LDAPerr(res);
 	    return PyFloat_FromDouble(
-              ( (double) tv.tv_sec * 1000000.0 + (double) tv.tv_usec ) / 1000000.0
+              (double) tv.tv_sec + ( (double) tv.tv_usec / 1000000.0 )
             );
+
     case LDAP_OPT_SERVER_CONTROLS:
     case LDAP_OPT_CLIENT_CONTROLS:
     case LDAP_OPT_API_FEATURE_INFO:
