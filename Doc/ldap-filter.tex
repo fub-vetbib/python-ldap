@@ -1,0 +1,37 @@
+% $Id$
+
+\section{\module{ldap.filter} ---
+  LDAP filter handling }
+
+\declaremodule{standard}{ldap.filter}
+
+% Author of the module code;
+\moduleauthor{Michael Str\"oder}{python-ldap-dev@lists.sourceforge.net}
+% Author of the documentation,
+\sectionauthor{Michael Str\"oder}{michael@stroeder.com}
+
+\modulesynopsis{LDAP filter handling.}
+
+The \module{ldap.filter} module defines the following functions:
+
+\begin{funcdesc}{escape_filter_chars}{assertion_value} % -> string
+
+This function escapes characters in \var{assertion_value} which
+are special in LDAP filters. You should use this function when
+building LDAP filter strings from arbitrary input.
+
+\begin{seealso}
+\seerfc{2254}{The String Representation of LDAP Search Filters}{}
+\end{seealso}
+
+\end{funcdesc}
+
+\begin{funcdesc}{filter_format}{filter_template, assertion_values} % -> string
+
+This function applies \function{escape_filter_chars()} to each of the strings in
+list \var{assertion_values}. After that \var{filter_template} containing
+as many \constant{\%s} placeholders as count of assertion values is
+used to build the whole filter string.
+
+\end{funcdesc}
+
