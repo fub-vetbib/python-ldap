@@ -29,7 +29,7 @@ The timeout handling is done within the method result() which probably leads
 to less exact timing.
 """
 
-__version__ = '0.0.2'
+__version__ = '0.0.3'
 
 __all__ = ['open','initialize','init','get_option','set_option']
 
@@ -159,7 +159,7 @@ class LDAPObject:
 
   def add_s(self,dn,modlist):
     msgid = self.add(dn,modlist)
-    return self.result(msgid)
+    self.result(msgid)
 
   def bind(self,who,cred,method):
     """
@@ -172,7 +172,7 @@ class LDAPObject:
     bind_s(who, cred, method) -> None
     """
     msgid = self.bind(who,cred,method)
-    return self.result(msgid)
+    self.result(msgid)
 
   def compare(self,*args,**kwargs):
     """
@@ -194,7 +194,12 @@ class LDAPObject:
 
   def compare_s(self,*args,**kwargs):
     msgid = self.compare(*args,**kwargs)
-    return self.result(msgid)
+    try:
+      self.result(msgid)
+    except _ldap.COMPARE_TRUE:
+      return 1
+    except _ldap.COMPARE_FALSE:
+      return 0
 
   def delete(self,dn):
     """
@@ -208,14 +213,14 @@ class LDAPObject:
 
   def delete_s(self,dn):
     msgid = self.delete(dn)
-    return self.result(msgid)
+    self.result(msgid)
 
   def destroy_cache(self):
     """
     destroy_cache() -> None    
         Turns off caching and removed it from memory.
     """
-    return self._ldap_call(self._l.destroy_cache,)
+    self._ldap_call(self._l.destroy_cache,)
 
   def disable_cache(self):
     """
@@ -224,7 +229,7 @@ class LDAPObject:
         not cached, and the cache is not checked when returning
         results. Cache contents are not deleted.
     """
-    return self._ldap_call(self._l.disable_cache,)
+    self._ldap_call(self._l.disable_cache,)
 
   def enable_cache(self,timeout=_ldap.NO_LIMIT,maxmem=_ldap.NO_LIMIT):
     """
@@ -240,7 +245,7 @@ class LDAPObject:
         This and other caching methods are not available if the library
         and the ldap module were compiled with support for it.
     """
-    return self._ldap_call(self._l.enable_cache,timeout,maxmem)
+    self._ldap_call(self._l.enable_cache,timeout,maxmem)
 
   def fileno(self):
     """
@@ -254,7 +259,7 @@ class LDAPObject:
     flush_cache() -> None    
         Deletes the cache's contents, but does not affect it in any other way.
     """
-    return self._ldap_call(self._l.flush_cache)
+    self._ldap_call(self._l.flush_cache)
 
   def modify(self,dn,modlist):
     """
@@ -279,7 +284,7 @@ class LDAPObject:
 
   def modify_s(self,dn,modlist):
     msgid = self.modify(dn,modlist)
-    return self.result(msgid)
+    self.result(msgid)
 
   def modrdn(self,dn,newrdn,delold=1):
     """
@@ -299,7 +304,7 @@ class LDAPObject:
 
   def modrdn_s(self,dn,newrdn,delold=1):
     msgid = self.modrdn(dn,newrdn,delold)
-    return self.result(msgid)
+    self.result(msgid)
 
   def rename(self,dn,newrdn,newSuperior,delold=1):
     """
@@ -320,7 +325,7 @@ class LDAPObject:
 
   def rename_s(self,dn,newrdn,newSuperior,delold=1):
     msgid = self.rename(dn,newrdn,newSuperior,delold)
-    return self.result(msgid)
+    self.result(msgid)
 
   def result(self,msgid=_ldap.RES_ANY,all=1,timeout=-1):
     """
@@ -475,7 +480,7 @@ class LDAPObject:
         is only available if the module and library were compiled with
         support for it.
     """
-    return self._ldap_call(self._l.set_rebind_proc,func)
+    self._ldap_call(self._l.set_rebind_proc,func)
 
   def simple_bind(self,who,passwd):
     """
@@ -487,7 +492,7 @@ class LDAPObject:
     """
     simple_bind_s(who, passwd) -> None
     """
-    return self.bind_s(who,passwd,_ldap.AUTH_SIMPLE)
+    self.bind_s(who,passwd,_ldap.AUTH_SIMPLE)
 
   def start_tls_s(self,*args,**kwargs):
     """
@@ -496,7 +501,7 @@ class LDAPObject:
     set to VERSION3 before calling start_tls_s.
     If TLS could not be started an exception will be raised.
     """
-    return self._ldap_call(self._l.start_tls_s,*args,**kwargs)
+    self._ldap_call(self._l.start_tls_s,*args,**kwargs)
   
   def unbind(self):
     """
@@ -515,10 +520,8 @@ class LDAPObject:
 
   def unbind_s(self):
     msgid = self.unbind()
-    if msgid is None:
-      return
-    else:
-      return self.result(msgid)
+    if msgid!=None:
+      self.result(msgid)
 
   def uncache_entry(self,dn):
     """
@@ -526,14 +529,14 @@ class LDAPObject:
         Removes all cached entries that make reference to dn. This should be
         used, for example, after doing a modify() involving dn.
     """
-    return self._ldap_call(self._l.uncache_entry,dn)
+    self._ldap_call(self._l.uncache_entry,dn)
 
   def uncache_request(self,msgid):
     """
     uncache_request(msgid) -> None    
         Remove the request indicated by msgid from the cache.
     """
-    return self._ldap_call(self._l.uncache_request,msgid)
+    self._ldap_call(self._l.uncache_request,msgid)
 
   def url_search(self,url,attrsonly=0):
     """
@@ -559,7 +562,7 @@ class LDAPObject:
     return self._ldap_call(self._l.get_option,*args,**kwargs)
 
   def set_option(self,*args,**kwargs):
-    return self._ldap_call(self._l.set_option,*args,**kwargs)
+    self._ldap_call(self._l.set_option,*args,**kwargs)
 
 def open(host,use_threadlock=0,trace_level=0,trace_file=sys.stdout):
   """
@@ -606,5 +609,5 @@ def get_option(*args,**kwargs):
   return _ldap_call(_ldap.get_option,*args,**kwargs)
 
 def set_option(*args,**kwargs):
-  return _ldap_call(_ldap.set_option,*args,**kwargs)
+  _ldap_call(_ldap.set_option,*args,**kwargs)
 
