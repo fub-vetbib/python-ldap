@@ -6,6 +6,9 @@
 
 #include "lber.h"
 #include "ldap.h"
+#if LDAP_API_VERSION < 2000
+#error Current python-ldap requires OpenLDAP 2.x
+#endif
 #include "Python.h"
 
 #if PYTHON_API_VERSION < 1007
