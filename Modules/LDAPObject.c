@@ -312,12 +312,6 @@ free_attrs( char*** attrsp ) {
     }
 }
 
-static void
-set_timeval_from_double( struct timeval *tv, double d ) {
-	tv->tv_usec = (long) ( fmod(d, 1.0) * 1000000.0 );
-	tv->tv_sec = (long) floor(d);
-}
-
 /*------------------------------------------------------------
  * methods
  */
