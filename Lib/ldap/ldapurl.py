@@ -12,7 +12,7 @@ __version__ = '0.3.2'
 
 import re,ldap
 
-from urllib import quote_plus,unquote_plus
+from urllib import quote,quote_plus,unquote_plus
 
 host_pattern = r'([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+|[a-zA-Z]+[a-zA-Z0-9-]*(\.[a-zA-Z]+[a-zA-Z0-9-]*)*)+(:[0-9]*)*'
 host_regex = re.compile('^%s$' % host_pattern)
