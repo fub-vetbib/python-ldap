@@ -7,6 +7,7 @@ See http://python-ldap.sourceforge.net for details.
 \$Id$
 """
 
+
 def split_tokens(s):
   """
   Returns list of syntax elements with quotes and spaces
@@ -46,7 +47,8 @@ def split_tokens(s):
     i +=1
   return result # split_tokens()
 
-def extract_tokens(l,known_tokens={}):
+
+def extract_tokens(l,known_tokens):
   """
   Returns dictionary of known tokens with all values
   """
