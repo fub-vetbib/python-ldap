@@ -1,0 +1,56 @@
+----------------------------------------------------------------
+Released 2.0.0pre07 2003-04-03
+
+Changes since 2.0.0pre06:
+
+LDAPObject.c:
+  * Wrapped OpenLDAP's ldap_search_ext()
+  * Removed empty __doc__ strings
+  * Removed fileno
+  * Removed all stuff related to caching in OpenLDAP libs
+
+ldap.ldapobject:
+  * Fixed SASL rebind in ldap.ldapobject.ReconnectLDAPObject
+  * use search_ext() instead ldap_search()
+  * new class attribute timeout for setting a global time-out
+    value for all synchronous operations
+
+ldap.schema:
+* Fixed two typos in ldap.schema.models
+* Some attempts to improve performance of parser/tokenizer
+* Completely reworked to have separate OID dictionaries for
+  the different schema element classes
+* Fixed the Demo/schema*.py to reflect changes to ldap.schema
+
+Documentation updates and various __doc__ string modifications.
+
+ldapurl:
+  * Removed all Unicode stuff from module ldapurl
+  * Consistent URL encoding in module ldapurl
+
+ldif:
+  * Removed ldif.FileWriter
+  * Proper handling of FILL (see RFC 2849)
+
+----------------------------------------------------------------
+Released 2.0.0pre06 2002-09-23
+
+Changes since 2.0.0pre05:
+- Fine-grained locking when linking against libldap_r
+- New wrapper class ldap.ReconnectLDAPObject
+- Security fix to module ldapurl
+- Other fixes and improvements to whole package
+- LDAPv3 schema support
+  (still somewhat premature and undocumented)
+
+----------------------------------------------------------------
+Released 2.0.0pre05 2002-07-20
+
+----------------------------------------------------------------
+Released 2.0.0pre04 2002-02-09
+
+----------------------------------------------------------------
+Released 2.0.0pre02 2002-02-01
+
+----------------------------------------------------------------
+Released 1.10alpha3 2000-09-19
