@@ -27,11 +27,10 @@ def HTMLSchemaTree(schema,se_class,se_tree,se_oid,level):
   se_obj = schema.get_obj(se_class,se_oid)
   if se_obj!=None:
     print """
-    <dt><strong>%s</strong></dt>
+    <dt><strong>%s (%s)</strong></dt>
     <dd>
-      OID: %s<br>
-      Description: &quot;%s&quot;
-    """ % (se_oid,se_obj.oid,se_obj.desc)
+      %s
+    """ % (', '.join(se_obj.names),se_obj.oid,se_obj.desc)
   if se_tree[se_oid]:
     print '<dl>'
     for sub_se_oid in se_tree[se_oid]:
@@ -80,7 +79,11 @@ if html_output:
 <h1>Attribute type tree</h1>
 <dl>
 """
-  HTMLSchemaTree(schema,ldap.schema.AttributeType,at_tree,'_',0)
+  for a in schema.listall(ldap.schema.AttributeType):
+    if at_tree[a]:
+      HTMLSchemaTree(schema,ldap.schema.AttributeType,at_tree,a,0)
+      print
+
   print """</dl>
 </body>
 </html>
