@@ -164,15 +164,6 @@ LDAPinit_constants( PyObject* d )
 
 	/* (errors.c contains the error constants) */
 
-#ifdef LDAP_CACHE_BUCKETS
-	add_int(d,CACHE_BUCKETS);
-#endif
-#ifdef LDAP_CACHE_OPT_CACHENOERRS
-	add_int(d,CACHE_OPT_CACHENOERRS);
-#endif
-#ifdef LDAP_CACHE_OPT_CACHEALLERRS
-	add_int(d,CACHE_OPT_CACHEALLERRS);
-#endif
 	add_int(d,DEREF_NEVER);
 	add_int(d,DEREF_SEARCHING);
 	add_int(d,DEREF_FINDING);
