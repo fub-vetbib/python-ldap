@@ -505,6 +505,8 @@ def urlfetch(uri,schema_allow=0):
       subschemasubentry_entry = l.read_subschemasubentry_s(
         subschemasubentry_dn,attrs=schema_attrs
       )
+    l.unbind_s()
+    del l
 
   else:
     import urllib,ldif
