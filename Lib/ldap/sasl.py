@@ -69,8 +69,8 @@ class sasl:
             return self.dict[id]
         return defresult
     
-class cram_md5 (sasl):
-    """This class handles SASL DIGEST-MD5 authentication."""
+class cram_md5(sasl):
+    """This class handles SASL CRAM-MD5 authentication."""
 
     mechanism = "CRAM-MD5"
 
@@ -80,7 +80,7 @@ class cram_md5 (sasl):
         sasl.__init__(self,auth_dict,self.mechanism)
 
 
-class digest_md5 (sasl):
+class digest_md5(sasl):
     """This class handles SASL DIGEST-MD5 authentication."""
 
     mechanism = "DIGEST-MD5"
