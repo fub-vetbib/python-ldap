@@ -200,6 +200,8 @@ class LDIFWriter:
       self._unparseEntryRecord(record)
     elif type(record)==types.ListType:
       self._unparseChangeRecord(record)
+    else:
+      raise ValueError, "Argument record must be dictionary or list"
     # Write empty line separating the records
     self._output_file.write(self._line_sep)
     # Count records written
@@ -416,40 +418,29 @@ class LDIFRecordList(LDIFParser):
     self.all_records.append((dn,entry))
 
 
-class FileWriter(LDIFParser):
+class LDIFCopy(LDIFParser):
   """
-  Copy LDIF input to a file output object containing all data retrieved
+  Copy LDIF input to LDIF output containing all data retrieved
   via URLs
   """
 
   def __init__(
     self,
     input_file,output_file,
-    ignored_attr_types=None,max_entries=0,process_url_schemes=None
+    ignored_attr_types=None,max_entries=0,process_url_schemes=None,
+    base64_attrs=None,cols=76,line_sep='\n'
   ):
     """
-    See LDIFParser.__init__()
-
-    Additional Parameters:
-    output_file
-        File-object to write the LDIF output to
+    See LDIFParser.__init__() and LDIFWriter.__init__()
     """
     LDIFParser.__init__(self,input_file,ignored_attr_types,max_entries,process_url_schemes)
-    self._output_file = output_file
-
-
-class LDIFCopy(FileWriter):
-  """
-  Copy LDIF input to LDIF output containing all data retrieved
-  via URLs
-  """
+    self._output_ldif = LDIFWriter(output_file,base64_attrs,cols,line_sep)
 
   def handle(self,dn,entry):
     """
     Write single LDIF record to output file.
     """
-    ldif_data = CreateLDIF(dn,entry)
-    self._output_file.write(ldif_data)
+    self._output_ldif.unparse(dn,entry)
 
 
 def ParseLDIF(f,ignore_attrs=None,maxentries=0):
