@@ -6,8 +6,6 @@
 #ifdef USE_CIDICT
 #include "CIDict.h"
 
-static void CIDict_init(void);
-
 /*
  * Case Insensitive dictionary
  *
@@ -23,13 +21,18 @@ static void CIDict_init(void);
  * XXX I forget whose idea this originally was, but its a good one. - d
  */
 
+typedef struct {
+	PyObject_HEAD
+	PyObject *dict;
+} CIDictObject;
+
 /*
  * Return a new object representing a lowercased version of the argument.
  * Typically this is a string -> string conversion.
  * Returns: New Reference
  */
 static PyObject *
-case_insensitive(PyObject *o)
+lowercase(PyObject *o)
 {
 	char *str, *cp;
 	int len, i;
@@ -55,74 +58,157 @@ case_insensitive(PyObject *o)
 	return s;
 }
 
-/* read-access the dictionary after lowercasing the subscript */
-
+/* Access an element of the dictionary by key */
 static PyObject *
-cid_subscript(PyObject *d, PyObject *k)
+subscript(CIDictObject *self, PyObject *k)
 {
 	PyObject *ret;
 	PyObject *cik;
 
-	cik = case_insensitive(k);
-	ret = (*PyDict_Type.tp_as_mapping->mp_subscript)(d, cik);
-	Py_XDECREF(cik);
+	cik = lowercase(k);
+	if (cik == NULL)
+		return NULL;
+	ret = PyObject_GetItem(self->dict, cik);
+	Py_DECREF(cik);
 	return ret;
 }
 
-/* write-access the dictionary after lowecasing the subscript */
-
+/* Return the length of the dictionary */
 static int
-cid_ass_subscript(PyObject *d, PyObject *k, PyObject *v)
+length(CIDictObject *self)
+{
+	return PyMapping_Length(self->dict);
+}
+
+/* Assign to an element of the dictionary by key */
+static int
+ass_subscript(CIDictObject *self, PyObject *k, PyObject *v)
 {
 	int ret;
 	PyObject *cik;
 
-	cik = case_insensitive(k);
-	ret = (*PyDict_Type.tp_as_mapping->mp_ass_subscript)(d, cik, v);
-	Py_XDECREF(cik);
+	cik = lowercase(k);
+	if (cik == NULL)
+		return -1;
+	ret = PyObject_SetItem(self->dict, cik, v);
+	Py_DECREF(cik);
 	return ret;
 }
 
-/* This type and mapping structure gets filled in from the PyDict structs */
- 
-static PyMappingMethods CIDict_mapping;
-PyTypeObject CIDict_Type;
-
-/* Initialise the case-insensitive dictionary type */
-
+/* Release storage associated with the dictionary */
 static void
-CIDict_init()
+dealloc(CIDictObject *self)
 {
-	/*
-	 * Duplicate the standard python dictionary type, 
-	 * but override the subscript accessor methods
-	 */
-	memcpy(&CIDict_Type, &PyDict_Type, sizeof CIDict_Type);
-	CIDict_Type.tp_name = "cidictionary";
-	CIDict_Type.tp_as_mapping = &CIDict_mapping;
-
-	memcpy(&CIDict_mapping, PyDict_Type.tp_as_mapping, 
-		sizeof CIDict_mapping);
-	CIDict_mapping.mp_subscript = cid_subscript;
-	CIDict_mapping.mp_ass_subscript = cid_ass_subscript;
+	Py_DECREF(self->dict);
+	PyMem_DEL(self);
 }
 
-/* Create a new case-insensitive dictionary, based on PyDict */
+/* Print the dictionary */
+static int
+print(CIDictObject *self, FILE *fp, int flags)
+{
+	return PyObject_Print(self->dict, fp, flags);
+}
 
+/* Retreive attributes from the dictionary */
+PyObject *
+getattr(CIDictObject *self, char *attr_name)
+{
+	return PyObject_GetAttr(self->dict, attr_name);
+}
+
+/* Compare two dictionaries for (in)equality */
+static int
+compare(CIDictObject *self, PyObject *o)
+{
+	PyObject *lo = NULL;
+	PyObject *oitems = NULL;
+	PyObject *key = NULL;
+	PyObject *item = NULL;
+	int len, i, ret = -1;
+
+	if (!PyMapping_Check(o))
+		return PyObject_Compare(self->dict, o);
+
+	/* Create equivalent dictionary with lowercased keys */
+	if ((lo = PyDict_New()) == NULL)
+		goto done;
+	if ((oitems = PyMapping_Items(o)) == NULL)
+		goto done;
+	len = PyObject_Length(oitems);
+	for (i = 0; i < len; i++) {
+		Py_XDECREF(item);
+		if ((item = PySequence_GetItem(oitems, i)) == NULL)
+			goto done;
+		Py_XDECREF(key);
+		if ((key = lowercase(PyTuple_GET_ITEM(item, 0))) == NULL)
+			goto done;
+		PyMapping_SetItem(key, PyTuple_GET_ITEM(item, 1));
+	}
+	ret = PyObject_Compare(self->dict, lo);
+    done:
+	Py_XDECREF(key);
+	Py_XDECREF(item);
+	Py_XDECREF(oitems);
+	Py_XDECREF(lo);
+	return ret;
+}
+
+/* Return a string representation of the dictionary */
+static PyObject *
+repr(CIDictObject *self)
+{
+	return PyObject_Repr(self->dict);
+}
+
+/* Mapping interface */
+static PyMappingMethods as_mapping = { 
+	length, 			/* mp_length */
+	subscript, 			/* mp_subscript */
+	ass_subscript			/* mp_ass_subscript */
+};
+
+/* Python object interface */
+PyTypeObject CIDict_Type = {
+#if defined(WIN32) || defined(__CYGWIN__)
+	/* see http://www.python.org/doc/FAQ.html#3.24 */
+	PyObject_HEAD_INIT(NULL)
+#else /* ! WIN32 */
+	PyObject_HEAD_INIT(&PyType_Type)
+#endif /* ! WIN32 */
+	"cidictionary",			/* tp_name */
+	sizeof (CIDictObject),		/* tp_basicsize */
+	0,				/* tp_itemsize */
+	(destructor)dealloc,		/* tp_dealloc */
+	(printfunc)print,		/* tp_print */
+	(getattrfunc)getattr,		/* tp_getattr */
+	NULL,				/* tp_setattr */
+	(cmpfunc)compare,		/* tp_compare */
+	(reprfunc)repr,			/* tp_repr */
+	NULL,				/* tp_as_number */
+	NULL,				/* tp_as_sequence */
+	&as_mapping,			/* tp_as_mapping */
+};
+
+/* Create a new case-insensitive dictionary, based on PyDict */
 PyObject *
 CIDict_New()
 {
-	PyObject *mp;
-	static int initialised = 0;
+	CIDictObject *o;
+	PyObject *dict;
 
-	if (!initialised) {
-		CIDict_init();
-		initialised = 1;
-	}
-		
-	mp = PyDict_New();
-	mp->ob_type = &CIDict_Type;
-	return (mp);
+	dict = PyDict_New();
+	if (dict == NULL)
+		return NULL;
+#if defined(WIN32) || defined(__CYGWIN__)
+	CIDict_Type.ob_type = &PyType_Type
+#endif
+	o = PyObject_NEW(CIDictObject, &CIDict_Type);
+	if (o == NULL) 
+		Py_DECREF(dict);
+	else
+		o->dict = dict;
+	return o;
 }
 
 #endif /* USE_CIDICT */
