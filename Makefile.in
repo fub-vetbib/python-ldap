@@ -15,8 +15,8 @@ all:
 install:
 	cd Modules && $(MAKE) $(MAKEVARS) install
 	$(INSTALL_DIR) $(DESTDIR)$(LIBDEST)/site-packages/python-ldap
-	$(INSTALL_DATA) $(srcdir)/python-ldap.pth \
-		$(DESTDIR)$(LIBDEST)/site-packages/python-ldap.pth
+	$(INSTALL_DATA) $(srcdir)/Misc/ldap.pth \
+		$(DESTDIR)$(LIBDEST)/site-packages/ldap.pth
 	#-- XXX need to copy contents of $(srcdir)/Lib/* to the new directory
 	$(PYTHON) $(LIBDEST)/compileall.py \
 		$(DESTDIR)$(LIBDEST)/site-packages/python-ldap
