@@ -1,5 +1,0 @@
-
-* Clearly describe an X.500 API (fog?)
-* Get some better demo/sample code
-* Find someone with MSVC who can build the WIN32 DLL for _ldapmodule.
-* Add security/authentication
