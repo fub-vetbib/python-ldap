@@ -1,7 +1,14 @@
 /* David Leonard <david.leonard@csee.uq.edu.au>, 1999. Public domain. */
 /* $Id$ */
 
-/* read-only linked list type template. */
+/*
+ * read-only linked list type template.
+ * These utility functions construct python object types that provide
+ * a sequence interface to a linked list in C. Three C functions are
+ * provided to the template: first, next, and item. The first two manipulate
+ * pointers, while the third generate a python object from a C pointer.
+ * All pointers are void *.
+ */
 
 #include "common.h"
 #include "linkedlist.h"
@@ -15,6 +22,10 @@
 #define ITEM(obj, pos)		\
 	(*LINKCLASS(obj)->llt_itemfn)((obj), pos)
 
+/*
+ * Create a new instance of the linked list. The caller should keep
+ * the head pointer somewhere for when FIRST() is called later.
+ */
 PyObject *
 LinkedList_new(type)
 	LinkedListType *type;
@@ -22,14 +33,7 @@ LinkedList_new(type)
 	return (PyObject *)PyObject_NEW(LinkedListObject, &type->llt_type);
 }
 
-static void
-dealloc(self)
-	PyObject *self;
-{
-	PyMem_DEL(self);
-}
-
-/* Much of this from listobject.c */
+/* Dodgy representation: much of this from listobject.c */
 static PyObject *
 repr(obj)
 	PyObject *obj;
@@ -42,10 +46,10 @@ repr(obj)
 	i = Py_ReprEnter((PyObject *)self);
 	if (i != 0) {
 		if (i > 0)
-			return PyString_FromString("[...]");
+			return PyString_FromString("<...>");
 		return NULL;
 	}
-	s = PyString_FromString("[");
+	s = PyString_FromString("<");
 	comma = PyString_FromString(", ");
 	for (i = 0, pos = FIRST(self); pos; pos = NEXT(self, pos), i++) {
 		if (i > 0)
@@ -54,11 +58,12 @@ repr(obj)
 		PyString_ConcatAndDel(&s, PyObject_Repr(itm));
 	}
 	Py_XDECREF(comma);
-	PyString_ConcatAndDel(&s, PyString_FromString("]"));
+	PyString_ConcatAndDel(&s, PyString_FromString(">"));
 	Py_ReprLeave((PyObject *)self);
 	return s;
 }
 
+/* Inefficiently find the length of the list */
 static PyObject *
 length(obj)
 	PyObject *obj;
@@ -67,12 +72,13 @@ length(obj)
 	int len;
 	void *pos;
 
-	for (len = 0, pos = FIRST(self); pos; pos = NEXT(self, pos), len++)
-		;
-
+	len = 0;
+	for (pos = FIRST(self); pos != NULL; pos = NEXT(self, pos))
+		len++;
 	return PyInt_FromLong(len);
 }
 
+/* Inefficiently access an item in the list */
 static PyObject *
 item(obj, index)
 	PyObject *obj;
@@ -82,12 +88,12 @@ item(obj, index)
 	int len;
 	void *pos;
 
-	for (len = 0, pos = FIRST(self);
-	    pos && len < index; 
-	    pos = NEXT(self, pos), len++)
-		;
-
-	if (len == index)
+	pos = FIRST(self);
+	while (pos && index) {
+		pos = NEXT(self, pos);
+		index--;
+	}
+	if (pos && index == 0)
 		return ITEM(self, pos);
 
 	PyErr_SetObject(PyExc_IndexError, PyInt_FromLong(index));
@@ -103,9 +109,6 @@ static PySequenceMethods default_methods = {
         (intintargfunc)0,	/* sq_slice */
         (intobjargproc)0,	/* sq_ass_item */
         (intintobjargproc)0,	/* sq_ass_slice */
-#if defined(PY_MAJOR_VERSION) && PY_VERSION_HEX >= 0x01060000
-        (objobjproc)0		/* sq_contains */
-#endif
 };
 
 static PyTypeObject default_type = {
@@ -120,7 +123,7 @@ static PyTypeObject default_type = {
 	0,			/*tp_basicsize*/
 	0,			/*tp_itemsize*/
 	/* methods */
-	(destructor)dealloc,	/*tp_dealloc*/
+	(destructor)0,		/*tp_dealloc*/
 	0,			/*tp_print*/
 	0,			/*tp_getattr*/
 	0,			/*tp_setattr*/
@@ -132,16 +135,20 @@ static PyTypeObject default_type = {
 	0,			/*tp_hash*/
 };	
 
+/*
+ * Create a new linked-list object type.
+ * Caller must set tp_dealloc.
+ */
 void
-LinkedList_inittype(type, name, size, firstfn, nextfn, itemfn)
+LinkedList_inittype(type, name, size, firstfn, nextfn, itemfn, dealloc)
 	LinkedListType *type;
 	char *name;
 	size_t size;
 	firstfunc firstfn;
 	nextfunc nextfn;
 	itemfunc itemfn;
+	destructor dealloc;
 {
-
 	memcpy(&type->llt_type, &default_type, sizeof type->llt_type);
 	memcpy(&type->llt_sequence, &default_methods, 
 	    sizeof type->llt_sequence);
@@ -150,4 +157,5 @@ LinkedList_inittype(type, name, size, firstfn, nextfn, itemfn)
 	type->llt_itemfn = itemfn;
 	type->llt_type.tp_as_sequence = &type->llt_sequence;
 	type->llt_type.ob_size = size;
+	type->llt_type.tp_dealloc = dealloc;
 }

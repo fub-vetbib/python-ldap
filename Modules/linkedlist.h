@@ -21,7 +21,7 @@ typedef struct {
 } LinkedListType;
 
 void LinkedList_inittype(LinkedListType *, char *, size_t,
-	firstfunc, nextfunc, itemfunc);
+	firstfunc, nextfunc, itemfunc, destructor);
 
 PyObject *LinkedList_new(LinkedListType *);
 
