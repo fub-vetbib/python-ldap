@@ -476,10 +476,10 @@ class Entry(UserDict.UserDict):
     return self._keytuple2attrtype.values()
 
   def items(self):
-    result = []
-    for k in self._keytuple2attrtype.values():
-      result.append((k,self[k]))
-    return result
+    return [
+      (k,self[k])
+      for k in self._keytuple2attrtype.values()
+    ]
 
   def attribute_types(
     self,attr_type_filter=None,strict=1,raise_keyerror=1
