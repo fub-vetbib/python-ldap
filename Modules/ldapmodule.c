@@ -9,6 +9,7 @@
 #include "constants.h"
 #include "errors.h"
 #include "functions.h"
+#include "schema.h"
 /* #include "string_translators.h" */
 #include "template.h"
 
@@ -44,6 +45,7 @@ init_ldap()
 	LDAPinit_constants(d);
 	LDAPinit_errors(d);
 	LDAPinit_functions(d);
+	LDAPinit_schema(d);
 /*	LDAPinit_string_translators(d); */
 
 #if defined(HAVE_LDAP_INIT_TEMPLATES)

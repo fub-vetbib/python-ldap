@@ -14,6 +14,9 @@
 #include "message.h"
 #include "options.h"
 
+#include <sasl.h>
+
+
 static void free_attrs(char***);
 
 /* constructor */
@@ -392,6 +395,8 @@ static char doc_add[] = "";
 
 static char doc_bind[] = "";
 
+static char doc_sasl_bind_s[] = "";
+
 /* ldap_bind */
 
 static PyObject*
@@ -408,6 +413,181 @@ l_ldap_bind( LDAPObject* self, PyObject* args )
     LDAP_END_ALLOW_THREADS( self );
     if (msgid == -1)
     	return LDAPerror( self->ldap, "ldap_bind" );
+    return PyInt_FromLong( msgid );
+}
+
+
+/* The following functions implement SASL binds. A new method
+   sasl_bind_s(bind_dn, sasl_mechanism) has been introduced.
+
+   * The bind_dn argument will be passed to the c library; however,
+     normally it is not needed and should be an empty string.
+
+   * The sasl_mechanism argument is an instance of a class that
+     implements a callback interface. For convenience, it should be
+     derived from the sasl class (which lives in the ldap.sasl module).
+     See the module documentation for more information.
+
+     Check your /usr/lib/sasl/ directory for locally installed SASL
+     auth modules ("mechanisms"), or try
+
+       ldapsearch   -b "" -s base -LLL -x  supportedSASLMechanisms
+     
+     (perhaps with an additional -h and -p argument for ldap host and
+     port). The latter will show you which SASL mechanisms are known
+     to the LDAP server. If you do not want to set up Kerberos, you
+     can still use SASL binds. Your authentication data should then be
+     stored in /etc/sasldb (see saslpasswd(8)). If the LDAP server
+     does not find the sasldb, it wont allow for DIGEST-MD5 and
+     CRAM-MD5. One important thing to get started with sasldb: you
+     should first add a dummy user (saslpasswd -c dummy), and this
+     will give you some strange error messages. Then delete the dummy
+     user (saslpasswd -d dummy), and now you can start adding users to
+     your sasldb (again, use the -c switch). Strange, eh?
+
+   * The sasl_mechanism object must implement a method, which will be
+     called by the sasl lib several times. The prototype of the
+     callback looks like this: callback(id, challenge, prompt,
+     defresult) has to return a string (or maybe None). The id
+     argument specifies, which information should be passed back to
+     the SASL lib (see SASL_CB_xxx in sasl.h)
+
+
+   A nice "Howto get LDAPv3 up and running with Kerberos and SSL" can
+   be found at http://www.bayour.com/LDAPv3-HOWTO.html.  Instead of
+   MIT Kerberos, I used Heimdal for my tests (since it is included
+   with SuSE Linux).
+
+   Todo:
+   
+   * Find a better interface than the python callback. This is 
+     really ugly. Perhaps one could make use of a sasl class, like
+     in the perl ldap module.
+
+   * Thread safety?
+
+   * Memory Management?
+   
+   * Write more docs
+
+   * ...
+
+*/
+static int interaction ( unsigned flags, 
+			 sasl_interact_t *interact,
+			 PyObject* SASLObject )
+{
+  const char *dflt = interact->defresult;
+  PyObject *result;
+  char *c_result;
+  result = PyObject_CallMethod(SASLObject,
+			       "callback",
+			       "isss",
+			       interact->id,  /* see sasl.h */
+			       interact->challenge,
+			       interact->prompt,   
+			       interact->defresult);
+
+  if (result == NULL) 
+    /*searching for a better error code */
+    return LDAP_OPERATIONS_ERROR; 
+  c_result = PyString_AsString(result); /*xxx Error checking?? */
+  
+  /* according to the sasl docs, we should malloc() the returned
+     string only for calls where interact->id == SASL_CB_PASS, so we
+     probably leak a few bytes per ldap bind. However, if I restrict
+     the strdup() to this case, I get segfaults. Should probably be
+     fixed sometimes.
+  */
+  interact->result = strdup( c_result );
+  if (interact->result == NULL)
+    return LDAP_OPERATIONS_ERROR;
+  interact->len = strlen(c_result);
+  /* We _should_ overwrite the python string buffer for security
+     reasons, however we may not (api/stringObjects.html). Any ideas?
+  */
+  
+  Py_DECREF(result); /*not needed any longer */
+  result = NULL;
+  
+  return LDAP_SUCCESS;
+}
+
+
+/* 
+  This function will be called by ldap_sasl_interactive_bind(). The
+  "*in" is an array of sasl_interact_t's (see sasl.h for a
+  reference). The last interact in the array has an interact->id of
+  SASL_CB_LIST_END.
+
+*/
+
+int py_ldap_sasl_interaction(   LDAP *ld, 
+				unsigned flags, 
+				void *defaults,
+				void *in )
+{
+  /* These are just typecasts */
+  sasl_interact_t *interact = in;
+  PyObject *SASLObject = defaults;
+  /* Loop over the array of sasl_interact_t structs */
+  while( interact->id != SASL_CB_LIST_END ) {
+    int rc = 0;
+    rc = interaction( flags, interact, SASLObject );
+    if( rc )  return rc;
+    interact++;
+  }
+  return LDAP_SUCCESS;
+}
+
+static PyObject* 
+l_ldap_sasl_bind_s( LDAPObject* self, PyObject* args )
+{
+    char *bind_dn, *c_mechanism;
+    PyObject       *SASLObject = NULL;
+    PyStringObject *mechanism = NULL;
+    int msgid, version;
+
+    void *defaults;
+    static unsigned sasl_flags = LDAP_SASL_AUTOMATIC;
+
+    /* first check if we are a LDAPv3 client */
+    version = LDAP_VERSION3;
+    if (ldap_set_option(self->ldap, 
+			LDAP_OPT_PROTOCOL_VERSION, 
+			&version) != LDAP_OPT_SUCCESS)
+      return NULL;
+
+    if (!PyArg_ParseTuple(args, 
+			  "sO",
+			  &bind_dn,
+			  &SASLObject)) 
+      return NULL;
+
+    if (not_valid(self)) return NULL;
+
+    /* now we extract the sasl mechanism from the SASL Object */
+    mechanism = PyObject_GetAttrString(SASLObject, "mech");
+    if (mechanism == NULL) return NULL;
+    c_mechanism = PyString_AsString(mechanism);
+    Py_DECREF(mechanism);
+    mechanism = NULL;
+
+    /* Don't know if it is the "intended use" of the defaults
+       parameter of ldap_sasl_interactive_bind_s when we pass the
+       Python object SASLObject, but passing it through some
+       static variable would destroy thread safety, IMHO.
+     */
+    msgid = ldap_sasl_interactive_bind_s(self->ldap, 
+					 bind_dn, 
+					 c_mechanism, 
+					 NULL, 
+					 NULL,
+					 sasl_flags, 
+					 py_ldap_sasl_interaction, 
+					 SASLObject);
+    if (msgid != LDAP_SUCCESS)
+    	return LDAPerror( self->ldap, "ldap_sasl_bind_s" );
     return PyInt_FromLong( msgid );
 }
 
@@ -1026,6 +1206,7 @@ static PyMethodDef methods[] = {
     {"abandon",		(PyCFunction)l_ldap_abandon,		METH_VARARGS,	doc_abandon},
     {"add",		(PyCFunction)l_ldap_add,		METH_VARARGS,	doc_add},
     {"bind",		(PyCFunction)l_ldap_bind,		METH_VARARGS,	doc_bind},
+    {"sasl_bind_s",	(PyCFunction)l_ldap_sasl_bind_s,	METH_VARARGS,	doc_sasl_bind_s},
 #if 0    
     {"set_rebind_proc",	(PyCFunction)l_ldap_set_rebind_proc,	METH_VARARGS,	doc_set_rebind_proc},
 #endif

@@ -204,6 +204,8 @@ l_ldap_get_option(PyObject* self, PyObject *args)
     return LDAP_get_option(NULL, option);
 }
 
+
+
 static char doc_get_option[] = 
 "get_option(name) -> value\n\n"
 "\tGet the value of an LDAP global option.\n";
