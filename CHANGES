@@ -5,6 +5,8 @@ Changes since 2.0.0pre11:
 
 ldap.ldapobject:
 * Trace log writes LDAP URI of connection instead of module name
+* search_s() passes self.timeout as argument timeout when
+  calling search_ext_s()
 
 ldif:
 * Abandoned argument all_records of LDIFRecordList.__init__()

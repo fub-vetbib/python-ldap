@@ -388,7 +388,7 @@ class SimpleLDAPObject:
     return self.search_ext(base,scope,filterstr,attrlist,attrsonly)
 
   def search_s(self,base,scope,filterstr='(objectClass=*)',attrlist=None,attrsonly=0):
-    return self.search_ext_s(base,scope,filterstr,attrlist,attrsonly)
+    return self.search_ext_s(base,scope,filterstr,attrlist,attrsonly,timeout=self.timeout)
 
   def search_st(self,base,scope,filterstr='(objectClass=*)',attrlist=None,attrsonly=0,timeout=-1):
     return self.search_ext_s(base,scope,filterstr,attrlist,attrsonly,timeout)
