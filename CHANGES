@@ -1,5 +1,5 @@
 ----------------------------------------------------------------
-Released 2.0.0pre19 2003-12-23
+Released 2.0.0pre19 2003-12-xx
 
 Changes since 2.0.0pre18:
 
@@ -11,7 +11,11 @@ ldap.ldapobject.LDAPObject:
 * Removed unused methods uncache_entry(), uncache_request(),
   url_search(), url_search_st() and url_search_s()
 * New wrapper methods for all the _ext() methods in _ldap.LDAPObject.
-
+* Removed unused default_ldap_port() from Modules/functions.c
+* Removed unused or silly constants URL_ERR_BADSCOPE, URL_ERR_MEM
+  from Modules/constants.c:
+  AUTH_KRBV4, AUTH_KRBV41, AUTH_KRBV42, URL_ERR_BADSCOPE, URL_ERR_MEM
+* Fixed 
 ----------------------------------------------------------------
 Released 2.0.0pre18 2003-12-09
 
