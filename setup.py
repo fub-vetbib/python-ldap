@@ -80,6 +80,7 @@ setup(
 	py_modules = [
                 'ldap',
                 'ldap.async',
+                'ldap.cidict',
                 'ldap.functions',
 		'ldap.sasl',
 		'ldap.schema',
