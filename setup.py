@@ -50,11 +50,10 @@ setup(
 	#-- Package description
 	name =		'Python-LDAP',
 	version =	version,
-	description =	'API for LDAP C library',
+	description =	'Various LDAP-related Python modules',
 	author =	'David Leonard et al.', 
 	author_email =	'python-ldap-dev@lists.sourceforge.net',
 	url =		'http://python-ldap.sourceforge.net/',
-
 	#-- C extension modules
 	ext_modules = [
 		Extension(
@@ -81,10 +80,11 @@ setup(
 					],
 		),
 	],
-
 	#-- Python modules
 	py_modules = [
-		'ldap',
+                'ldap',
+                'ldap.ldapurl',
+                'ldap.modlist',
 		'ldif',
 		'ldapthreadlock',
 		#'perldap',
