@@ -149,143 +149,150 @@ class DSMLWriter:
     return
 
 
-import xml.sax,xml.sax.handler
+try:
 
-class DSMLv1Handler(xml.sax.handler.ContentHandler):
-  """
-  Content handler class for DSMLv1
-  """
+  import xml.sax,xml.sax.handler
 
-  def __init__(self,parser_instance):
-    self._parser_instance = parser_instance
+except ImportError:
+  pass
 
-  def startDocument(self):
-    pass
+else:
 
-  def endDocument(self):
-    pass
+  class DSMLv1Handler(xml.sax.handler.ContentHandler):
+    """
+    Content handler class for DSMLv1
+    """
 
-  def startElement(self,raw_name,attrs):
-    assert raw_name.startswith(''),'Illegal name'
-    name = raw_name[5:]
-    if name=='dsml':
+    def __init__(self,parser_instance):
+      self._parser_instance = parser_instance
+
+    def startDocument(self):
       pass
-    elif name=='directory-entries':
-      self._parsing_entries = 1
-    elif name=='entry':
-      self._dn = attrs['dn']
-      self._entry = {}
-    elif name=='attr':
-      self._attr_type = attrs['name'].encode('utf-8')
-      self._attr_values = []
-    elif name=='value':
-      self._attr_value = ''
-      self._base64_encoding = attrs.get('encoding','').lower()=='base64'
-    # Handle object class tags
-    elif name=='objectclass':
-      self._object_classes = []
-    elif name=='oc-value':
-      self._oc_value = ''
-    # Unhandled tags
-    else:
-      raise ValueError,'Unknown tag' % (raw_name)
 
-  def endElement(self,raw_name):
-    assert raw_name.startswith('dsml:'),'Illegal name'
-    name = raw_name[5:]
-    if name=='dsml':
+    def endDocument(self):
       pass
-    elif name=='directory-entries':
-      self._parsing_entries = 0
-    elif name=='entry':
-      self._parser_instance.handle(self._dn,self._entry)
-      del self._dn
-      del self._entry
-    elif name=='attr':
-      self._entry[self._attr_type] = self._attr_values
-      del self._attr_type
-      del self._attr_values
-    elif name=='value':
-      if self._base64_encoding:
-        attr_value = base64.decodestring(self._attr_value.strip())
+
+    def startElement(self,raw_name,attrs):
+      assert raw_name.startswith(''),'Illegal name'
+      name = raw_name[5:]
+      if name=='dsml':
+        pass
+      elif name=='directory-entries':
+        self._parsing_entries = 1
+      elif name=='entry':
+        self._dn = attrs['dn']
+        self._entry = {}
+      elif name=='attr':
+        self._attr_type = attrs['name'].encode('utf-8')
+        self._attr_values = []
+      elif name=='value':
+        self._attr_value = ''
+        self._base64_encoding = attrs.get('encoding','').lower()=='base64'
+      # Handle object class tags
+      elif name=='objectclass':
+        self._object_classes = []
+      elif name=='oc-value':
+        self._oc_value = ''
+      # Unhandled tags
       else:
-        attr_value = self._attr_value.strip().encode('utf-8')
-      self._attr_values.append(attr_value)
-      del attr_value
-      del self._attr_value
-      del self._base64_encoding
-    # Handle object class tags
-    elif name=='objectclass':
-      self._entry['objectClass'] = self._object_classes
-      del self._object_classes
-    elif name=='oc-value':
-      self._object_classes.append(self._oc_value.strip().encode('utf-8'))
-      del self._oc_value
-    # Unhandled tags
-    else:
-      raise ValueError,'Unknown tag' % (raw_name)
+        raise ValueError,'Unknown tag' % (raw_name)
 
-  def characters(self,ch):
-    if self.__dict__.has_key('_oc_value'):
-      self._oc_value = self._oc_value + ch
-    elif self.__dict__.has_key('_attr_value'):
-      self._attr_value = self._attr_value + ch
-    else:
-      pass
+    def endElement(self,raw_name):
+      assert raw_name.startswith('dsml:'),'Illegal name'
+      name = raw_name[5:]
+      if name=='dsml':
+        pass
+      elif name=='directory-entries':
+        self._parsing_entries = 0
+      elif name=='entry':
+        self._parser_instance.handle(self._dn,self._entry)
+        del self._dn
+        del self._entry
+      elif name=='attr':
+        self._entry[self._attr_type] = self._attr_values
+        del self._attr_type
+        del self._attr_values
+      elif name=='value':
+        if self._base64_encoding:
+          attr_value = base64.decodestring(self._attr_value.strip())
+        else:
+          attr_value = self._attr_value.strip().encode('utf-8')
+        self._attr_values.append(attr_value)
+        del attr_value
+        del self._attr_value
+        del self._base64_encoding
+      # Handle object class tags
+      elif name=='objectclass':
+        self._entry['objectClass'] = self._object_classes
+        del self._object_classes
+      elif name=='oc-value':
+        self._object_classes.append(self._oc_value.strip().encode('utf-8'))
+        del self._oc_value
+      # Unhandled tags
+      else:
+        raise ValueError,'Unknown tag' % (raw_name)
+
+    def characters(self,ch):
+      if self.__dict__.has_key('_oc_value'):
+        self._oc_value = self._oc_value + ch
+      elif self.__dict__.has_key('_attr_value'):
+        self._attr_value = self._attr_value + ch
+      else:
+        pass
 
 
-class DSMLParser:
-  """
-  Base class for a DSMLv1 parser. Applications should sub-class this
-  class and override method handle() to implement something meaningful.
-
-  Public class attributes:
-  records_read
-        Counter for records processed so far
-  """
-
-  def __init__(
-    self,
-    input_file,
-    ContentHandlerClass,
-    ignored_attr_types=None,
-    max_entries=0,
-    line_sep='\n'
-  ):
+  class DSMLParser:
     """
-    Parameters:
-    input_file
-        File-object to read the LDIF input from
-    ignored_attr_types
-        Attributes with these attribute type names will be ignored.
-    max_entries
-        If non-zero specifies the maximum number of entries to be
-        read from f.
-    line_sep
-        String used as line separator
-    """
-    self._input_file = input_file
-    self._max_entries = max_entries
-    self._ignored_attr_types = list_dict(map(string.lower,(ignored_attr_types or [])))
-    self._current_record = None,None
-    self.records_read = 0
-    self._parser = xml.sax.make_parser()
-    self._parser.setFeature(xml.sax.handler.feature_namespaces,0)
-    content_handler = ContentHandlerClass(self)
-    self._parser.setContentHandler(content_handler)
+    Base class for a DSMLv1 parser. Applications should sub-class this
+    class and override method handle() to implement something meaningful.
 
-  def handle(self,*args,**kwargs):
+    Public class attributes:
+    records_read
+          Counter for records processed so far
     """
-    Process a single content LDIF record. This method should be
-    implemented by applications using LDIFParser.
-    """
-    import pprint
-    pprint.pprint(args)
-    pprint.pprint(kwargs)
 
-  def parse(self):
-    """
-    Continously read and parse DSML records
-    """
-    self._parser.parse(self._input_file)
+    def __init__(
+      self,
+      input_file,
+      ContentHandlerClass,
+      ignored_attr_types=None,
+      max_entries=0,
+      line_sep='\n'
+    ):
+      """
+      Parameters:
+      input_file
+          File-object to read the LDIF input from
+      ignored_attr_types
+          Attributes with these attribute type names will be ignored.
+      max_entries
+          If non-zero specifies the maximum number of entries to be
+          read from f.
+      line_sep
+          String used as line separator
+      """
+      self._input_file = input_file
+      self._max_entries = max_entries
+      self._ignored_attr_types = list_dict(map(string.lower,(ignored_attr_types or [])))
+      self._current_record = None,None
+      self.records_read = 0
+      self._parser = xml.sax.make_parser()
+      self._parser.setFeature(xml.sax.handler.feature_namespaces,0)
+      content_handler = ContentHandlerClass(self)
+      self._parser.setContentHandler(content_handler)
+
+    def handle(self,*args,**kwargs):
+      """
+      Process a single content LDIF record. This method should be
+      implemented by applications using LDIFParser.
+      """
+      import pprint
+      pprint.pprint(args)
+      pprint.pprint(kwargs)
+
+    def parse(self):
+      """
+      Continously read and parse DSML records
+      """
+      self._parser.parse(self._input_file)
 
