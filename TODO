@@ -4,9 +4,8 @@ General:
 - Define common license for all modules
 
 Modules/
-- Completion of start_tls_s() with SSL context
-- Support for LDAP over SSL
-- Support for ldapi://
+- Validating server's certificate when calling start_tls_s() or
+  ldap.initialize('ldaps://..')
 - Look into OpenLDAP 2's lib ldap_r to make python-ldap re-entrant
 - Support for SASL bind
 - Support for VLV control
