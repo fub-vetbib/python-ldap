@@ -3,8 +3,8 @@ Released 2.0.0pre12 2003-05-xx
 
 Changes since 2.0.0pre11:
 
-New module ldap.filter:
-* New function escape_filter_chars()
+New sub-module ldap.filter:
+* Added functions escape_filter_chars() and filter_format()
 
 ldap.ldapobject:
 * Trace log writes LDAP URI of connection instead of module name
