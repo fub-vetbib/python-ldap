@@ -1,7 +1,7 @@
 
 % $Id$
 
-\subsection{LDAP Objects}
+\section{LDAP Objects}
 
 \noindent
 LDAP objects are created by the \method{open} function defined at the top 
@@ -16,7 +16,8 @@ the server's result, \textit{\'{a} la} \method{result}, or with
 \constant{None} if no data is expected. See the \method{result} method
 for a description of the data structure returned from the server.
 
-\subsubsection{Exceptions from methods}
+\subsection{Exceptions from methods}
+\label{subsec:exceptfrommeth}
 
 Unlike the \C\ library, errors are not returned as result codes, but
 are instead turned into exceptions, raised as soon an the error condition 
@@ -40,7 +41,7 @@ truncated form of the name provided or aliased dereferenced.
 %%============================================================
 %% __methods__
 
-\subsubsection{Methods on LDAP Objects}
+\subsection{Methods}
 
 %\renewcommand{\indexsubitem}{(LDAP method)}
 
@@ -59,8 +60,8 @@ of an abandoned operation will not be returned from a future call to
 %%------------------------------------------------------------
 %% add
 
-\begin{methoddesc}[int]{add}{dn\, modlist}
-     \methodline{add_s}{dn\, modlist}
+\begin{methoddesc}[int]{add}{dn, modlist}
+     \methodline{add_s}{dn, modlist}
 This function is similar to \method{modify}, except that no operation
 integer need be included in the tuples.
 \end{methoddesc}
@@ -68,10 +69,10 @@ integer need be included in the tuples.
 %%------------------------------------------------------------
 %% bind
 
-\begin{methoddesc}[int]{bind}{who\, cred\, method}
-     \methodline{bind_s}{who\, cred\, method}
-     \methodline{simple_bind}{who\, passwd}
-     \methodline{simple_bind_s}{who\, passwd}
+\begin{methoddesc}[int]{bind}{who, cred, method}
+     \methodline{bind_s}{who, cred, method}
+     \methodline{simple_bind}{who, passwd}
+     \methodline{simple_bind_s}{who, passwd}
      \methodline{kerberos_bind_s}{who}
      \methodline[int]{kerberos_bind1}{who}
      \methodline{kerberos_bind1_s}{who}
@@ -93,8 +94,8 @@ the ldap module were compiled with \code{-DWITH_KERBEROS}.
 %%------------------------------------------------------------
 %% compare
 
-\begin{methoddesc}[int]{compare}{dn\, attr\, value}
-     \methodline[int]{compare_s}{dn\, attr\, value}
+\begin{methoddesc}[int]{compare}{dn, attr, value}
+     \methodline[int]{compare_s}{dn, attr, value}
 Perform an LDAP comparison between the attribute named \var{attr} of 
 entry \var{dn}, and the value \var{value}. The synchronous form
 returns \constant{0} for false, or \constant{1} for true.
@@ -120,50 +121,10 @@ from a subsequent call to \method{result}.
 \end{methoddesc}
 
 %%------------------------------------------------------------
-%% destroy_cache
-
-\begin{methoddesc}{destroy_cache}{}
-Turns off caching and removed it from memory.
-\end{methoddesc}
-
-%%------------------------------------------------------------
-%% disable_cache
-
-\begin{methoddesc}{disable_cache}{}
-Temporarily disables use of the cache. New requests are not cached, and
-the cache is not checked when returning results. Cache contents are not
-deleted.
-\end{methoddesc}
-
-%%------------------------------------------------------------
-%% enable_cache
-
-\begin{methoddesc}{enable_cache}{\optional{timeout=\constant{NO_LIMIT}\, 
-                               \optional{maxmem=\constant{NO_LIMIT}}}}
-Using a cache often greatly improves performance. By default the cache
-is disabled. Specifying \var{timeout} in seconds is used to decide how long
-to keep cached requests. The \var{maxmem} value is in bytes, and is used
-to set an upper bound on how much memory the cache will use. A value of
-\constant{NO_LIMIT} for either indicates unlimited. 
-Subsequent calls to
-\method{enable_cache} can be used to adjust these parameters.
-
-This and other caching methods are not available if the library and the 
-ldap module were compiled with \code{-DNO_CACHE}.
-\end{methoddesc}
-
-%%------------------------------------------------------------
-%% flush_cache
-
-\begin{methoddesc}{flush_cache}{}
-Deletes the cache's contents, but does not affect it in any other way.
-\end{methoddesc}
-
-%%------------------------------------------------------------
 %% modify
 
-\begin{methoddesc}[int]{modify}{ dn\, modlist }
-     \methodline{modify_s}{ dn\, modlist }
+\begin{methoddesc}[int]{modify}{ dn, modlist }
+     \methodline{modify_s}{ dn, modlist }
 Performs an LDAP modify operation on an entry's attributes. 
 \var{dn} is the DN of the entry to modify,
 and \var{modlist} is the list of modifications to make to the entry.
@@ -187,49 +148,54 @@ initiated request.
 %%------------------------------------------------------------
 %% modrdn
 
-\begin{methoddesc}[int]{modrdn}{dn\, newrdn \optional{\, delold=\constant{1}}}
-     \methodline{modrdn_s}{dn\, newrdn \optional{\, delold=\constant{1}}}
+\begin{methoddesc}[int]{modrdn}{dn, newrdn \optional{, delold=\constant{1}}}
+     \methodline{modrdn_s}{dn, newrdn \optional{, delold=\constant{1}}}
 Perform a modify RDN operation. These routines take \var{dn}, the DN
 of the entry whose RDN is to be changed, and \var{newrdn}, the new RDN to
 give to the entry. The optional parameter \var{delold} is used to specify
 whether the old RDN should be kept as an attribute of the entry or not.
+(Note: This may not actually be supported by the underlying library.)
 The asynchronous version returns the initiated message id.
 
-This actually corresponds to the \method{modrdn2*} routines in the \C\ library.
+If they are available, the \emph{modrdn2*} routines in the \C\ library
+are used instead of \emph{modrdn}.
 \end{methoddesc}
 
 %%------------------------------------------------------------
 %% result
 
-\begin{methoddesc}[tuple]{result}{\optional{ msgid=\constant{RES_ANY} \optional{\, all=\constant{1} \optional{\, timeout=\constant{-1}}}}}
+\begin{methoddesc}[tuple]{result}{\optional{ msgid=\constant{RES_ANY} \optional{, all=\constant{1} \optional{, timeout=\constant{-1}}}}}
 This method is used to wait for and return the result of an operation
-previously initiated by one of the LDAP asynchronous operation routines
-(eg \method{search}, \method{modify}, etc.) They all returned
-an invocation identifier (a message id) upon successful initiation of
-their operation. This id is guaranteed to be unique across an LDAP session,
-and can be used to request the result of a specific operation via the
-\var{msgid} parameter of the \method{result} method.
+previously initiated by one of the LDAP \emph{asynchronous} operation routines
+(eg \method{search}, \method{modify}, etc.) 
 
-If the result of a specific operation is required, \var{msgid} should
-be set to the invocation message id returned when the operation was
-initiated; otherwise \constant{RES_ANY} should be supplied. 
+The \var{msgid} parameter is the integer identifier previously returned by the
+asynchronous operation method. 
+This identifier is guaranteed to be unique across an LDAP session,
+and tells the \method{result} method to request the result of that
+specific operation.
+If the result from \emph{any} in-progress operation is required, 
+\var{msgid} should be passed as the constant \constant{RES_ANY}.
 
 The \var{all}
-parameter only has meaning for \method{search} responses and is used to select 
-whether a single entry of the search response should be returned, or to
-wait for \emph{all} the results of the search before returning. 
-%See \method{search} for more details.
+parameter has meaning only for \method{search} responses, and is used to select 
+whether a single entry of the search response should be returned, or whether
+the \method{result} method should wait until all the results of the search 
+are available before returning. 
+If \var{all} is \constant{0}, one response at a time is returned, with 
+termination indicated by....?
 
-A search response is made up of zero or more search entries followed by
-a search result. If \var{all} is \constant{0}, search entries will be returned one
-at a time as they come in, via separate calls to \method{result}. If
-\var{all} is \constant{1}, the search response will be returned in its 
-entirety, ie after all entries and the final search result have been
-received.
+The \var{timeout} parameter is a limit on the number of seconds that the
+method will wait for a response from the server. 
+If \var{timeout} is negative (the default), the method will wait indefinitely.
+The timeout can be expressed as a floating-point value, and
+a value of \constant{0} effects a poll.
+If a timeout does occur, the tuple \constant{(None,None)} is returned.
+(This should really have been a \exception{TIMEOUT} exception.)
 
-The method returns a tuple of the form 
-\code{(\var{result_type}, \var{result_data})}.
-The \var{result_type} is a string, being one of:
+The \method{result} method returns a tuple of the form 
+\code{(\textit{result-type}, \textit{result-data})}.
+The first element, \textit{result-type} is a string, being one of:
 \constant{'RES_BIND'}, \constant{'RES_SEARCH_ENTRY'},
 \constant{'RES_SEARCH_RESULT'}, 
 \constant{'RES_MODIFY'}, \constant{'RES_ADD'}, \constant{'RES_DELETE'}, 
@@ -240,26 +206,18 @@ The constants \constant{RES_*} are set to these strings, for convenience.
 See \method{search} for a description of the search result's \var{result_data},
 otherwise the \var{result_data} is normally meaningless.
 
-The \method{result} method will block for \var{timeout} seconds, or 
-indefinitely if \var{timeout} is negative. 
-A timeout of \constant{0} will effect a poll. 
-The timeout can be expressed as a floating-point value.
-
-If a timeout occurs, the tuple \constant{(None,None)} is returned.
-% XXX - should this raise a TIMEOUT exception?
-
 \end{methoddesc}
 
 %%------------------------------------------------------------
 %% search
 
-\begin{methoddesc}[int]{search}{base\, scope\, filter\optional{\, 
-	attrlist=\constant{None}\optional{\, attrsonly=\constant{0}}}}
-     \methodline[list|None]{search_s}{base\, scope\, filter\optional{\, 
-     	attrlist=\constant{None}\optional{\, attrsonly=\constant{0}}}}
-    \methodline[list|None]{search_st}{base\, scope\, filter\optional{\,
-    	attrlist=\constant{None}\optional{\, attrsonly=\constant{0} 
-	\optional{\, timeout=\constant{-1}}}}}
+\begin{methoddesc}[int]{search}{base, scope, filter\optional{, 
+	attrlist=\constant{None}\optional{, attrsonly=\constant{0}}}}
+     \methodline[list|None]{search_s}{base, scope, filter\optional{, 
+     	attrlist=\constant{None}\optional{, attrsonly=\constant{0}}}}
+    \methodline[list|None]{search_st}{base, scope, filter\optional{,
+    	attrlist=\constant{None}\optional{, attrsonly=\constant{0} 
+	\optional{, timeout=\constant{-1}}}}}
 Perform an LDAP search operation, with \var{base} as the DN of the entry
 at which to start the search, \var{scope} being one of 
 \constant{SCOPE_BASE} (to search the object itself), 
@@ -319,18 +277,6 @@ time.
 \end{methoddesc}
 
 %%------------------------------------------------------------
-%% set_cache_options
-
-\begin{methoddesc}{set_cache_options}{option}
-Changes the caching behaviour. Currently supported options are
-    \constant{CACHE_OPT_CACHENOERRS}, which suppresses caching of requests
-    	that resulted in an error, and
-    \constant{CACHE_OPT_CACHEALLERRS}, which enables caching of all requests.
-The default behaviour is not to cache requests that result in errors, except 
-those that result in a \exception{SIZELIMIT_EXCEEDED} exception.
-\end{methoddesc}
-
-%%------------------------------------------------------------
 %% set_rebind_proc
 
 \begin{methoddesc}{set_rebind_proc}{func}
@@ -351,8 +297,8 @@ available if the module and library were compiled with \code{-DLDAP_REFERRALS}.
 
 \begin{methoddesc}{ufn_setfilter}{filtername}
        \methodline{ufn_setprefix}{prefix}
-       \methodline[list]{ufn_search_s}{url\optional{\, attrsonly=\constant{0}}}
-       \methodline[list]{ufn_search_st}{url\optional{\, attrsonly=\constant{0} \optional{\, timeout=\constant{-1}}}}
+       \methodline[list]{ufn_search_s}{url\optional{, attrsonly=\constant{0}}}
+       \methodline[list]{ufn_search_st}{url\optional{, attrsonly=\constant{0} \optional{, timeout=\constant{-1}}}}
 See the LDAP library manual pages for more information on these
 `user-friendly name' functions.
 \end{methoddesc}
@@ -372,6 +318,82 @@ synchronous in nature
 \end{methoddesc}
 
 %%------------------------------------------------------------
+%% url_search
+
+\begin{methoddesc}{url_search_s}{url, \optional{attrsonly=\constant{0}}}
+       \methodline{url_search_s}{url, \optional{attrsonly=\constant{0} \optional{, timeout=\constant{-1}}}}
+These routine works much like the \method{search} family of methods, 
+except that many search parameters are pulled out of the \var{url}. 
+
+LDAP URLs are fully described in \rfc{2255}, and look like this: 
+
+\code{"ldap://\var{host}\optional{:\var{port}}/\var{dn}\optional{?\var{attributes}\optional{?\var{scope}\optional{?\var{filter}}}}"}
+
+where \var{scope} is one of \code{base} (default), \code{one} or \code{sub},
+and \var{attributes} is a comma-separated list of attributes to be retrieved.
+
+URLs wrapped in angle-brackets and/or preceded by \code{"URL:"} are 
+tolerated.
+\end{methoddesc}
+
+\subsection{Caching methods}
+
+These methods are available if the underlying library supports a local cache
+and cache control.
+
+%%------------------------------------------------------------
+%% destroy_cache
+
+\begin{methoddesc}{destroy_cache}{}
+Turns off caching and removed it from memory.
+\end{methoddesc}
+
+%%------------------------------------------------------------
+%% disable_cache
+
+\begin{methoddesc}{disable_cache}{}
+Temporarily disables use of the cache. New requests are not cached, and
+the cache is not checked when returning results. Cache contents are not
+deleted.
+\end{methoddesc}
+
+%%------------------------------------------------------------
+%% enable_cache
+
+\begin{methoddesc}{enable_cache}{\optional{timeout=\constant{NO_LIMIT}, 
+                               \optional{maxmem=\constant{NO_LIMIT}}}}
+Using a cache often greatly improves performance. By default the cache
+is disabled. Specifying \var{timeout} in seconds is used to decide how long
+to keep cached requests. The \var{maxmem} value is in bytes, and is used
+to set an upper bound on how much memory the cache will use. A value of
+\constant{NO_LIMIT} for either indicates unlimited. 
+Subsequent calls to
+\method{enable_cache} can be used to adjust these parameters.
+
+This and other caching methods are not available if the library and the 
+ldap module were compiled with \code{-DNO_CACHE}.
+\end{methoddesc}
+
+%%------------------------------------------------------------
+%% flush_cache
+
+\begin{methoddesc}{flush_cache}{}
+Deletes the cache's contents, but does not affect it in any other way.
+\end{methoddesc}
+
+%%------------------------------------------------------------
+%% set_cache_options
+
+\begin{methoddesc}{set_cache_options}{option}
+Changes the caching behaviour. Currently supported options are
+    \constant{CACHE_OPT_CACHENOERRS}, which suppresses caching of requests
+    	that resulted in an error, and
+    \constant{CACHE_OPT_CACHEALLERRS}, which enables caching of all requests.
+The default behaviour is not to cache requests that result in errors, except 
+those that result in a \exception{SIZELIMIT_EXCEEDED} exception.
+\end{methoddesc}
+
+%%------------------------------------------------------------
 %% uncache_entry
 
 \begin{methoddesc}{uncache_entry}{dn}
@@ -386,31 +408,25 @@ used, for example, after doing a \method{modify} involving \var{dn}.
 Remove the request indicated by \var{msgid} from the cache.
 \end{methoddesc}
 
-%%------------------------------------------------------------
-%% url_search
+%%============================================================
+%% other methods
 
-\begin{methoddesc}{url_search_s}{url\, \optional{attrsonly=\constant{0}}}
-       \methodline{url_search_s}{url\, \optional{attrsonly=\constant{0} \optional{\, timeout=\constant{-1}}}}
-These routine works much like \method{search_s*}, except that many search
-parameters are pulled out of the URL \var{url}. 
+\subsection{Miscellaneous methods}
 
-LDAP URLs look like this: 
-
-\code{"ldap://\var{host}\optional{:\var{port}}/\var{dn}\optional{?\var{attributes}\optional{?\var{scope}\optional{?\var{filter}}}}"}
-
-where \var{scope} is one of \code{base} (default), \code{one} or \code{sub},
-and \var{attributes} is a comma-separated list of attributes to be retrieved.
-
-URLs wrapped in angle-brackets and/or preceded by \code{"URL:"} are 
-tolerated.
+\begin{methoddesc}{fileno}{}
+Return the file descriptor associated with the connection, for use
+with the \module{select} module.
+(This method is available only if the underlying library can supply it.)
 \end{methoddesc}
 
 %%============================================================
 %% attributes
 
-\subsubsection{Attributes on LDAP Objects}
+\subsection{Attributes}
 
-Each LDAP object also sports the following attributes.
+If the underlying library provides enough information,
+each LDAP object will also have the following attributes.
+Attributes are usually able to be set unless described as read-only.
 
 %%------------------------------------------------------------
 %% deref
@@ -428,9 +444,10 @@ Each LDAP object also sports the following attributes.
 \begin{memberdesc}[int]{errno}
    \memberline[string]{error}
    \memberline[string]{matched}
-    These read-only attributes are set after an exception has been raised, and
-    are also included with the value raised. See the section
-    `Exceptions from methods', above.
+    These attributes are set after an exception has been raised, and
+    are also included with the value raised. 
+    (See also section~\ref{subsec:exceptfrommeth}.)
+    (All read-only.)
 \end{memberdesc}
 
 %%------------------------------------------------------------
@@ -480,5 +497,5 @@ Each LDAP object also sports the following attributes.
 \begin{memberdesc}[int]{valid}
     If zero, the connection has been unbound. See \method{unbind} for
     more information.
+    (read-only)
 \end{memberdesc}
-
