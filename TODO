@@ -1,0 +1,16 @@
+List of things to implement:
+
+* Completion of start_tls_s() with SSL context
+
+* Support for LDAP over SSL
+
+* Look into OpenLDAP 2's lib ldap_r to make python-ldap re-entrant
+
+* Support for SASL bind
+
+* Support for VLV control
+
+* Support for server-side sorting control
+
+* Wrap ldap_explode_rdn
+
