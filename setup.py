@@ -82,11 +82,15 @@ setup(
 	],
 	#-- Python modules
 	py_modules = [
+                'ldap',
+                'ldap.async',
+                'ldap.functions',
+                'ldap.ldapobject',
+                'ldap.modlist',
                 'ldapurl',
 		'ldif',
 		#'perldap',
 	],
-        packages = ['ldap'],
 	#-- where to find the python modules
 	package_dir = { '': 'Lib' },
 )
