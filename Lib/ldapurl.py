@@ -421,21 +421,21 @@ def test():
   parse_ldap_url_tests = {
     'ldap://root.openldap.org/dc=openldap,dc=org':(
       'ldap',
-      u'root.openldap.org', u'dc=openldap,dc=org',None,0,'(objectclass=*)',[]
+      u'root.openldap.org', u'dc=openldap,dc=org',None,LDAP_SCOPE_BASE,'(objectclass=*)',[]
     ),
-    'ldap://localhost/dc=stroeder,dc=com??one?':(
+    'ldap://localhost/dc=stroeder,dc=com??sub?':(
       'ldap',
-      u'localhost', u'dc=stroeder,dc=com',None,1,'(objectclass=*)',[]
+      u'localhost', u'dc=stroeder,dc=com',None,LDAP_SCOPE_SUBTREE,'(objectclass=*)',[]
     ),
     'ldap://localhost??one?':(
       'ldap',
-      u'localhost', u'',None,1,'(objectclass=*)',[]
+      u'localhost', u'',None,LDAP_SCOPE_ONELEVEL,'(objectclass=*)',[]
     ),
     'ldap://x500.mh.se/o=Mitthogskolan,c=se????1.2.752.58.10.2=T.61':(
       'ldap',
       u'x500.mh.se',
       u'o=Mitthogskolan,c=se',None,
-      0,
+      LDAP_SCOPE_BASE,
       u'(objectclass=*)',
       [u'1.2.752.58.10.2=T.61']
     ),
@@ -444,7 +444,7 @@ def test():
       'ldap.openldap.org',
       u'uid=kurt,dc=boolean,dc=net',
       None,
-      0,
+      LDAP_SCOPE_BASE,
       u'(objectclass=*)',
       []
     ),
@@ -453,7 +453,7 @@ def test():
       'localhost:12345',
       u'dc=stroeder,dc=com',
       None,
-      0,
+      LDAP_SCOPE_BASE,
       u'(objectclass=*)',
       [u'bindname=cn=Michael%2Cdc=stroeder%2Cdc=com',u'X-BINDPW=secretpassword']
     ),
@@ -462,7 +462,7 @@ def test():
       'localhost:12345',
       u'dc=stroeder,dc=com',
       None,
-      0,
+      LDAP_SCOPE_BASE,
       u'(objectclass=*)',
       [u'bindname=cn=Michael%2Cdc=stroeder%2Cdc=com',u'X-BINDPW=secretpassword']
     ),
@@ -471,7 +471,7 @@ def test():
       '/tmp/openldap2-1389',
       u'dc=stroeder,dc=com',
       None,
-      0,
+      LDAP_SCOPE_BASE,
       u'(objectclass=*)',
       [u'bindname=cn=Michael%2Cdc=stroeder%2Cdc=com',u'X-BINDPW=secretpassword']
     ),
