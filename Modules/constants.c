@@ -130,18 +130,6 @@ LDAPinit_constants( PyObject* d )
 	add_int(d,AUTH_KRBV4);
 	add_int(d,AUTH_KRBV41);
 	add_int(d,AUTH_KRBV42);
-	add_int(d,FILTER_AND);
-	add_int(d,FILTER_OR);
-	add_int(d,FILTER_NOT);
-	add_int(d,FILTER_EQUALITY);
-	add_int(d,FILTER_SUBSTRINGS);
-	add_int(d,FILTER_GE);
-	add_int(d,FILTER_LE);
-	add_int(d,FILTER_PRESENT);
-	add_int(d,FILTER_APPROX);
-	add_int(d,SUBSTRING_INITIAL);
-	add_int(d,SUBSTRING_ANY);
-	add_int(d,SUBSTRING_FINAL);
 	add_int(d,SCOPE_BASE);
 	add_int(d,SCOPE_ONELEVEL);
 	add_int(d,SCOPE_SUBTREE);
@@ -149,12 +137,6 @@ LDAPinit_constants( PyObject* d )
 	add_int(d,MOD_DELETE);
 	add_int(d,MOD_REPLACE);
 	add_int(d,MOD_BVALUES);
-
-	add_int(d,FILTER_EXT);
-	add_int(d,FILTER_EXT_OID);
-	add_int(d,FILTER_EXT_TYPE);
-	add_int(d,FILTER_EXT_VALUE);
-	add_int(d,FILTER_EXT_DNATTRS);
 
 	add_int(d,MSG_ONE);
 	add_int(d,MSG_ALL);
