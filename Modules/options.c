@@ -8,6 +8,12 @@
 #include "LDAPObject.h"
 #include "options.h"
 
+void
+set_timeval_from_double( struct timeval *tv, double d ) {
+	tv->tv_usec = (long) ( fmod(d, 1.0) * 1000000.0 );
+	tv->tv_sec = (long) floor(d);
+}
+
 /* List of attributes that that are visible through attributes */
 static struct {
 	const char *attrname;
@@ -22,6 +28,7 @@ static struct {
 	{ "error_string",	LDAP_OPT_ERROR_STRING },
 	{ "matched_dn",		LDAP_OPT_MATCHED_DN },
 };
+
 #define lengthof(a) (sizeof (a) / sizeof (a)[0])
 
 int
@@ -41,6 +48,8 @@ LDAP_set_option(LDAPObject *self, int option, PyObject *value)
     int res;
     int intval;
     char *strval;
+    double doubleval;
+    struct timeval tv;
     void *ptr;
     LDAP *ld;
 
@@ -97,10 +106,20 @@ LDAP_set_option(LDAPObject *self, int option, PyObject *value)
 		return NULL;
 	    ptr = strval;
 	    break;
-    case LDAP_OPT_SERVER_CONTROLS:
-    case LDAP_OPT_CLIENT_CONTROLS:
     case LDAP_OPT_TIMEOUT:
     case LDAP_OPT_NETWORK_TIMEOUT:
+	    /* Float valued timeval options */
+	    if (!PyArg_Parse(value, "d:set_option", &doubleval))
+		return NULL;
+            if (doubleval >= 0) {
+	        set_timeval_from_double( &tv, doubleval );
+                ptr = &tv;
+            } else {
+    	        ptr = NULL;
+            }
+	    break;
+    case LDAP_OPT_SERVER_CONTROLS:
+    case LDAP_OPT_CLIENT_CONTROLS:
 #if LDAP_VENDOR_VERSION>=20013			 
     case LDAP_OPT_X_TLS_CTX:
 	    PyErr_SetString(PyExc_NotImplementedError,
@@ -129,6 +148,8 @@ LDAP_get_option(LDAPObject *self, int option)
 {
     int res;
     int intval;
+    double doubleval;
+    struct timeval tv;
     LDAPAPIInfo apiinfo;
     char *strval;
     PyObject *extensions, *v;
@@ -212,11 +233,19 @@ LDAP_get_option(LDAPObject *self, int option)
 	    if (res != LDAP_OPT_SUCCESS)
 		return LDAPerr(res);
 	    return PyString_FromString(strval);
-
-    case LDAP_OPT_SERVER_CONTROLS:
-    case LDAP_OPT_CLIENT_CONTROLS:
     case LDAP_OPT_TIMEOUT:
     case LDAP_OPT_NETWORK_TIMEOUT:
+	    /* Double-valued timeval options */
+	    if (self) LDAP_BEGIN_ALLOW_THREADS(self);
+	    res = ldap_get_option(ld, option, &tv);
+	    if (self) LDAP_END_ALLOW_THREADS(self);
+	    if (res != LDAP_OPT_SUCCESS)
+		return LDAPerr(res);
+	    return PyFloat_FromDouble(
+              ( (double) tv.tv_sec * 1000000.0 + (double) tv.tv_usec ) / 1000000.0
+            );
+    case LDAP_OPT_SERVER_CONTROLS:
+    case LDAP_OPT_CLIENT_CONTROLS:
     case LDAP_OPT_API_FEATURE_INFO:
 #if LDAP_VENDOR_VERSION>=20013
     case LDAP_OPT_X_TLS_CTX:
