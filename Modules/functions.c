@@ -50,7 +50,82 @@ l_ldap_open(PyObject* unused, PyObject *args)
 static char doc_open[] = 
 "open(host [,port=PORT]) -> LDAPObject\n\n"
 "\tOpens a new connection with an LDAP server, and returns an LDAP object\n"
+"\trepresentative of this."
+"\tThis function is depreciated. init() or initialize() should be used instead.";
+
+
+#if LDAP_API_VERSION > 2000
+/* ldap_init */
+
+static PyObject*
+l_ldap_init(PyObject* unused, PyObject *args)
+{
+    char *host;
+    int port = 0;
+    LDAP *ld;
+    struct servent *se;
+
+    if (!PyArg_ParseTuple(args, "s|i", &host, &port))
+    	return NULL;
+
+    /* Look up the ldap service from /etc/services if not port not given. */
+    if (port == 0) {
+#ifdef WIN32
+	port = LDAP_PORT;
+#else
+        Py_BEGIN_ALLOW_THREADS
+	se = getservbyname("ldap", "tcp");
+        Py_END_ALLOW_THREADS
+	if (se != NULL)
+	    port = ntohs(se->s_port);
+	else
+	    port = LDAP_PORT;
+#endif
+    }
+
+    Py_BEGIN_ALLOW_THREADS
+    ld = ldap_init(host, port);
+    Py_END_ALLOW_THREADS
+    if (ld == NULL)
+    	return LDAPerror(ld, "ldap_init");
+    return (PyObject*)newLDAPObject(ld);
+}
+
+static char doc_init[] = 
+"init(host [,port=PORT]) -> LDAPObject\n\n"
+"\tReturns an LDAP object for new connection to LDAP server.\n"
+"\tThe actual connection open will occur when the first operation is attempted.\n"
 "\trepresentative of this.";
+
+/* ldap_initialize */
+
+static PyObject*
+l_ldap_initialize(PyObject* unused, PyObject *args)
+{
+    char *uri;
+    LDAP *ld=NULL;
+    int ret;
+
+    if (!PyArg_ParseTuple(args, "s", &uri))
+    	return NULL;
+
+    Py_BEGIN_ALLOW_THREADS
+    ret = ldap_initialize(&ld, uri);
+    Py_END_ALLOW_THREADS
+    if (ld == NULL)
+    	return LDAPerror(ld, "ldap_initialize");
+    if (ret != LDAP_SUCCESS)
+    	return LDAPerror(ld, "ldap_initialize");
+    return (PyObject*)newLDAPObject(ld);
+}
+
+static char doc_initialize[] = 
+"initialize(uri) -> LDAPObject\n\n"
+"\tReturns an LDAP object for new connection to LDAP server.\n"
+"\tThe actual connection open will occur when the first operation is attempted.\n"
+"\trepresentative of this.";
+
+#endif /* LDAP_API_VERSION > 2000 */
 
 /* ldap_dn2ufn */
 
@@ -136,6 +211,10 @@ static char doc_is_ldap_url[] =
 static PyMethodDef methods[] = {
     { "open",		(PyCFunction)l_ldap_open,		METH_VARARGS,
     	doc_open },
+    { "init",		(PyCFunction)l_ldap_init,		METH_VARARGS,
+    	doc_init },
+    { "initialize",	(PyCFunction)l_ldap_initialize,		METH_VARARGS,
+    	doc_initialize },
     { "dn2ufn",		(PyCFunction)l_ldap_dn2ufn,		METH_VARARGS,
     	doc_dn2ufn },
     { "explode_dn",	(PyCFunction)l_ldap_explode_dn,		METH_VARARGS,
