@@ -342,9 +342,9 @@ class LDIFRecordList(LDIFParser):
     self.all_records.append((dn,entry))
 
 
-class LDIFCopy(LDIFParser):
+class FileWriter(LDIFParser):
   """
-  Copy LDIF input to LDIF output containing all data retrieved
+  Copy LDIF input to a file output object containing all data retrieved
   via URLs
   """
 
@@ -359,6 +359,13 @@ class LDIFCopy(LDIFParser):
     """
     LDIFParser.__init__(self,input_file,ignored_attr_types,max_entries,process_url_schemes)
     self._output_file = output_file
+
+
+class LDIFCopy(FileWriter):
+  """
+  Copy LDIF input to LDIF output containing all data retrieved
+  via URLs
+  """
 
   def handle(self,dn,entry):
     """
