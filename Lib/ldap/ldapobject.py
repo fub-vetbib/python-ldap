@@ -445,9 +445,7 @@ class LDAPObject:
 
   def search_st(self,base,scope,filterstr,attrlist=None,attrsonly=0,timeout=-1):
     msgid = self.search(base,scope,filterstr,attrlist,attrsonly)
-    search_result = self.result(msgid,all=1,timeout=timeout)
-    print '***',search_result
-    return search_result
+    return self.result(msgid,all=1,timeout=timeout)
 
   def set_cache_options(self,*args,**kwargs):
     """
