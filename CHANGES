@@ -1,4 +1,14 @@
 ----------------------------------------------------------------
+Released 2.0.0pre08 2003-04-xx
+
+Changes since 2.0.0pre07:
+
+ldap.schema:
+* For backward compability with Python versions prior to 2.2
+  Lib/ldap/schema/tokenizer.py and Lib/ldap/schema/models.py use
+  (()) instead of tuple() for creating empty tuples.
+
+----------------------------------------------------------------
 Released 2.0.0pre07 2003-04-03
 
 Changes since 2.0.0pre06:
