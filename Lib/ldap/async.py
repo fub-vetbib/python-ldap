@@ -212,5 +212,3 @@ class LDIFWriter(FileWriter):
       # Search continuations are ignored
       dn,entry = resultItem
       self._f.write(ldif.CreateLDIF(dn,entry,[]))
-      self._f.write(ldif.linesep)
-
