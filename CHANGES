@@ -9,6 +9,10 @@ ldap.ldapobject:
 
 ldap.schema:
 * More graceful handling of KeyError in SubSchema.attribute_types()
+* New method SubSchema.get_inheritedattr() for retrieving inherited
+  class attributes
+* New method SubSchema.get_inheritedobj() for retrieving a
+  schema element instance including all inherited class attributes
 
 ----------------------------------------------------------------
 Released 2.0.0pre13 2003-06-02
