@@ -1,5 +1,6 @@
 """
-dsml - generate and parse DSMLv1 data (see http://www.dsml.org)
+dsml - generate and parse DSMLv1 data
+(see http://www.oasis-open.org/committees/dsml/)
 written by Michael Stroeder <michael@stroeder.com>
 
 See http://python-ldap.sourceforge.net for details.
