@@ -202,13 +202,31 @@ LDAPinit_constants( PyObject* d )
 	PyDict_SetItemString(d, "__author__", author);
 	Py_DECREF(author);
 
-	/*add_int(d,LIBLDAP_R);*/
+	/* add_int(d,LIBLDAP_R); */
 #ifdef HAVE_LIBLDAP_R
 	obj = PyInt_FromLong(1);
 #else
 	obj = PyInt_FromLong(0);
 #endif
 	PyDict_SetItemString( d, "LIBLDAP_R", obj );
+	Py_DECREF(obj);
+
+	/* add_int(d,SASL); */
+#ifdef HAVE_SASL
+	obj = PyInt_FromLong(1);
+#else
+	obj = PyInt_FromLong(0);
+#endif
+	PyDict_SetItemString( d, "SASL_AVAIL", obj );
+	Py_DECREF(obj);
+
+	/* add_int(d,TLS); */
+#ifdef HAVE_TLS
+	obj = PyInt_FromLong(1);
+#else
+	obj = PyInt_FromLong(0);
+#endif
+	PyDict_SetItemString( d, "TLS_AVAIL", obj );
 	Py_DECREF(obj);
 
 }

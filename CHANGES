@@ -5,6 +5,9 @@ Changes since 2.0.3:
 
 Modules/:
 * Applied some fixes for 64-bit platforms to LDAPObject.c
+* Constants ldap.TLS_AVAIL and ldap.SASL_AVAIL will indicate
+  whether python-ldap was built with support for SSL/TLS
+  and/or SASL
 
 setup.py and Modules/:
 * Applied some fixes for building under Win32
