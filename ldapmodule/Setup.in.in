@@ -13,7 +13,7 @@
 
 _ldap  \
 	LDAPObject.o common.o constants.o errors.o functions.o  \
-	ldapmodule.o message.o version.o \
+	ldapmodule.o message.o version.o linkedlist.o template.o \
 	CIDict.o \
 	-DLDAP_REFERRALS \
 	@CPPFLAGS@ \
