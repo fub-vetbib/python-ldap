@@ -20,7 +20,12 @@ _ldapmodule-install:
 	$(INSTALL_DIR) $(DESTDIR)$(LIBDEST)/site-packages/python-ldap
 	$(INSTALL_DATA) $(srcdir)/Misc/ldap.pth \
 		$(DESTDIR)$(LIBDEST)/site-packages/ldap.pth
+	for f in $(srcdir)/Lib/*.py; do \
+	   $(INSTALL_DATA) $$f $(DESTDIR)$(LIBDEST)/site-packages/python-ldap/;\
+        done
 	#-- XXX need to copy contents of $(srcdir)/Lib/* to the new directory
 	$(PYTHON) $(LIBDEST)/compileall.py \
+		$(DESTDIR)$(LIBDEST)/site-packages/python-ldap
+	$(PYTHON) -O $(LIBDEST)/compileall.py \
 		$(DESTDIR)$(LIBDEST)/site-packages/python-ldap
 
