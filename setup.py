@@ -83,11 +83,11 @@ setup(
 	#-- Python modules
 	py_modules = [
                 'ldap',
-                'ldap.modlist',
                 'ldap.async',
+                'ldap.ldapobject',
+                'ldap.modlist',
                 'ldapurl',
 		'ldif',
-		'ldapthreadlock',
 		#'perldap',
 	],
 
