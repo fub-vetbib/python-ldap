@@ -5,7 +5,7 @@ import ldap,ldap.sasl
 
 ldap.sasl._trace_level=1
 
-ldap.set_option(ldap.OPT_DEBUG_LEVEL,9)
+ldap.set_option(ldap.OPT_DEBUG_LEVEL,0)
 
 for ldap_uri,sasl_mech,sasl_cb_value_dict in [
   (
@@ -48,10 +48,12 @@ for ldap_uri,sasl_mech,sasl_cb_value_dict in [
 ]:
   sasl_auth = ldap.sasl.sasl(sasl_cb_value_dict,sasl_mech)
   print 20*'*',sasl_auth.mech,20*'*'
+  # Open the LDAP connection
   l = ldap.initialize(ldap_uri,trace_level=0)
+  # Set protocol version to LDAPv3 to enable SASL bind!
   l.protocol_version = 3
   try:
-    l.sasl_bind_s("", sasl_auth)
+    l.sasl_interactive_bind_s("", sasl_auth)
   except ldap.LDAPError,e:
     print 'Error using SASL mechanism',sasl_auth.mech,str(e)
   else:
