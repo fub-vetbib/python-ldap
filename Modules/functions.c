@@ -54,7 +54,6 @@ static char doc_open[] =
 "\tThis function is depreciated. init() or initialize() should be used instead.";
 
 
-#if LDAP_API_VERSION > 2000
 /* ldap_init */
 
 static PyObject*
@@ -124,8 +123,6 @@ static char doc_initialize[] =
 "\tReturns an LDAP object for new connection to LDAP server.\n"
 "\tThe actual connection open will occur when the first operation is attempted.\n"
 "\trepresentative of this.";
-
-#endif /* LDAP_API_VERSION > 2000 */
 
 /* ldap_dn2ufn */
 

@@ -51,11 +51,7 @@ LDAPmessage_to_python( LDAP*ld, LDAPMessage*m )
 	 if (attrdict == NULL) {
 		Py_DECREF(result);
 		ldap_msgfree( m );
-#if LDAP_API_VERSION >= 2000
 		ldap_memfree(dn);
-#else
-		free(dn);
-#endif
 		return NULL;
 	 }
 
@@ -86,12 +82,8 @@ LDAPmessage_to_python( LDAP*ld, LDAPMessage*m )
 		if (ber != NULL)
 		    ber_free(ber, 0);
 		ldap_msgfree( m );
-#if LDAP_API_VERSION >= 2000
 		ldap_memfree(attr);
 		ldap_memfree(dn);
-#else
-		free(dn);
-#endif
 		return NULL;
 	     }
 
@@ -111,12 +103,8 @@ LDAPmessage_to_python( LDAP*ld, LDAPMessage*m )
 			if (ber != NULL)
 			    ber_free(ber, 0);
 			ldap_msgfree( m );
-#if LDAP_API_VERSION >= 2000
 			ldap_memfree(attr);
 			ldap_memfree(dn);
-#else
-			free(dn);
-#endif
 			return NULL;
 		    }
 		    Py_DECREF(valuestr);
@@ -124,26 +112,17 @@ LDAPmessage_to_python( LDAP*ld, LDAPMessage*m )
 		ldap_value_free_len(bvals);
 	     }
 	     Py_DECREF( valuelist );
-#if LDAP_API_VERSION >= 2000
 	     ldap_memfree(attr);
-#endif
 	 }
 
 	 entrytuple = Py_BuildValue("(sO)", dn, attrdict);
-#if LDAP_API_VERSION >= 2000
 	 ldap_memfree(dn);
-#else
-         free(dn);
-#endif
 	 Py_DECREF(attrdict);
 	 PyList_Append(result, entrytuple);
 	 Py_DECREF(entrytuple);
-#if ( LDAP_API_VERSION > 2000 )
 	 if (ber != NULL)
 		 ber_free(ber, 0);
-#endif
      }
-#if LDAP_API_VERSION >= 2000
      for(entry = ldap_first_reference(ld,m);
 	 entry != NULL;
 	 entry = ldap_next_reference(ld,entry))
@@ -176,7 +155,6 @@ LDAPmessage_to_python( LDAP*ld, LDAPMessage*m )
 	 PyList_Append(result, entrytuple);
 	 Py_DECREF(entrytuple);
      }
-#endif
      ldap_msgfree( m );
      return result;
 }
