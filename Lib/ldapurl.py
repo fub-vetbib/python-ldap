@@ -88,8 +88,27 @@ def decode_dn(dn,charset,relaxed_charset_handling):
 
 class LDAPUrlExtension:
   """
-  Class for parsing and unparsing extensions in LDAP URLs
+  Class for parsing and unparsing LDAP URL extensions
+  as described in RFC 2255.
+
+  BNF definition of LDAP URL extensions:
+
+       extensions = extension *("," extension)
+       extension  = ["!"] extype ["=" exvalue]
+       extype     = token / xtoken
+       exvalue    = LDAPString from section 4.1.2 of [2]
+       token      = oid from section 4.1 of [3]
+       xtoken     = ("X-" / "x-") token
+
+  Usable class attributes:
+  critical
+        Boolean integer marking the extension as critical
+  extype    
+        Type of extension
+  exvalue
+        Value of extension
   """
+
   def __init__(self,extensionStr=None,critical=0,extype=None,exvalue=None):
     if extensionStr is None:
       self.critical = critical
@@ -121,8 +140,10 @@ class LDAPUrlExtension:
 class LDAPUrl:
   """
   Class for parsing and unparsing LDAP URLs
+  as described in RFC 2255.
 
-  Syntax of LDAP URL according to RFC2255:
+  BNF definition of LDAP URL:
+
     hostport     host:port
     dn           distinguished name
     attributes   list with attributes
@@ -132,16 +153,30 @@ class LDAPUrl:
                      [dn ["?" [attrs] ["?" [scope]
                      ["?" [filter] ["?" extensions]]]]]]
 
-  Class attributes:
-    hostport     LDAP host (default '')
-    dn           Unicode string holding distinguished name (default '')
-    attrs        list of attribute types (default None)
-    scope        integer search scope for ldap-module
-    filterstr    Unicode string representation of LDAP Search Filters
-                 (see RFC 2254)
-    extensions   list of extensions
-    charset      Character set ot be assumed for LDAP data
+  Usable class attributes:
+    urlscheme
+        URL scheme (either ldap, ldaps or ldapi)
+    hostport
+        LDAP host (default '')
+    dn
+        Unicode string holding distinguished name (default '')
+    attrs
+        list of attribute types (default None)
+    scope
+        integer search scope for ldap-module
+    filterstr
+        Unicode string representation of LDAP Search Filters
+        (see RFC 2254)
+    extensions
+        Dictionary used as extensions store
+    charset
+        Character set to be assumed for LDAP data
+    who
+        Maps automagically to bindname LDAP URL extension
+    cred
+        Maps automagically to X-BINDPW LDAP URL extension
   """
+
   attr2extype = {'who':'bindname','cred':'X-BINDPW'}
 
   def __init__(
