@@ -4,6 +4,9 @@
 
 #include "common.h"
 #ifdef USE_CIDICT
+#include "CIDict.h"
+
+static void CIDict_init(void);
 
 /*
  * Case Insensitive dictionary

@@ -84,6 +84,53 @@ static PyObject *TemplateDefList_new(struct ldap_adddeflist *,
 static PyObject *TemplateDefault_new(struct ldap_adddeflist *,
 	TemplateObject *);
 
+static PyObject *makestring(char *s);
+static void	Templates_dealloc(TemplatesObject *self);
+static struct ldap_disptmpl *Templates_first(TemplatesObject *self);
+static struct ldap_disptmpl *Templates_next(TemplatesObject *self,
+		struct ldap_disptmpl *tmpl);
+static PyObject	*Templates_item(TemplatesObject *self, 
+		struct ldap_disptmpl *tmpl);
+static PyObject	*Templates_name2template(TemplatesObject *self,
+		PyObject *args);
+static PyObject	*Templates_oc2template(TemplatesObject *self,
+		PyObject *args);
+PyObject	*Templates_getattr(PyObject *self, char *name);
+static void	TemplateRows_dealloc(TemplateRowsObject *self);
+static struct ldap_tmplitem *TemplateRows_first(TemplateRowsObject *self);
+static struct ldap_tmplitem *TemplateRows_next(TemplateRowsObject *self,
+		struct ldap_tmplitem *row);
+static PyObject	*TemplateRows_item(TemplateRowsObject *self,
+		struct ldap_tmplitem *cols);
+static void	TemplateItems_dealloc(TemplateItemsObject *self);
+static struct ldap_tmplitem *TemplateItems_first(TemplateItemsObject *self);
+static struct ldap_tmplitem *TemplateItems_next(TemplateItemsObject *self,
+		struct ldap_tmplitem *col);
+static PyObject	*TemplateItems_item(TemplateItemsObject *self,
+		struct ldap_tmplitem *item);
+static PyObject	*TemplateItem_repr(TemplateItemObject *self);
+static void	TemplateItem_dealloc(TemplateItemObject *self);
+static PyObject	*TemplateItem_getattr(TemplateItemObject *self,
+		char *attr);
+static int	TemplateItem_setattr(TemplateItemObject *self,
+		char *attr, PyObject *value);
+static void	TemplateDefList_dealloc(TemplateDefListObject *self);
+static struct ldap_adddeflist *TemplateDefList_first(
+		TemplateDefListObject *self);
+static struct ldap_adddeflist *TemplateDefList_next(TemplateDefListObject *self,
+		struct ldap_adddeflist *pos);
+static PyObject	*TemplateDefList_item(TemplateDefListObject *self,
+		struct ldap_adddeflist *pos);
+static void	TemplateDefault_dealloc(TemplateDefaultObject *self);
+static PyObject *TemplateDefault_getattr(TemplateDefaultObject *self,
+		char *attr);
+static PyObject	*TemplateDefault_repr(PyObject *self);
+static void	Template_dealloc(TemplateObject *self);
+static PyObject *Template_tmplattrs(PyObject *self, PyObject *args);
+static PyObject *Template_getattr(TemplateObject *self, char *attr);
+static int	Template_setattr(TemplateObject *self, char *attr,
+		PyObject *value);
+
 /* make a string object, or "" if NULL */
 static PyObject *emptystring;
 

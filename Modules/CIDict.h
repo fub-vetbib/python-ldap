@@ -4,6 +4,6 @@
 #ifdef USE_CIDICT
 
 extern PyTypeObject CIDict_Type;
-PyObject * CIDict_New();
+PyObject * CIDict_New(void);
 
 #endif

@@ -13,6 +13,10 @@
 #include "common.h"
 #include "linkedlist.h"
 
+static PyObject *repr(PyObject *obj);
+static PyObject *length(PyObject *obj);
+static PyObject *item(PyObject *obj, int index);
+
 #define LINKCLASS(obj)		\
 	((LinkedListType *)((obj)->ob_type))
 #define FIRST(obj)		\

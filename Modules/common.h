@@ -27,7 +27,7 @@
 #include "Python.h"
 
 void LDAPadd_methods( PyObject*d, PyMethodDef*methods );
-#define PyNone_Check(o) ( o == Py_None )
+#define PyNone_Check(o) ((o) == Py_None)
 
 #endif /* __h_common_ */
 
