@@ -1,4 +1,12 @@
 ----------------------------------------------------------------
+Released 2.0.0pre17 2003-12-03
+
+Changes since 2.0.0pre16:
+
+ldap.functions:
+* Fixed ImportError when running python -O
+
+----------------------------------------------------------------
 Released 2.0.0pre16 2003-12-02
 
 Changes since 2.0.0pre15:
