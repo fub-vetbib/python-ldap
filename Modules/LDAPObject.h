@@ -47,5 +47,8 @@ extern LDAPObject *newLDAPObject( LDAP* );
 	  PyEval_RestoreThread( _save );                                \
 	}
 
+PyObject* l_ldap_get_option(PyObject* self, PyObject *args);
+PyObject* l_ldap_set_option(PyObject* self, PyObject *args);
+
 #endif /* __h_LDAPObject */
 

@@ -1579,6 +1579,223 @@ static char doc_fileno[] =
 "\tReturn the file descriptor associated with this connection.";
 #endif /* FILENO_SUPPORTED */
 
+/* ldap_set_option */
+
+PyObject*
+l_ldap_set_option(PyObject* self, PyObject *args)
+{
+    int res;
+    int option;
+    int intval;
+    char *strval;
+    void *ptr;
+    PyObject *value;
+    LDAP *ld;
+
+    if ( self ) ld = ((LDAPObject *)self)->ldap;
+    else ld = NULL;
+
+    if (!PyArg_ParseTuple(args, "iO", &option,&value))
+    	return NULL;
+
+    switch(option){
+	case LDAP_OPT_API_INFO:
+	case LDAP_OPT_DESC:
+	case LDAP_OPT_API_FEATURE_INFO:
+	case LDAP_OPT_X_SASL_SSF:
+		PyErr_SetString( LDAPexception_class, "read-only option" );
+    		return NULL;
+	case LDAP_OPT_REFERRALS:
+	case LDAP_OPT_RESTART:
+		if (!PyArg_Parse( value, "i", &intval )) {
+	    		PyErr_SetString( PyExc_TypeError, "expected integer" );
+	    		return NULL;
+		}
+		if (intval) ptr=LDAP_OPT_ON;
+		else ptr=LDAP_OPT_OFF;
+		break;
+	case LDAP_OPT_DEREF:
+	case LDAP_OPT_SIZELIMIT:
+	case LDAP_OPT_TIMELIMIT:
+	case LDAP_OPT_PROTOCOL_VERSION:
+	case LDAP_OPT_ERROR_NUMBER:
+	case LDAP_OPT_DEBUG_LEVEL:
+	case LDAP_OPT_X_TLS:
+	case LDAP_OPT_X_TLS_REQUIRE_CERT:
+	case LDAP_OPT_X_SASL_SSF_MIN:
+	case LDAP_OPT_X_SASL_SSF_MAX:
+		if (!PyArg_Parse( value, "i", &intval )) {
+	    		PyErr_SetString( PyExc_TypeError, "expected integer" );
+	    		return NULL;
+		}
+		ptr=&intval;
+		break;
+	case LDAP_OPT_HOST_NAME:
+	case LDAP_OPT_URI:
+	case LDAP_OPT_ERROR_STRING:
+	case LDAP_OPT_MATCHED_DN:
+	case LDAP_OPT_X_TLS_CACERTFILE:
+	case LDAP_OPT_X_TLS_CACERTDIR:
+	case LDAP_OPT_X_TLS_CERTFILE:
+	case LDAP_OPT_X_TLS_KEYFILE:
+	case LDAP_OPT_X_TLS_CIPHER_SUITE:
+	case LDAP_OPT_X_TLS_RANDOM_FILE:
+	case LDAP_OPT_X_SASL_SECPROPS:
+		if (!PyArg_Parse( value, "s", &strval )) {
+	    		PyErr_SetString( PyExc_TypeError, "expected string" );
+	    		return NULL;
+		}
+		ptr=strval;
+		break;
+	case LDAP_OPT_SERVER_CONTROLS:
+	case LDAP_OPT_CLIENT_CONTROLS:
+	case LDAP_OPT_TIMEOUT:
+	case LDAP_OPT_NETWORK_TIMEOUT:
+	case LDAP_OPT_X_TLS_CTX:
+		PyErr_SetString( LDAPexception_class, "option not supported by python-ldap" );
+    		return NULL;
+	default:
+		PyErr_SetString( LDAPexception_class, "option not supported" );
+    		return NULL;
+    }
+	
+    res = ldap_set_option(ld, option, ptr);
+
+    if (res<0){
+	PyErr_SetString( LDAPexception_class, "set_option failed" );
+	return NULL;
+    }
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static char doc_set_option[] = 
+"set_option(name,value)\n\n"
+"\tSets value of LDAP option.\n";
+
+/* ldap_get_option */
+
+PyObject*
+l_ldap_get_option(PyObject* self, PyObject *args)
+{
+    int res;
+    int option;
+    int intval;
+    LDAPAPIInfo apiinfo;
+    char *strval;
+    PyObject *value;
+    PyObject *dict;
+    PyObject *list;
+    int i;
+    LDAP *ld;
+    
+    if ( self ) ld = ((LDAPObject *)self)->ldap;
+    else ld = NULL;
+
+    if (!PyArg_ParseTuple(args, "i", &option))
+    	return NULL;
+
+    switch(option){
+	case LDAP_OPT_API_INFO:
+		apiinfo.ldapai_info_version = LDAP_API_INFO_VERSION;
+		res = ldap_get_option( ld, option, &apiinfo );
+		if ( res < 0 ){
+			PyErr_SetString( LDAPexception_class, "get_option failed" );
+			return NULL;
+		}
+	
+		dict = PyDict_New();
+		
+		value = PyInt_FromLong( apiinfo.ldapai_info_version );
+		PyDict_SetItemString( dict, "info_version", value );
+		Py_DECREF( value );
+
+		value = PyInt_FromLong( apiinfo.ldapai_api_version );
+		PyDict_SetItemString( dict, "api_version", value );
+		Py_DECREF( value );
+			
+		value = PyInt_FromLong( apiinfo.ldapai_protocol_version );
+		PyDict_SetItemString( dict, "protocol_version", value);
+		Py_DECREF( value );
+			
+		list = PyList_New(0);
+		for( i=0; apiinfo.ldapai_extensions[i]; i++ ){
+			value = Py_BuildValue( "s", apiinfo.ldapai_extensions[i] );
+			PyList_Append( list, value );
+			Py_DECREF( value );
+		}
+		PyDict_SetItemString( dict, "extensions", list );
+		Py_DECREF( list );
+		
+		value = Py_BuildValue( "s", apiinfo.ldapai_vendor_name );
+		PyDict_SetItemString( dict, "vendor_name", value );
+		Py_DECREF( value );
+		
+		value = PyInt_FromLong( apiinfo.ldapai_vendor_version );
+		PyDict_SetItemString( dict, "vendor_version", value );
+		Py_DECREF( value );
+		
+		return dict;
+	case LDAP_OPT_X_SASL_SSF:
+	case LDAP_OPT_REFERRALS:
+	case LDAP_OPT_RESTART:
+	case LDAP_OPT_DESC:
+	case LDAP_OPT_DEREF:
+	case LDAP_OPT_SIZELIMIT:
+	case LDAP_OPT_TIMELIMIT:
+	case LDAP_OPT_PROTOCOL_VERSION:
+	case LDAP_OPT_ERROR_NUMBER:
+	case LDAP_OPT_DEBUG_LEVEL:
+	case LDAP_OPT_X_TLS:
+	case LDAP_OPT_X_TLS_REQUIRE_CERT:
+	case LDAP_OPT_X_SASL_SSF_MIN:
+	case LDAP_OPT_X_SASL_SSF_MAX:
+		res = ldap_get_option( ld, option, &intval );
+		if ( res < 0 ){
+			PyErr_SetString( LDAPexception_class, "get_option failed" );
+			return NULL;
+		}
+		value = PyInt_FromLong( intval );
+		break;
+	case LDAP_OPT_HOST_NAME:
+	case LDAP_OPT_URI:
+	case LDAP_OPT_ERROR_STRING:
+	case LDAP_OPT_MATCHED_DN:
+	case LDAP_OPT_X_TLS_CACERTFILE:
+	case LDAP_OPT_X_TLS_CACERTDIR:
+	case LDAP_OPT_X_TLS_CERTFILE:
+	case LDAP_OPT_X_TLS_KEYFILE:
+	case LDAP_OPT_X_TLS_CIPHER_SUITE:
+	case LDAP_OPT_X_TLS_RANDOM_FILE:
+	case LDAP_OPT_X_SASL_SECPROPS:
+		res = ldap_get_option( ld, option, &strval );
+		if ( res < 0 ){
+			PyErr_SetString( LDAPexception_class, "get_option failed" );
+			return NULL;
+		}
+		value = Py_BuildValue( "s",strval );
+		break;
+	case LDAP_OPT_SERVER_CONTROLS:
+	case LDAP_OPT_CLIENT_CONTROLS:
+	case LDAP_OPT_TIMEOUT:
+	case LDAP_OPT_NETWORK_TIMEOUT:
+	case LDAP_OPT_API_FEATURE_INFO:
+	case LDAP_OPT_X_TLS_CTX:
+		PyErr_SetString( LDAPexception_class, "option not supported by python-ldap" );
+    		return NULL;
+	default:
+		PyErr_SetString( LDAPexception_class, "option not supported" );
+    		return NULL;
+    }
+	
+    return value;
+}
+
+static char doc_get_option[] = 
+"get_option(name,value)\n\n"
+"\tGets value of LDAP option.\n";
+
 /* methods */
 
 static PyMethodDef methods[] = {
@@ -1651,6 +1868,8 @@ static PyMethodDef methods[] = {
 #endif
     {"url_search_s",	(PyCFunction)l_ldap_url_search_st,	METH_VARARGS,	doc_url_search},	
     {"url_search_st",	(PyCFunction)l_ldap_url_search_st,	METH_VARARGS,	doc_url_search},	
+    {"set_option",	(PyCFunction)l_ldap_set_option,		METH_VARARGS,	doc_set_option},	
+    {"get_option",	(PyCFunction)l_ldap_get_option,		METH_VARARGS,	doc_get_option},	
 #if defined(FILENO_SUPPORTED)
     {"fileno",		(PyCFunction)l_ldap_fileno,		METH_VARARGS,	doc_fileno},	
 #endif
