@@ -179,6 +179,7 @@ if test $ac_cv_LDAP_is_opaque = yes; then
 fi
 
 AC_CHECK_FUNCS(ldap_modrdn2_s ldap_modrdn2 ldap_init_templates)
+AC_CHECK_HEADERS(disptmpl.h)
 
 dnl-- check for case-insensitive dictionary to be used
 if test no != "${enable_cidict-no}"; then

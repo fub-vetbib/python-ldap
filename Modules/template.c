@@ -58,7 +58,9 @@
 #if defined(HAVE_LDAP_INIT_TEMPLATES)
 #include "lber.h"
 #include "ldap.h"
+#if defined(HAVE_DISPTMPL_H)
 #include "disptmpl.h"
+#endif
 #include "linkedlist.h"
 #include "template.h"
 
