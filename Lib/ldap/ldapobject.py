@@ -138,8 +138,8 @@ class LDAPObject:
         # Switch to new connection to LDAPv2
         self.set_option(ldap.OPT_PROTOCOL_VERSION,ldap.VERSION2)
       else:
-        # Raise any other error exception
-        raise e
+        # Re-raise any other error exception
+        raise
       # Set currently determined protocol version
       protocol_version = ldap.VERSION2
     else:
