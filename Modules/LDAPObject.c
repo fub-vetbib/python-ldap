@@ -717,10 +717,10 @@ l_ldap_rename( LDAPObject* self, PyObject *args )
 }
 
 
-/* ldap_result */
+/* ldap_result2 */
 
 static PyObject *
-l_ldap_result( LDAPObject* self, PyObject *args )
+l_ldap_result2( LDAPObject* self, PyObject *args )
 {
     int msgid = LDAP_RES_ANY;
     int all = 1;
@@ -730,6 +730,7 @@ l_ldap_result( LDAPObject* self, PyObject *args )
     int res_type;
     LDAPMessage *msg = NULL;
     PyObject *result_str, *retval, *pmsg;
+    int res_msgid = 0;
 
     if (!PyArg_ParseTuple( args, "|iid", &msgid, &all, &timeout ))
     	return NULL;
@@ -747,15 +748,18 @@ l_ldap_result( LDAPObject* self, PyObject *args )
     LDAP_END_ALLOW_THREADS( self );
 
     if (res_type < 0)	/* LDAP or system error */
-    	return LDAPerror( self->ldap, "ldap_result" );
+    	return LDAPerror( self->ldap, "ldap_result2" );
 
     if (res_type == 0) {
-	/* Polls return (None, None); timeouts raise an exception */
+	/* Polls return (None, None, None); timeouts raise an exception */
 	if (timeout == 0)
-		return Py_BuildValue("(OO)", Py_None, Py_None);
+		return Py_BuildValue("(OOO)", Py_None, Py_None, Py_None);
 	else
 		return LDAPerr(LDAP_TIMEOUT);
     }
+
+    if (msg)
+	    res_msgid = ldap_msgid(msg);
 
     if (res_type == LDAP_RES_SEARCH_ENTRY
 	    || res_type == LDAP_RES_SEARCH_REFERENCE
@@ -785,7 +789,7 @@ l_ldap_result( LDAPObject* self, PyObject *args )
     if (pmsg == NULL) {
 	    retval = NULL;
     } else {
-	    retval = Py_BuildValue("(OO)", result_str, pmsg);
+	    retval = Py_BuildValue("(OOi)", result_str, pmsg, res_msgid);
 	if (pmsg != Py_None) {
         Py_DECREF(pmsg);
     }
@@ -978,7 +982,7 @@ static PyMethodDef methods[] = {
     {"delete_ext",	(PyCFunction)l_ldap_delete_ext,		METH_VARARGS },
     {"modify_ext",	(PyCFunction)l_ldap_modify_ext,		METH_VARARGS },
     {"rename",	        (PyCFunction)l_ldap_rename,		METH_VARARGS },
-    {"result",		(PyCFunction)l_ldap_result,		METH_VARARGS },
+    {"result2",		(PyCFunction)l_ldap_result2,		METH_VARARGS },
     {"search_ext",	(PyCFunction)l_ldap_search_ext,		METH_VARARGS },
 #ifdef HAVE_TLS
     {"start_tls_s",	(PyCFunction)l_ldap_start_tls_s,	METH_VARARGS },
