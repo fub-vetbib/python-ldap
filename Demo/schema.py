@@ -56,3 +56,5 @@ schema.ldap_entry()
 print str(schema.get_obj(ldap.schema.MatchingRule,'2.5.13.0'))
 print str(schema.get_obj(ldap.schema.MatchingRuleUse,'2.5.13.0'))
 
+print str(schema.get_obj(ldap.schema.AttributeType,'name'))
+print str(schema.get_inheritedobj(ldap.schema.AttributeType,'cn',['syntax','equality','substr','ordering']))
