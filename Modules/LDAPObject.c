@@ -874,7 +874,6 @@ l_ldap_whoami_s( LDAPObject* self, PyObject* args )
 
     result = PyString_FromStringAndSize(bvalue->bv_val, bvalue->bv_len);
 
-    Py_DECREF(result);
     return result;
 }
 
