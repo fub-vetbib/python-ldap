@@ -13,6 +13,8 @@ import ldap
 # Set debugging level
 ldap.set_option(ldap.OPT_DEBUG_LEVEL,255)
 
+ldap.set_option(ldap.OPT_X_TLS_CACERTFILE,'/etc/httpd/ssl.crt/myCA-cacerts.pem')
+
 ##################################################################
 # LDAPv3 connection with StartTLS
 ##################################################################
@@ -21,7 +23,9 @@ ldap.set_option(ldap.OPT_DEBUG_LEVEL,255)
 l = ldap.initialize('ldap://localhost:1389')
 
 # Set LDAP protocol version used
-l.set_option(ldap.OPT_PROTOCOL_VERSION,3)
+l.protocol_version=ldap.VERSION3
+
+l.set_option(ldap.OPT_X_TLS,ldap.OPT_X_TLS_DEMAND)
 
 # Try a bind to provoke failure if protocol version is not supported
 l.bind_s('','',ldap.AUTH_SIMPLE)
@@ -40,7 +44,7 @@ l.unbind_s()
 l = ldap.initialize('ldaps://localhost:1636')
 
 # Set LDAP protocol version used
-l.set_option(ldap.OPT_PROTOCOL_VERSION,3)
+l.protocol_version=ldap.VERSION3
 
 # Try a bind to provoke failure if protocol version is not supported
 l.bind_s('','',ldap.AUTH_SIMPLE)
@@ -56,7 +60,7 @@ l.unbind_s()
 l = ldap.initialize('ldapi://%2ftmp%2fopenldap2')
 
 # Set LDAP protocol version used
-l.set_option(ldap.OPT_PROTOCOL_VERSION,3)
+l.protocol_version=ldap.VERSION3
 
 # Try a bind to provoke failure if protocol version is not supported
 l.bind_s('','',ldap.AUTH_SIMPLE)
