@@ -1956,91 +1956,7 @@ static PyObject*
 getattr( LDAPObject* self, char* name ) 
 {
 
-	int res, option, intval, is_string = 0;
-	char *strval;
-
-	if (streq(name,"version"))
-		option = LDAP_OPT_PROTOCOL_VERSION;
-	else if (streq(name,"deref")) 
-		option = LDAP_OPT_DEREF;
-	else if (streq(name,"referrals"))
-		option = LDAP_OPT_REFERRALS;
-	else if (streq(name,"restart"))
-		option = LDAP_OPT_REFERRALS;
-	else if (streq(name,"timelimit")) 
-		option = LDAP_OPT_TIMELIMIT;
-	else if (streq(name,"sizelimit")) 
-		option = LDAP_OPT_SIZELIMIT;
-	else if (streq(name,"errno")) 
-		option = LDAP_OPT_ERROR_NUMBER;
-	else if (streq(name,"error")) {
-		option = LDAP_OPT_ERROR_STRING;
-		is_string = 1;
-	} else if (streq(name,"matched")) {
-		option = LDAP_OPT_MATCHED_DN;
-		is_string = 1;
-	} else
-		return Py_FindMethod( methods, (PyObject*)self, name );
-	LDAP_BEGIN_ALLOW_THREADS( self );
-	res = ldap_get_option(self->ldap, option, is_string ? (void *)&strval
-	                                                    : (void *)&intval);
-	LDAP_END_ALLOW_THREADS( self );
-	if (res < 0)
-		return LDAPerror( self->ldap, "ldap_get_option" );
-	if (!is_string)
-		return PyInt_FromLong(intval);
-	if (strval != NULL)
-		return PyString_FromString(strval);
-	Py_INCREF(Py_None);
-	return Py_None;
-}
-
-/* set attribute */
-
-static int
-setattr( LDAPObject* self, char* name, PyObject* value ) 
-{
-	int res, intval, option;
-	int *intptr = &intval;
-
-	if (streq(name,"errno") ||
-	    streq(name,"error") ||
-	    streq(name,"valid") ||
-	    streq(name,"matched"))
-	{
-	    PyErr_SetString( PyExc_AttributeError, "read-only attribute" );
-	    return -1;
-    	}
-
-	if (!PyArg_Parse( value, "i", &intval )) {
-	    PyErr_SetString( PyExc_TypeError, "expected integer" );
-	    return -1;
-	}
-
-	if (streq(name,"deref")) 
-		option = LDAP_OPT_DEREF;
-	else if(streq(name,"version"))
-		option = LDAP_OPT_PROTOCOL_VERSION;
-	else if(streq(name,"referrals")) {
-		option = LDAP_OPT_REFERRALS;
-		intptr = (void *)intval;
-	} else if(streq(name,"restart")) {
-		option = LDAP_OPT_RESTART;
-		intptr = (void *)intval;
-	} else if (streq(name,"timelimit")) 
-		option = LDAP_OPT_TIMELIMIT;
-	else if (streq(name,"sizelimit")) 
-		option = LDAP_OPT_SIZELIMIT;
-	else {
-		PyErr_SetString( PyExc_NameError, "cannot set that field" );
-		return -1;
-	}
-	LDAP_BEGIN_ALLOW_THREADS( self );
-	res = ldap_set_option(self->ldap, option, intptr);
-	LDAP_END_ALLOW_THREADS( self );
-	if (res < 0)
-		return LDAPerror( self->ldap, "ldap_get_option" ), -1;
-	return 0;
+	return Py_FindMethod( methods, (PyObject*)self, name );
 }
 
 /* type entry */
@@ -2060,7 +1976,7 @@ PyTypeObject LDAP_Type = {
 	(destructor)dealloc,	/*tp_dealloc*/
 	0,                      /*tp_print*/
 	(getattrfunc)getattr,	/*tp_getattr*/
-	(setattrfunc)setattr,	/*tp_setattr*/
+	0,			/*tp_setattr*/
 	0,                      /*tp_compare*/
 	(reprfunc)repr,         /*tp_repr*/
 	0,                      /*tp_as_number*/
