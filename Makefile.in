@@ -7,7 +7,7 @@ INSTALL_DATA=	$(INSTALL) -m 644
 INSTALL_DIR=	mkdir -p
 srcdir=		@srcdir@
 
-MAKEVARS=	SRCDIR=$(srcdir)/Modules VPATH=$(srcdir)/Modules
+MAKEVARS=	srcdir=$(srcdir)/Modules VPATH=$(srcdir)/Modules
 
 all:
 	cd Modules && $(MAKE) $(MAKEVARS)
