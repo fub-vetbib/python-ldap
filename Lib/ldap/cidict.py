@@ -3,6 +3,8 @@ This is a convenience wrapper for dictionaries
 returned from LDAP servers containing attribute
 names of variable case.
 
+See http://python-ldap.sourceforge.net for details.
+
 $Id$
 """
 

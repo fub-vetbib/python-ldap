@@ -2,6 +2,8 @@
 ldap.modlist - create add/modify modlist's
 (c) by Michael Stroeder <michael@stroeder.com>
 
+See http://python-ldap.sourceforge.net for details.
+
 $Id$
 
 Python compability note:

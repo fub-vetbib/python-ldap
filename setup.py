@@ -1,5 +1,11 @@
 #! /usr/bin/env python
-# $Id$
+"""
+setup.py - Setup package with the help Python's DistUtils
+
+See http://python-ldap.sourceforge.net for details.
+
+$Id$
+"""
 
 from distutils.core import setup, Extension
 from ConfigParser import ConfigParser

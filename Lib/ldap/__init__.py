@@ -1,4 +1,11 @@
-# $Id$
+"""
+ldap - base module
+written by Michael Stroeder <michael@stroeder.com>
+
+See http://python-ldap.sourceforge.net for details.
+
+$Id$
+"""
 
 __version__ = '2.0.0pre06'
 

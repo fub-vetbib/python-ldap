@@ -1,8 +1,8 @@
 """
-ldap.schema.tokenizer
+ldap.schema.tokenizer - Low-level parsing functions for schema element strings
 written by Michael Stroeder <michael@stroeder.com>
 
-Low-level parsing functions for schema element strings
+See http://python-ldap.sourceforge.net for details.
 
 \$Id$
 """
