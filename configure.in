@@ -180,9 +180,9 @@ if test "$ac_cv_ldap_set_rebind_proc" = 3; then
 fi
 
 if test no != "$with_kerberos"; then 
-	AC_CHECK_FUNCS(ldap_kerberos_bind1 \
-		       ldap_kerberos_bind1_s ldap_kerberos_bind2 \
-		       ldap_kerberos_bind2_s)
+	AC_CHECK_FUNCS(ldap_kerberos_bind_s \
+		       ldap_kerberos_bind1 ldap_kerberos_bind1_s \
+		       ldap_kerberos_bind2 ldap_kerberos_bind2_s)
 fi
 
 AC_CHECK_FUNCS(ldap_enable_cache ldap_disable_cache ldap_set_cache_options \
@@ -248,7 +248,7 @@ pymf="$LIBDEST/config/Makefile.pre.in"
 if test -f "$pymf"; then
 	: we will use that one
 else
-	pymf="$srcdir/Makefile.python-1.4"
+	pymf="$srcdir/Misc/Makefile.python-1.4"
 fi
 AC_MSG_RESULT($pymf)
 test -d Modules || mkdir Modules
