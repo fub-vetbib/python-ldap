@@ -30,7 +30,7 @@ from ldap.widgets import *
 version = '0.3'
 program = 'lappo'
 copyright = ('Copyright (C) 2000 Federico Di Gregorio <fog@mixadlive.com>\n' +
-             'Copyright (C) 2000 MIXAD LIVE S.r.l. [http://www.mixadlive.com]')
+             'Copyright (C) 2000 MIXAD LIVE [http://www.mixadlive.com]')
 
 
 # all the configuration options are kept in a single globally accessible
@@ -43,6 +43,8 @@ O['ldap_server'] = 'localhost'
 O['ldap_timeout'] = 30
 O['ldap_search_default'] = 'cn=*'
 O['use_rdn'] = TRUE
+O['use_caution'] = TRUE
+
 
 # all the important widget are kept easily accessible in a global dictionary
 W = {}
@@ -81,14 +83,11 @@ def get_widget_data(widget):
 
 #### save the changes back to the directory
 def action_save(widget, event=None):
-    def recursive_commit(node):
-        try:
-            node.commit()
-        except ldap.LDAPError, err:
-            dialog_info('Commit of %s failed:\nServer returned:%s'
-                        % (node.dn, err[0]['desc']), 'error')
     for n in W['tree'].roots:
-        n.recurse_pre(recursive_commit)
+        try:
+            W['tree'].node_commit_ldap_data(n)
+        except ldap.LDAPError, err:
+            dialog_ldap('Commit failed:', err)
     O['modified'] = 0
     
 
@@ -133,10 +132,63 @@ def search_activate(entry, tree):
     try:
         tree.set_search_base(O['basedn'], entry.get_text())
     except ldap.LDAPError, err:
-        dialog_info('Error searching the directory:\nServer returned:%s'
-                    % err[0]['desc'], 'error')
-        
+        dialog_ldap('Error searching the directory:', err)
 
+
+#### text in the base widget: if it is a CR reset the base
+def base_activate(entry, tree):
+    """Reset browse base"""
+    global O
+    if O['modified'] == 1:
+        v = dialog_info("You made some modifications that will be lost.\n" +
+                        "Do you really want to reset the base dn?",
+                        'warning')
+        if v != 0: return
+    # if the final char of the new base is a ',', consider it a relative rdn
+    n = entry.get_text()
+    if n != '' and n[-1] == ',':
+        n = canonical_dn(n, O['basedn'])
+    try:
+        tree.set_browse_base(n)
+        O['basedn'] = n
+        W['search'].set_text('')
+    except ldap.LDAPError, err:
+        dialog_ldap('Error accessing the directory:', err)
+    entry.set_text(O['basedn'])
+    
+
+#### click on the delete button
+def delete_clicked(button, tree):
+    """If the current node is a valid dn, deletes it."""
+    global W, O
+    node = W['tree_selected_node']
+    if node:
+        d = tree.node_get_ldap_data(node)
+        if d[0] == 'dn':
+            v = dialog_info('Do you really want to delete the selected entry ' +
+                            'and all its childrens?', 'warning')
+            if v != 0: return
+        try:
+            tree.node_remove_ldap_data(node, d[0], d[1])
+        except LDAPError, err:
+            dialog_ldap("Error removing data or entry:", err)
+            
+
+#### click on the add button
+def add_clicked(button, widgets):
+    """Add a new entry to the tree and to the directory."""
+    global W, O
+    node = W['tree_selected_node']
+    if node:
+        d = widgets[0].node_get_ldap_data(node)
+        if d[0] == 'dn':
+            rdn = widgets[1].get_text()
+            try:
+                tree.node_add_ldap_entry(node, rdn)
+            except LDAPError, err:
+                dialog_ldap("Error adding new entry:", err)
+                
+                                     
 ################################################ UI building functions ########
 
 #### preferences dialog
@@ -202,10 +254,10 @@ def dialog_quit(widget, event=None):
 #### about dialog
 def dialog_about(widget, event=None):
     box = GnomeAbout('lappo',
-		     '0.1',
-		     'Copyright (C) 1999 MIXAD LIVE S.r.l.',
-		     ['Federico Di Gregorio'],
-		     'LDAP client with login and schema support')
+		     version,
+		     copyright,
+		     ['Federico Di Gregorio <fog@mixadlive.com>'],
+		     'LDAP client (hopefully will have schema support...)')
     box.show()
     return TRUE
 
@@ -217,6 +269,12 @@ def dialog_info(msg, type='information', buttons=STOCK_BUTTON_OK):
     v = box.run_and_close()
     return v
 
+#### dialog yes/no
+def
+
+#### ldap error dialog
+def dialog_ldap(msg, err):
+    return dialog_info(msg + '\nServer returned: %s' % err, 'error')
 
 #### select schema and try to open it    
 def menu_open_schema(widget, event=None):
@@ -254,18 +312,12 @@ def menu_build():
 	UIINFO_ITEM_STOCK('Preferences...',
                           None, dialog_prefs, STOCK_MENU_PREF)]
 
-    view_menu = [
-        UIINFO_RADIOLIST([
-            UIINFO_ITEM('Browse', None, None, None),
-            UIINFO_ITEM('Search', None, None, None)])]
-    
     help_menu = [
 	UIINFO_ITEM_STOCK('About...', None, dialog_about, STOCK_MENU_ABOUT)]
     
     menu_info = [
 	UIINFO_SUBTREE('File', file_menu),
 	UIINFO_SUBTREE('Edit', edit_menu),
-        UIINFO_SUBTREE('View', view_menu),
 	UIINFO_SUBTREE('Help', help_menu)]
     
     return menu_info
@@ -278,7 +330,7 @@ def app_area_build(connection):
     global W, O
 
     # search/browse options
-    table = GtkTable(2, 2, 0)
+    table = GtkTable(3, 2, 0)
     table.set_col_spacings(4)
     table.set_row_spacings(4)
     table.set_border_width(4)
@@ -287,11 +339,7 @@ def app_area_build(connection):
     frame = GtkFrame('Search/browse options')
     frame.show()
     frame.add(table)
-
-    vbox2 = GtkVBox(0, 0)
-    vbox2.set_border_width(4)
-    vbox2.show()
-
+    
     if O['basedn'] == None: basedn = '<directory base not set>'
     else: basedn = O['basedn']
     frame2 = GtkFrame('LDAP directory at '+basedn)
@@ -302,15 +350,22 @@ def app_area_build(connection):
     
     l = GtkLabel('Filter'); l.show()
     e = GtkEntry(); e.show();
-    table.attach(l, 0,1, 0,1, xoptions=FILL)
-    table.attach(e, 1,2, 0,1, xoptions=FILL+EXPAND)
+    table.attach(l, 0,1, 2,3, xoptions=FILL)
+    table.attach(e, 1,2, 2,3, xoptions=FILL+EXPAND)
     W['filter'] = e
 
     l = GtkLabel('Search'); l.show()
     e = GtkEntry(); e.show();
     table.attach(l, 0,1, 1,2, xoptions=FILL)
-    table.attach(e, 1,2, 1,2, xoptions=FILL+EXPAND+SHRINK)
+    table.attach(e, 1,2, 1,2, xoptions=FILL+EXPAND)
     W['search'] = e
+
+    l = GtkLabel('Base'); l.show()
+    e = GtkEntry(); e.show();
+    e.set_text(O['basedn'])
+    table.attach(l, 0,1, 0,1, xoptions=FILL)
+    table.attach(e, 1,2, 0,1, xoptions=FILL+EXPAND)
+    W['base'] = e
 
     # the main directory tree (with a scrolled window)
     tree = GtkLDAPDirectoryTree(connection) 
@@ -320,36 +375,58 @@ def app_area_build(connection):
     scr.show()
     scr.set_policy(POLICY_AUTOMATIC, POLICY_ALWAYS)
     scr.add(tree)
+
+    # modify stuff
+    table2 = GtkTable(3, 3, 0)
+    table2.set_col_spacings(4)
+    table2.set_row_spacings(4)
+    table2.set_border_width(4)
+    table2.show()
+    frame3 = GtkFrame('Builder')
+    frame3.show()
+    frame3.add(table2)
+
+    l = GtkLabel('objectClass:'); l.show()
+    ocs = GtkLDAPClassEntry(O['ocd']) ; ocs.show()
+    b = GtkButton('Add') ; b.show()
+    table2.attach(l, 0,1, 0,1, xoptions=FILL)
+    table2.attach(ocs, 1,2, 0,1, xoptions=FILL+EXPAND)
+    table2.attach(b, 2,3, 0,1, xoptions=FILL)
+    W['ocs'] = ocs
+    W['ocs_add'] = b
     
-    # attribute values
+    # attribute values and add/delete stuff
     entry = GtkEntry()
     entry.show()
     W['entry'] = entry
-
-    vbox2.pack_start(scr, TRUE, TRUE)
-    vbox2.pack_start(entry, FALSE, TRUE)
-    vbox2.set_usize(300, -1)
+    add = GtkButton('Add')
+    add.show()
+    W['add']= add
+    delete = GtkButton('Delete') 
+    delete.show()
+    W['delete'] = delete
     
-    # add/delete stuff
-    vbox3 = GtkVBox(0, 0)
-    vbox3.set_border_width(4)
-    vbox3.show()
-    frame3 = GtkFrame('Add/Modify')
-    frame3.show()
-    frame3.add(vbox3)
+    buttonbox = GtkHBox(0, 0)
+    buttonbox.pack_start(entry, TRUE, TRUE)
+    buttonbox.pack_start(add, FALSE, TRUE)
+    buttonbox.pack_start(delete, FALSE, TRUE)
+    buttonbox.show()
+    
+    vbox2 = GtkVBox(0, 0)
+    vbox2.set_border_width(4)
+    vbox2.show()
+    
+    vbox2.pack_start(scr, TRUE, TRUE)
+    vbox2.pack_start(buttonbox, FALSE, TRUE, 2)
+    #vbox2.set_usize(300, -1)
 
-    ocs = GtkLDAPClassEntry(O['ocd'])
-    ocs.show()
-    vbox3.pack_start(ocs)
-
-    # main boxes
     vbox = GtkVBox(0, 0)
     vbox.set_border_width(4)
     vbox.set_spacing(4)
     vbox.show()
 
-    vbox.pack_start(frame3, FALSE, TRUE)
     vbox.pack_start(frame, FALSE, TRUE)
+    vbox.pack_start(frame3, FALSE, TRUE)
 
     pane = GtkHPaned()
     pane.pack1(vbox2, 1, 1)
@@ -360,8 +437,11 @@ def app_area_build(connection):
     tree.connect('tree-unselect-row', tree_unselect_row, (tree, entry))
     tree.connect('tree-select-row', tree_select_row, (tree, entry))
     entry.connect('changed', entry_changed, tree)
+    delete.connect('clicked', delete_clicked, tree)
+    add.connect('clicked', add_clicked, (tree, entry))
     W['search'].connect('activate', search_activate, tree)
-
+    W['base'].connect('activate', base_activate, tree)
+    
     W['main_box'] = pane
     return pane
 
@@ -403,9 +483,10 @@ app.create_menus(menu_build())
 app.set_contents(app_area_build(L))
 app.show()
 
-
-mainloop()
-
+try:
+    mainloop()
+except LDAPError, err:
+    dialog_ldap("Generic LDAP error:", err)
 
 
 

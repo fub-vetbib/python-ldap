@@ -21,14 +21,20 @@
 import sys, re, string, ldap, _gtk
 import connection, entry
 from gtk import *
-from ldap import LDAPError
-
-GtkLDAPError = 'GtkLDAPError'
+from ldap import LDAPError, canonical_dn
 
 
-##################################################the GtkLDAPClassEntry ########
+########################################################## GtkLDAPError ########
 
-class GtkLDAPClassEntry(GtkOptionMenu):
+class GtkLDAPError(LDAPError):
+    """Widgets raise this exception."""
+    def __init__(self, desc):
+        LDAPError.__init__(self, desc)
+
+
+##################################################### GtkLDAPClassEntry ########
+
+class GtkLDAPClassEntry(GtkCombo):
     """Simple widget to select an objectClass from a list.
 
        This widget can automagically update a GtkLDAPAttributeEntry widget
@@ -36,18 +42,19 @@ class GtkLDAPClassEntry(GtkOptionMenu):
        the set_attribute_entry method.
     """
     def __init__(self, ocd):
-        GtkOptionMenu.__init__(self)
+        GtkCombo.__init__(self)
         self.ocd = ocd
-        self.menu = GtkMenu()
-        self.menu.set_title('objectClass entry')
-        self.menu.show()
-        for k in ocd.keys():
-            child = GtkMenuItem(k); child.show()
-            child.connect('activate-item', self.__activate_item, self)
-            self.menu.append(child)
-        self.set_menu(self.menu)
-        self.attr_entry = None
-
+        self.set_popdown_strings(ocd.keys())
+        #self.menu = GtkMenu()
+        #self.menu.set_title('objectClass entry')
+        #self.menu.show()
+        #for k in ocd.keys():
+        #    child = GtkMenuItem(k); child.show()
+        #    child.connect('activate-item', self.__activate_item, self)
+        #    self.menu.append(child)
+        #self.set_menu(self.menu)
+        #self.attr_entry = None
+        
     def __activate_item(child, self):
         print child, self
  
@@ -160,8 +167,10 @@ class GtkLDAPDirectoryTree(GtkCTree):
 
         self.base = connection.base
         self.use_rdn = 1
-        self.search_default = '(!(dn=*))'
+        self.search_default = 'objectclass=*'
         self.color_dn = self.get_colormap().alloc('black')
+        self.color_dn_modified = self.get_colormap().alloc('red')
+        self.color_dn_removed = self.get_colormap().alloc('grey')
         self.color_data = self.get_colormap().alloc('blue')
         self.color_data_modified = self.get_colormap().alloc('red')
         self.roots = []
@@ -180,9 +189,9 @@ class GtkLDAPDirectoryTree(GtkCTree):
         for key in entry.keys():
             for s in entry[key]:
                 n = self.insert_node(node, None, [key, key, s], 0,
-                                     None, None, None, None, FALSE, TRUE)
+                                     None, None, None, None, TRUE, FALSE)
                 self.node_set_foreground(n, self.color_data)
-                self.node_set_row_data(n, entry)       
+                self.node_set_row_data(n, entry)
         
     def __expand(self, tree, node):
         """Takes a GtkCTree and a node rapresenting a distinguished name and
@@ -190,7 +199,6 @@ class GtkLDAPDirectoryTree(GtkCTree):
            leafs rapresenting all the attributes of the node.
         """
         base = tree.node_get_row_data(node)
-        if base.__gtk_expanded != 0: return
         
         # grab dn from node text and search LDAP directory (but only
         # if the data has not already been gathered)
@@ -200,7 +208,7 @@ class GtkLDAPDirectoryTree(GtkCTree):
         # now add a non-leaf node for every children
         tree.freeze()
         for child in childs.values():
-            if self.use_rdn == 1: rdn = child.rdn
+            if self.use_rdn: rdn = child.rdn
             else: rdn = child.dn
             cn = tree.insert_node(node, None, ['dn', rdn, ''], 0,
                                        None, None, None, None, FALSE, FALSE)
@@ -208,50 +216,66 @@ class GtkLDAPDirectoryTree(GtkCTree):
             child.__gtk_expanded = 0
             tree.node_set_row_data(cn, child)
         tree.thaw()
-        base.__gtk_expanded = 1
         
     def __collapse(self, tree, node):
-        """Collapse a tree node by removing all the childrens and replacing
-           them all by a single fake node.
+        """Collapse a tree node. 
+
+           At now it does nothing, because we cache entry childrens and
+           attributes. 
         """
-        print "debug: tree collapsed on node:", node
         base = tree.node_get_row_data(node)
-        base.__gtk_expanded = 0
+        tree.freeze()
+        tree.thaw()
         
     def __check_base(self, dn):
         """Check self.base and dn and raise exception if are both None."""
         if dn == None and self.base == None:
             raise LDAPError, ({'desc':'base not set'},)
-        elif dn == None: dn = self.base
-        else: self.base = dn
+        elif dn == None:
+            dn = self.base
+        else:
+            self.base = dn
         return dn
-        
+
+    def __recurse_post_2(self, starting_node, func1, func2, *args):
+        """Recurse tree applying 2 different functions.
+
+           This method does a recursive scan of the tree and applies two
+           different functions: one one the non-leaf nodes and one on the
+           leafs. The argument array is passed inalterated to both functions.
+        """
+        if starting_node.is_leaf:
+            apply(func2, (self, starting_node) + args)
+        else:
+            for child in starting_node.children:
+                apply(GtkLDAPDirectoryTree.__recurse_post_2,
+                      (self, child, func1, func2) + args)
+            apply(func1, (self, starting_node) + args)
+            
     def set_search_base(self, dn=None, search='cn=*'):
         """Search the given dn and add found root nodes to the tree."""
         dn = self.__check_base(dn)
-        nn = self.__connection.search_s(dn, search, ldap.SCOPE_SUBTREE)
+        nn = self.__connection.search(search, dn, ldap.SCOPE_SUBTREE)
         self.freeze() ; self.clear()
         self.roots = []
         for n in nn:
             node = self.insert_node(None, None, ['dn', n.dn, ''], 0,
                                     None, None, None, None, FALSE, FALSE)
             self.__fill(node, n)
-            n.__gtk_expanded = 0
             self.node_set_row_data(node, n)
-            self.roots.append(n)
+            self.roots.append(node)
         self.thaw()
     
     def set_browse_base(self, dn=None):
         """Browse the given dn and add the only root node to the tree."""
         dn = self.__check_base(dn)
+        base = self.__connection.root(dn)
         self.freeze() ; self.clear()
-        base = self.__connection.root_s(dn)
         basen = self.insert_node(None, None, ['dn', dn, ''], 0,
                                None, None, None, None, FALSE, FALSE)
         self.__fill(basen, base)
-        base.__gtk_expanded = 0
         self.node_set_row_data(basen, base)
-        self.roots = [base]
+        self.roots = [basen]
         self.thaw()
 
     def node_get_ldap_data(self, node):
@@ -290,21 +314,52 @@ class GtkLDAPDirectoryTree(GtkCTree):
            Node should be a dn one. A new sub-node is added and its attribute
            name and value are set respectively to key and value.
         """
-        entry = self.node_get_row_data(node)
         if self.node_get_text(node, 0) != 'dn':
-            raise LDAPError, ({'desc':'not a dn node'},)
+            raise GtkLDAPError('not a dn node')
+        entry = self.node_get_row_data(node)
         n = self.insert_node(node, None, [key, key, value], 0,
                              None, None, None, None, FALSE, TRUE)
         self.node_set_foreground(n, self.color_data)
         self.node_set_row_data(n, entry)       
         entry.set(key, value)
 
+    def node_remove_ldap_data(self, node, key, value):
+        """Remove an LDAP entry both from the tree and from the directory.
 
+           Note that if the node corresponds to a dn, the entire entry is
+           removed from the directory.
+        """
+        entry = self.node_get_row_data(node)
+        if self.node_get_text(node, 0) == 'dn':
+            entry.die()
+            self.node_set_foreground(node, self.color_dn_removed)
+        else:
+            entry.delete(key, value)
+            if node.parent:
+                self.node_set_foreground(node.parent, self.color_dn_modified)
+            self.remove_node(node)
+        
+    def node_add_ldap_entry(self, node, rdn):
+        """Add new node to the tree."""
+        entry = self.node_get_row_data(node)
+        dn = canonical_dn(rdn, entry.dn)
+        
+    def node_commit_ldap_data(self, node):
+        """Recursively commit entries to the direcory.
 
-
-
-
-
+           This method also reset the color of the data nodes to the unchanged
+           data status. If the node is not a dn one raise an exception.
+        """
+        def func_leaf(tree, node):
+            tree.node_set_foreground(node, tree.color_data)
+        def func_node(tree, node):
+            entry = tree.node_get_row_data(node)
+            entry.commit()
+            tree.node_set_foreground(node, tree.color_dn)
+        if self.node_get_text(node, 0) != 'dn':
+            raise GtkLDAPError('not a dn node')
+        else:
+            self.__recurse_post_2(node, func_node, func_leaf) 
 
 
 

@@ -19,23 +19,47 @@
 ## -*- Mode: python -*-
 
 import string, re, ldap
-from ldap import LDAPError
+from ldap import LDAPError, canonical_dn
 
 
 class LDAPEntry:
     """Wrapper around LDAP objects."""
 
-    def __init__(self, dn, attrs={}):
-        """Initialize from a dictionary of attributes."""
+    STATUS_REAL = 1
+    STATUS_NEW = 2
+    STATUS_GHOST = 3
+    STATUS_ZOMBIE = 4
+    
+    def __init__(self, dn, connection=None, attrs=None, internal=None):
+        """Initialize the entry.
+
+           If the connection argument is given, the object tries to initialize
+           itself by looking for the given dn via the connection. If it exists,
+           its status is set to REAL else to NEW. attrs is used to filter the
+           attributes.
+
+           If the connection is None, the entry status is set to GHOST and the
+           entry is initialized using the optional attrs dictionary.
+        """
         self.dn = dn
         self.rdn = dn
-        self.childrens= {}
         self.ancestor = None
+        self.childrens= {}
         self.data = {}
-        self._connection = None
+        self.attrl = None
         self.__list_type_cache = type([])
-        for k in attrs.keys():
-            LDAPEntry.__setitem__(self, k, attrs[k], 0)
+        self._connection = connection
+        
+        if connection:
+            LDAPEntry.reload(self, dn, attrs)
+        elif attrs:
+            if internal:
+                self.status = LDAPEntry.STATUS_REAL
+                self._connection = internal
+            else:
+                self.status = LDAPEntry.STATUS_GHOST
+            for k in attrs.keys():
+                LDAPEntry.__setitem__(self, k, attrs[k], 0)
 
     # some methods used to make the class work as a dictionary
     def __setitem__(self, key, value, changed=1):
@@ -107,6 +131,7 @@ class LDAPEntry:
     def set_connection(self, connection):
         """Set the connection this object should use for directory access."""
         self._connection = connection
+        self.reload(self, self.dn, self.attrl)
         
     def set_ancestor(self, ancestor):
         """Set the ancestor and calculate rdn."""
@@ -117,20 +142,23 @@ class LDAPEntry:
         for p in parts:
             if len(aparts) > 0 and p == aparts[0]: del aparts[0]
             else: rdnparts.append(p)
-        self.rdn = string.join(rdnparts, ldap.DNS)
+        self.rdn = apply(canonical_dn, rdnparts)
 
-    def init(self, dn, attrl=None):
-        """Initialize itself from given dn."""
+    def reload(self, dn, attrl=None):
+        """Initialize itself from given dn.
+
+           If the given dn is not available on the current connection,
+           this entry is marked as NEW."""
         self.__check_connection()
-        c = self._connection
-        new = c.search_s(self.dn, 'objectclass=*', ldap.SCOPE_BASE, attrl)
+        self.attrl = attrl
+        data = self._connection._raw_search('objectclass=*',
+                                              dn, ldap.SCOPE_BASE, attrl)
         if len(new) == 0:
-            raise LDAPError, ({'desc':'can not find dn'})
-        items = {}
-        for item in new[0].items():
-            items[item[0]] = item[1]
-        LDAPEntry.__init__(self, dn, items)
-        self.set_connection(c)
+            self.status = LDAPEntry.STATUS_NEW
+        else:
+            self.status = LDAPEntry.STATUS_REAL
+            for k in data[0].keys():
+                LDAPEntry.__setitem__(self, k, data[0][k], 0)
         
     def browse(self, filter=None, attrl=None):
         """Retrieve childrens from the database.
@@ -140,7 +168,7 @@ class LDAPEntry:
            using its rdn as the key. childrens is the returned for commodity.
         """
         self.__check_connection()
-        childs = self._connection.browse_s(self.dn, filter, attrl)
+        childs = self._connection.browse(filter, self.dn, attrl)
         self.childrens = {}
         for child in childs:
             child.set_ancestor(self)
@@ -160,21 +188,27 @@ class LDAPEntry:
             apply(LDAPEntry.recurse_post, (self.childrens[ck], func) + args)
 
     def commit(self, new_dn=None, force=0):
-        """Commit (save) the entry to the LDAP directory.
+        """Commit changes to the LDAP directory.
 
            First a query is done to obtain the attribute names, then do
            an ADD for every new attribute and a MODIFY for every modified
            one. Attributes not found in this object are deleted!
         """
-        old = self._connection.find_s(self.dn)
-            
-        # now that we have the attributes, build the modify array
-        mod = []
-        if old == None:
+        if self.status == LDAPEntry.STATUS_GHOST:
+            raise LDAPError('cannot commit a ghost entry')
+        elif self.status == LDAPEntry.STATUS_ZOMBIE:
+            self._connection._delete(self.dn)
+            self.status = LDAPEntry.STATUS_NEW
+            print "DELETE:", self.dn, "\n"
+        elif self.status == LDAPEntry.STATUS_NEW:
             for k in self.keys():
                 mod.append((k, self.data[k][0]))
-            self._connection.add_s(self.dn, mod)
-        else:
+                self._connection._add(self.dn, mod)
+            self.status = LDAPEntry.STATUS_REAL
+            print "CREATE:", self.dn, "\n"
+        elif self.status == LDAPEntry.STATUS_REAL:
+            old = self._connection.find(self.dn)
+            mod = []
             for k in self.keys():
                 if old.has_key(k):
                     if self.data[k][1] == 2:    # delete attribute from server
@@ -184,11 +218,15 @@ class LDAPEntry:
                     else:
                         if self.data[k][1] == 1:
                             mod.append((ldap.MOD_ADD, k, self.data[k][0]))
-            self._connection.modify_s(self.dn, mod)
-        self.__purge__()
+            print "OLD:", old
+            print "NEW:", self
+            print "MODIFICATION:", mod, "\n"
+            self._connection._modify(self.dn, mod)
+            self.__purge__()
 
-
-
+    def die(self):
+        """Remove this entry from the directory on next commit()."""
+        self.status = LDAPEntry.STATUS_ZOMBIE
 
 
 

@@ -156,6 +156,4 @@ def load_attributes(*file_names):
     return all
 
 
-def canonical_dn(*parts):
-    """Return canonical dn from parts."""
-    return string.strip(string.replace(string.join(parts, ','), ', ', ','))
+

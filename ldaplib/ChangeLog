@@ -1,3 +1,9 @@
+2000-02-15  Federico Di Gregorio  <fog@debian.org>
+
+	* connection.py, entry.py: genereal cleanup and better integration
+	of the two classes. now every change to an entry (even a die())
+	simply sets a flag: changes are postponed until next commit(). 
+
 2000-02-11  Federico Di Gregorio  <fog@debian.org>
 
 	* lappo: added GtkPane, better widget disposition, search filter

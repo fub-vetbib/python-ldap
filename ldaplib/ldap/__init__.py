@@ -18,11 +18,18 @@
 ##
 ## -*- Mode: python -*-
 
+import string
 from _ldap import *
 
 __all__ = ['connection', 'entry', 'widgets', 'parse']
 
-DNS = ', '
+#### some short and usefull functions
+def canonical_dn(*parts):
+    """Return canonical dn from parts."""
+    s = string.join(filter(None, parts), ',')
+    s = string.replace(s, ' ', '')
+    s = string.replace(s, ',,', ',')
+    return s
 
 
     
