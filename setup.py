@@ -14,16 +14,16 @@ class OpenLDAP2:
 	include_dirs =	[ ]
 	libs =		['ldap', 'lber']
 	defines =	[
-			 #('WITH_KERBEROS', None),
-			 #('HAVE_DES_SETKEY', None),
-			 ('HAVE_LDAP_DESTROY_CACHE', None),
-			 ('HAVE_LDAP_DISABLE_CACHE', None),
-			 ('HAVE_LDAP_ENABLE_CACHE', None),
-			 ('HAVE_LDAP_FLUSH_CACHE', None),
-			 ('HAVE_LDAP_SET_CACHE_OPTIONS', None),
+#			 ('WITH_KERBEROS', None),
+#			 ('HAVE_DES_SETKEY', None),
+#			 ('HAVE_LDAP_DESTROY_CACHE', None),
+#			 ('HAVE_LDAP_DISABLE_CACHE', None),
+#			 ('HAVE_LDAP_ENABLE_CACHE', None),
+#			 ('HAVE_LDAP_FLUSH_CACHE', None),
+#			 ('HAVE_LDAP_SET_CACHE_OPTIONS', None),
+#			 ('HAVE_LDAP_UNCACHE_ENTRY', None),
+#			 ('HAVE_LDAP_UNCACHE_REQUEST', None),
 			 ('HAVE_LDAP_START_TLS_S', None),
-			 ('HAVE_LDAP_UNCACHE_ENTRY', None),
-			 ('HAVE_LDAP_UNCACHE_REQUEST', None),
 			]
 
 #-- Read the [_ldap] section of setup.cfg to find out which class to use
