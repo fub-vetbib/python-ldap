@@ -1,13 +1,12 @@
-########################################################################
-# ldif.py 0.2.3
-# Various routines for handling LDIF data
-########################################################################
-# This module is distributed under the terms of the
-# GPL (GNU GENERAL PUBLIC LICENSE) Version 2
-# (see http://www.gnu.org/copyleft/gpl.html)
-# Author: Michael Ströder
-# $Id$
-########################################################################
+"""
+ldif.py - Various routines for handling LDIF data
+
+This module is distributed under the terms of the
+GPL (GNU GENERAL PUBLIC LICENSE) Version 2
+(see http://www.gnu.org/copyleft/gpl.html)
+"""
+
+_version = '0.2.7'
 
 import sys,string,binascii,re
 
@@ -16,42 +15,34 @@ try:
 except ImportError:
   from StringIO import StringIO
 
-attr_pattern = r'[\w;.]+(;[\w_-]+)*'
-data_pattern = '([^,]+|".*?")'
-rdn_pattern = attr_pattern + r'[\s]*=[\s]*' + data_pattern
-dn_pattern   = rdn_pattern + r'([\s]*,[\s]*' + rdn_pattern + r')*'
-
-#rdn_regex   = re.compile('^%s$' % rdn_pattern)
+attrtype_pattern = r'[\w;.]+(;[\w_-]+)*'
+data_pattern = r'(([^,]|\\,)+|".*?")'
+rdn_pattern = attrtype_pattern + r'[ ]*=[ ]*' + data_pattern
+dn_pattern   = rdn_pattern + r'([ ]*,[ ]*' + rdn_pattern + r')*[ ]*'
 dn_regex   = re.compile('^%s$' % dn_pattern)
 
-ldif_pattern = '^((dn(:|::) %(dn_pattern)s)|(%(attr_pattern)s(:|::) %(data_pattern)s)$)+' % vars()
-
+ldif_pattern = '^((dn(:|::) %(dn_pattern)s)|(%(attrtype_pattern)s(:|::) .*)$)+' % vars()
 ldif_regex   = re.compile('^%s$' % ldif_pattern,re.M)
 
-# returns 1 if s is a LDAP DN
+non_ldif_value_re = re.compile('(^( |:|<)|[\x80-\xff]+)')
+
 def is_dn(s):
+  """
+  returns 1 if s is a LDAP DN
+  """
   rm = dn_regex.match(s)
   return rm!=None and rm.group(0)==s
 
-# returns 1 if s is plain ASCII
-def is_ascii(s):
-  if s:
-    pos=0 ; s_len = len(s)
-    while ((ord(s[pos]) & 0x80) == 0) and (pos<s_len-1):
-      pos=pos+1
-    if pos<s_len-1:
-      return 0
-    else:
-      return (ord(s[pos]) & 0x80) == 0
-  else:
-    return 1
-
-########################################################################
-# Convert buf to a binary attribute representation
-########################################################################
+def is_valid_ldif_value(s):
+  """
+  returns 1 if s does not need base-64 encoding because of special chars
+  """
+  return non_ldif_value_re.search(s) is None
 
 def BinaryAttribute(attr,buf,col=77):
-
+  """
+  Convert buf to a binary attribute representation
+  """
   b64buf = '%s:: ' % (attr)
   buflen = len(buf)
   pos=0
@@ -65,20 +56,21 @@ def BinaryAttribute(attr,buf,col=77):
   while pos<b64buflen:
     result = '%s\n %s' % (result,b64buf[pos:min(b64buflen,pos+col-1)])
     pos = pos+col-1
-
   return '%s\n' % result
 
 
-########################################################################
-# Create LDIF formatted entry without empty line
-# dn is the distinguished name as string
-# entry is dictionary {attr:data}
-########################################################################
-
-def CreateLDIF(dn,entry={},binary_attrs=[]):
-
+def CreateLDIF(
+  dn,			# string-representation of distinguished name
+  entry={},		# dictionary holding the LDAP entry {attr:data}
+  binary_attrs=[]	# Attribute types to be base64-encoded
+):
+  """
+  Create LDIF formatted entry.
+  
+  The trailing empty line is NOT added.
+  """
   # Write line dn: first
-  if is_ascii(dn):
+  if is_valid_ldif_value(dn):
     result = ['dn: %s\n' % (dn)]
   else:
     result = [BinaryAttribute('dn',dn)]
@@ -90,7 +82,7 @@ def CreateLDIF(dn,entry={},binary_attrs=[]):
   try:
     attrs.remove('objectclass')
     attrs.remove('objectClass')
-  except:
+  except ValueError:
     pass
   attrs.sort()
   for attr in attrs:
@@ -99,22 +91,23 @@ def CreateLDIF(dn,entry={},binary_attrs=[]):
         result.append(BinaryAttribute(attr,data))
     else:
       for data in entry[attr]:
-        if is_ascii(data):
+        if is_valid_ldif_value(data):
   	  result.append('%s: %s\n' % (attr,data))
 	else:
           result.append(BinaryAttribute(attr,data))
   return string.join(result,'')
 
 
-########################################################################
-# Parse LDIF data read from file object f
-# result is [(dn,{attr:data})]
-# maxentries (if non-zero) determines the maximum number of
-# entries to be read from f
-########################################################################
-
-def ParseLDIF(f=StringIO(),ignore_attrs=[],maxentries=0):
-
+def ParseLDIF(
+  f=StringIO(),		# file-object for reading LDIF input
+  ignore_attrs=[],	# list of attribute types to ignore
+  maxentries=0		# (if non-zero) specifies the maximum number of
+  			# entries to be read from f
+):
+  """
+  Parse LDIF data read from file object f
+  """
+  
   result = []
 
   # lower-case all
@@ -170,7 +163,7 @@ def ParseLDIF(f=StringIO(),ignore_attrs=[],maxentries=0):
 	if attr=='dn':
           dn = string.strip(data) ; attr = '' ; data = ''
           if not is_dn(dn):
-	    raise ValueError
+	    raise ValueError, 'No valid string-representation of distinguished name.'
 	else:
           if entry.has_key(attr):
             entry[attr].append(data)
