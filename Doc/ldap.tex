@@ -76,7 +76,7 @@ The \module{ldap} module defines the following functions:
 
 \begin{funcdesc}{open}{host \optional{, port=\constant{PORT}}} % -> LDAPObject
   Opens a new connection with an LDAP server, and return an LDAP object
-  (see section~\ref{ldap-objects}) used to perform operations on that server.
+  (see \ref{ldap-objects}) used to perform operations on that server.
   \var{host} is a string containing solely the host name. \var{port}
   is an integer specifying the port where the LDAP server is
   listening (default is 389).
@@ -529,8 +529,8 @@ call does not indicate success.
 %  memberdesc	- data members, like datadesc, but with an optional
 %		  type name like methoddesc.
 
-\subsection{LDAP Objects}
-\label{ldap-objects}
+\subsection{LDAP Objects \label{ldap-objects}}
+
 % This label is generally useful for referencing this section, but is
 % also used to give a filename when generating HTML.
 
@@ -974,7 +974,7 @@ These attributes are mutable unless described as read-only.
    \memberline[LDAP]{matched} % -> string
     These attributes are set after an exception has been raised, and
     are also included with the value raised. 
-    (See also section~\ref{subsec:exceptfrommeth}.)
+    (See also \ref{subsec:exceptfrommeth}.)
     (All read-only.)
 \end{memberdesc}
 
