@@ -206,6 +206,7 @@ class LDIFWriter(FileWriter):
 
   def _processSingleResult(self,resultType,resultItem):
     if _entryResultTypes.has_key(resultType):
+      # Search continuations are ignored
       dn,entry = resultItem
       self._f.write(ldif.CreateLDIF(dn,entry,[]))
       self._f.write(ldif.linesep)
