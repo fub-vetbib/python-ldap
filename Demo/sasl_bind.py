@@ -3,8 +3,8 @@
 
 import ldap, ldap.sasl
 
-l = ldap.initialize("ldap://localhost:1389/")
-auth = ldap.sasl.digest_md5("aschauer","secret")
+l = ldap.initialize("ldap://localhost:1390/")
+auth = ldap.sasl.digest_md5("michael","secret")
 l.sasl_bind_s("", auth)
     
 

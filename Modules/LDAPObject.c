@@ -341,8 +341,6 @@ l_ldap_unbind( LDAPObject* self, PyObject* args )
     return Py_None;
 }
 
-static char doc_unbind[] = "";
-
 /* ldap_abandon */
 
 static PyObject*
@@ -361,8 +359,6 @@ l_ldap_abandon( LDAPObject* self, PyObject* args )
     Py_INCREF(Py_None);
     return Py_None;
 }
-
-static char doc_abandon[] = "";
 
 /* ldap_add */
 
@@ -391,14 +387,6 @@ l_ldap_add( LDAPObject* self, PyObject *args )
 
     return PyInt_FromLong(msgid);
 }
-
-static char doc_add[] = "";
-
-static char doc_bind[] = "";
-
-#ifdef HAVE_SASL
-static char doc_sasl_bind_s[] = "";
-#endif
 
 /* ldap_bind */
 
@@ -614,8 +602,6 @@ l_ldap_compare( LDAPObject* self, PyObject *args )
     return PyInt_FromLong( msgid );
 }
 
-static char doc_compare[] = "";
-
 
 /* ldap_delete */
 
@@ -635,7 +621,6 @@ l_ldap_delete( LDAPObject* self, PyObject *args )
     return PyInt_FromLong(msgid);
 }
 
-static char doc_delete[] = "";
 
 /* ldap_modify */
 
@@ -666,7 +651,6 @@ l_ldap_modify( LDAPObject* self, PyObject *args )
     return PyInt_FromLong( msgid );
 }
 
-static char doc_modify[] = "";
 
 /* ldap_rename */
 
@@ -689,8 +673,6 @@ l_ldap_rename( LDAPObject* self, PyObject *args )
     	return LDAPerror( self->ldap, "ldap_rename" );
     return PyInt_FromLong( msgid );
 }
-
-static char doc_rename[] = "";
 
 
 /* ldap_result */
@@ -770,7 +752,6 @@ l_ldap_result( LDAPObject* self, PyObject *args )
     return retval;
 }
 
-static char doc_result[] = "";
 
 /* ldap_search_ext */
 
@@ -797,7 +778,8 @@ l_ldap_search_ext( LDAPObject* self, PyObject* args )
     int dummy;
 
     if (!PyArg_ParseTuple( args, "sis|OiOOdi", 
-    	&base, &scope, &filter, &attrlist, &attrsonly, &serverctrls, &clientctrls, &timeout, &sizelimit )) return NULL;
+    	                   &base, &scope, &filter, &attrlist, &attrsonly,
+                           &serverctrls, &clientctrls, &timeout, &sizelimit )) return NULL;
     if (not_valid(self)) return NULL;
 
     if (!attrs_from_List( attrlist, &attrs )) 
@@ -811,8 +793,8 @@ l_ldap_search_ext( LDAPObject* self, PyObject* args )
     }
 
     LDAP_BEGIN_ALLOW_THREADS( self );
-    dummy = ldap_search_ext( self->ldap, base, scope, filter, 
-                             attrs, attrsonly, NULL, NULL, tvp, sizelimit, &msgid );
+    dummy = ldap_search_ext( self->ldap, base, scope, filter, attrs, attrsonly,
+                             NULL, NULL, tvp, sizelimit, &msgid );
     LDAP_END_ALLOW_THREADS( self );
 
     free_attrs( &attrs );
@@ -822,8 +804,6 @@ l_ldap_search_ext( LDAPObject* self, PyObject* args )
 
     return PyInt_FromLong( msgid );
 }	
-
-static char doc_search_ext[] = "";
 
 
 #ifdef HAVE_TLS
@@ -847,8 +827,6 @@ l_ldap_start_tls_s( LDAPObject* self, PyObject* args )
     return Py_None;
 }
 
-static char doc_start_tls[] = "";
-;
 #endif
 
 /* ldap_manage_dsa_it */
@@ -883,8 +861,6 @@ l_ldap_manage_dsa_it( LDAPObject* self, PyObject* args )
     return Py_None;
 }
 
-static char doc_manage_dsa_it[] = "";
-;
 
 #if defined(HAVE_FILENO_LD_SB_SB_SD) /* || defined(...) */
 #define FILENO_SUPPORTED
@@ -927,7 +903,6 @@ l_ldap_set_option(PyObject* self, PyObject *args)
     return Py_None;
 }
 
-static char doc_set_option[] =  "";
 
 /* ldap_get_option */
 
@@ -941,35 +916,31 @@ l_ldap_get_option(PyObject* self, PyObject *args)
     return LDAP_get_option((LDAPObject *)self, option);
 }
 
-static char doc_get_option[] =  "";
 
 /* methods */
 
 static PyMethodDef methods[] = {
-    {"unbind",		(PyCFunction)l_ldap_unbind,		METH_VARARGS,	doc_unbind},
-    {"abandon",		(PyCFunction)l_ldap_abandon,		METH_VARARGS,	doc_abandon},
-    {"add",		(PyCFunction)l_ldap_add,		METH_VARARGS,	doc_add},
-    {"bind",		(PyCFunction)l_ldap_bind,		METH_VARARGS,	doc_bind},
+    {"unbind",		(PyCFunction)l_ldap_unbind,		METH_VARARGS },
+    {"abandon",		(PyCFunction)l_ldap_abandon,		METH_VARARGS },
+    {"add",		(PyCFunction)l_ldap_add,		METH_VARARGS },
+    {"bind",		(PyCFunction)l_ldap_bind,		METH_VARARGS },
 #ifdef HAVE_SASL
-    {"sasl_bind_s",	(PyCFunction)l_ldap_sasl_bind_s,	METH_VARARGS,	doc_sasl_bind_s},
+    {"sasl_bind_s",	(PyCFunction)l_ldap_sasl_bind_s,	METH_VARARGS },
 #endif
-#if 0    
-    {"set_rebind_proc",	(PyCFunction)l_ldap_set_rebind_proc,	METH_VARARGS,	doc_set_rebind_proc},
-#endif
-    {"compare",		(PyCFunction)l_ldap_compare,		METH_VARARGS,	doc_compare},
-    {"delete",		(PyCFunction)l_ldap_delete,		METH_VARARGS,	doc_delete},
-    {"modify",		(PyCFunction)l_ldap_modify,		METH_VARARGS,	doc_modify},
-    {"rename",		(PyCFunction)l_ldap_rename,		METH_VARARGS,	doc_rename},
-    {"result",		(PyCFunction)l_ldap_result,		METH_VARARGS,	doc_result},
-    {"search_ext",	(PyCFunction)l_ldap_search_ext,		METH_VARARGS,	doc_search_ext},
+    {"compare",		(PyCFunction)l_ldap_compare,		METH_VARARGS },
+    {"delete",		(PyCFunction)l_ldap_delete,		METH_VARARGS },
+    {"modify",		(PyCFunction)l_ldap_modify,		METH_VARARGS },
+    {"rename",		(PyCFunction)l_ldap_rename,		METH_VARARGS },
+    {"result",		(PyCFunction)l_ldap_result,		METH_VARARGS },
+    {"search_ext",	(PyCFunction)l_ldap_search_ext,		METH_VARARGS },
 #ifdef HAVE_TLS
-    {"start_tls_s",	(PyCFunction)l_ldap_start_tls_s,	METH_VARARGS,	doc_start_tls},
+    {"start_tls_s",	(PyCFunction)l_ldap_start_tls_s,	METH_VARARGS },
 #endif
-    {"manage_dsa_it",	(PyCFunction)l_ldap_manage_dsa_it,	METH_VARARGS,	doc_manage_dsa_it},
-    {"set_option",	(PyCFunction)l_ldap_set_option,		METH_VARARGS,	doc_set_option},
-    {"get_option",	(PyCFunction)l_ldap_get_option,		METH_VARARGS,	doc_get_option},
+    {"manage_dsa_it",	(PyCFunction)l_ldap_manage_dsa_it,	METH_VARARGS },
+    {"set_option",	(PyCFunction)l_ldap_set_option,		METH_VARARGS },
+    {"get_option",	(PyCFunction)l_ldap_get_option,		METH_VARARGS },
 #if defined(FILENO_SUPPORTED)
-    {"fileno",		(PyCFunction)l_ldap_fileno,		METH_VARARGS,	doc_fileno},
+    {"fileno",		(PyCFunction)l_ldap_fileno,		METH_VARARGS },
 #endif
     { NULL, NULL }
 };

@@ -552,17 +552,6 @@ and wait for and return with the server's result, or with
 LDAP objects, have the following methods:
 
 %%------------------------------------------------------------
-%% fileno
-
-\begin{methoddesc}{fileno}{}
-Return the file descriptor associated with the connection, for use
-with the \module{select} module.
-(This method is available only if the underlying library can supply it.)
-\end{methoddesc}
-
-\subsubsection{LDAP operations}
-
-%%------------------------------------------------------------
 %% abandon
 
 \begin{methoddesc}[LDAP]{abandon}{msgid}

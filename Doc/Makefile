@@ -1,6 +1,6 @@
 # $Id$
 
-PYTHONSRC=	/home/michael/src/Python-2.2.1
+PYTHONSRC=	/home/michael/src/Python-2.2.2
 DOCTOOLSDIR=	$(PYTHONSRC)/Doc/tools
 PAPER=		a4
 DVIPS=		dvips -N0 -t $(PAPER)
@@ -12,7 +12,7 @@ TEXINPUTS=	$(PYTHONSRC)/Doc/texinputs::
 ENV=		/usr/bin/env TEXINPUTS=$(TEXINPUTS)
 
 SRCS=python-ldap.tex ldap.tex version.tex ldif.tex ldapurl.tex \
-     ldap-async.tex ldap-modlist.tex
+     ldap-async.tex ldap-modlist.tex ldap-schema.tex
 
 all: python-ldap.dvi python-ldap.ps python-ldap.pdf python-ldap/index.html
 
