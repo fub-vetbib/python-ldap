@@ -525,8 +525,8 @@ If \var{timeout} is negative (which is the default),
 the method will wait indefinitely for a response.
 The timeout can be expressed as a floating-point value, and
 a value of \constant{0} effects a poll.
-If a timeout does occur, the tuple \constant{(None,None)} is returned.
-(This should really have been a \exception{TIMEOUT} exception!)
+If a timeout does occur, a \exception{TIMEOUT} exception is raised,
+unless polling, in which case \constant{(None, None)} is returned.
 
 The \method{result()} method returns a tuple of the form 
 \code{(\textit{result-type}, \textit{result-data})}.
