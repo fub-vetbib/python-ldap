@@ -51,11 +51,15 @@ class SubSchema(UserDict):
           for attr_value in e[attr_type]:
             se_class = SCHEMA_CLASS_MAPPING[attr_type]
             se_instance = se_class(attr_value)
-            self[se_instance.oid] = se_instance
+            try:
+              self[se_instance.oid] = se_instance
+            except AttributeError:
+              # Ignore schema elements without oid class attribute
+              pass
             if hasattr(se_instance,'names'):
               for name in se_instance.names:
                 self.name2oid[se_class][name] = se_instance.oid
-        return # subSchema.__init__()        
+        return # subSchema.__init__()
 
     def __setitem__(self,oid,element_instance):
       self.data[oid] = element_instance
