@@ -22,7 +22,7 @@ Lib/
 - Remove obsolete/unsupported modules
 - Caching of search requests for each LDAPObject instance
 - LDIF parser for replication logs
-- DSML support
+- DSMLv2 support
 
 Tests/
 - Clean up and finish the mess of small test scripts started.
