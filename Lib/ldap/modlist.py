@@ -2,14 +2,16 @@
 ldap.modlist - create add/modify modlist's
 (c) by Michael Stroeder <michael@stroeder.com>
 
+$Id$
+
 Python compability note:
 This module is known to work with Python 2.0+ but should work
 with Python 1.5.2 as well.
 """
 
-__version__ = '0.0.1'
+__version__ = '0.0.2'
 
-import ldap
+import string,ldap
 
 def addModlist(entry):
   """Build modify list for call of method LDAPObject.add()"""
@@ -21,14 +23,19 @@ def addModlist(entry):
 def modifyModlist(
   old_entry,
   new_entry,
+  ignore_attr_types=[]
 ):
   """Build differential modify list for call of method LDAPObject.modify()"""
+  ignore_attr_types = map(string.lower,ignore_attr_types)
   modlist = []
   attrtype_lower_map = {}
   for a in old_entry.keys():
-    attrtype_lower_map[a.lower()]=a
+    attrtype_lower_map[string.lower(a)]=a
   for attrtype in new_entry.keys():
-    attrtype_lower = attrtype.lower()
+    attrtype_lower = string.lower(attrtype)
+    if attrtype_lower in ignore_attr_types:
+      # This attribute type is ignored
+      continue
     new_value = filter(None,new_entry[attrtype])
     if attrtype_lower_map.has_key(attrtype_lower):
       old_value = old_entry.get(attrtype_lower_map[attrtype_lower],[])
@@ -51,6 +58,9 @@ def modifyModlist(
   # Remove all attributes of old_entry which are not present
   # in new_entry at all
   for a in attrtype_lower_map.keys():
+    if a in ignore_attr_types:
+      # This attribute type is ignored
+      continue
     attrtype = attrtype_lower_map[a]
     modlist.append((ldap.MOD_DELETE,attrtype,old_entry[attrtype]))
   return modlist
