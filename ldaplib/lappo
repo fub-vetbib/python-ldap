@@ -44,6 +44,7 @@ O['ldap_timeout'] = 30
 O['ldap_search_default'] = 'cn=*'
 O['use_rdn'] = TRUE
 O['use_caution'] = TRUE
+O['autocommit'] = TRUE
 
 
 # all the important widget are kept easily accessible in a global dictionary
@@ -87,7 +88,7 @@ def action_save(widget, event=None):
         try:
             W['tree'].node_commit_ldap_data(n)
         except ldap.LDAPError, err:
-            dialog_ldap('Commit failed:', err)
+            dialog_ldap('Commit failed.', err)
     O['modified'] = 0
     
 
@@ -118,7 +119,18 @@ def entry_changed(entry, tree):
     if node:
         if tree.node_set_ldap_data(node, entry.get_text()) != 0:
             O['modified'] = 1
-            
+
+def entry_activate(entry, tree):
+    """If autocommit is on, saves changes back to server."""
+    global W, O
+    node = tree.node_get_row_data(W['tree_selected_node'])._gtk_node
+    if node and O['autocommit']:
+        try:
+            tree.node_commit_ldap_data(node)
+            O['modified'] = 0
+        except ldap.LDAPError, err:
+            dialog_ldap('Commit failed.', err)
+    
 
 #### text in the search widget: if it is a CR start the search
 def search_activate(entry, tree):
@@ -156,9 +168,10 @@ def base_activate(entry, tree):
         tree.set_browse_base(n)
         O['basedn'] = n
         W['search'].set_text('')
+        entry.set_text(O['basedn'])
     except ldap.LDAPError, err:
-        dialog_ldap('Error accessing the directory:', err)
-    entry.set_text(O['basedn'])
+        dialog_ldap('Error accessing the directory: %s' % n, err)
+    
     
 
 #### click on the delete button
@@ -169,8 +182,8 @@ def delete_clicked(button, tree):
     if node:
         d = tree.node_get_ldap_data(node)
         if d[0] == 'dn':
-            v = dialog_info('Do you really want to delete the selected entry ' +
-                            'and all its childrens?', 'warning')
+            v = dialog_info('Do you really want to delete the selected entry' +
+                            ' and all its childrens?', 'warning')
             if v != 0: return
         try:
             tree.node_remove_ldap_data(node, d[0], d[1])
@@ -187,11 +200,12 @@ def add_clicked(button, widgets):
         d = widgets[0].node_get_ldap_data(node)
         if d[0] == 'dn':
             rdn = widgets[1].get_text()
+            print rdn
             try:
-                tree.node_add_ldap_entry(node, rdn)
+                widgets[0].node_add_ldap_entry(node, rdn)
             except LDAPError, err:
                 dialog_ldap("Error adding new entry:", err)
-                
+
                                      
 ################################################ UI building functions ########
 
@@ -273,12 +287,14 @@ def dialog_info(msg, type='information', buttons=STOCK_BUTTON_OK):
     v = box.run_and_close()
     return v
 
-#### dialog yes/no
-#def
 
 #### ldap error dialog
 def dialog_ldap(msg, err):
-    return dialog_info(msg + '\nServer returned: %s' % err, 'error')
+    try:
+        errmsg = err.__dict__['desc']
+    except:
+        errmsg = str(err)
+    return dialog_info(msg + '\nServer returned: %s' % errmsg, 'error')
 
 #### select schema and try to open it    
 def menu_open_schema(widget, event=None):
@@ -441,6 +457,7 @@ def app_area_build(connection):
     tree.connect('tree-unselect-row', tree_unselect_row, (tree, entry))
     tree.connect('tree-select-row', tree_select_row, (tree, entry))
     entry.connect('changed', entry_changed, tree)
+    entry.connect('activate', entry_activate, tree)
     delete.connect('clicked', delete_clicked, tree)
     add.connect('clicked', add_clicked, (tree, entry))
     W['search'].connect('activate', search_activate, tree)
@@ -465,11 +482,11 @@ if len(sys.argv) > 3:
     O['auth_user'] = sys.argv[3]
     O['auth_password'] = sys.argv[4]
 
-if  len(sys.argv) > 5:
-    O['ocd'] = ldap.parse.load_objectclasses_d(sys.argv[4])
-else:
-    O['ocd'] = ldap.parse.load_objectclasses_d('/etc/openldap/slapd.oc.conf') 
-
+#if  len(sys.argv) > 5:
+#    O['ocd'] = ldap.parse.load_objectclasses_d(sys.argv[4])
+#else:
+#    O['ocd'] = ldap.parse.load_objectclasses_d('/etc/openldap/slapd.oc.conf') 
+O['ocd'] = {'<TODO>':1}
 
 # open the ldap connection
 try:
@@ -479,8 +496,8 @@ try:
     L.base = O['basedn']
 except LDAPError, err:
     dialog_ldap("Generic LDAP error:", err)
-except SystemError, err:
-    dialog_info(("SystemError: %s\n" +
+except DefaultError, err:
+    dialog_info(("DefaultError: %s\n" +
                  "(maybe you tried to connect to an inexistent server)") % err,
                 'error')
     

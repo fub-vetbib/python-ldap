@@ -89,7 +89,7 @@ class LDAPSearch:
                                ldap.SCOPE_BASE, attrl)
             self.results = root
             return root[0]
-        except LDAPError:
+        except:
             self.results = []
             return None
                 

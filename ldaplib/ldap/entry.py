@@ -234,12 +234,12 @@ class LDAPEntry:
         """
 	mod = []
 
-        if self.status == LDAPEntry.STATUS_GHOST:
+        if self.status & LDAPEntry.STATUS_GHOST:
             raise LDAPError('cannot commit a ghost entry')
 
-        elif self.status == LDAPEntry.STATUS_REAL:
+        elif self.status & LDAPEntry.STATUS_REAL:
             if self.status & LDAPEntry.STATUS_MODIFIED:
-                old = self.connection.find(self.dn)
+                old = self.connection.finder.find(self.dn)
                 for k in self.keys():
                     if old.has_key(k):
                         if self.data[k][1] == 2:
@@ -255,13 +255,13 @@ class LDAPEntry:
                 self.__purge__()
                 self.status = LDAPEntry.STATUS_REAL
 
-        elif self.status == LDAPEntry.STATUS_NEW:
+        elif self.status & LDAPEntry.STATUS_NEW:
             for k in self.keys():
                 mod.append((k, self.data[k][0]))
             self.connection._add(self.dn, mod)
             self.status = LDAPEntry.STATUS_REAL
 
-        elif self.status == LDAPEntry.STATUS_ZOMBIE:
+        elif self.status & LDAPEntry.STATUS_ZOMBIE:
             self.connection._delete(self.dn)
             self.status = LDAPEntry.STATUS_NEW
 
