@@ -58,7 +58,7 @@ init = open
 def initialize(uri,trace_level=0,trace_file=sys.stdout):
   """
   Return LDAPObject instance by opening LDAP connection to
-  specified LDAP host
+  LDAP host specified by LDAP URL
   
   Parameters:
   uri
@@ -88,7 +88,7 @@ def explode_dn(dn,notypes=0):
 
 def explode_rdn(rdn,notypes=0):
   """
-  explode_rdn(dn [, notypes=0]) -> list
+  explode_rdn(rdn [, notypes=0]) -> list
   
   This function takes a RDN and breaks it up into its component parts
   if it is a multi-valued RDN.
