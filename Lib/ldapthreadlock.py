@@ -260,9 +260,9 @@ def initialize(uri):
 # init() is just an alias for initialize()
 init = initialize
 
-def get_option(self,*args,**kwargs):
+def get_option(*args,**kwargs):
   return _ldap_call(ldap.get_option,*args,**kwargs)
 
-def set_option(self,*args,**kwargs):
+def set_option(*args,**kwargs):
   return _ldap_call(ldap.get_option,*args,**kwargs)
 
