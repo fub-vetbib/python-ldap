@@ -421,12 +421,13 @@ class Entry(UserDict.UserDict):
   the OID as key.
   """
 
-  def __init__(self,schema,entry=None):
+  def __init__(self,schema,dn,entry):
     self._keytuple2attrtype = {}
     self._attrtype2keytuple = {}
     self._s = schema
-    UserDict.UserDict.__init__(self,(entry or {}))
-    self.update(entry or {})
+    self.dn = dn
+    UserDict.UserDict.__init__(self,{})
+    self.update(entry)
 
   def _at2key(self,nameoroid):
     """
