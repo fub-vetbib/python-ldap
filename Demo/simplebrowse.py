@@ -8,8 +8,8 @@ import ldap
 from string import join
 from traceback import print_exc
 
-url = "ldap://ldap.nameflow.net:1389/"
-dn = "o=DANTE, c=GB"
+url = "ldap://ldap.openldap.org/"
+dn = "dc=openldap,dc=org"
 
 print "Connecting to", url
 
@@ -39,9 +39,8 @@ while 1:
 		print  ".	- show attributes of current DN"
 		print  "/<expr>	- list descendents matching filter <expr>"
 		print  "?	- show this help"
-		continue
 
-	if cmd == "ls":
+	elif cmd == "ls":
 		print "Children of", `dn`, ":"
 		dnlist = []
 		#
@@ -61,31 +60,29 @@ while 1:
 				shortname = name
 			print " %3d. %s" % (len(dnlist), shortname)
 			dnlist.append(name)
-		continue
 
-	if cmd == "cd":
+	elif cmd == "cd":
 		dn = ""
 		dnlist = None
-		continue
 
 	if cmd.startswith("cd "):
 		arg = cmd[3:]
 		if arg == '-':
 			lastdn,dn = dn,lastdn
-			continue
-		try:
-			i = int(arg)
-			if dnlist is None:
-				print "do an ls first"
-				continue
-			godn = dnlist[i]
-		except:
-			godn = arg
-		lastdn = dn
-		dn = godn
-		continue
+                else:
+		        try:
+			        i = int(arg)
+		        except:
+			        godn = arg
+                        else:
+			        if dnlist is None:
+				        print "do an ls first"
+                                else:
+			                godn = dnlist[i]
+		                lastdn = dn
+		                dn = godn
 
-	if cmd == ".":
+	elif cmd == ".":
 		#
 		# Retrieve all the attributes for the current dn.
 		# We construct a search using SCOPE_BASE (ie just the
@@ -105,9 +102,8 @@ while 1:
 				else:
 					v = `v`
 				print "      %-12s: %s" % (k, v)
-		continue
 
-	if cmd.startswith("/"):
+	elif cmd.startswith("/"):
 		#
 		# Search descendent objects to match a given filter.
 		# We use SCOPE_SUBTREE to indicate descendents, and
@@ -119,7 +115,6 @@ while 1:
 		for name,attrs in l.search_s(dn, ldap.SCOPE_SUBTREE,
 		    expr, []):
 			print "  %24s", name
-		continue
 
 	print "unknown command - try '?' for help"
 
