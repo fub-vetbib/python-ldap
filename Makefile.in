@@ -36,7 +36,7 @@ _ldapmodule-install:
 
 _ldapmodule-filelist:
 	echo "$(LIBDEST)/site-packages/ldap.pth" >> filelist
-	echo "$(LIBDEST)/site-packages/python-ldap/_ldapmodule.so" >> filelist
+	echo "$(LIBDEST)/site-packages/_ldapmodule.so" >> filelist
 	for ff in $(srcdir)/Lib/*.py; do \
 		f=`basename $$ff .py`; \
 		echo "$(LIBDEST)/site-packages/python-ldap/$$f.py"; \
