@@ -269,10 +269,10 @@ static PyMethodDef Templates_methods[] = {
 
 PyObject *
 Templates_getattr(self, name)
-	LinkedListObject *self;
+	PyObject *self;
 	char *name;
 {
-	return Py_FindMethod(Templates_methods, (PyObject *)self, name);
+	return Py_FindMethod(Templates_methods, self, name);
 }
 
 
