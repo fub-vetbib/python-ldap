@@ -72,21 +72,34 @@ class SubSchema:
           entry[SCHEMA_ATTR_MAPPING[se_class]] = [ se_str ]
     return entry
 
-  def listall(self,schema_element_class):
+  def listall(self,schema_element_class,schema_element_filters=None):
     """
     Returns a list of OIDs of all available schema
     elements of a given schema element class.
-
     """
-    return self.sed[schema_element_class].keys()
+    avail_se = self.sed[schema_element_class]
+    if schema_element_filters:
+      result = []
+      for se_key in avail_se:
+        se = avail_se[se_key]
+        for fk,fv in schema_element_filters:
+          try:
+            if getattr(se,fk) in fv:
+              result.append(se_key)
+          except AttributeError:
+            pass
+    else:
+      result = avail_se.keys()
+    return result
+    
 
-  def tree(self,schema_element_class):
+  def tree(self,schema_element_class,schema_element_filters=None):
     """
     Returns a ldap.cidict.cidict dictionary representing the
     tree structure of the schema elements.
     """
     assert schema_element_class in [ObjectClass,AttributeType]
-    avail_se = self.listall(schema_element_class)
+    avail_se = self.listall(schema_element_class,schema_element_filters)
     top_node = '_'
     tree = ldap.cidict.cidict({top_node:[]})
     # 1. Pass: Register all nodes
@@ -111,12 +124,14 @@ class SubSchema:
           pass
     return tree
 
+
   def getoid(self,se_class,nameoroid):
     """
     Get an OID by name or OID
     """
     se_oid = nameoroid.split(';')[0].strip()
     return self.name2oid[se_class].get(se_oid,se_oid)
+
 
   def get_inheritedattr(self,se_class,nameoroid,name):
     """
@@ -135,11 +150,13 @@ class SubSchema:
       result = self.get_inheritedattr(se_class,se.sup[0],name)
     return result
 
+
   def get_obj(self,se_class,nameoroid,default=None):
     """
     Get a schema element by name or OID
     """
     return self.sed[se_class].get(self.getoid(se_class,nameoroid),default)
+
 
   def get_inheritedobj(self,se_class,nameoroid,inherited=None):
     """
@@ -154,6 +171,7 @@ class SubSchema:
         setattr(se,class_attr_name,self.get_inheritedattr(se_class,nameoroid,class_attr_name))
     return se
 
+
   def get_syntax(self,nameoroid):
     """
     Get the syntax of an attribute type specified by name or OID
@@ -165,6 +183,32 @@ class SubSchema:
       return None
     else:
       return at_obj.syntax
+
+
+  def get_structural_oc(self,oc_list):
+    """
+    Returns OID of structural object class in object_class_list
+    if any is present. Returns None else.
+    """
+    # Get tree of all STRUCTURAL object classes
+    oc_tree = self.tree(ObjectClass,[('kind',[0])])
+    # Filter all STRUCTURAL object classes
+    struct_ocs = {}
+    for oc_nameoroid in oc_list:
+      oc_se = self.get_obj(ObjectClass,oc_nameoroid,None)
+      if oc_se and oc_se.kind==0:
+        struct_ocs[oc_se.oid] = None
+    result = None
+    struct_oc_list = struct_ocs.keys()
+    while struct_oc_list:
+      oid = struct_oc_list.pop()
+      for child_oid in oc_tree[oid]:
+        if struct_ocs.has_key(self.getoid(ObjectClass,child_oid)):
+          break
+      else:
+        result = oid
+    return result
+
 
   def attribute_types(
     self,object_class_list,attr_type_filter=None,strict=1,raise_keyerror=1
@@ -249,6 +293,45 @@ class SubSchema:
     for a in r_may.keys():
       if r_must.has_key(a):
         del r_may[a]
+
+    # Process applicable DIT content rule
+    dit_content_rule = self.get_obj(DITContentRule,self.get_structural_oc(object_class_list))
+    if dit_content_rule:
+      for a in dit_content_rule.must:
+        try:
+          at_obj = self.sed[AttributeType][self.name2oid[AttributeType].get(a,a)]
+        except KeyError:
+          if raise_keyerror:
+            raise
+          else:
+            r_must[a] = None
+        else:
+          r_must[at_obj.oid] = at_obj
+      for a in dit_content_rule.may:
+        try:
+          at_obj = self.sed[AttributeType][self.name2oid[AttributeType].get(a,a)]
+        except KeyError:
+          if raise_keyerror:
+            raise
+          else:
+            r_may[a] = None
+        else:
+          r_may[at_obj.oid] = at_obj
+      for a in dit_content_rule.nots:
+        try:
+          at_obj = self.sed[AttributeType][self.name2oid[AttributeType].get(a,a)]
+        except KeyError:
+          if raise_keyerror:
+            raise
+        else:
+          try:
+            del r_must[at_obj.oid]
+          except KeyError:
+            pass
+          try:
+            del r_may[at_obj.oid]
+          except KeyError:
+            pass
 
     # Apply attr_type_filter to results
     if attr_type_filter:

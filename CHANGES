@@ -6,6 +6,12 @@ Changes since 2.0.0pre14:
 Modules/:
 Follow rule "Always include Python.h first"
 
+ldap.schema.subentry:
+- Added new method SubSchema.get_structural_oc()
+- Methods SubSchema.listall() and SubSchema.tree() have
+  new key-word argument schema_element_filters
+- Support for DIT content rules in SubSchema.attribute_types()
+
 ----------------------------------------------------------------
 Released 2.0.0pre14 2003-10-03
 
