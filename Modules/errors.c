@@ -136,9 +136,6 @@ LDAPinit_errors( PyObject*d ) {
 		Py_DECREF(e);						\
 	}
 
-#	define seterrobjas(n,existing) \
-		seterrobj2( n, existing )
-
 	seterrobj(ADMINLIMIT_EXCEEDED);
 	seterrobj(AFFECTS_MULTIPLE_DSAS);
 	seterrobj(ALIAS_DEREF_PROBLEM);
