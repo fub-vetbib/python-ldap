@@ -169,6 +169,7 @@ else:
 
     def __init__(self,parser_instance):
       self._parser_instance = parser_instance
+      xml.sax.handler.ContentHandler.__init__(self)
 
     def startDocument(self):
       pass
@@ -261,7 +262,6 @@ else:
       ContentHandlerClass,
       ignored_attr_types=None,
       max_entries=0,
-      line_sep='\n'
     ):
       """
       Parameters:
