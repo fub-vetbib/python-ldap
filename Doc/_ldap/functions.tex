@@ -8,7 +8,7 @@ The following functions are available at the module level:
 %%------------------------------------------------------------
 %% dn2ufn
 
-\begin{funcdesc}{dn2ufn}{dn}
+\begin{funcdesc}[string]{dn2ufn}{dn}
 Turns the DN \var{dn} into a more user-friendly form, stripping off type names.
 See RFC 1781 ``Using the Directory to Achieve User Friendly Naming''
 for more details on the UFN format.
@@ -17,19 +17,19 @@ for more details on the UFN format.
 %%------------------------------------------------------------
 %% explode_dn
 
-\begin{funcdesc}{explode_dn}{dn \optional{\, notypes=\code{0}}}
+\begin{funcdesc}[list]{explode_dn}{dn \optional{\, notypes=\constant{0}}}
 This function takes the DN \var{dn} and breaks it up into its component parts. 
 Each part is known as an RDN (Relative Distinguished Name). The
 \var{notypes} parameter is used to specify that only the RDN values be returned
 and not their types. For example, the DN \code{"cn=Bob, c=US"} would be
 returned as either \code{["cn=Bob", "c=US"]} or \code{["Bob","US"]}
-depending on whether \var{notypes} was \code{0} or \code{1}, respectively.
+depending on whether \var{notypes} was \constant{0} or \constant{1}, respectively.
 \end{funcdesc}
 
 %%------------------------------------------------------------
 %% is_ldap_url
 
-\begin{funcdesc}{is_ldap_url}{url}
+\begin{funcdesc}[boolean]{is_ldap_url}{url}
 This function returns true if \var{url} `looks like' an LDAP URL 
 (as opposed to some other kind of URL). 
 \end{funcdesc}
@@ -37,7 +37,7 @@ This function returns true if \var{url} `looks like' an LDAP URL
 %%------------------------------------------------------------
 %% open
 
-\begin{funcdesc}{open}{host \optional{\, port=\code{PORT}}}
+\begin{funcdesc}[LDAPObject]{open}{host \optional{\, port=\constant{PORT}}}
 Opens a new connection with an LDAP server, and returns an LDAP object
 representative of this.
 \end{funcdesc}

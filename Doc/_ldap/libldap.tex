@@ -3,15 +3,17 @@
 %%============================================================
 %% LDAP Module
 
-\section{Module \sectcode{ldap}} \label{app:ldapmodule}
+\section{\module{_ldap} --- 
+	Access to an underlying LDAP library}
 
-\bimodindex{ldap}
-
-\renewcommand{\indexsubitem}{(in module ldap)}
+\declaremodule[ldap]{extension}{_ldap}
+  \platform{Unix}
+\modulesynopsis{Access to underlying LDAP library.}
+\moduleauthor{David Leonard}{david.leonard@csee.uq.edu.au}
 
 This module provides access to the University of Michigan's LDAP 
 (Lightweight Directory Access Protocol) \C\ interface. 
-It is more-or-less compliant with the interface described in RFC 1823,
+It is more-or-less compliant with the interface described in \rfc{1823},
 with the notable differences that lists are manipulated via Python
 list operations, and errors appear as exceptions.
 
