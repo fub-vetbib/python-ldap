@@ -1,11 +1,11 @@
 """
 Demo using the ldap.async module for retrieving partial results
-even though the exception ldap.SIZELIMIT_EXCEEDED was raised.
+in alist even though the exception ldap.SIZELIMIT_EXCEEDED was raised.
 """
 
 import sys,ldap,ldap.async
 
-s = ldap.async.CollectResults(
+s = ldap.async.List(
   ldap.open('localhost:1389'),
 )
 

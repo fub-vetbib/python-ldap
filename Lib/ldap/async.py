@@ -146,7 +146,7 @@ class AsyncSearchHandler:
     pass
 
 
-class CollectResults(AsyncSearchHandler):
+class List(AsyncSearchHandler):
   """
   Class for collecting all search results.
   
