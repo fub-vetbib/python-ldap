@@ -30,7 +30,7 @@ LDAPconstant( int val ) {
 /* initialise the module constants */
 
 void
-LDAPinit_constants( PyObject* d ) 
+LDAPinit_constants( PyObject* d )
 {
 	PyObject *zero, *author,*obj;
 
@@ -39,19 +39,6 @@ LDAPinit_constants( PyObject* d )
 	
 	PyDict_SetItemString( d, "_reverse", reverse );
 	PyDict_SetItemString( d, "_forward", forward );
-
-#define add_int_r(d, name)                                              \
-	{                                                               \
-	    long v = LDAP_##name;                                       \
-	    PyObject *i = PyInt_FromLong( v );                          \
-	    PyObject *s = PyString_FromString( #name );                 \
-	    PyDict_SetItem( d, s, s );                                  \
-	    PyDict_SetItem( reverse, i, s );                            \
-	    PyDict_SetItem( forward, s, i );                            \
-	    Py_DECREF(i);                                               \
-	    Py_DECREF(s);                                               \
-	    /* printf("%s -> %ld\n", #name, v );  */                    \
-	}
 
 #define add_int(d, name)                                                \
 	{								\
@@ -108,19 +95,19 @@ LDAPinit_constants( PyObject* d )
 	PyDict_SetItem( reverse, zero, Py_None );
 	Py_DECREF( zero );
 
-	add_int_r(d,RES_BIND);
-	add_int_r(d,RES_SEARCH_ENTRY);
-	add_int_r(d,RES_SEARCH_RESULT);
-	add_int_r(d,RES_MODIFY);
-	add_int_r(d,RES_ADD);
-	add_int_r(d,RES_DELETE);
-	add_int_r(d,RES_MODRDN);
-	add_int_r(d,RES_COMPARE);
+	add_int(d,RES_BIND);
+	add_int(d,RES_SEARCH_ENTRY);
+	add_int(d,RES_SEARCH_RESULT);
+	add_int(d,RES_MODIFY);
+	add_int(d,RES_ADD);
+	add_int(d,RES_DELETE);
+	add_int(d,RES_MODRDN);
+	add_int(d,RES_COMPARE);
 	add_int(d,RES_ANY);
 
-	add_int_r(d,RES_SEARCH_REFERENCE);
-	add_int_r(d,RES_EXTENDED);
-	add_int_r(d,RES_UNSOLICITED);
+	add_int(d,RES_SEARCH_REFERENCE);
+	add_int(d,RES_EXTENDED);
+	add_int(d,RES_UNSOLICITED);
 
 	/* non-reversibles */
 

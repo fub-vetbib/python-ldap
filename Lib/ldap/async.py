@@ -10,18 +10,20 @@ Python compability note:
 Tested on Python 2.0+ but should run on Python 1.5.x.
 """
 
-__version__ = '0.0.2'
+import ldap
+
+__version__ = '0.0.3'
 
 
 _searchResultTypes={
-  'RES_SEARCH_ENTRY':None,
-  'RES_SEARCH_RESULT':None,
-  'RES_SEARCH_REFERENCE':None
+  ldap.RES_SEARCH_ENTRY:None,
+  ldap.RES_SEARCH_RESULT:None,
+  ldap.RES_SEARCH_REFERENCE:None,
 }
 
 _entryResultTypes={
-  'RES_SEARCH_ENTRY':None,
-  'RES_SEARCH_RESULT':None,
+  ldap.RES_SEARCH_ENTRY:None,
+  ldap.RES_SEARCH_RESULT:None,
 }
 
 
@@ -139,7 +141,7 @@ class AsyncSearchHandler:
         result_type,result_list = None,None
         self.endResultBreak = result_counter
     finally:
-      if self._msgId!=None:
+      if partial and self._msgId!=None:
         self._l.abandon(self._msgId)
     self.postProcessing()
     return partial # processResults()

@@ -8,6 +8,9 @@ Modules/:
 * Removed probably unused wrapper function l_ldap_dn2ufn() since
   ldap_dn2ufn() is deprecated in OpenLDAP 2.1+
 * Removed wrapper function l_ldap_is_ldap_url().
+* Removed macro add_int_r() from constants.c since it caused
+  incompability issues with OpenLDAP 2.2 libs
+  (Warning: all result types are Integers now! Use the constants!)
 
 ldap.functions:
 * Removed is_ldap_url(). The more general function
@@ -15,6 +18,10 @@ ldap.functions:
 
 ldap.sasl:
 * Added class cram_md5 (for SASL mech CRAM-MD5)
+
+ldap.async:
+* Use constants for search result types (see note about
+  add_int_r() above).
 
 ----------------------------------------------------------------
 Released 2.0.0pre19 2004-01-22
