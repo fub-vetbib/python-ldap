@@ -472,5 +472,5 @@ class Entry(ldap.cidict.cidict):
     SubSchema.attribute_types()
     """
     return self._s.attribute_types(
-      self['objectClass'],attr_type_filter,strict,raise_keyerror
+      self.get('objectClass',[]),attr_type_filter,strict,raise_keyerror
     )
