@@ -259,7 +259,15 @@ class SimpleLDAPObject:
     manage_dsa_it() -> None
     Enable or disable manageDSAit mode (see draft-zeilenga-ldap-namedref)
     """
-    self._ldap_call(self._l.manage_dsa_it,enable,critical)
+    all_server_ctrls = []
+#    all_server_ctrls = [
+#      c
+#      for c in self.get_option(ldap.OPT_SERVER_CONTROLS) or []
+#      if c.controlType!='2.16.840.1.113730.3.4.2'
+#    ]    
+    if enable:
+      all_server_ctrls.append(LDAPControl('2.16.840.1.113730.3.4.2',critical,None))
+    self.set_option(ldap.OPT_SERVER_CONTROLS,all_server_ctrls)
   
   def modify_ext(self,dn,modlist,serverctrls=None,clientctrls=None):
     """
