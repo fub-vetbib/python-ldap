@@ -6,6 +6,9 @@ Changes since 2.0.0pre20:
 Modules/:
 * Removed meaningless repr() function from LDAPObject.c
 * Removed setting LDAP_OPT_PROTOCOL_VERSION in l_ldap_sasl_bind_s()
+* Modified string handling via berval instead of *char
+  in l_ldap_compare_ext() makes it possible to compare attribute
+  values with null chars.
 
 ----------------------------------------------------------------
 Released 2.0.0pre20 2004-03-19

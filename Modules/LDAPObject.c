@@ -593,27 +593,25 @@ l_ldap_sasl_bind_s( LDAPObject* self, PyObject* args )
 }
 #endif
 
+
 /* ldap_compare_ext */
 
 static PyObject *
 l_ldap_compare_ext( LDAPObject* self, PyObject *args )
 {
-    char *dn, *attr, *value;
+    char *dn, *attr;
     PyObject *serverctrls = Py_None;
     PyObject *clientctrls = Py_None;
 
     int msgid;
     int ldaperror;
-    struct berval bvalue;
+    struct berval value;
 
-    if (!PyArg_ParseTuple( args, "sss|OO", &dn, &attr, &value, &serverctrls, &clientctrls )) return NULL;
+    if (!PyArg_ParseTuple( args, "sss#|OO", &dn, &attr, &value.bv_val, &value.bv_len, &serverctrls, &clientctrls )) return NULL;
     if (not_valid(self)) return NULL;
 
-    bvalue.bv_val = (char *) value;
-    bvalue.bv_len = (value == NULL) ? 0 : strlen( value );
-
     LDAP_BEGIN_ALLOW_THREADS( self );
-    ldaperror = ldap_compare_ext( self->ldap, dn, attr, &bvalue, NULL, NULL, &msgid );
+    ldaperror = ldap_compare_ext( self->ldap, dn, attr, &value, NULL, NULL, &msgid );
     LDAP_END_ALLOW_THREADS( self );
 
     if ( ldaperror!=LDAP_SUCCESS )
