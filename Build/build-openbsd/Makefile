@@ -22,4 +22,10 @@ do-fetch:;
 export-ftp: ${PKGFILE}
 	scp ${PKGFILE} python-ldap.sourceforge.net:/home/groups/ftp/pub/python-ldap/${PKGNAME}-${OPSYS}-${ARCH}${PKG_SUFX}
 
+post-build:
+	sed -e 's,^${PREFIX}/,,' <${WRKBUILD}/filelist >${WRKBUILD}/filelist2
+
+SED_PLIST+=	|sed -e '/^%%filelist/r${WRKBUILD}/filelist2' -e '//d'
+ALL_TARGET=	build filelist
+
 .include <bsd.port.mk>
