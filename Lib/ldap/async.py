@@ -30,6 +30,7 @@ class WrongResultType(Exception):
   def __init__(self,receivedResultType,expectedResultTypes):
     self.receivedResultType = receivedResultType
     self.expectedResultTypes = expectedResultTypes
+    Exception.__init__(self)
 
   def __str__(self):
     return 'Received wrong result type %s (expected one of %s).' % (

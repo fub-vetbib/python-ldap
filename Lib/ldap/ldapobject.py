@@ -728,8 +728,9 @@ class ReconnectLDAPObject(SimpleLDAPObject):
     return SimpleLDAPObject.bind_s(self,*args,**kwargs)
 
   def start_tls_s(self,*args,**kwargs):
-    return SimpleLDAPObject.start_tls_s(self,*args,**kwargs)
+    res = SimpleLDAPObject.start_tls_s(self,*args,**kwargs)
     self._start_tls = 1
+    return res
 
   def sasl_bind_s(self,who,auth):
     """

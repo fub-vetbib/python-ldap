@@ -3,6 +3,9 @@ Released 2.0.0pre16 2003-11-xx
 
 Changes since 2.0.0pre15:
 
+Lib/
+Fixed some subtle bugs/oddities mentioned by pychecker.
+
 dsml:
 - Renamed DSMLWriter._f to DSMLWriter._output_file
 - Added wrapper method DSMLWriter.unparse() which simply

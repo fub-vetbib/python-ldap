@@ -53,7 +53,7 @@ def extract_tokens(l,known_tokens):
   """
   Returns dictionary of known tokens with all values
   """
-  assert l[0].strip()=="(" and l[-1].strip()==")",ValueError(repr(s),l)
+  assert l[0].strip()=="(" and l[-1].strip()==")",ValueError(l)
   result = {}
   result_has_key = result.has_key
   result.update(known_tokens)
