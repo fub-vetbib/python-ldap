@@ -497,6 +497,8 @@ TemplateItem_getattr(self, attr)
 		for (len = 0; self->item->ti_args[len]; len++)
 			;
 		tuple = PyTuple_New(len);
+		if (tuple == NULL)
+			return NULL;
 		for (i = 0; self->item->ti_args[i]; i++)
 			PyTuple_SetItem(tuple, i, PyString_FromString(
 				self->item->ti_args[i]));
@@ -511,6 +513,8 @@ TemplateItem_getattr(self, attr)
 		    if (LDAP_IS_TMPLITEM_OPTION_SET(self->item, anam[i].attr))
 			len++;
 		tuple = PyTuple_New(len);
+		if (tuple == NULL)
+			return NULL;
 		for (len = i = 0; i < nanam; i++) 
 		    if (LDAP_IS_TMPLITEM_OPTION_SET(self->item, anam[i].attr)) {
 			PyTuple_SetItem(tuple, len, anam[i].intern);
@@ -828,6 +832,8 @@ Template_getattr(self, attr)
 				tnam[i].attr))
 			len++;
 		tuple = PyTuple_New(len);
+		if (tuple == NULL)
+			return NULL;
 		for (len = i = 0; i < ntnam; i++) 
 		    if (LDAP_IS_DISPTMPL_OPTION_SET(self->disptmpl,
 				tnam[i].attr)) {
@@ -859,12 +865,18 @@ Template_getattr(self, attr)
 		for (o = ocl; o != NULL; o = o->oc_next)
 			len++;
 		tuple = PyTuple_New(len);
+		if (tuple == NULL)
+			return NULL;
 		for (i = 0, o = ocl; o != NULL; i++, o = o->oc_next) {
 			PyObject *names;
 			int j;
 			for (j = 0; o->oc_objclasses[j]; j++)
 				;
 			names = PyTuple_New(j);
+			if (names == NULL) {
+				Py_DECREF(tuple);
+				return NULL;
+			}
 			for (j = 0; o->oc_objclasses[j]; j++)
 				PyTuple_SetItem(names, j, 
 				    PyString_FromString(o->oc_objclasses[j]));
