@@ -104,6 +104,12 @@ Tuple_to_LDAPMod( PyObject* tup, int no_op )
     LDAPMod *lm = NULL;
     int i, len, nstrs;
 
+    if (!PyTuple_Check(tup)) {
+	PyErr_SetObject(PyExc_TypeError, Py_BuildValue("sO",
+	   "expected a tuple", tup));
+	return NULL;
+    }
+
     if (no_op) {
 	if (!PyArg_ParseTuple( tup, "sO", &type, &list ))
 		return NULL;
@@ -1198,7 +1204,7 @@ l_ldap_result( LDAPObject* self, PyObject *args )
     double timeout = -1.0;
     struct timeval tv;
     struct timeval* tvp;
-    int result;
+    int res_type, result;
     LDAPMessage *msg = NULL;
     PyObject *result_str, *retval;
 
@@ -1214,13 +1220,29 @@ l_ldap_result( LDAPObject* self, PyObject *args )
     }
 
     LDAP_BEGIN_ALLOW_THREADS( self );
-    result = ldap_result( self->ldap, msgid, all, tvp, &msg );
+    res_type = ldap_result( self->ldap, msgid, all, tvp, &msg );
     LDAP_END_ALLOW_THREADS( self );
 
-    if (result == -1)
+    if (res_type < 0)	/* LDAP or system error */
     	return LDAPerror( self->ldap, "ldap_result" );
 
-    result_str = LDAPconstant( result );
+    if (res_type == 0) {
+	/* Timeout has occured */
+	Py_INCREF(Py_None);
+    	return Py_None;
+    }
+
+    if (res_type != LDAP_RES_SEARCH_ENTRY) {
+	LDAP_BEGIN_ALLOW_THREADS( self );
+	result = ldap_result2error( self->ldap, msg, 0 );
+	LDAP_END_ALLOW_THREADS( self );
+
+	if (result != LDAP_SUCCESS) {		/* result error */
+	    return LDAPerror( self->ldap, "ldap_result2error" );
+	}
+    }
+
+    result_str = LDAPconstant( res_type );
 
     if (msg == NULL) {
     	retval = Py_BuildValue("(OO)", result_str, Py_None);
