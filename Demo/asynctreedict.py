@@ -29,7 +29,7 @@ class TreeDict(ldap.async.AsyncSearchHandler):
         branch_dict = branch_dict[rdn]
 
 s = TreeDict(
-  ldap.open('localhost:1389'),
+  ldap.initialize('ldap://localhost:1389'),
 )
 
 s.startSearch(

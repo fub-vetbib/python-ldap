@@ -18,7 +18,7 @@ Tested on Python 2.0+, should run on Python 1.5.x.
 import sys,ldap,ldap.async
 
 s = ldap.async.List(
-  ldap.open('localhost:1389'),
+  ldap.initialize('ldap://localhost:1389'),
 )
 
 s.startSearch(

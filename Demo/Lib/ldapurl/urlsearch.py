@@ -18,7 +18,7 @@ for a in [
 ]:
   print a,repr(getattr(ldapUrl,a))
 
-l = ldap.open(ldapUrl.hostport,trace_level=1)
+l = ldap.initialize(ldapUrl.initializeUrl(),trace_level=1)
 if ldapUrl.who!=None:
   if ldapUrl.cred!=None:
     cred=ldapUrl.cred

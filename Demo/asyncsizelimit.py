@@ -6,7 +6,7 @@ in alist even though the exception ldap.SIZELIMIT_EXCEEDED was raised.
 import sys,ldap,ldap.async
 
 s = ldap.async.List(
-  ldap.open('localhost:1389'),
+  ldap.initialize('ldap://localhost:1389'),
 )
 
 s.startSearch(

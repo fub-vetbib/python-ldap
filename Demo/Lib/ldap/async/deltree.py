@@ -71,7 +71,7 @@ def DelTree(l,dn,scope=ldap.SCOPE_ONELEVEL):
 
 
 # Create LDAPObject instance
-l = ldap.open('localhost:1389')
+l = ldap.initialize('ldap://localhost:1389')
 
 # Try a bind to provoke failure if protocol version is not supported
 l.bind_s('cn=Directory Manager,dc=IMC,dc=org','controller',ldap.AUTH_SIMPLE)

@@ -2,7 +2,7 @@ import ldap
 from getpass import getpass
 
 # Create LDAPObject instance
-l = ldap.open('localhost:1389',trace_level=1)
+l = ldap.initialize('ldap://localhost:1389',trace_level=1)
 
 print 'Password:'
 cred = getpass()
