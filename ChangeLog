@@ -1,0 +1,10 @@
+2000-02-11  Federico Di Gregorio  <fog@debian.org>
+
+	* ChangeLog: created global changelog (this file.)
+	
+	* ldaplib: filled with initial code.
+	
+	* ldaplib/__init__.py: provide backward compatible hack by
+	importing * from _ldap. imported symbols reside in ldap, so old
+	programs importing ldap would see no difference.
+

@@ -1,0 +1,18 @@
+AC_INIT(ldap/connection.py)
+
+# look for python
+AC_ARG_WITH(python,
+        [  --with-python=PROGRAM         Location of python interpreter])
+if test -n "$with_python"; then ac_cv_prog_python="$with_python"; fi
+AC_CACHE_VAL(ac_cv_prog_python, [AC_PATH_PROG(ac_cv_prog_python,python)])
+AC_CACHE_CHECK(python version, ac_cv_ver_python, [
+ ac_cv_ver_python=`$ac_cv_prog_python -c 'import sys;print sys.version[[:3]]'`])
+AC_CACHE_CHECK(python install prefix, ac_cv_path_python, [
+ ac_cv_path_python=`$ac_cv_prog_python -c 'import sys;print sys.prefix'`])
+
+
+# Makefiles
+AC_SUBST(ac_cv_path_python)
+AC_SUBST(ac_cv_ver_python)
+AC_OUTPUT(Makefile)
+
