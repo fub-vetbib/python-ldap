@@ -6,6 +6,8 @@ Lib:/
   contributed by Wido Depping which is more robust
   when parsing very broken schema elements
   (e.g. Oracle's OID).
+* Fixed argument list (position of timeout) when calling
+  LDAPObject.search_ext_s()from search_st() and search_s().
 
 ----------------------------------------------------------------
 Released 2.0.6 2004-12-03
