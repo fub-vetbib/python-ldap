@@ -5,6 +5,10 @@ Changes since 2.0.0pre10:
 
 Added new module dsml for parsing and generating DSMLv1.
 
+ldap.ldapobject:
+* Cosmetic change: Named argument list for LDAPObject.compare()
+  instead of *args,**kwargs.
+
 ldap.modlist:
 * modifyModlist(): Only None is filtered from attribute value lists,
   '' is preserved as valid attribute value. But filtering applies

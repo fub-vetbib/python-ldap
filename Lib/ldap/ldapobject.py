@@ -19,7 +19,7 @@ Basically calls into the LDAP lib are serialized by the module-wide
 lock self._ldap_object_lock.
 """
 
-__version__ = '0.4.1'
+__version__ = '0.4.2'
 
 __all__ = [
   'LDAPObject',
@@ -159,7 +159,7 @@ class SimpleLDAPObject:
     """
     return self._ldap_call(self._l.sasl_bind_s,who,auth)
 
-  def compare(self,*args,**kwargs):
+  def compare(self,dn,attr,value):
     """
     compare(dn, attr, value) -> int
     compare_s(dn, attr, value) -> int    
@@ -175,10 +175,10 @@ class SimpleLDAPObject:
         A design bug in the library prevents value from containing
         nul characters.
     """
-    return self._ldap_call(self._l.compare,*args,**kwargs)
+    return self._ldap_call(self._l.compare,dn,attr,value)
 
-  def compare_s(self,*args,**kwargs):
-    msgid = self.compare(*args,**kwargs)
+  def compare_s(self,dn,attr,value):
+    msgid = self.compare(dn,attr,value)
     try:
       self.result(msgid,all=1,timeout=self.timeout)
     except _ldap.COMPARE_TRUE:
