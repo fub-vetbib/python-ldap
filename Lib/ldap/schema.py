@@ -542,7 +542,7 @@ class Entry(ldap.cidict.cidict):
     nameoroid itself if nameoroid was not found in schema's
     name->OID registry (self._s.name2oid).
     """
-    return self._s.name2oid[ldap.schema.AttributeType].get(nameoroid,nameoroid)
+    return self._s.getoid(ldap.schema.AttributeType,nameoroid)
 
   def __getitem__(self,nameoroid):
     return self.data[self._at_oid(nameoroid)]
