@@ -1,7 +1,7 @@
 #! /bin/sh
 
 # Locate the top of the distribution
-srcdir=`dirname $0`
+srcdir=`dirname $0`/..
 
 #re-sync
 #(cd $srcdir && cvs up -PAd && autoreconf)
