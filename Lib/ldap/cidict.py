@@ -16,14 +16,10 @@ class cidict(UserDict):
   Case-insensitive bud case-respecting dictionary.
   """
 
-  def __init__(self,default = {}):
+  def __init__(self,default={}):
     self._keys = {}
-    d = {}
-    for k,v in default.items():
-      lower_k = lower(k)
-      self._keys[lower_k] = k
-      d[lower_k] = v
-    UserDict.__init__(self,d)
+    UserDict.__init__(self,{})
+    self.update(default)
 
   def __getitem__(self,key):
     return self.data[lower(key)]
@@ -35,6 +31,10 @@ class cidict(UserDict):
 
   def __delitem__(self,key):
     del self.data[lower(key)]
+
+  def update(self,entry):
+    for k in entry.keys():
+      self[k] = entry[k]
 
   def has_key(self,key):
     return UserDict.has_key(self,lower(key))
