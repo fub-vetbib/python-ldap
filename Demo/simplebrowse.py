@@ -71,7 +71,7 @@ while 1:
 		if arg == '-':
 			lastdn,dn = dn,lastdn
 		elif arg == '..':
-			dn = string.join(string.split(dn, ",")[1:], ",")
+			dn = string.join(ldap.explode_dn(dn)[1:], ",")
 			dn = string.strip(dn)
                 else:
 		        try:
