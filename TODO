@@ -8,20 +8,21 @@ General:
 Modules/
 - Validating server's certificate when calling start_tls_s() or
   ldap.initialize('ldaps://..')
-- Look into OpenLDAP 2's lib ldap_r to make python-ldap re-entrant
-- Support for SASL bind by wrapping ldap_sasl_bind()
-- Support for controls:
+- General support for controls
   - VLV control
   - server-side sorting control
-  - binding in DSA control mode
+  - Binding in DSA control mode (rewrite necessary)
+  - Persistent search control
 - Wrap ldap_parse_reference()
 - Support for Win32 (and other platforms?)
 - Support Extended Operations by wrapping
   ldap_extended_operation() and ldap_parse_extended_result()
+  - Set Password ext. op.
+  - Whoami ext. op.
 
 Lib/
 - Remove obsolete/unsupported modules
-- Nice python classes for LDAPv3 schema support
 - Caching of search requests for each LDAPObject instance
 - LDIF parser for replication logs
 - DSML support
+- Support for SASL mechanims GSS-API
