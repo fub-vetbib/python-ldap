@@ -7,7 +7,7 @@ dnl
 dnl Version
 dnl
 
-AC_DEFINE(LDAPMODULE_VERSION, 1.10alpha3)
+AC_DEFINE(LDAPMODULE_VERSION, 1.11)
 
 dnl
 dnl Options

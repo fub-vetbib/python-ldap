@@ -6,7 +6,7 @@ from ConfigParser import ConfigParser
 import string
 
 #-- Release version of Python-ldap
-version = '1.10'
+version = '1.11'
 
 #-- A class describing the features and requirements of OpenLDAP 2.0
 class OpenLDAP2:
