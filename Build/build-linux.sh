@@ -24,3 +24,5 @@ rm -rf destdir; mkdir destdir
 mkdir -p destdir/usr
 DESTDIR=`pwd`/destdir make install
 
+# show what files were installed
+(cd destdir && find . -type f -print)
