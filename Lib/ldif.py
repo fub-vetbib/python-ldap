@@ -404,8 +404,7 @@ class LDIFRecordList(LDIFParser):
   def __init__(
     self,
     input_file,
-    ignored_attr_types=None,max_entries=0,process_url_schemes=None,
-    all_records=None
+    ignored_attr_types=None,max_entries=0,process_url_schemes=None
   ):
     """
     See LDIFParser.__init__()
@@ -415,14 +414,12 @@ class LDIFRecordList(LDIFParser):
         List instance for storing parsed records
     """
     LDIFParser.__init__(self,input_file,ignored_attr_types,max_entries,process_url_schemes)
-    self.all_records = (all_records or [])
+    self.all_records = []
 
   def handle(self,dn,entry):
     """
     Append single record to dictionary of all records.
     """
-    # Hmm, strictly spoke a normalization of dn should be done before
-    # using it as dictionary key...
     self.all_records.append((dn,entry))
 
 
