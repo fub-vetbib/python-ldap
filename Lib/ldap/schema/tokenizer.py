@@ -66,18 +66,18 @@ def extract_tokens(l,known_tokens):
       if i<l_len:
         if result_has_key(l[i]):
           # non-valued
-          result[token] = []
+          result[token] = tuple()
         elif l[i]=="(":
           # multi-valued
           i += 1 # Consume left parentheses
           start = i
           while i<l_len and l[i]!=")":
             i += 1
-          result[token] = l[start:i]
+          result[token] = tuple(filter(lambda v:v!='$',l[start:i]))
           i += 1 # Consume right parentheses
         else:
           # single-valued
-          result[token] = [l[i]]
+          result[token] = l[i],
           i += 1 # Consume single value
     else:
       i += 1 # Consume unrecognized item

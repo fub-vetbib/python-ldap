@@ -31,7 +31,7 @@ class SchemaElement:
   Base class for all schema element classes. Not used directly!
   """
   token_defaults = {
-    'DESC':[None],
+    'DESC':(None,),
   }
   
   def __init__(self,schema_element_str=None):
@@ -57,7 +57,7 @@ class SchemaElement:
       return ''
 
   def key_list(self,key,values,sep=' ',quoted=0):
-    assert type(values)==type([]),TypeError("values has to be of ListType")
+    assert type(values)==type(tuple()),TypeError("values has to be of ListType")
     if not values:
       return ''
     if quoted:
@@ -91,37 +91,37 @@ class ObjectClass(SchemaElement):
   """
   schema_attribute = 'objectClasses'
   token_defaults = {
-    'NAME':[],
-    'DESC':[None],
+    'NAME':tuple(),
+    'DESC':(None,),
     'OBSOLETE':None,
-    'SUP':[],
+    'SUP':tuple(),
     'STRUCTURAL':None,
     'AUXILIARY':None,
     'ABSTRACT':None,
-    'MUST':[],
-    'MAY':[]
+    'MUST':tuple(),
+    'MAY':()
   }
 
   def _set_attrs(self,l,d):
     self.obsolete = d['OBSOLETE']!=None
     self.names = d['NAME']
     self.desc = d['DESC'][0]
-    self.sup = [ v for v in d['SUP'] if v!="$"]
-    self.must = [ v for v in d['MUST'] if v!="$" ]
-    self.may = [ v for v in d['MAY'] if v!="$" ]
+    self.sup = d['SUP']
+    self.must = d['MUST']
+    self.may = d['MAY']
     # Default is STRUCTURAL, see RFC2552 or draft-ietf-ldapbis-syntaxes
     self.kind = 0
     if d['ABSTRACT']!=None:
       self.kind = 1
     elif d['AUXILIARY']!=None:
       self.kind = 2
-    assert type(self.names)==type([])
+    assert type(self.names)==type(tuple())
     assert self.desc is None or type(self.desc)==type('')
     assert type(self.obsolete)==type(0) and (self.obsolete==0 or self.obsolete==1)
-    assert type(self.sup)==type([])
+    assert type(self.sup)==type(tuple())
     assert type(self.kind)==type(0)
-    assert type(self.must)==type([])
-    assert type(self.may)==type([])
+    assert type(self.must)==type(tuple())
+    assert type(self.may)==type(tuple())
     return # ObjectClass.__init__()
 
   def __str__(self):
@@ -172,25 +172,25 @@ class AttributeType(SchemaElement):
   """
   schema_attribute = 'attributeTypes'
   token_defaults = {
-    'NAME':[],
-    'DESC':[None],
+    'NAME':tuple(),
+    'DESC':(None,),
     'OBSOLETE':None,
-    'SUP':[],
-    'EQUALITY':[None],
-    'ORDERING':[None],
-    'SUBSTR':[None],
-    'SYNTAX':[None],
+    'SUP':tuple(),
+    'EQUALITY':(None,),
+    'ORDERING':(None,),
+    'SUBSTR':(None,),
+    'SYNTAX':(None,),
     'SINGLE-VALUE':None,
     'COLLECTIVE':None,
     'NO-USER-MODIFICATION':None,
-    'USAGE':['userApplications']
+    'USAGE':('userApplications',)
   }
 
   def _set_attrs(self,l,d):
     self.names = d['NAME']
     self.desc = d['DESC'][0]
     self.obsolete = d['OBSOLETE']!=None
-    self.sup = [ v for v in d['SUP'] if v!="$"]
+    self.sup = d['SUP']
     self.equality = d['EQUALITY'][0]
     self.ordering = d['ORDERING'][0]
     self.substr = d['SUBSTR'][0]
@@ -217,9 +217,9 @@ class AttributeType(SchemaElement):
     except KeyError:
       raise
     self.usage = AttributeUsage.get(d['USAGE'][0],0)
-    assert type(self.names)==type([])
+    assert type(self.names)==type(tuple())
     assert self.desc is None or type(self.desc)==type('')
-    assert type(self.sup)==type([])
+    assert type(self.sup)==type(tuple()),'attribute sup has type %s' % (type(self.sup))
     assert type(self.obsolete)==type(0) and (self.obsolete==0 or self.obsolete==1)
     assert type(self.single_value)==type(0) and (self.single_value==0 or self.single_value==1)
     assert type(self.no_user_mod)==type(0) and (self.no_user_mod==0 or self.no_user_mod==1)
@@ -262,8 +262,8 @@ class LDAPSyntax(SchemaElement):
   """
   schema_attribute = 'ldapSyntaxes'
   token_defaults = {
-    'DESC':[None],
-    'X-NOT-HUMAN-READABLE':[None],
+    'DESC':(None,),
+    'X-NOT-HUMAN-READABLE':(None,),
   }
 
   def _set_attrs(self,l,d):
@@ -295,10 +295,10 @@ class MatchingRule(SchemaElement):
   """
   schema_attribute = 'matchingRules'
   token_defaults = {
-    'NAME':[],
-    'DESC':[None],
+    'NAME':tuple(),
+    'DESC':(None,),
     'OBSOLETE':None,
-    'SYNTAX':[None],
+    'SYNTAX':(None,),
   }
 
   def _set_attrs(self,l,d):
@@ -306,7 +306,7 @@ class MatchingRule(SchemaElement):
     self.desc = d['DESC'][0]
     self.obsolete = d['OBSOLETE']!=None
     self.syntax = d['SYNTAX'][0]
-    assert type(self.names)==type([])
+    assert type(self.names)==type(tuple())
     assert self.desc is None or type(self.desc)==type('')
     assert type(self.obsolete)==type(0) and (self.obsolete==0 or self.obsolete==1)
     assert self.syntax is None or type(self.syntax)==type('')
@@ -334,21 +334,21 @@ class MatchingRuleUse(SchemaElement):
   """
   schema_attribute = 'matchingRuleUse'
   token_defaults = {
-       'NAME':[],
-       'DESC':[None],
+       'NAME':tuple(),
+       'DESC':(None,),
        'OBSOLETE':None,
-       'APPLIES':[],
+       'APPLIES':tuple(),
   }
 
   def _set_attrs(self,l,d):
     self.names = d['NAME']
     self.desc = d['DESC'][0]
     self.obsolete = d['OBSOLETE']!=None
-    self.applies = [ v for v in d['APPLIES'] if v!="$"]
-    assert type(self.names)==type([])
+    self.applies = d['APPLIES']
+    assert type(self.names)==type(tuple())
     assert self.desc is None or type(self.desc)==type('')
     assert type(self.obsolete)==type(0) and (self.obsolete==0 or self.obsolete==1)
-    assert type(self.applies)==type([])
+    assert type(self.applies)==type(tuple())
     return # MatchingRuleUse.__init__()
 
   def __str__(self):
