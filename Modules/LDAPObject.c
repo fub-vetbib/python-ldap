@@ -1244,43 +1244,7 @@ repr( LDAPObject* self )
     		
 
     sprintf(buf,
-#ifndef LDAP_TYPE_IS_OPAQUE
-    	"<LDAP {lberoptions:%d, deref:%s, "
-	"timelimit:" LIMITFMT ", "
-	"sizelimit:" LIMITFMT ", "
-	"errno:%d, error:" STRFMT ", "
-	"matched:" STRFMT ", refhoplimit:%d, options:< %s%s%s>}>",
-	    self->ldap->ld_lberoptions,
-	    (
-		self->ldap->ld_deref==LDAP_DEREF_NEVER ? "DEREF_NEVER" :
-		self->ldap->ld_deref==LDAP_DEREF_SEARCHING ? "DEREF_SEARCHING" :
-		self->ldap->ld_deref==LDAP_DEREF_FINDING ? "DEREF_FINDING" :
-		self->ldap->ld_deref==LDAP_DEREF_ALWAYS ? "DEREF_ALWAYS" :
-							  "*illegal*" 
-	    ),
-	    LIMITFMTP(self->ldap->ld_timelimit),
-	    LIMITFMTP(self->ldap->ld_sizelimit),
-	    self->ldap->ld_errno,
-	    STRFMTP(self->ldap->ld_error),
-	    STRFMTP(self->ldap->ld_matched),
-	    self->ldap->ld_refhoplimit,
-
-#ifdef LDAP_DNS
-	   (self->ldap->ld_options & LDAP_OPT_DNS ? "OPT_DNS ":""),
-#else
-	      "",
-#endif /* LDAP_DNS */
-
-#ifdef LDAP_REFERRALS
-	   (self->ldap->ld_options & LDAP_OPT_REFERRALS ? "OPT_REFERRALS ":""),
-#else
-	      "",
-#endif /* LDAP_REFERRALS */
-
-	   (self->ldap->ld_options & LDAP_OPT_RESTART   ? "OPT_RESTART ":"")
-#else	/* LDAP_TYPE_IS_OPAQUE */
 	"<LDAP>"
-#endif
     );
     return PyString_FromString( buf );
 }
