@@ -87,7 +87,7 @@ l_ldap_str2objectclass(PyObject* self, PyObject *args)
     *oc_at_oids_may, *py_ret;
  
 
-  if (!PyArg_ParseTuple(args, "s", &oc_string))
+  if (!PyArg_ParseTuple(args, "si", &oc_string, &flag))
 	return NULL;
   o = ldap_str2objectclass( oc_string, &ret, &errp, flag);
   if (ret) {
@@ -135,7 +135,7 @@ l_ldap_str2attributetype(PyObject* self, PyObject *args)
   PyObject *py_ret;
   PyObject *at_names;
   
-  if (!PyArg_ParseTuple(args, "s", &at_string))
+  if (!PyArg_ParseTuple(args, "si", &at_string,&flag))
     return NULL;
   a = ldap_str2attributetype( at_string, &ret, &errp, flag);
   if (ret) {
@@ -204,7 +204,7 @@ l_ldap_str2syntax(PyObject* self, PyObject *args)
   char *syn_string;
   PyObject *py_ret, *syn_names;
   
-  if (!PyArg_ParseTuple(args, "s", &syn_string))
+  if (!PyArg_ParseTuple(args, "si", &syn_string,&flag))
     return NULL;
   s = ldap_str2syntax(syn_string, &ret, &errp, flag);
   if (ret) {
@@ -239,7 +239,7 @@ l_ldap_str2matchingrule(PyObject* self, PyObject *args)
   char *mr_string;
   PyObject *py_ret, *mr_names;
   
-  if (!PyArg_ParseTuple(args, "s", &mr_string))
+  if (!PyArg_ParseTuple(args, "si", &mr_string,&flag))
     return NULL;
   m = ldap_str2matchingrule(mr_string, &ret, &errp, flag);
   if (ret) {

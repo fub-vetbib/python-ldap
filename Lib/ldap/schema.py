@@ -9,7 +9,7 @@ License:
 Public domain. Do anything you want with this module.
 """
 
-__version__ = '0.0.3'
+__version__ = '0.0.4'
 
 
 import ldap,ldap.cidict,ldap.functions,_ldap
@@ -17,16 +17,16 @@ import ldap,ldap.cidict,ldap.functions,_ldap
 # Wrapper functions to serialize calls into OpenLDAP libs with
 # a module-wide thread lock
 def str2objectclass(schema_element_str,schema_allow=0):
-    return ldap.functions._ldap_function_call(_ldap.str2objectclass,schema_element_str)
+    return ldap.functions._ldap_function_call(_ldap.str2objectclass,schema_element_str,schema_allow)
 
 def str2attributetype(schema_element_str,schema_allow=0):
-    return ldap.functions._ldap_function_call(_ldap.str2attributetype,schema_element_str)
+    return ldap.functions._ldap_function_call(_ldap.str2attributetype,schema_element_str,schema_allow)
 
 def str2syntax(schema_element_str,schema_allow=0):
-    return ldap.functions._ldap_function_call(_ldap.str2syntax,schema_element_str)
+    return ldap.functions._ldap_function_call(_ldap.str2syntax,schema_element_str,schema_allow)
 
 def str2matchingrule(schema_element_str,schema_allow=0):
-    return ldap.functions._ldap_function_call(_ldap.str2matchingrule,schema_element_str)
+    return ldap.functions._ldap_function_call(_ldap.str2matchingrule,schema_element_str,schema_allow)
 
 
 class objectClass:
