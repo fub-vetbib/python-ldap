@@ -9,9 +9,9 @@ GPL (GNU GENERAL PUBLIC LICENSE) Version 2
 (see http://www.gnu.org/copyleft/gpl.html)
 """
 
-__version__ = '0.2.8'
+__version__ = '0.3.0'
 
-import string,binascii,re
+import os,string,base64,re
 
 try:
   from cStringIO import StringIO
@@ -27,7 +27,6 @@ dn_regex   = re.compile('^%s$' % dn_pattern)
 ldif_pattern = '^((dn(:|::) %(dn_pattern)s)|(%(attrtype_pattern)s(:|::) .*)$)+' % vars()
 ldif_regex   = re.compile('^%s$' % ldif_pattern,re.M)
 
-non_ldif_value_re = re.compile('(^( |:|<)|[\x80-\xff]+)')
 
 def is_dn(s):
   """
@@ -36,67 +35,86 @@ def is_dn(s):
   rm = dn_regex.match(s)
   return rm!=None and rm.group(0)==s
 
-def is_valid_ldif_value(s):
-  """
-  returns 1 if s does not need base-64 encoding because of special chars
-  """
-  return non_ldif_value_re.search(s) is None
+
+SAFE_STRING = '(^(\000|\n|\r| |:|<)|[\000\n\r\200-\377]+)'
+SAFE_STRING_re = re.compile(SAFE_STRING)
 
 
-def BinaryAttribute(attrtype,value,cols=66):
+def needs_base64(s):
   """
-  Convert value to a binary attribute representation (base64 encoded)
+  returns 1 if s has to be base-64 encoded because of special chars
+  """
+  return not SAFE_STRING_re.search(s) is None
 
-  attrtype
-        string of attribute type
-  value
-        string containing the attribute value
+
+def CreateLDIFLine(attr_type,attr_value,base64_attrs=[],cols=66):
+  """
+  Write a single attribute to one or many folded LDIF line(s).
+  
+  attr_type
+        attribute type
+  attr_value
+        attribute value
+  base64_attrs
+        list of attribute types to be base64-encoded in any case
   cols
-        Number of text columns to use for base64 output
+        Specifies how many columns a line may have before it's
+        folded into many lines.
   """
-  b64buf = '%s:: ' % (attrtype)
-  buflen = len(value)
-  pos=0
-  while pos<buflen:
-    b64buf = '%s%s' % (b64buf,binascii.b2a_base64(value[pos:min(buflen,pos+57)])[:-1])
-    pos = pos+57
-  b64buflen = len(b64buf)
-  pos=cols
-  result = b64buf[0:min(b64buflen,cols)]
-  while pos<b64buflen:
-    result = '%s\n %s' % (result,b64buf[pos:min(b64buflen,pos+cols-1)])
+  # Encode with base64 if necessary
+  if (attr_type in base64_attrs) or needs_base64(attr_value):
+    line = '%s:: %s' % (
+      attr_type,
+      string.replace(base64.encodestring(attr_value),'\n','')
+    )
+  else:
+    line = '%s: %s' % (attr_type,attr_value)
+  # Check maximum line length
+  line_len = len(line)
+  if line_len<=cols:
+    return line
+  # Fold line
+  pos = cols
+  result = [line[0:min(line_len,cols)]]
+  while pos<line_len:
+    result.append(line[pos:min(line_len,pos+cols-1)])
     pos = pos+cols-1
-  return '%s\n' % result
+  return string.join(result,os.linesep+' ')
 
 
-def CreateLDIF(dn,entry={},binary_attrs=[]):
+def CreateLDIF(dn,entry={},base64_attrs=[],cols=66):
   """
-  Create LDIF formatted entry without trailing empty line.
+  Create LDIF formatted entry including trailing empty line.
   
   dn
         string-representation of distinguished name
   entry
         dictionary holding the LDAP entry {attrtype:data}
-  binary_attrs
+  base64_attrs
         list of attribute types to be base64-encoded in any case
+  cols
+        Specifies how many columns a line may have before it's
+        folded into many lines.
   """
-  # Get all attribute types
-  attrs = entry.keys()[:]
-  attrs.sort()
-  # Write line dn: first
-  if is_valid_ldif_value(dn):
-    result = ['dn: %s\n' % (dn)]
-  else:
-    result = [BinaryAttribute('dn',dn)]
-  # Write all attrtype: value lines
-  for attr in attrs:
-    # Write all values of an attribute
-    for data in entry[attr]:
-      if (attr in binary_attrs) or not is_valid_ldif_value(data):
-        result.append(BinaryAttribute(attr,data))
-      else:
-  	result.append('%s: %s\n' % (attr,data))
-  return string.join(result,'')
+  # At first prepare line with distinguished name
+  result = [CreateLDIFLine('dn',dn,cols=cols)]
+  attr_types = entry.keys()[:]
+  attr_types.sort()
+  for attr_type in attr_types:
+    for attr_value in entry[attr_type]:
+      result.append(CreateLDIFLine(attr_type,attr_value,base64_attrs,cols))
+  result.append('')
+  return string.join(result,os.linesep)
+
+
+def StripLineSep(s):
+  """
+  Strip trailing line separators but no other whitespaces
+  """
+  if s[-2:]=='\r\n':
+    return s[:-2]
+  elif s[-1]=='\n':
+    return s[:-1]
 
 
 def ParseLDIF(f,ignore_attrs=[],maxentries=0):
@@ -108,7 +126,7 @@ def ParseLDIF(f,ignore_attrs=[],maxentries=0):
   ignore_attrs
         list of attributes to be ignored
   maxentries
-        if non-zero) specifies the maximum number of
+        if non-zero specifies the maximum number of
   	entries to be read from f
   """
   
@@ -127,9 +145,7 @@ def ParseLDIF(f,ignore_attrs=[],maxentries=0):
     # Reading new entry
 
     # Reset entry data
-    dn = ''; entry = {}; attr = ''; data = ''
-
-    s = string.rstrip(s)
+    dn = None; entry = {};
 
     while s:
     
@@ -139,19 +155,22 @@ def ParseLDIF(f,ignore_attrs=[],maxentries=0):
         # Read attr:: data line => binary data assumed
         data = data[1:]
         binary = 1
+      elif data[0]=='<' or data[:1]==' <':
+        raise ValueError,'File importing not supported'
       else:
         # Read attr: data line
         binary = 0
 
+      # Strip the line separators 
+      data = StripLineSep(string.lstrip(data))
+
       s = f.readline()
-      s = string.rstrip(s)
 
       # Reading continued multi-line data
       while s and s[0]==' ':
         data = data + string.strip(s)
         # Read next line
         s = f.readline()
-        s = string.rstrip(s)
 
       attr = string.strip(attr)
 
@@ -159,9 +178,7 @@ def ParseLDIF(f,ignore_attrs=[],maxentries=0):
 
 	if binary:
           # binary data has to be BASE64 decoded
-          data = binascii.a2b_base64(data)
-	else:
-          data = string.strip(data)
+          data = base64.decodestring(data)
 
         # Add attr: data to entry
 	if attr=='dn':
@@ -192,7 +209,8 @@ def test():
     'objectClass':['test'],
     'cn':['Michael Str\303\266der'],
     'bin':['\000\001\002'*200],
-    'extraspace':[' bla'],
+    'leadingspace':[' bla'],
+    'trailingspace':['bla '],
   }
   ldif = CreateLDIF(
     'cn=Michael Str\303\266der,dc=stroeder,dc=com',test_entry,['bin']
@@ -205,6 +223,7 @@ def test():
       print 'Error in attribute %s: "%s"!="%s"' % (
         a,repr(test_entry[a]),repr(test_result[0][1][a])
       )
+
 
 if __name__ == '__main__':
   test()
