@@ -1,0 +1,4 @@
+include README Makefile
+include Modules/*.c Modules/*.h
+include Doc/lib.tex Doc/libldap.tex Doc/Makefile
+recursive-include Demo
