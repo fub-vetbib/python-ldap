@@ -107,14 +107,12 @@ LDAPinit_errors( PyObject*d ) {
 #endif
 	seterrobj(STRONG_AUTH_REQUIRED);
 	seterrobj(PARTIAL_RESULTS);
-	/* seterrobjas(NO_SUCH_ATTRIBUTE, PyExc_AttributeError); */
 	seterrobj(NO_SUCH_ATTRIBUTE);
 	seterrobj(UNDEFINED_TYPE);
 	seterrobj(INAPPROPRIATE_MATCHING);
 	seterrobj(CONSTRAINT_VIOLATION);
 	seterrobj(TYPE_OR_VALUE_EXISTS);
 	seterrobj(INVALID_SYNTAX);
-	/* seterrobjas(NO_SUCH_OBJECT, PyExc_NameError); */
 	seterrobj(NO_SUCH_OBJECT);
 	seterrobj(ALIAS_PROBLEM);
 	seterrobj(INVALID_DN_SYNTAX);
@@ -143,7 +141,6 @@ LDAPinit_errors( PyObject*d ) {
 	seterrobj(AUTH_UNKNOWN);
 	seterrobj(FILTER_ERROR);
 	seterrobj(USER_CANCELLED);
-	/* seterrobjas(PARAM_ERROR, PyExc_ValueError); */
 	seterrobj(PARAM_ERROR);
 	seterrobj(NO_MEMORY);
 }
