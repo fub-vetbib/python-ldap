@@ -849,6 +849,35 @@ l_ldap_search_ext( LDAPObject* self, PyObject* args )
 }	
 
 
+/* ldap_whoami_s */
+
+static PyObject*
+l_ldap_whoami_s( LDAPObject* self, PyObject* args )
+{
+    PyObject *serverctrls = Py_None;
+    PyObject *clientctrls = Py_None;
+
+    struct berval *bvalue = NULL;
+
+    PyObject *result;
+
+    int ldaperror;
+
+    if (!PyArg_ParseTuple( args, "|OO", &serverctrls, &clientctrls)) return NULL;
+
+    LDAP_BEGIN_ALLOW_THREADS( self );
+    ldaperror = ldap_whoami_s( self->ldap, &bvalue, NULL, NULL );
+    LDAP_END_ALLOW_THREADS( self );
+
+    if ( ldaperror!=LDAP_SUCCESS )
+    	return LDAPerror( self->ldap, "ldap_whoami_s" );
+
+    result = PyString_FromStringAndSize(bvalue->bv_val, bvalue->bv_len);
+
+    Py_DECREF(result);
+    return result;
+}
+
 #ifdef HAVE_TLS
 /* ldap_start_tls_s */
 
@@ -954,6 +983,7 @@ static PyMethodDef methods[] = {
 #ifdef HAVE_TLS
     {"start_tls_s",	(PyCFunction)l_ldap_start_tls_s,	METH_VARARGS },
 #endif
+    {"whoami_s",	(PyCFunction)l_ldap_whoami_s,	        METH_VARARGS },
     {"manage_dsa_it",	(PyCFunction)l_ldap_manage_dsa_it,	METH_VARARGS },
     {"set_option",	(PyCFunction)l_ldap_set_option,		METH_VARARGS },
     {"get_option",	(PyCFunction)l_ldap_get_option,		METH_VARARGS },

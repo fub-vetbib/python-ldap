@@ -11,6 +11,10 @@ Modules/:
 * Removed macro add_int_r() from constants.c since it caused
   incompability issues with OpenLDAP 2.2 libs
   (Warning: all result types are Integers now! Use the constants!)
+* New wrapper function l_ldap_whoami_s()
+
+ldap.ldapobject:
+* New wrapper method LDAPObject.whoami_s()
 
 ldap.functions:
 * Removed is_ldap_url(). The more general function

@@ -530,6 +530,9 @@ class SimpleLDAPObject:
     if msgid!=None:
       self.result(msgid,all=1,timeout=self.timeout)
 
+  def whoami_s(self,serverctrls=None,clientctrls=None):
+    return self._ldap_call(self._l.whoami_s,serverctrls,clientctrls)
+
   def get_option(self,option):
     return self._ldap_call(self._l.get_option,option)
 
