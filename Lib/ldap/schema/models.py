@@ -334,7 +334,7 @@ class MatchingRuleUse(SchemaElement):
      extensions
      whsp ")" 
   """
-  schema_attribute = 'matchingRuleUses'
+  schema_attribute = 'matchingRuleUse'
   token_defaults = {
        'NAME':[],
        'DESC':[None],
@@ -349,7 +349,7 @@ class MatchingRuleUse(SchemaElement):
     self.applies = d['APPLIES']
     assert type(self.names)==type([])
     assert self.desc is None or type(self.desc)==type('')
-    assert type(self.obsolete)==type(0) and (type(self.obsolete)==0 or type(self.obsolete)==1)
+    assert type(self.obsolete)==type(0) and (self.obsolete==0 or self.obsolete==1)
     assert type(self.applies)==type([])
     return # MatchingRuleUse.__init__()
 
