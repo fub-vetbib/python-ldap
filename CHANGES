@@ -4,7 +4,8 @@ Released 2.0.5 2004-11-??
 Changes since 2.0.4:
 
 Lib/:
-* 
+* Make sure that ldap.sasl.sasl.cb_value_dict is a dictionary
+  even when the caller passes in None to argument cb_value_dict
 
 ----------------------------------------------------------------
 Released 2.0.4 2004-10-27

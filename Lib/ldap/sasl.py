@@ -46,7 +46,7 @@ class sasl:
         question-answer pairs. Questions are specified by the respective
         SASL callback id's. The mech argument is a string that specifies
         the SASL mechaninsm to be uesd."""
-        self.cb_value_dict = cb_value_dict
+        self.cb_value_dict = cb_value_dict or {}
         self.mech = mech
 
     def callback(self,cb_id,challenge,prompt,defresult):
