@@ -14,6 +14,7 @@ all:	 build
 
 build:   _ldapmodule-build 
 install: _ldapmodule-install 
+filelist: _empty-filelist _ldapmodule-filelist
 
 _ldapmodule-build:
 	cd Modules && $(MAKE) $(MAKEVARS)
@@ -28,9 +29,20 @@ _ldapmodule-install:
 	for f in $(srcdir)/Lib/*.py; do \
 	   $(INSTALL_DATA) $$f $(DESTDIR)$(LIBDEST)/site-packages/python-ldap/;\
         done
-	#-- XXX need to copy contents of $(srcdir)/Lib/* to the new directory
 	$(PYTHON) $(LIBDEST)/compileall.py \
 		$(DESTDIR)$(LIBDEST)/site-packages/python-ldap
 	$(PYTHON) -O $(LIBDEST)/compileall.py \
 		$(DESTDIR)$(LIBDEST)/site-packages/python-ldap
 
+_ldapmodule-filelist:
+	echo "$(LIBDEST)/site-packages/ldap.pth" >> filelist
+	echo "$(LIBDEST)/site-packages/python-ldap/_ldapmodule.so" >> filelist
+	for ff in $(srcdir)/Lib/*.py; do \
+		f=`basename $$f .py`; \
+		echo "$(LIBDEST)/site-packages/python-ldap/$$f.py"; \
+		echo "$(LIBDEST)/site-packages/python-ldap/$$f.pyc"; \
+		echo "$(LIBDEST)/site-packages/python-ldap/$$f.pyo"; \
+	done >> filelist
+
+_empty-filelist:	
+	cp /dev/null filelist
