@@ -109,10 +109,10 @@ LDAPmessage_to_python( LDAP*ld, LDAPMessage*m )
 	 }
 
 	 entrytuple = Py_BuildValue("(sO)", dn, attrdict);
+         free(dn);
 	 Py_DECREF(attrdict);
 	 PyList_Append(result, entrytuple);
 	 Py_DECREF(entrytuple);
-         free(dn);
      }
      ldap_msgfree( m );
      return result;
