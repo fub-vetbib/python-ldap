@@ -299,7 +299,6 @@ class MatchingRule(SchemaElement):
     'DESC':[None],
     'OBSOLETE':None,
     'SYNTAX':[None],
-    'APPLIES':[None],
   }
 
   def _set_attrs(self,l,d):
@@ -307,7 +306,6 @@ class MatchingRule(SchemaElement):
     self.desc = d['DESC'][0]
     self.obsolete = d['OBSOLETE']!=None
     self.syntax = d['SYNTAX'][0]
-    self.applies = d['APPLIES'][0]
     assert type(self.names)==type([])
     assert self.desc is None or type(self.desc)==type('')
     assert type(self.obsolete)==type(0) and (self.obsolete==0 or self.obsolete==1)
@@ -358,7 +356,7 @@ class MatchingRuleUse(SchemaElement):
     result.append(self.key_list('NAME',self.names,quoted=1))
     result.append(self.key_attr('DESC',self.desc,quoted=1))
     result.append({0:'',1:' OBSOLETE'}[self.obsolete])
-    result.append(self.key_list('APPLIES',self.applies))
+    result.append(self.key_list('APPLIES',self.applies,sep=' $ '))
     return '( %s )' % ''.join(result)
 
 
