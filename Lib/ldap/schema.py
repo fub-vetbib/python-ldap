@@ -15,6 +15,27 @@ __version__ = '0.0.3'
 import ldap,ldap.cidict,ldap.functions,_ldap
 
 
+def subschemasubentry_dn(l,dn=''):
+  """
+  Returns the distinguished name of the sub schema sub entry
+  for a part of a DIT specified by dn
+  """
+  r = l.search_s(
+    dn,ldap.SCOPE_BASE,'(objectClass=*)',['subschemaSubentry']
+  )
+  if r:
+    e = ldap.cidict.cidict(r[0][1])
+    return e.get('subschemaSube',[None])[0]
+  else:
+    # Fall back to directly read attribute subschemaSube
+    # from RootDSE
+    r = l.search_s(
+      '',ldap.SCOPE_BASE,'(objectClass=*)',['subschemaSube']
+    )
+    e = ldap.cidict.cidict(r[0][1])
+    return e.get('subschemaSube',[None])[0]
+  
+
 # Wrapper functions to serialize calls into OpenLDAP libs with
 # a module-wide thread lock
 def str2objectclass(schema_element_str):
