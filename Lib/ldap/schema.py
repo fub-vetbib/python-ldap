@@ -81,6 +81,16 @@ def schema_func_wrapper(func,schema_element_str,schema_allow=0):
   return a tuple, which we return to the caller.
   """
 
+  def sanitize(schema_element_str):
+    len_pos = schema_element_str.find(' {')
+    if len_pos==-1:
+      result = schema_element_str
+    elif len_pos>1:
+      result = schema_element_str[:len_pos]+schema_element_str[len_pos+1:]
+    else:
+      result = schema_element_str
+    return result
+
   def parse_oid(schema_element_str):
     name_pos = schema_element_str.find('NAME',1)
     if name_pos==-1:
@@ -92,7 +102,7 @@ def schema_func_wrapper(func,schema_element_str,schema_allow=0):
   if schema_allow==ALLOW_ALL:
     # This is a work-around as long as OpenLDAP libs
     # does not accept non-numeric OID
-    oid, fake_str = parse_oid(schema_element_str)
+    oid, fake_str = parse_oid(sanitize(schema_element_str))
     res = ldap.functions._ldap_function_call(
       func,fake_str,schema_allow
     )
@@ -324,7 +334,7 @@ class SubSchema:
 
         return # subSchema.__init__()        
 
-    def entryDict(self):
+    def ldap_entry(self):
       """
       Returns a dictionary containing the sub schema sub entry
       """
@@ -355,6 +365,33 @@ class SubSchema:
         if se.__class__==ObjectClass and se.names
       ]
 
+    def objectclass_tree(self,ignore_errors=0):
+      """
+      Returns a ldap.cidict.cidict dictionary representing the
+      tree structure of the object class inheritance.
+      Important note:
+      Only object classes with class attribute names set are used.
+      """
+      avail_objectclasses = self.avail_objectclasses()
+      tree = ldap.cidict.cidict({'top':[]})
+      # 1. Pass: Register all nodes
+      for oc in avail_objectclasses:
+        tree[oc] = []
+      # 2. Pass: Register all sup references
+      for oc in avail_objectclasses:
+        oc_obj = self.get_schema_element(oc)
+        if oc_obj is None:
+          continue
+        for s in oc_obj.sup:
+          try:
+            tree[s].append(oc)
+          except KeyError:
+            if ignore_errors:
+              continue
+            else:
+              raise
+      return tree
+
     def get_schema_element(self,name,default=None):
       """
       Get a schema element by name
@@ -364,7 +401,9 @@ class SubSchema:
         self.name2oid.get(element_name,element_name),None
       )        
 
-    def all_attrs(self,object_class_list,attr_type_filter={}):
+    def all_attrs(
+      self,object_class_list,attr_type_filter={},strict=1
+    ):
       """
       Return a 2-tuple of all must and may attributes including
       all inherited attributes of superior object classes.
@@ -375,11 +414,18 @@ class SubSchema:
       attr_type_filter
           list of 2-tuples containing lists of class attributes
           which has to be matched
+      strict
+          if zero non-existent object classes are simply ignored,
+          otherwise KeyError exceptions might be raised
       """
-      oid_cache = {}
+      # Map object_class_list to object_class_oids (list of OIDs)
       object_class_oids = [
-        self.name2oid.get(o,o) for o in object_class_list
+        self.name2oid[o]
+        for o in object_class_list
+        if strict or self.name2oid.has_key(o)
       ]
+      # Initialize
+      oid_cache = {}
       r_must,r_may = ldap.cidict.cidict(),ldap.cidict.cidict()
       while object_class_oids:
         object_class_oid = object_class_oids.pop(0)
@@ -395,8 +441,9 @@ class SubSchema:
         for a in object_class.may:
           r_may[a] = a
         object_class_oids.extend([
-          self.name2oid.get(s,s)
-          for s in object_class.sup
+          self.name2oid[o]
+          for o in object_class.sup
+          if strict or self.name2oid.has_key(o)
         ])
       # Removed all mandantory attribute types from
       # optional attribute type list
