@@ -4,14 +4,14 @@
  * $Id$
  */
 
-#include "version.h"
 #include "common.h"
+#include "version.h"
 #include "constants.h"
 #include "errors.h"
 #include "functions.h"
 /* #include "string_translators.h" */
+#include "template.h"
 
-#include "Python.h"
 #include "LDAPObject.h"
 
 /* dummy module methods */
@@ -43,6 +43,10 @@ init_ldap()
 	LDAPinit_errors(d);
 	LDAPinit_functions(d);
 /*	LDAPinit_string_translators(d); */
+
+#if defined(HAVE_LDAP_INIT_TEMPLATES)
+	LDAPinit_template(d);
+#endif
 
 	/* Check for errors */
 	if (PyErr_Occurred())

@@ -9,6 +9,7 @@
 #include "functions.h"
 #include "LDAPObject.h"
 #include "errors.h"
+#include "template.h"
 
 /* ldap_open */
 
@@ -137,6 +138,10 @@ static PyMethodDef methods[] = {
     	doc_explode_dn },
     { "is_ldap_url",	(PyCFunction)l_ldap_is_ldap_url,	METH_VARARGS,
     	doc_is_ldap_url },
+#if defined(HAVE_LDAP_INIT_TEMPLATES)
+    { "init_templates", (PyCFunction)l_init_templates,		METH_VARARGS,
+    	l_init_templates_doc },
+#endif
     { NULL, NULL }
 };
 
