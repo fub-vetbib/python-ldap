@@ -684,7 +684,7 @@ whether the old RDN should be kept as an attribute of the entry or not.
 %%------------------------------------------------------------
 %% result
 
-\begin{methoddesc}[LDAP]{result}{\optional{ msgid=\constant{RES_ANY} \optional{, all=\constant{1} \optional{, timeout=\constant{None}}}}} % -> tuple
+\begin{methoddesc}[LDAP]{result}{\optional{ msgid=\constant{RES_ANY} \optional{, all=\constant{1} \optional{, timeout=\constant{-1}}}}} % -> tuple
 This method is used to wait for and return the result of an operation
 previously initiated by one of the LDAP \emph{asynchronous} operations
 (eg \method{search()}, \method{modify()}, etc.) 
