@@ -12,7 +12,7 @@ TEXINPUTS=	$(PYTHONSRC)/Doc/texinputs::
 ENV=		/usr/bin/env TEXINPUTS=$(TEXINPUTS)
 
 SRCS=python-ldap.tex ldap.tex version.tex ldif.tex ldapurl.tex \
-     ldap_async.tex ldap_modlist.tex
+     ldap-async.tex ldap-modlist.tex
 
 all: python-ldap.dvi python-ldap.ps python-ldap.pdf python-ldap/index.html
 
