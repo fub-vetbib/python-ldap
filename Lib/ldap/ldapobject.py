@@ -63,6 +63,7 @@ class SimpleLDAPObject:
     self._ldap_object_lock = self._ldap_lock()
     self._l = ldap._ldap_function_call(_ldap.initialize,uri)
     self.timeout = -1
+    self.protocol_version = ldap.VERSION3
 
   def _ldap_lock(self):
     if ldap.LIBLDAP_R:
