@@ -25,7 +25,6 @@ extern PyTypeObject LDAP_Type;
 #define LDAPObject_Check(v)     ((v)->ob_type == &LDAP_Type)
 
 extern LDAPObject *newLDAPObject( LDAP* );
-void LDAPinit_LDAPObject( PyObject* d );
 
 /* macros to allow thread saving in the context of an LDAP connection */
 
