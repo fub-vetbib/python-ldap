@@ -19,7 +19,7 @@ Basically calls into the LDAP lib are serialized by the module-wide
 lock self._ldap_object_lock.
 """
 
-__version__ = '0.4.2'
+__version__ = '0.5.0'
 
 __all__ = [
   'LDAPObject',
@@ -77,8 +77,8 @@ class SimpleLDAPObject:
     """
     if __debug__:
       if self._trace_level>=1:# and func.__name__!='result':
-        self._trace_file.write('*** %s.%s (%s,%s)\n' % (
-          self.__module__,
+        self._trace_file.write('*** %s - %s (%s,%s)\n' % (
+          self._uri,
           self.__class__.__name__+'.'+func.__name__,
           repr(args),repr(kwargs)
         ))
