@@ -189,11 +189,11 @@ class SimpleLDAPObject:
     msgid = self.bind(who,cred,method)
     return self.result(msgid,all=1,timeout=self.timeout)
 
-  def sasl_interactive_bind_s(self,who,auth,serverctrls=None,clientctrls=None):
+  def sasl_interactive_bind_s(self,who,auth,serverctrls=None,clientctrls=None,sasl_flags=ldap.SASL_QUIET):
     """
     sasl_interactive_bind_s(who, auth) -> None
     """
-    return self._ldap_call(self._l.sasl_interactive_bind_s,who,auth,serverctrls,clientctrls)
+    return self._ldap_call(self._l.sasl_interactive_bind_s,who,auth,serverctrls,clientctrls,sasl_flags)
 
   def compare_ext(self,dn,attr,value,serverctrls=None,clientctrls=None):
     """

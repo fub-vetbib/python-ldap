@@ -3,9 +3,21 @@ Released 2.0.5 2004-11-??
 
 Changes since 2.0.4:
 
+Some small improvements for SASL:
+The noisy output during SASL bind is avoided now. Interaction
+with output on stderr can be enabled by the calling application
+by explicitly defining SASL flags.
+
 Lib/:
 * Make sure that ldap.sasl.sasl.cb_value_dict is a dictionary
   even when the caller passes in None to argument cb_value_dict
+* Added new key-word arg sasl_flags to method
+  LDAPObject.sasl_interactive_bind_s()
+
+Modules/:
+* l_ldap_sasl_interactive_bind_s():
+  New key-word arg sasl_flags passed to
+  ldap_sasl_interactive_bind_s()
 
 ----------------------------------------------------------------
 Released 2.0.4 2004-10-27

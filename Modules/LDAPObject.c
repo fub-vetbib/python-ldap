@@ -571,9 +571,9 @@ l_ldap_sasl_interactive_bind_s( LDAPObject* self, PyObject* args )
     int msgid, version;
 
     void *defaults;
-    static unsigned sasl_flags = LDAP_SASL_AUTOMATIC;
+    static unsigned sasl_flags = LDAP_SASL_QUIET;
 
-    if (!PyArg_ParseTuple(args, "sOOO", &who, &SASLObject, &serverctrls, &clientctrls ))
+    if (!PyArg_ParseTuple(args, "sOOOI", &who, &SASLObject, &serverctrls, &clientctrls, &sasl_flags ))
       return NULL;
 
     if (not_valid(self)) return NULL;

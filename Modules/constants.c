@@ -89,6 +89,10 @@ LDAPinit_constants( PyObject* d )
 #endif
 #endif
 
+	add_int(d,SASL_AUTOMATIC);
+	add_int(d,SASL_INTERACTIVE);
+	add_int(d,SASL_QUIET);
+
 	/* reversibles */
 
 	zero = PyInt_FromLong( 0 );
