@@ -70,6 +70,7 @@ setup(
 		'_ldap',
 		[
 			'Modules/LDAPObject.c',
+			'Modules/ldapcontrol.c',
 			'Modules/common.c',
 			'Modules/constants.c',
 			'Modules/errors.c',
@@ -103,6 +104,7 @@ setup(
 		'dsml',
   		'ldap',
   		'ldap.async',
+  		'ldap.controls',
   		'ldap.cidict',
   		'ldap.filter',
   		'ldap.functions',
