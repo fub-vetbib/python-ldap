@@ -7,11 +7,11 @@ Release: @release@
 Copyright: public domain
 Group: Development/Libraries
 Source: ftp://python-ldap.sourceforge.net/pub/python-ldap/python-ldap-@version@-src.tar.gz
-BuildRoot: /var/tmp/%{name}-buildroot
 URL: http://python-ldap.sourceforge.net/
 Packager: python-ldap-dev@lists.sourceforge.net
 Requires: python >= 1.5
 Prefix: /usr
+BuildRoot: /var/tmp/%{name}-buildroot
 
 %description
 This Python library provides access to the LDAP (Lightweight Directory Access 
@@ -29,10 +29,12 @@ make
 make filelist
 
 %install
-make install
+rm -rf %{buildroot}
+mkdir -p %{buildroot}/usr
+make install DESTDIR=%{buildroot}
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+rm -rf %{buildroot}
 
 %files -f filelist
 %defattr(-,root,root)
