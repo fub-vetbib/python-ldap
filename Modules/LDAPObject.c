@@ -1589,7 +1589,7 @@ l_ldap_url_search_st( LDAPObject* self, PyObject* args )
     LDAP_END_ALLOW_THREADS( self );
 
     if (result != LDAP_SUCCESS)
-    	return LDAPerror( self->ldap, "ldap_ufn_search_st" );
+    	return LDAPerror( self->ldap, "ldap_url_search_st" );
     
     if (resmsg == NULL) {
     	Py_INCREF( Py_None );
@@ -1601,7 +1601,7 @@ l_ldap_url_search_st( LDAPObject* self, PyObject* args )
 
 static char doc_url_search[] =
 "url_search_s(url [,attrsonly=0])\n"
-"url_search_s(url [,attrsonly=0 [,timeout=-1]])\n\n"
+"url_search_st(url [,attrsonly=0 [,timeout=-1]])\n\n"
 "\tThese routine works much like search_s*, except that many\n"
 "\tsearch parameters are pulled out of the URL url.\n"
 "\n"
@@ -1744,16 +1744,16 @@ static PyMethodDef methods[] = {
     {"rename",		(PyCFunction)l_ldap_rename,		METH_VARARGS,	doc_rename},	
     {"rename_s",	(PyCFunction)l_ldap_rename_s,		METH_VARARGS,	doc_rename},
     {"result",		(PyCFunction)l_ldap_result,		METH_VARARGS,	doc_result},	
-    {"search",		(PyCFunction)l_ldap_search,		METH_VARARGS,	doc_search},	
-    {"search_s",	(PyCFunction)l_ldap_search_st,		METH_VARARGS,	doc_search},	
-    {"search_st",	(PyCFunction)l_ldap_search_st,		METH_VARARGS,	doc_search},	
+    {"search",		(PyCFunction)l_ldap_search,		METH_VARARGS,	doc_search},
+    {"search_s",	(PyCFunction)l_ldap_search_st,		METH_VARARGS,	doc_search},
+    {"search_st",	(PyCFunction)l_ldap_search_st,		METH_VARARGS,	doc_search},
 #ifdef HAVE_LDAP_START_TLS_S
     {"start_tls_s",	(PyCFunction)l_ldap_start_tls_s,	METH_VARARGS,	doc_start_tls},
 #endif
-    {"url_search_s",	(PyCFunction)l_ldap_url_search_st,	METH_VARARGS,	doc_url_search},	
-    {"url_search_st",	(PyCFunction)l_ldap_url_search_st,	METH_VARARGS,	doc_url_search},	
-    {"set_option",	(PyCFunction)l_ldap_set_option,		METH_VARARGS,	doc_set_option},	
-    {"get_option",	(PyCFunction)l_ldap_get_option,		METH_VARARGS,	doc_get_option},	
+    {"url_search_s",	(PyCFunction)l_ldap_url_search_st,	METH_VARARGS,	doc_url_search},
+    {"url_search_st",	(PyCFunction)l_ldap_url_search_st,	METH_VARARGS,	doc_url_search},
+    {"set_option",	(PyCFunction)l_ldap_set_option,		METH_VARARGS,	doc_set_option},
+    {"get_option",	(PyCFunction)l_ldap_get_option,		METH_VARARGS,	doc_get_option},
 #if defined(FILENO_SUPPORTED)
     {"fileno",		(PyCFunction)l_ldap_fileno,		METH_VARARGS,	doc_fileno},	
 #endif
