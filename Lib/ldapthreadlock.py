@@ -30,9 +30,12 @@ __version__ = '0.2.0'
 
 import time,threading,ldap
 
+if __debug__:
+  import sys,traceback
+  _module_debug_level = 0
+
 _ldapmodule_lock = threading.Lock()
 
-_module_debug_level = 0
 
 class LDAPObject:
   """
@@ -42,12 +45,11 @@ class LDAPObject:
   def _ldap_call(self,func,*args,**kwargs):
     """Wrapper function which locks calls to func with via ldap_module_lock"""
     if __debug__:
-      if _module_debug_level>0:
-        print '************',\
-          self.__module__+'.'+self.__class__.__name__+'.'+func.__name__,\
+      if _module_debug_level>=1:
+        print '*** %s:',self.__module__,\
+          self.__class__.__name__+'.'+func.__name__,\
           repr(args),repr(kwargs)
         if _module_debug_level>=2:
-          import sys,traceback
           traceback.print_stack(file=sys.stdout)
     _ldapmodule_lock.acquire()
     try:
@@ -55,7 +57,7 @@ class LDAPObject:
     finally:
       _ldapmodule_lock.release()
     if __debug__:
-      if _module_debug_level>0:
+      if _module_debug_level>=1:
         print '=> result:',result
     return result
 
@@ -65,11 +67,10 @@ class LDAPObject:
   def __setattr__(self,name,value):
     if name!='_l':
       if __debug__:
-        if _module_debug_level>0:
-          print '************',\
-            self.__module__+'.'+self.__class__.__name__+'.__setattr__(%s,%s)' % (name,value)
+        if _module_debug_level>=1:
+          print '*** %s:' % (self.__module__),\
+            self.__class__.__name__+'.__setattr__(%s,%s)' % (name,value)
           if _module_debug_level>=2:
-            import sys,traceback
             traceback.print_stack(file=sys.stdout)
         _ldapmodule_lock.acquire()
       try:
@@ -87,11 +88,10 @@ class LDAPObject:
       finally:
         _ldapmodule_lock.release()
       if __debug__:
-        if _module_debug_level>0:
-          print '************',\
-            self.__module__+'.'+self.__class__.__name__+'.__getattr__(%s)' % (name),'=>',value
+        if _module_debug_level>=1:
+          print '*** %s:' % (self.__module__),\
+            self.__class__.__name__+'.__getattr__(%s)' % (name),'=>',value
           if _module_debug_level>=2:
-            import sys,traceback
             traceback.print_stack(file=sys.stdout)
     else:
       value = self.__dict__[name]
