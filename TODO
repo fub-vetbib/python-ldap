@@ -1,16 +1,16 @@
-List of things to implement:
+*** List of things to-do in no particular order ***
 
-* Completion of start_tls_s() with SSL context
+Modules/
+- Completion of start_tls_s() with SSL context
+- Support for LDAP over SSL
+- Look into OpenLDAP 2's lib ldap_r to make python-ldap re-entrant
+- Support for SASL bind
+- Support for VLV control
+- Support for server-side sorting control
+- Wrap ldap_explode_rdn
+- Support for binding with in DSA control mode
 
-* Support for LDAP over SSL
-
-* Look into OpenLDAP 2's lib ldap_r to make python-ldap re-entrant
-
-* Support for SASL bind
-
-* Support for VLV control
-
-* Support for server-side sorting control
-
-* Wrap ldap_explode_rdn
-
+Lib/
+- LDAPv3 schema support (BNF parser needed)
+- Add ldapurl module from web2ldap
+- LDIF parser for replication logs
