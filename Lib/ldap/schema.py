@@ -31,6 +31,7 @@ NOT_HUMAN_READABLE_LDAP_SYNTAXES = {
   '1.3.6.1.4.1.1466.115.121.1.9':None,
   '1.3.6.1.4.1.1466.115.121.1.10':None,
   '1.3.6.1.4.1.1466.115.121.1.28':None,
+  '1.3.6.1.4.1.1466.115.121.1.40':None,
   '1.3.6.1.4.1.1466.115.121.1.49':None,
 }
 
@@ -69,7 +70,7 @@ def split_tokens(s):
     if i>start:
       result.append(s[start:i])
     i +=1
-  assert result[0]=="(" and result[-1]==")",ValueError(repr(s),result)
+  assert result[0].strip()=="(" and result[-1].strip()==")",ValueError(repr(s),result)
   return result # split_tokens()
 
 
@@ -635,9 +636,16 @@ class SubSchema:
             if self.schema_element.has_key(a):
               for afk,afv in attr_type_filter:
                 schema_attr_type = self.schema_element[a]
-                if not getattr(schema_attr_type,afk) in afv:
-                  del l[a]
-                  break
+                try:
+                  if not getattr(schema_attr_type,afk) in afv:
+                    del l[a]
+                    break
+                except AttributeError:
+                  if raise_keyerror:
+                    raise
+                  else:
+                    try: del l[a]
+                    except KeyError: pass
             else:
               raise KeyError,'No schema element found with name %s' % (a)
       return r_must,r_may
@@ -679,5 +687,9 @@ def urlfetch(uri):
     ldif_parser.parse()
     subschemasubentry_dn,subschemasubentry_entry = ldif_parser.all_records[0]
 
-  return subschemasubentry_dn, \
-         ldap.schema.SubSchema(subschemasubentry_entry)
+  if subschemasubentry_dn!=None:
+    parsed_sub_schema = ldap.schema.SubSchema(subschemasubentry_entry)
+  else:
+    parsed_sub_schema = None
+
+  return subschemasubentry_dn, parsed_sub_schema
