@@ -119,6 +119,10 @@ LDAP_set_option(LDAPObject *self, int option, PyObject *value)
 	    break;
     case LDAP_OPT_SERVER_CONTROLS:
     case LDAP_OPT_CLIENT_CONTROLS:
+            ptr = List_to_LDAPControls(value);
+            if (ptr == NULL)
+                return -1;
+            break;
 #if LDAP_VENDOR_VERSION>=20013			 
     case LDAP_OPT_X_TLS_CTX:
 	    PyErr_SetString(PyExc_NotImplementedError,
@@ -134,6 +138,9 @@ LDAP_set_option(LDAPObject *self, int option, PyObject *value)
     res = ldap_set_option(ld, option, ptr);
     if (self) LDAP_END_ALLOW_THREADS(self);
 
+    if ((option == LDAP_OPT_SERVER_CONTROLS) || (option == LDAP_OPT_CLIENT_CONTROLS))
+        LDAPControl_List_DEL(ptr);
+    
     if (res != LDAP_OPT_SUCCESS) {
 	LDAPerr(res);
 	return -1;
@@ -150,9 +157,11 @@ LDAP_get_option(LDAPObject *self, int option)
     double doubleval;
     struct timeval tv;
     LDAPAPIInfo apiinfo;
+    LDAPControl **lcs;
+    LDAPControl *lc;
     char *strval;
-    PyObject *extensions, *v;
-    int i, num_extensions;
+    PyObject *extensions, *v, *tup;
+    int i, num_extensions, num_controls;
     LDAP *ld;
 
     ld = self ? self->ldap : NULL;
@@ -246,6 +255,31 @@ LDAP_get_option(LDAPObject *self, int option)
 
     case LDAP_OPT_SERVER_CONTROLS:
     case LDAP_OPT_CLIENT_CONTROLS:
+	    if (self) LDAP_BEGIN_ALLOW_THREADS(self);
+	    res = ldap_get_option(ld, option, &lcs);
+	    if (self) LDAP_END_ALLOW_THREADS(self);
+
+	    if (res != LDAP_OPT_SUCCESS)
+		return LDAPerr(res);
+            
+            /* Get the number of controls */
+            num_controls = 0;
+            while (lcs[num_controls])
+                num_controls++;
+
+            /* We'll build a list of controls, with each control a tuple */
+            v = PyList_New(num_controls);
+            for (i = 0; i < num_controls; i++) {
+                lc = lcs[i];
+                tup = Py_BuildValue("(sbs)", 
+                                    lc->ldctl_oid,
+                                    lc->ldctl_iscritical,
+                                    lc->ldctl_value.bv_val);
+                PyList_SET_ITEM(v, i, tup);
+            }
+            
+            return v;
+            
     case LDAP_OPT_API_FEATURE_INFO:
 #if LDAP_VENDOR_VERSION>=20013
     case LDAP_OPT_X_TLS_CTX:

@@ -30,6 +30,9 @@ extern PyTypeObject LDAP_Type;
 
 extern LDAPObject *newLDAPObject( LDAP* );
 
+LDAPControl **List_to_LDAPControls( PyObject* );
+void LDAPControl_List_DEL( LDAPControl** );
+
 /* macros to allow thread saving in the context of an LDAP connection */
 
 #define LDAP_BEGIN_ALLOW_THREADS( l )                                   \
