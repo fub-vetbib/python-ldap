@@ -24,7 +24,7 @@ l = ldap.initialize('ldap://localhost:1389')
 l.set_option(ldap.OPT_PROTOCOL_VERSION,3)
 
 # Try a bind to provoke failure if protocol version is not supported
-l.bind('','',ldap.AUTH_SIMPLE)
+l.bind_s('','',ldap.AUTH_SIMPLE)
 
 # Now try StartTLS
 l.start_tls_s()
@@ -43,7 +43,7 @@ l = ldap.initialize('ldaps://localhost:1636')
 l.set_option(ldap.OPT_PROTOCOL_VERSION,3)
 
 # Try a bind to provoke failure if protocol version is not supported
-l.bind('','',ldap.AUTH_SIMPLE)
+l.bind_s('','',ldap.AUTH_SIMPLE)
 
 # Close connection
 l.unbind_s()
@@ -59,7 +59,7 @@ l = ldap.initialize('ldapi://%2ftmp%2fopenldap2')
 l.set_option(ldap.OPT_PROTOCOL_VERSION,3)
 
 # Try a bind to provoke failure if protocol version is not supported
-l.bind('','',ldap.AUTH_SIMPLE)
+l.bind_s('','',ldap.AUTH_SIMPLE)
 
 # Close connection
 l.unbind_s()
