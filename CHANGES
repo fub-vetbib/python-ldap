@@ -15,7 +15,8 @@ ldap.ldapobject.LDAPObject:
 * Removed unused or silly constants URL_ERR_BADSCOPE, URL_ERR_MEM
   from Modules/constants.c:
   AUTH_KRBV4, AUTH_KRBV41, AUTH_KRBV42, URL_ERR_BADSCOPE, URL_ERR_MEM
-* Fixed 
+* Fixed building with OpenLDAP 2.2.x
+  (errors caused by negative error constants in ldap.h)
 ----------------------------------------------------------------
 Released 2.0.0pre18 2003-12-09
 

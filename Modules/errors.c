@@ -17,16 +17,26 @@ LDAPexception_class;
 
 /* list of error objects */
 
-#define NUM_LDAP_ERRORS		LDAP_REFERRAL_LIMIT_EXCEEDED+1
-static PyObject* errobjects[ NUM_LDAP_ERRORS ];
+
+#if LDAP_API_VERSION >= 3000
+  #define LDAP_ERROR_MIN          LDAP_REFERRAL_LIMIT_EXCEEDED
+  #define LDAP_ERROR_MAX          LDAP_OTHER
+  #define LDAP_ERROR_OFFSET       LDAP_ERROR_MIN
+#else
+  #define LDAP_ERROR_MIN          0
+  #define LDAP_ERROR_MAX          LDAP_REFERRAL_LIMIT_EXCEEDED
+  #define LDAP_ERROR_OFFSET       LDAP_ERROR_MIN
+#endif
+
+static PyObject* errobjects[ LDAP_ERROR_MAX-LDAP_ERROR_MIN+1 ];
 
 
 /* Convert a bare LDAP error number into an exception */
 PyObject*
 LDAPerr(int errnum)
 {
-	if (errnum > 0 && errnum < NUM_LDAP_ERRORS)
-		PyErr_SetNone(errobjects[errnum]);
+	if (errnum >= LDAP_ERROR_MIN && errnum <= LDAP_ERROR_MAX)
+		PyErr_SetNone(errobjects[errnum+LDAP_ERROR_OFFSET]);
 	else
 		PyErr_SetObject(LDAPexception_class, 
 		    Py_BuildValue("{s:i}", "errnum", errnum));
@@ -51,7 +61,7 @@ LDAPerror( LDAP*l, char*msg )
 		if (ldap_get_option(l, LDAP_OPT_ERROR_NUMBER, &errnum) < 0)
 			errobj = LDAPexception_class;	/* unknown error XXX */
 		else
-			errobj = errobjects[errnum];
+			errobj = errobjects[errnum+LDAP_ERROR_OFFSET];
 		
 		if (errnum == LDAP_NO_MEMORY)
 			return PyErr_NoMemory();
@@ -116,7 +126,7 @@ LDAPinit_errors( PyObject*d ) {
 	/* create each LDAP error object */
 
 #	define seterrobj2(n,o) \
-		PyDict_SetItemString( d, #n, (errobjects[LDAP_##n] = o) )
+		PyDict_SetItemString( d, #n, (errobjects[LDAP_##n+LDAP_ERROR_OFFSET] = o) )
 
 
 #	define seterrobj(n) { \
