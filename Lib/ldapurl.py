@@ -154,16 +154,15 @@ class LDAPUrlExtensions(UserDict.UserDict):
         Either LDAPUrlExtension instance, (critical,exvalue)
         or string'ed exvalue
     """
-    assert type(value)==TupleType or \
-           type(value)==StringType or \
-           isinstance(value,LDAPUrlExtension),TypeError
-    if type(value)==StringType:
-      self.data[name] = 0,value
-    elif type(value)==TupleType and len(value==2):
-      self.data[name] = value
-    elif isinstance(value,LDAPUrlExtension):
-      assert name==value.extype
-      self.data[name] = value.critical,value.exvalue
+    assert isinstance(value,LDAPUrlExtension)
+    assert name==value.extype
+    self.data[name] = value.critical,value.exvalue
+
+  def values(self):
+    return [
+      self[k]
+      for k in self.keys()
+    ]
 
   def __str__(self):
     return ','.join(map(str,self.values()))
@@ -183,18 +182,12 @@ class LDAPUrlExtensions(UserDict.UserDict):
     return self.data==other.data
     
   def parse(self,extListStr):
-    extensions = [
-      LDAPUrlExtension(extension)
-      for extension in extListStr.strip().split(',')
-    ]
-    for e in extensions:
+    for extension_str in extListStr.strip().split(','):
+      e = LDAPUrlExtension(extension_str)
       self[e.extype] = e
 
   def unparse(self):
-    return ','.join([
-      v.unparse()
-      for v in self.values()
-    ])
+    return ','.join([ v.unparse() for v in self.values() ])
 
 
 class LDAPUrl:
