@@ -98,11 +98,12 @@ LDAP_set_option(LDAPObject *self, int option, PyObject *value)
     case LDAP_OPT_CLIENT_CONTROLS:
     case LDAP_OPT_TIMEOUT:
     case LDAP_OPT_NETWORK_TIMEOUT:
+#if LDAP_VENDOR_VERSION>=20013			 
     case LDAP_OPT_X_TLS_CTX:
 	    PyErr_SetString(PyExc_NotImplementedError,
 		"option not yet supported");
 	    return -1;
-
+#endif
     default:
 	    PyErr_SetNone(PyExc_ValueError);
 	    return -1;
@@ -208,12 +209,13 @@ LDAP_get_option(LDAPObject *self, int option)
     case LDAP_OPT_TIMEOUT:
     case LDAP_OPT_NETWORK_TIMEOUT:
     case LDAP_OPT_API_FEATURE_INFO:
+#if LDAP_VENDOR_VERSION>=20013
     case LDAP_OPT_X_TLS_CTX:
 	    /* Unsupported options */
 	    PyErr_SetString(PyExc_NotImplementedError,
 		"option not yet supported");
 	    return NULL;
-
+#endif
     default:
 	    PyErr_SetObject(PyExc_ValueError, Py_None);
 	    return NULL;
