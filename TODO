@@ -1,12 +1,5 @@
 
+* Clearly describe an X.500 API (fog?)
+* Get some better demo/sample code
 * Find someone with MSVC who can build the WIN32 DLL for _ldapmodule.
-* merge in fog's work
-    - move configure script to the top level directory (here)
-
-
-Netscape's LDAP API
-    http://developer.netscape.com/docs/manuals/dirsdk/csdk30/index.htm
-
-Perl OO API for LDAP
-    http://developer.netscape.com/tech/directory/perldap_docs/Conn.html
-    http://developer.netscape.com/tech/directory/perldap_docs/Entry.html
+* Add security/authentication
