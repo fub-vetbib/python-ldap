@@ -117,7 +117,7 @@ class AsyncSearchHandler:
         if result_list is None:
           break
         if not _searchResultTypes.has_key(result_type):
-          raise WrongResultType(result_typeValueError,_searchResultTypes.keys())
+          raise WrongResultType(result_type,_searchResultTypes.keys())
         # Loop over list of search results
         for result_item in result_list:
           if result_counter<ignoreResultsNumber:

@@ -1,15 +1,7 @@
 # $Id$
 
 from _ldap import __version__
-
 from _ldap import *
-
-
-if __debug__:
-  # Tracing is only supported in debugging mode
-  import sys,traceback
-  _module_debug_level = 0
-
 
 try:
 

@@ -17,7 +17,7 @@ overridden.
 
 Thread-lock:
 Basically calls into the LDAP lib are serialized by the module-wide
-lock _ldapmodule_lock. To avoid long-time blocking of other threads
+lock ldap._ldap_lock. To avoid long-time blocking of other threads
 synchronous methods like search_s() etc. and the result() method
 were rewritten to do solely asynchronous LDAP lib calls with zero
 timeout.
@@ -25,18 +25,19 @@ The timeout handling is done within the method result() which probably leads
 to less exact timing.
 """
 
-__version__ = '0.0.4'
+__version__ = '0.0.5'
 
-__all__ = [
-  'LDAPObject',
-]
+__all__ = ['LDAPObject']
+
+if __debug__:
+  # Tracing is only supported in debugging mode
+  import traceback
 
 import sys,time,_ldap,ldap
 
-
 class LDAPObject:
   """
-  Drop-in wrapper class around __ldap.LDAPObject
+  Drop-in wrapper class around _ldap.LDAPObject
   """
 
   def __init__(self,uri,trace_level=0,trace_file=sys.stdout):
@@ -70,21 +71,21 @@ class LDAPObject:
           )
           if self._trace_level>=2:
             traceback.print_stack(file=self._trace_file)
-      _ldapmodule_lock.acquire()
+      ldap._ldap_lock.acquire()
       try:
         setattr(self._l,name,value)
       finally:
-        _ldapmodule_lock.release()
+        ldap._ldap_lock.release()
     else:
       self.__dict__[name] = value
 
   def __getattr__(self,name):
     if not name in ['_l','_trace_level','_trace_file']:
-      _ldapmodule_lock.acquire()
+      ldap._ldap_lock.acquire()
       try:
         value = getattr(self._l,name)
       finally:
-        _ldapmodule_lock.release()
+        ldap._ldap_lock.release()
       if __debug__:
         if self._trace_level>=1:
           self._trace_file.write('*** %s:' % (self.__module__),\
@@ -158,6 +159,7 @@ class LDAPObject:
       return 1
     except _ldap.COMPARE_FALSE:
       return 0
+    return None
 
   def delete(self,dn):
     """
