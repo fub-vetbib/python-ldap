@@ -1,4 +1,5 @@
-## ldap/__init__.py - python bindings to LDAP
+## schema_test.py - test the schema support
+##
 ## Copyright (C) 2000  Federico Di Gregorio <fog@debian.org>
 ## Copyright (C) 2000  MIXAD LIVE [http://www.mixadlive.com]
 ##
@@ -18,19 +19,38 @@
 ##
 ## -*- Mode: python -*-
 
-import string
-from _ldap import *
+import sys, ldap, ldap.connection
+from ldap import LDAPError
 
-__all__ = ['connection', 'entry', 'widgets', 'parse', 'utils', 'session',
-           'schema']
+if len(sys.argv) < 3:
+    print "usage: %s host schema_dn" % sys.argv[0]
+    sys.exit()
 
-#### some short and usefull functions
-def canonical_dn(*parts):
-    """Return canonical dn from parts."""
-    s = string.join(filter(None, parts), ',')
-    s = string.replace(s, ' ', '')
-    s = string.replace(s, ',,', ',')
-    return s
-
-
+if len(sys.argv) == 5:
+    user = sys.argv[3]
+    passwd = sys.argv[4]
+else:
+    user = ''
+    passwd = ''
     
+# create a connection to the ldap directory
+c = ldap.connection.LDAPConnection(sys.argv[1],
+                                   binding_dn=user, auth_token=passwd)
+
+# retrieve the schema and prints it
+if sys.argv[2] != '*':
+    s = c.get_schema(sys.argv[2])
+else:
+    s = c.get_schema()
+
+# print some information about the schema
+print "====> Errors"
+for e in s.errors:
+    print "      %s" % e
+    
+
+
+
+
+
+

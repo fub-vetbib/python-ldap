@@ -1,4 +1,5 @@
 ## widget_test.py - test the various classes defined in the Gtk/ldap module
+##
 ## Copyright (C) 2000  Federico Di Gregorio <fog@debian.org>
 ## Copyright (C) 2000  MIXAD LIVE [http://www.mixadlive.com]
 ##

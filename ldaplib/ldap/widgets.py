@@ -22,6 +22,7 @@ import sys, re, string, ldap, _gtk
 import connection, entry
 from gtk import *
 from ldap import LDAPError, canonical_dn
+from ldap.search import LDAPSearch
 
 
 ########################################################## GtkLDAPError ########
@@ -162,6 +163,7 @@ class GtkLDAPDirectoryTree(GtkCTree):
     def __init__(self, connection, titles=None):
         if titles == None: titles = ['Info', 'Node', 'Value']
         self.__connection = connection
+        self.__lurker = LDAPSearch(connection)
         self.__cols = len(titles)
         GtkCTree.__init__(self, self.__cols, 1, titles)
 
@@ -202,7 +204,8 @@ class GtkLDAPDirectoryTree(GtkCTree):
         
         # grab dn from node text and search LDAP directory (but only
         # if the data has not already been gathered)
-        if len(base.childrens) == 0: childs = base.browse(self.search_default)
+        if len(base.childrens) == 0:
+            childs = base.browse(self.search_default)
         else: return
 
         # now add a non-leaf node for every children
@@ -255,7 +258,7 @@ class GtkLDAPDirectoryTree(GtkCTree):
     def set_search_base(self, dn=None, search='cn=*'):
         """Search the given dn and add found root nodes to the tree."""
         dn = self.__check_base(dn)
-        nn = self.__connection.search(search, dn, ldap.SCOPE_SUBTREE)
+        nn = self.__connection.finder.search(search, dn, ldap.SCOPE_SUBTREE)
         self.freeze() ; self.clear()
         self.roots = []
         for n in nn:
@@ -269,7 +272,7 @@ class GtkLDAPDirectoryTree(GtkCTree):
     def set_browse_base(self, dn=None):
         """Browse the given dn and add the only root node to the tree."""
         dn = self.__check_base(dn)
-        base = self.__connection.root(dn)
+        base = self.__connection.finder.root(dn)
         self.freeze() ; self.clear()
         basen = self.insert_node(None, None, ['dn', dn, ''], 0,
                                None, None, None, None, FALSE, FALSE)

@@ -1,3 +1,9 @@
+2000-07-11  Federico Di Gregorio  <fog@debian.org>
+
+	* schema/*.py: initial schema support.
+
+	* search.py: moved here search functions from connection.py.
+
 2000-02-17  Federico Di Gregorio  <fog@debian.org>
 
 	* connection.py, entry.py: lots of fixes. no new features.

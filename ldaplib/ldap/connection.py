@@ -20,6 +20,8 @@
 
 import string, ldap, entry
 from ldap import LDAPError, canonical_dn
+from schema.schema import LDAPSchema, build_v3_server_schema
+from search import LDAPSearch
 
 
 class LDAPConnection:
@@ -38,16 +40,15 @@ class LDAPConnection:
         self.base = ''
         self.use_rdn = 0
         self.timeout = 60
-        self.filter = 'objectclass=*'
-        self.attrl = None
+        self.finder = LDAPSearch(self)
         self.__connection = ldap.open(host, port)
         self.__connection.bind_s(binding_dn, auth_token, auth_type)
-
+        
     def __check_base(self, base_dn):
         """Check search base and raise exception if not set.
         """
         if (self.base == None) and base_dn == None:
-            raise LDAPError({'desc':'base not set'})
+            raise LDAPError('base not set')
         elif base_dn == None:
             base_dn = self.base
         elif self.use_rdn == 1:
@@ -69,16 +70,14 @@ class LDAPConnection:
         """Delete the given dn."""
         self.__connection.delete_s(self.__check_base(dn))
 
-    def _raw_search(self, filter=None, base_dn=None,
-                    scope=ldap.SCOPE_SUBTREE, attrl=None):
+    def _search(self, filter, base_dn, scope, attrl):
         """Search the directory, return raw results.
 
-           This method is used mainly by the LDAPEntry objects that want
-           to initialize themselves from the connection.
+        This method is used mainly by the LDAPEntry objects that want
+        to initialize themselves from the connection. (Note that all the
+        arguments are mandatory: the one who call this function should know
+        what he's doing...)
         """
-        base_dn = self.__check_base(base_dn)
-        if filter == None: filter = self.filter
-        if attrl == None: attrl = self.attrl
         return self.__connection.search_s(base_dn, scope, filter, attrl, 0,
                                           self.timeout)
         
@@ -87,41 +86,21 @@ class LDAPConnection:
         self.base = canonical_dn(base_dn)
         if use_rdn: self.use_rdn = 1        
 
-    def search(self, filter=None, base_dn=None,
-               scope=ldap.SCOPE_SUBTREE, attrl=None):
-        """Search the directory, return an array of LDAPEntry instances."""
-        try:
-            data = self._raw_search(filter, base_dn, scope, attrl)
-        except ldap.NO_SUCH_OBJECT:
-            data = None
-        array = []
-        if data == None: return array 
-        for edata in data:
-            e = entry.LDAPEntry(edata[0], None, edata[1], self)
-            array.append(e)
-        return array
+    def get_schema(self, dn='cn=schema,cn=master', relax=1):
+        """Get the schema from a v3 enabled LDAP server."""
+        se = self.finder.find(dn)
+        self.schema = build_v3_server_schema(se.get('objectclasses'),
+                                             se.get('attributetypes'),
+                                             se.get('ldapsyntaxes'),
+                                             relax)
+        return self.schema
 
-    def find(self, base_dn=None, attrl=None):
-        """Search for base_dn, return None if not found."""
-        try:
-            root = self.search('objectclass=*', base_dn, ldap.SCOPE_BASE, attrl)
-            return root[0]
-        except LDAPError:
-            return None
-                
-    def root(self, base_dn=None, attrl=None):
-        """Return the root object using base_dn as the base for the search."""
-        root = self.find(base_dn, attrl)
-        if not root:
-            raise LDAPError({'desc':'dn does not exists'})
-        else:
-            return root
-        
-    def browse(self, filter=None, base_dn=None, attrl=None):
-        """Return the objects one level under base_dn, sorted by filter."""
-        return self.search(filter, base_dn, ldap.SCOPE_ONELEVEL, attrl)
+            
 
-    def rebind(binding_dn='', auth_token='', auth_type=ldap.AUTH_SIMPLE):
-        """Rebind to the directory changing authorization info."""
-        self.__connection.unbind_s()
-        self.__connection.bind_s(binding_dn, auth_token, auth_type)
+
+
+
+
+
+
+

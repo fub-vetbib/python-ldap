@@ -130,7 +130,11 @@ def search_activate(entry, tree):
                         'warning')
         if v != 0: return
     try:
-        tree.set_search_base(O['basedn'], entry.get_text())
+        search = entry.get_text()
+        if search:
+            tree.set_search_base(O['basedn'], search)
+        else:
+            tree.set_browse_base(O['basedn'])
     except ldap.LDAPError, err:
         dialog_ldap('Error searching the directory:', err)
 
@@ -362,7 +366,7 @@ def app_area_build(connection):
 
     l = GtkLabel('Base'); l.show()
     e = GtkEntry(); e.show();
-    e.set_text(O['basedn'])
+    if (O['basedn']): e.set_text(O['basedn'])
     table.attach(l, 0,1, 0,1, xoptions=FILL)
     table.attach(e, 1,2, 0,1, xoptions=FILL+EXPAND)
     W['base'] = e
@@ -468,17 +472,24 @@ else:
 
 
 # open the ldap connection
-L = ldap.connection.LDAPConnection(host=O['ldap_server'],
-                                   binding_dn=O['auth_user'],
-                                   auth_token=O['auth_password'])
-L.base = O['basedn']
-
+try:
+    L = ldap.connection.LDAPConnection(host=O['ldap_server'],
+                                       binding_dn=O['auth_user'],
+                                       auth_token=O['auth_password'])
+    L.base = O['basedn']
+except LDAPError, err:
+    dialog_ldap("Generic LDAP error:", err)
+except SystemError, err:
+    dialog_info(("SystemError: %s\n" +
+                 "(maybe you tried to connect to an inexistent server)") % err,
+                'error')
+    
 # build the GUI
 app = GnomeApp('lappo', 'lappo')
 app.set_wmclass('lappo', 'Lappo')
 app.connect('delete_event', dialog_quit)
 app.connect('destroy', mainquit)
-app.set_default_size(500,300) 
+app.set_default_size(600,300) 
 app.create_menus(menu_build())
 app.set_contents(app_area_build(L))
 app.show()
@@ -487,7 +498,6 @@ try:
     mainloop()
 except LDAPError, err:
     dialog_ldap("Generic LDAP error:", err)
-
 
 
 
