@@ -1,12 +1,11 @@
-# python
-# $Id$
-
 """
-ldif.py - Various routines for handling LDIF data
+ldif.py - generate and parse LDIF data
 
 This module is distributed under the terms of the
 GPL (GNU GENERAL PUBLIC LICENSE) Version 2
 (see http://www.gnu.org/copyleft/gpl.html)
+
+$Id$
 """
 
 __version__ = '0.3.0'
@@ -36,7 +35,7 @@ def is_dn(s):
   return rm!=None and rm.group(0)==s
 
 
-SAFE_STRING = '(^(\000|\n|\r| |:|<)|[\000\n\r\200-\377]+)'
+SAFE_STRING = '(^(\000|\n|\r| |:|<)|[\000\n\r\200-\377]+|[ ]+$)'
 SAFE_STRING_re = re.compile(SAFE_STRING)
 
 
@@ -207,7 +206,8 @@ def ParseLDIF(f,ignore_attrs=[],maxentries=0):
 def test():
   test_entry = {
     'objectClass':['test'],
-    'cn':['Michael Str\303\266der'],
+    'cn;lang-de':['Michael Str\303\266der'],
+    'cn;lang-en':['Michael Stroeder'],
     'bin':['\000\001\002'*200],
     'leadingspace':[' bla'],
     'trailingspace':['bla '],
