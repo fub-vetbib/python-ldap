@@ -6,12 +6,12 @@
 % \refbimodindex, \refstmodindex, \refexmodindex or \refmodindex, as
 % appropriate.
 
-\section{\module{ldapurl} ---
-         LDAP URL handling}
+\section{\module{ldif} ---
+         LDIF parser and generator}
 
-\declaremodule[ldapurl]{standard}{ldapurl}
+\declaremodule[ldif]{standard}{ldif}
 
-\platform{UNIX}
+\platform{All platforms.}
 
 % Author of the module code;
 \moduleauthor{python-ldap developers}{python-ldap-dev@lists.sourceforge.net}
@@ -20,7 +20,7 @@
 
 % Leave at least one blank line after this, to simplify ad-hoc tools
 % that are sometimes used to massage these files.
-\modulesynopsis{Parses and generates LDAP URLs}
+\modulesynopsis{Parses and generates LDIF files}
 
 
 % ==== 2. ====
@@ -28,3 +28,8 @@
 % If it is platform specific, mention this.
 % Mention other important restrictions or general operating principles.
 
+This module parses and generates LDAP data in the format LDIF.
+
+\begin{seealso}
+\seerfc{2849}{The LDAP Data Interchange Format (LDIF) - Technical Specification}{}
+\end{seealso}

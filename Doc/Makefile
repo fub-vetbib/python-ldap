@@ -11,28 +11,27 @@ MKPDF=		$(MKHOWTO) --pdf
 TEXINPUTS=	$(PYTHONSRC)/Doc/texinputs::
 ENV=		/usr/bin/env TEXINPUTS=$(TEXINPUTS)
 
-SRCS= lib.tex libldap.tex version.tex
+SRCS=python-ldap.tex ldap.tex version.tex ldif.tex ldapurl.tex \
+     ldap_async.tex ldap_modlist.tex
 
-all: lib.dvi lib.ps lib.pdf lib/index.html
+all: python-ldap.dvi python-ldap.ps python-ldap.pdf python-ldap/index.html
 
-lib/index.html: $(SRCS)
-	$(ENV) $(MKHOWTO) --html lib.tex
-lib.ps: lib.dvi
-	$(ENV) $(DVIPS) -o lib.ps lib.dvi
-lib.dvi: $(SRCS)
-	$(ENV) $(MKDVI) lib.tex
-lib.pdf: $(SRCS)
-	$(ENV) $(MKPDF) lib.tex
+python-ldap/index.html: $(SRCS)
+	$(ENV) $(MKHOWTO) --html python-ldap.tex
+python-ldap.ps: python-ldap.dvi
+	$(ENV) $(DVIPS) -o python-ldap.ps python-ldap.dvi
+python-ldap.dvi: $(SRCS)
+	$(ENV) $(MKDVI) python-ldap.tex
+python-ldap.pdf: $(SRCS)
+	$(ENV) $(MKPDF) python-ldap.tex
 version.tex:
 	v=`${PYTHON} ../setup.py --version`; \
 	d=`date +"%B %e, %Y"`; \
 	echo "%release{$$v}%setshortversion{$$v}%date{$$d}" | tr % "\\\\" >$@
 clean:
-	rm -f *~ *.aux *.idx *.ilg *.ind *.log *.toc 
+	rm -f *~ *.bck *.aux *.idx *.ilg *.ind *.log *.toc 
 	rm -f *.bkm *.syn *.pla *.l2h *.how
-	rm -f lib.dvi lib.ps lib.pdf
+	rm -f python-ldap.dvi python-ldap.ps python-ldap.pdf
 	rm -f version.tex
-	rm -rf lib
+	rm -rf python-ldap
 
-upload:
-	scp -r -C lib.ps lib.pdf lib shell.sourceforge.net:htdocs/doc/
