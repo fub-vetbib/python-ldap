@@ -72,24 +72,21 @@ class LDAPConnection:
 
     def find_s(self, base_dn=None, attrl=None):
         """Search for base_dn, return None if not found."""
-        filter = '(!(dn=*))'
         try:
-            root = self.search_s(base_dn, filter, ldap.SCOPE_BASE, attrl)   
+            root = self.search_s(base_dn, 'objectclass=*',
+                                 ldap.SCOPE_BASE, attrl)   
         except LDAPError:
             root = []
         if len(root) == 1: return root[0]
         else: return None
         
     def root_s(self, base_dn=None, attrl=None):
-        """Return the root object using base_dn as the base for the search.
-
-           Note the strange search rule! It guarantee to return the entry,
-           even if it does not have attributes...
-        """
-        filter = '(!(dn=*))'
-        root = self.search_s(base_dn, filter, ldap.SCOPE_BASE, attrl)
+        """Return the root object using base_dn as the base for the search."""
+        root = self.search_s(base_dn, 'objectclass=*', ldap.SCOPE_BASE, attrl)
         if len(root) == 0:
             raise LDAPError, ({'desc':'dn does not exists'},)
+        elif len(root) > 1:
+            raise LDAPError, ({'desc':'more than one root objects found'},)
         return root[0]
 
     def browse_s(self, base_dn=None, filter=None, attrl=None):

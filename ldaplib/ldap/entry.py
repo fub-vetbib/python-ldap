@@ -123,7 +123,7 @@ class LDAPEntry:
         """Initialize itself from given dn."""
         self.__check_connection()
         c = self._connection
-        new = c.search_s(self.dn, '(!(dn=*))', ldap.SCOPE_BASE, attrl)
+        new = c.search_s(self.dn, 'objectclass=*', ldap.SCOPE_BASE, attrl)
         if len(new) == 0:
             raise LDAPError, ({'desc':'can not find dn'})
         items = {}

@@ -1,0 +1,415 @@
+#!/usr/bin/env python
+#
+# lappo - LDAP client with login and schema support
+#
+# Copyright (C) 2000 Federico Di Gregorio  <fog@mixadlive.com>
+# Copyright (C) 2000 MIXAD LIVE S.r.l.  [http://www.mixadlive.com]
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTIBILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# -*- Mode: pyhton -*-
+#
+
+import sys, re, string, getopt, _gtk
+import ldap, ldap.connection, ldap.widgets, ldap.parse
+from gtk import *
+from gnome.ui import *
+
+
+#################################################### global variables #########
+
+version = '0.3'
+program = 'lappo'
+copyright = ('Copyright (C) 2000 Federico Di Gregorio <fog@mixadlive.com>\n' +
+             'Copyright (C) 2000 MIXAD LIVE S.r.l. [http://www.mixadlive.com]')
+
+
+# all the configuration options are kept in a single globally accessible
+# dictionary (make better use of GNOME option saving here)
+O = {}
+O['modified'] = 0
+O['auth_user'] = ''
+O['auth_password'] = ''
+O['ldap_server'] = 'localhost'
+O['ldap_timeout'] = 30
+O['ldap_search_default'] = 'cn=*'
+O['use_rdn'] = TRUE
+
+# all the important widget are kept easily accessible in a global dictionary
+W = {}
+
+# the LDAP connection is cached into this variable it is closed and reopened
+# only after an error or a change in the authorization options
+L = None
+
+
+
+################################## simple widget data push/pop methods ########
+
+def push_widget_data(widget, data):
+    widget.set_data('__stack', data)
+
+def push_widget_data_2(widget, name, data):
+    try:
+        d =  widget.get_data('__stack')
+    except:
+        d = None
+    if d == None:
+        widget.set_data('__stack', {name:data})
+    else:
+        d[name] = data
+
+def pop_widget_data(widget):
+    d = widget.get_data('__stack')
+    widget.set_data('__stack', None)
+    return d
+
+def get_widget_data(widget):
+    return widget.get_data('__stack')
+
+
+#################################################### UI callback hooks ########
+
+#### save the changes back to the directory
+def action_save(widget, event=None):
+    def recursive_commit(node):
+        try:
+            node.commit()
+        except ldap.LDAPError, err:
+            dialog_info('Commit of %s failed:\nServer returned:%s'
+                        % (node.dn, err[0]['desc']), 'error')
+    for n in W['tree'].roots:
+        n.recurse_pre(recursive_commit)
+    O['modified'] = 0
+    
+
+#### tree selection caching, just to speed things up
+def tree_select_row(tree, node, column, entry):
+    """If the node contains an attribute value, copy it to the test entry;
+       then updates the tree_selected_* entries in W."""
+    global W
+    W['tree_selected_node'] = node
+    W['tree_selected_column'] = column
+    d = entry[0].node_get_ldap_data(node)
+    entry[1].set_text(d[1])
+    entry[1].select_region(0,-1)
+    entry[1].grab_focus()
+
+def tree_unselect_row(tree, node, column, entry):
+    global W
+    W['tree_selected_node'] = None
+    W['tree_selected_column'] = -1
+    entry[1].set_text('')
+
+
+#### editing in the text entry
+def entry_changed(entry, tree):
+    """Copy the changed text back to the tree node."""
+    global W, O
+    node = W['tree_selected_node']
+    if node:
+        if tree.node_set_ldap_data(node, entry.get_text()) != 0:
+            O['modified'] = 1
+            
+
+#### text in the search widget: if it is a CR start the search
+def search_activate(entry, tree):
+    """Add the results on an LDAP search to the tree (actually replace.)"""
+    global O
+    if O['modified'] == 1:
+        v = dialog_info("You made some modifications that will be lost.\n" +
+                        "Do you really want to perform the search?",
+                        'warning')
+        if v != 0: return
+    try:
+        tree.set_search_base(O['basedn'], entry.get_text())
+    except ldap.LDAPError, err:
+        dialog_info('Error searching the directory:\nServer returned:%s'
+                    % err[0]['desc'], 'error')
+        
+
+################################################ UI building functions ########
+
+#### preferences dialog
+def dialog_prefs(widget, event=None):
+    pbox = GnomePropertyBox()
+
+    # the callbacks for the property box
+    def apply_callback(widget, data=None):
+        global O, L
+        if data == -1:
+            d = get_widget_data(widget)
+            O['auth_user'] = d['auth_user_entry'].get_text()
+            O['auth_password'] = d['auth_password_entry'].get_text()
+            L.rebind(O['auth_user'], O['auth_password'])
+            
+    def destroy_callback(widget, data=None):
+        pop_widget_data(widget)
+        
+    pbox.connect('apply', apply_callback)
+    pbox.connect('ok', apply_callback)
+    pbox.connect('destroy', destroy_callback)
+    
+    # first page: authorization preferences
+    table = GtkTable(2, 2, 0)
+    table.set_col_spacings(4)
+    table.set_row_spacings(4)
+    table.set_border_width(4)
+    table.show()
+    
+    l = GtkLabel('Binding Dn'); l.show()
+    e = GtkEntry(); e.show(); e.set_text(O['auth_user'])
+    table.attach(l, 0,1, 0,1, xoptions=FILL)
+    table.attach(e, 1,2, 0,1, xoptions=FILL+EXPAND)
+    push_widget_data_2(pbox, 'auth_user_entry', e)
+
+    l = GtkLabel('Password'); l.show()
+    e = GtkEntry(); e.show(); e.set_text(O['auth_password'])
+    table.attach(l, 0,1, 1,2, xoptions=FILL)
+    table.attach(e, 1,2, 1,2, xoptions=FILL+EXPAND)
+    push_widget_data_2(pbox, 'auth_password_entry', e)
+
+    l = GtkLabel('Authentication'); l.show()
+    pbox.append_page(table, l)
+    pbox.show()
+    
+        
+#### quit dialog
+def dialog_quit(widget, event=None):
+    if O['modified'] == TRUE:
+	box = GnomeMessageBox('You made some modifications that will be ' +
+                              'lost.\nDo you reallly want to quit?',
+			      'question', STOCK_BUTTON_YES, STOCK_BUTTON_NO)
+	box.set_modal(TRUE)
+        button = box.run_and_close()
+        if button == 0: mainquit()
+
+    else:
+	mainquit()
+	
+    return TRUE
+
+
+#### about dialog
+def dialog_about(widget, event=None):
+    box = GnomeAbout('lappo',
+		     '0.1',
+		     'Copyright (C) 1999 MIXAD LIVE S.r.l.',
+		     ['Federico Di Gregorio'],
+		     'LDAP client with login and schema support')
+    box.show()
+    return TRUE
+
+
+#### generic message/ok only dialog
+def dialog_info(msg, type='information', buttons=STOCK_BUTTON_OK):
+    box = GnomeMessageBox(msg, type, buttons)
+    box.set_modal(TRUE)
+    v = box.run_and_close()
+    return v
+
+
+#### select schema and try to open it    
+def menu_open_schema(widget, event=None):
+    pass
+#    sel = GtkFileSelection('Select Schema')
+#    sel.ok_button.connect('clicked',
+#			  lambda widget, fs=sel:
+#			  schema_load(fs.get_filename()))
+#    sel.ok_button.connect('clicked', sel.destroy)
+#    sel.cancel_button.connect('clicked', sel.destroy)
+#    sel.show()
+    
+
+#### main application menu
+def menu_build():
+    file_menu = [
+	UIINFO_ITEM_STOCK('New',
+			  None, None, STOCK_MENU_NEW),
+	UIINFO_ITEM_STOCK('Search...',
+			  None, None, STOCK_MENU_SEARCH),
+	UIINFO_ITEM_STOCK('Save changes',
+			  None, action_save, STOCK_MENU_SAVE),
+	UIINFO_SEPARATOR,
+	UIINFO_ITEM_STOCK('Print...', None, None, STOCK_MENU_PRINT),
+	UIINFO_ITEM_STOCK('Setup Page...', None, None, STOCK_MENU_BLANK),
+	UIINFO_SEPARATOR,
+	UIINFO_ITEM_STOCK('Quit', None, dialog_quit, STOCK_MENU_QUIT)]
+   
+    edit_menu = [
+	UIINFO_ITEM_STOCK('Cut', None, None, STOCK_MENU_CUT),
+	UIINFO_ITEM_STOCK('Copy', None, None, STOCK_MENU_COPY),
+	UIINFO_ITEM_STOCK('Paste', None, None, STOCK_MENU_PASTE),
+	UIINFO_ITEM_STOCK('Delete', None, None, STOCK_MENU_BLANK),
+	UIINFO_SEPARATOR,
+	UIINFO_ITEM_STOCK('Preferences...',
+                          None, dialog_prefs, STOCK_MENU_PREF)]
+
+    view_menu = [
+        UIINFO_RADIOLIST([
+            UIINFO_ITEM('Browse', None, None, None),
+            UIINFO_ITEM('Search', None, None, None)])]
+    
+    help_menu = [
+	UIINFO_ITEM_STOCK('About...', None, dialog_about, STOCK_MENU_ABOUT)]
+    
+    menu_info = [
+	UIINFO_SUBTREE('File', file_menu),
+	UIINFO_SUBTREE('Edit', edit_menu),
+        UIINFO_SUBTREE('View', view_menu),
+	UIINFO_SUBTREE('Help', help_menu)]
+    
+    return menu_info
+
+
+#### build main application area
+def app_area_build(connection):
+    "Builds the widgets used in the application main window area."
+
+    global W, O
+  
+    # main vbox
+    vbox = GtkVBox(0, 0)
+    vbox.set_border_width(4)
+    vbox.show()
+    W['vbox'] = vbox
+
+    # search/browse options
+    table = GtkTable(2, 2, 0)
+    table.set_col_spacings(4)
+    table.set_row_spacings(4)
+    table.set_border_width(4)
+    table.show()
+    
+    frame = GtkFrame('Search/browse options')
+    frame.show()
+    frame.add(table)
+
+    vbox2 = GtkVBox(0, 0)
+    vbox2.set_border_width(4)
+    vbox2.show()
+
+    if O['basedn'] == None: basedn = '<directory base not set>'
+    else: basedn = O['basedn']
+    frame2 = GtkFrame('LDAP directory at '+basedn)
+    frame2.show()
+    frame2.add(vbox2)
+    # save a handle to frame2 to be able to change its label
+    W['frame'] = frame2
+    
+    l = GtkLabel('Filter'); l.show()
+    e = GtkEntry(); e.show();
+    table.attach(l, 0,1, 0,1, xoptions=FILL)
+    table.attach(e, 1,2, 0,1, xoptions=FILL+EXPAND)
+    W['filter'] = e
+
+    l = GtkLabel('Search'); l.show()
+    e = GtkEntry(); e.show();
+    table.attach(l, 0,1, 1,2, xoptions=FILL)
+    table.attach(e, 1,2, 1,2, xoptions=FILL+EXPAND)
+    W['search'] = e
+
+    # the main directory tree (with a scrolled window)
+    tree = ldap.widgets.GtkLDAPDirectoryTree(connection) 
+    tree.show()
+    W['tree'] = tree
+    scr = GtkScrolledWindow()
+    scr.show()
+    scr.set_policy(POLICY_AUTOMATIC, POLICY_ALWAYS)
+    scr.add(tree)
+    
+    # attribute values
+    entry = GtkEntry()
+    entry.show()
+    W['entry'] = entry
+
+    # the change-this-value table
+    #ocs = 
+    
+    vbox2.pack_start(scr, TRUE, TRUE)
+    vbox2.pack_start(entry, FALSE, TRUE)
+
+    vbox.set_spacing(4)
+    vbox.pack_start(frame2, TRUE, TRUE)
+    vbox.pack_start(frame, FALSE, TRUE)
+
+    # connect signals
+    tree.connect('tree-unselect-row', tree_unselect_row, (tree, entry))
+    tree.connect('tree-select-row', tree_select_row, (tree, entry))
+    entry.connect('changed', entry_changed, tree)
+    W['search'].connect('activate', search_activate, tree)
+    
+    return vbox
+
+
+################################################ main application loop ########
+
+# some parameters from the commandline
+if len(sys.argv) > 1:
+    O['ldap_server'] = string.replace(sys.argv[1], ' ', '')
+
+if len(sys.argv) > 2:
+    O['basedn'] = string.replace(sys.argv[2], ' ', '')
+else:
+    O['basedn'] = None
+
+if len(sys.argv) > 3:
+    O['auth_user'] = sys.argv[3]
+    O['auth_password'] = sys.argv[4]
+
+if  len(sys.argv) > 5:
+    O['ocd'] = ldap.parse.load_objectclasses_d(sys.argv[4])
+else:
+    O['ocd'] = ldap.parse.load_objectclasses_d('/etc/openldap/slapd.oc.conf') 
+
+
+# open the ldap connection
+L = ldap.connection.LDAPConnection(host=O['ldap_server'],
+                                   binding_dn=O['auth_user'],
+                                   auth_token=O['auth_password'])
+L.base = O['basedn']
+
+# build the GUI
+app = GnomeApp('lappo', 'lappo')
+app.set_wmclass('lappo', 'Lappo')
+app.connect('delete_event', dialog_quit)
+app.connect('destroy', mainquit)
+app.set_default_size(400,300) 
+app.create_menus(menu_build())
+app.set_contents(app_area_build(L))
+app.show()
+
+
+mainloop()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

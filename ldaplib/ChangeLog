@@ -1,0 +1,5 @@
+2000-02-11  Federico Di Gregorio  <fog@debian.org>
+
+	* connection.py, entry.py: susbstituted ugly (!(dn=*)) filter with
+	objectclass=*. that's not only nicier, it also guarantee that the
+	returned objects actually have an objectclass.
