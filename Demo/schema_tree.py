@@ -10,7 +10,7 @@ import sys,getopt,ldap,ldap.schema
 
 def PrintSchemaTree(schema,se_class,se_tree,se_oid,level):
   """ASCII text output for console"""
-  se_obj = schema.schema_element.get(se_oid,None)
+  se_obj = schema.sed.get(se_oid,None)
   if se_obj!=None:
     print '|    '*(level-1)+'+---'*(level>0), \
           ', '.join(se_obj.names), \
@@ -55,8 +55,8 @@ except getopt.error,e:
 
 html_output = options and options[0][0]=='--html'
 
-oc_tree = schema.schema_element_tree(ldap.schema.ObjectClass)
-at_tree = schema.schema_element_tree(ldap.schema.AttributeType)
+oc_tree = schema.tree(ldap.schema.ObjectClass)
+at_tree = schema.tree(ldap.schema.AttributeType)
 
 #for k,v in oc_tree.items():
 #  print k,'->',v

@@ -17,17 +17,17 @@ print '*** Schema from',repr(subschemasubentry_dn)
 # Display schema
 for attr_type,schema_class in ldap.schema.SCHEMA_CLASS_MAPPING.items():
   print '*'*66
-  for oid,se in schema.schema_element.items():
+  for oid,se in schema.sed.items():
     if isinstance(se,schema_class):
       print attr_type,str(se)
 print '*** Testing object class inetOrgPerson ***'
-inetOrgPerson = schema.schema_element[schema.name2oid[ldap.schema.ObjectClass]['inetOrgPerson']]
+inetOrgPerson = schema.sed[schema.name2oid[ldap.schema.ObjectClass]['inetOrgPerson']]
 print inetOrgPerson.must,inetOrgPerson.may
 print '*** person,organizationalPerson,inetOrgPerson ***'
-print schema.all_attrs(
+print schema.attribute_types(
   ['person','organizationalPerson','inetOrgPerson']
 )
-print schema.all_attrs(
+print schema.attribute_types(
   ['person','organizationalPerson','inetOrgPerson'],
   attr_type_filter = [
 #    ('no_user_mod',[0]),
@@ -35,7 +35,7 @@ print schema.all_attrs(
   ]  
 )
 try:
-  drink = schema.schema_element[schema.name2oid[ldap.schema.AttributeType]['favouriteDrink']]
+  drink = schema.sed[schema.name2oid[ldap.schema.AttributeType]['favouriteDrink']]
 except KeyError:
   pass
 else:
@@ -43,8 +43,8 @@ else:
   print drink.names
 
 
-schema.ldap_entry()
+print schema.ldap_entry()
 
-schema.all_available(ldap.schema.ObjectClass)
+schema.listall(ldap.schema.ObjectClass)
 
-schema.all_available(ldap.schema.AttributeType)
+schema.listall(ldap.schema.AttributeType)
