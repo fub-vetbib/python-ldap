@@ -74,8 +74,11 @@ if __name__ == '__main__':
 	x = { 'AbCDeF' : 123 }
 	cix = cidict(x)
 	assert cix["ABCDEF"] == 123
+	assert cix.get("ABCDEF",None) == 123
+	assert cix.get("not existent",None) is None
 	cix["xYZ"] = 987
 	assert cix["XyZ"] == 987
+	assert cix.get("XyZ",None) == 987
 	del cix["abcdEF"]
 	assert not cix.has_key("AbCDef")
 
