@@ -51,7 +51,11 @@ LDAPmessage_to_python( LDAP*ld, LDAPMessage*m )
 	 if (attrdict == NULL) {
 		Py_DECREF(result);
 		ldap_msgfree( m );
+#if LDAP_API_VERSION >= 2000
+		ldap_memfree(dn);
+#else
 		free(dn);
+#endif
 		return NULL;
 	 }
 
@@ -82,7 +86,12 @@ LDAPmessage_to_python( LDAP*ld, LDAPMessage*m )
 		if (ber != NULL)
 		    ber_free(ber, 0);
 		ldap_msgfree( m );
+#if LDAP_API_VERSION >= 2000
+		ldap_memfree(attr);
+		ldap_memfree(dn);
+#else
 		free(dn);
+#endif
 		return NULL;
 	     }
 
@@ -102,7 +111,12 @@ LDAPmessage_to_python( LDAP*ld, LDAPMessage*m )
 			if (ber != NULL)
 			    ber_free(ber, 0);
 			ldap_msgfree( m );
+#if LDAP_API_VERSION >= 2000
+			ldap_memfree(attr);
+			ldap_memfree(dn);
+#else
 			free(dn);
+#endif
 			return NULL;
 		    }
 		    Py_DECREF(valuestr);
@@ -110,14 +124,59 @@ LDAPmessage_to_python( LDAP*ld, LDAPMessage*m )
 		ldap_value_free_len(bvals);
 	     }
 	     Py_DECREF( valuelist );
+#if LDAP_API_VERSION >= 2000
+	     ldap_memfree(attr);
+#endif
 	 }
 
 	 entrytuple = Py_BuildValue("(sO)", dn, attrdict);
+#if LDAP_API_VERSION >= 2000
+	 ldap_memfree(dn);
+#else
          free(dn);
+#endif
 	 Py_DECREF(attrdict);
 	 PyList_Append(result, entrytuple);
 	 Py_DECREF(entrytuple);
+#if ( LDAP_API_VERSION > 2000 )
+	 if (ber != NULL)
+		 ber_free(ber, 0);
+#endif
      }
+#if LDAP_API_VERSION >= 2000
+     for(entry = ldap_first_reference(ld,m);
+	 entry != NULL;
+	 entry = ldap_next_reference(ld,entry))
+     {
+	 char **refs = NULL;
+	 PyObject* entrytuple;
+	 PyObject* reflist = PyList_New(0);
+
+	 if (reflist == NULL)  {
+	     Py_DECREF(result);
+	     ldap_msgfree( m );
+	     return NULL;
+	 }
+	 if (ldap_parse_reference(ld, entry, &refs, NULL, 0) != LDAP_SUCCESS) {
+	     Py_DECREF(result);
+	     ldap_msgfree( m );
+	     return LDAPerror( ld, "ldap_parse_reference" );
+	 }
+	 if (refs) {
+	     int i;
+	     for (i=0; refs[i] != NULL; i++) {
+		 PyObject *refstr = PyString_FromString(refs[i]);
+		 PyList_Append(reflist, refstr);
+		 Py_DECREF(refstr);
+	     }
+	     ber_memvfree( (void **) refs );
+	 }
+	 entrytuple = Py_BuildValue("(sO)", NULL, reflist);
+	 Py_DECREF(reflist);
+	 PyList_Append(result, entrytuple);
+	 Py_DECREF(entrytuple);
+     }
+#endif
      ldap_msgfree( m );
      return result;
 }

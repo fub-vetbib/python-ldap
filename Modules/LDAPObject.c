@@ -515,7 +515,7 @@ l_ldap_bind_s( LDAPObject* self, PyObject* args )
     return Py_None;
 }
 
-#ifdef LDAP_REFERRALS
+#if defined(LDAP_REFERRALS) || LDAP_API_VERSION >= 2000
 
 /* ldap_set_rebind_proc */
 
@@ -1211,9 +1211,9 @@ l_ldap_result( LDAPObject* self, PyObject *args )
     double timeout = -1.0;
     struct timeval tv;
     struct timeval* tvp;
-    int res_type, result;
+    int res_type;
     LDAPMessage *msg = NULL;
-    PyObject *result_str, *retval;
+    PyObject *result_str, *retval, *pmsg;
 
     if (!PyArg_ParseTuple( args, "|iid", &msgid, &all, &timeout ))
     	return NULL;
@@ -1239,28 +1239,49 @@ l_ldap_result( LDAPObject* self, PyObject *args )
     	return Py_None;
     }
 
-    /* thanks to Konstantin Chuguev for this */
-    if (res_type != LDAP_RES_SEARCH_ENTRY) {
+    if (res_type == LDAP_RES_SEARCH_ENTRY
+#if LDAP_API_VERSION >= 2000
+	    || res_type == LDAP_RES_SEARCH_REFERENCE
+#endif
+	)
+	pmsg = LDAPmessage_to_python( self->ldap, msg );
+    else {
+	int result;
+#if LDAP_API_VERSION >= 2000
+	char **refs = NULL;
+	LDAP_BEGIN_ALLOW_THREADS( self );
+	ldap_parse_result( self->ldap, msg, &result, NULL, NULL, &refs, NULL, 0 );
+#else
 	LDAP_BEGIN_ALLOW_THREADS( self );
 	result = ldap_result2error( self->ldap, msg, 0 );
+#endif
 	LDAP_END_ALLOW_THREADS( self );
 
 	if (result != LDAP_SUCCESS) {		/* result error */
+#if LDAP_API_VERSION >= 2000
+	    char *e, err[1024];
+	    if (result == LDAP_REFERRAL && refs && refs[0]) {
+		snprintf(err, sizeof(err), "Referral:\n%s", refs[0]);
+		e = err;
+	    } else
+		e = "ldap_parse_result";
+	    return LDAPerror( self->ldap, e );
+#else
 	    return LDAPerror( self->ldap, "ldap_result2error" );
+#endif
 	}
+	pmsg = Py_None;
     }
 
     result_str = LDAPconstant( res_type );
 
-    if (msg == NULL) {
-    	retval = Py_BuildValue("(OO)", result_str, Py_None);
-    } else {
-	PyObject *pmsg = LDAPmessage_to_python( self->ldap, msg );
-	if (pmsg == NULL) 
+    if (pmsg == NULL) {
 	    retval = NULL;
-	else
+    } else {
 	    retval = Py_BuildValue("(OO)", result_str, pmsg);
+	if (pmsg != Py_None) {
         Py_DECREF(pmsg);
+    }
     }
     Py_DECREF(result_str);
     return retval;
@@ -1451,6 +1472,9 @@ static char doc_search[] =
 
 /* ldap_search_s == ldap_search_st */
 
+#if LDAP_API_VERSION < 2000
+/* OpenLDAPv1 */
+
 /* ldap_ufn_search_c */
 
 /* ldap_ufn_search_ct */
@@ -1534,7 +1558,38 @@ static char doc_ufn[] =
 "\tSee the LDAP library manual pages for more information on these\n"
 "\t`user-friendly name' functions.";
 
+#endif /* LDAP_API_VERSION < 2000 */
+
 /* ldap_sort_entries */
+
+#ifdef HAVE_LDAP_START_TLS_S
+/* ldap_start_tls_s */
+
+static PyObject*
+l_ldap_start_tls_s( LDAPObject* self, PyObject* args )
+{
+    int result;
+
+    if (!PyArg_ParseTuple( args, "" )) return NULL;
+    if (not_valid(self)) return NULL;
+
+    result = ldap_start_tls_s( self->ldap, NULL, NULL );
+    if ( result != LDAP_SUCCESS ){
+	ldap_set_option(self->ldap, LDAP_OPT_ERROR_NUMBER, &result);
+	return LDAPerror( self->ldap, "ldap_start_tls_s" );
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static char doc_start_tls[] =
+"start_tls_s() -> None\n\n"
+"\tNegotiate TLS with server. The `version' attribute must have been\n"
+"\tset to VERSION3 before calling start_tls_s.\n"
+"\tIf TLS could not be started an exception will be raised.\n"
+;
+#endif
 
 /* ldap_url_search */
 
@@ -1631,7 +1686,7 @@ static PyMethodDef methods[] = {
     {"add_s",		(PyCFunction)l_ldap_add_s,		METH_VARARGS,	doc_add},	
     {"bind",		(PyCFunction)l_ldap_bind,		METH_VARARGS,	doc_bind},	
     {"bind_s",		(PyCFunction)l_ldap_bind_s,		METH_VARARGS,	doc_bind},	
-#ifdef LDAP_REFERRALS
+#if defined(LDAP_REFERRALS) || LDAP_API_VERSION >= 2000
     {"set_rebind_proc",	(PyCFunction)l_ldap_set_rebind_proc,	METH_VARARGS,	doc_set_rebind_proc},	
 #endif /* LDAP_REFERRALS */
     {"simple_bind",	(PyCFunction)l_ldap_simple_bind,	METH_VARARGS,	doc_bind},	
@@ -1688,9 +1743,14 @@ static PyMethodDef methods[] = {
     {"search",		(PyCFunction)l_ldap_search,		METH_VARARGS,	doc_search},	
     {"search_s",	(PyCFunction)l_ldap_search_st,		METH_VARARGS,	doc_search},	
     {"search_st",	(PyCFunction)l_ldap_search_st,		METH_VARARGS,	doc_search},	
+#ifdef HAVE_LDAP_START_TLS_S
+    {"start_tls_s",	(PyCFunction)l_ldap_start_tls_s,	METH_VARARGS,	doc_start_tls},
+#endif
+#if LDAP_API_VERSION < 2000
     {"ufn_search_s",	(PyCFunction)l_ldap_ufn_search_s,	METH_VARARGS,	doc_ufn},
     {"ufn_setfilter",	(PyCFunction)l_ldap_ufn_setfilter,	METH_VARARGS,	doc_ufn},
     {"ufn_setprefix",	(PyCFunction)l_ldap_ufn_setprefix,	METH_VARARGS,	doc_ufn},
+#endif
     {"url_search_s",	(PyCFunction)l_ldap_url_search_st,	METH_VARARGS,	doc_url_search},	
     {"url_search_st",	(PyCFunction)l_ldap_url_search_st,	METH_VARARGS,	doc_url_search},	
 #if defined(FILENO_SUPPORTED)
@@ -1766,6 +1826,47 @@ static PyObject*
 getattr( LDAPObject* self, char* name ) 
 {
 
+#if LDAP_API_VERSION >= 2000
+/* OpenLDAPv2 */
+	int res, option, intval, is_string = 0;
+	char *strval;
+
+	if (streq(name,"version"))
+		option = LDAP_OPT_PROTOCOL_VERSION;
+	else if (streq(name,"deref")) 
+		option = LDAP_OPT_DEREF;
+	else if (streq(name,"referrals"))
+		option = LDAP_OPT_REFERRALS;
+	else if (streq(name,"restart"))
+		option = LDAP_OPT_REFERRALS;
+	else if (streq(name,"timelimit")) 
+		option = LDAP_OPT_TIMELIMIT;
+	else if (streq(name,"sizelimit")) 
+		option = LDAP_OPT_SIZELIMIT;
+	else if (streq(name,"errno")) 
+		option = LDAP_OPT_ERROR_NUMBER;
+	else if (streq(name,"error")) {
+		option = LDAP_OPT_ERROR_STRING;
+		is_string = 1;
+	} else if (streq(name,"matched")) {
+		option = LDAP_OPT_MATCHED_DN;
+		is_string = 1;
+	} else
+		return Py_FindMethod( methods, (PyObject*)self, name );
+	LDAP_BEGIN_ALLOW_THREADS( self );
+	res = ldap_get_option(self->ldap, option, is_string ? (void *)&strval
+	                                                    : (void *)&intval);
+	LDAP_END_ALLOW_THREADS( self );
+	if (res < 0)
+		return LDAPerror( self->ldap, "ldap_get_option" );
+	if (!is_string)
+		return PyInt_FromLong(intval);
+	if (strval != NULL)
+		return PyString_FromString(strval);
+	Py_INCREF(Py_None);
+	return Py_None;
+#else
+/* OpenLDAPv1 */
 #ifndef LDAP_TYPE_IS_OPAQUE
 	if (streq(name,"lberoptions")) 
 		return PyInt_FromLong(self->ldap->ld_lberoptions);
@@ -1798,6 +1899,7 @@ getattr( LDAPObject* self, char* name )
 		return PyInt_FromLong(self->valid);
 
 	return Py_FindMethod( methods, (PyObject*)self, name );
+#endif /* LDAP_API_VERSION >= 2000 */
 }
 
 /* set attribute */
@@ -1805,7 +1907,12 @@ getattr( LDAPObject* self, char* name )
 static int
 setattr( LDAPObject* self, char* name, PyObject* value ) 
 {
+#if LDAP_API_VERSION >= 2000
+	int res, intval, option;
+	int *intptr = &intval;
+#else
 	long intval;
+#endif
 
 	if (streq(name,"errno") ||
 	    streq(name,"error") ||
@@ -1821,6 +1928,34 @@ setattr( LDAPObject* self, char* name, PyObject* value )
 	    return -1;
 	}
 
+#if defined(LDAP_API_VERSION)
+/* OpenLDAPv2 */
+	if (streq(name,"deref")) 
+		option = LDAP_OPT_DEREF;
+	else if(streq(name,"version"))
+		option = LDAP_OPT_PROTOCOL_VERSION;
+	else if(streq(name,"referrals")) {
+		option = LDAP_OPT_REFERRALS;
+		intptr = (void *)intval;
+	} else if(streq(name,"restart")) {
+		option = LDAP_OPT_RESTART;
+		intptr = (void *)intval;
+	} else if (streq(name,"timelimit")) 
+		option = LDAP_OPT_TIMELIMIT;
+	else if (streq(name,"sizelimit")) 
+		option = LDAP_OPT_SIZELIMIT;
+	else {
+		PyErr_SetString( PyExc_NameError, "cannot set that field" );
+		return -1;
+	}
+	LDAP_BEGIN_ALLOW_THREADS( self );
+	res = ldap_set_option(self->ldap, option, intptr);
+	LDAP_END_ALLOW_THREADS( self );
+	if (res < 0)
+		return LDAPerror( self->ldap, "ldap_get_option" ), -1;
+	return 0;
+#else
+/* OpenLDAPv1 */
 #       define set(a,max)                                          \
 	if (streq(name,#a)) {                                       \
 	    if (intval < 0 || intval > max )                        \
@@ -1844,6 +1979,7 @@ setattr( LDAPObject* self, char* name, PyObject* value )
 	/* it fell through to here */
 	PyErr_SetString( PyExc_NameError, "cannot set that field" );
 	return -1;
+#endif /* LDAP_API_VERSION >= 2000 */
 }
 
 /* type entry */

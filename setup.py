@@ -6,14 +6,14 @@ from ConfigParser import ConfigParser
 import string
 
 #-- Release version of Python-ldap
-version = '1.11'
+version = '2.0.0-pre01'
 
 #-- A class describing the features and requirements of OpenLDAP 2.0
 class OpenLDAP2:
 	library_dirs =	[ ]
 	include_dirs =	[ ]
 	libs =		['ldap', 'lber']
-	defines =	[('USE_CIDICT', None),
+	defines =	[#('USE_CIDICT', None),
 			 #('WITH_KERBEROS', None),
 			 #('HAVE_DES_SETKEY', None),
 			 ('LDAP_TYPE_IS_OPAQUE', None),
@@ -25,6 +25,7 @@ class OpenLDAP2:
 			 ('HAVE_LDAP_MODRDN2', None),
 			 ('HAVE_LDAP_MODRDN2_S', None),
 			 ('HAVE_LDAP_SET_CACHE_OPTIONS', None),
+			 ('HAVE_LDAP_START_TLS_S', None),
 			 ('HAVE_LDAP_UNCACHE_ENTRY', None),
 			 ('HAVE_LDAP_UNCACHE_REQUEST', None),
 			 ('HAVE_DISPTMPL_H', None),

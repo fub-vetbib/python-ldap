@@ -79,6 +79,27 @@ LDAPinit_constants( PyObject* d )
 	add_int(d,REQ_COMPARE);
 	add_int(d,REQ_ABANDON);
 
+#if LDAP_API_VERSION >= 2000
+	/* OpenLDAPv2 */
+	add_int(d,VERSION3);
+	add_int(d,VERSION_MIN);
+	add_int(d,VERSION_MAX);
+	add_int(d,TAG_LDAPDN);
+	add_int(d,TAG_LDAPCRED);
+	add_int(d,TAG_CONTROLS);
+	add_int(d,TAG_REFERRAL);
+
+	add_int(d,REQ_EXTENDED);
+#endif
+#if LDAP_API_VERSION >= 2004
+	add_int(d,TAG_NEWSUPERIOR);
+	add_int(d,TAG_EXOP_REQ_OID);
+	add_int(d,TAG_EXOP_REQ_VALUE);
+	add_int(d,TAG_EXOP_RES_OID);
+	add_int(d,TAG_EXOP_RES_VALUE);
+	add_int(d,TAG_SASL_RES_CREDS);
+#endif
+
 	/* reversibles */
 
 	zero = PyInt_FromLong( 0 );
@@ -94,6 +115,14 @@ LDAPinit_constants( PyObject* d )
 	add_int_r(d,RES_MODRDN);
 	add_int_r(d,RES_COMPARE);
 	add_int(d,RES_ANY);
+
+#if LDAP_API_VERSION >= 2000
+	/* OpenLDAPv2 */
+	add_int_r(d,RES_SEARCH_REFERENCE);
+	add_int_r(d,RES_EXTENDED);
+	add_int_r(d,RES_EXTENDED_PARTIAL);
+	add_int_r(d,RES_UNSOLICITED);
+#endif
 
 	/* non-reversibles */
 
@@ -121,6 +150,21 @@ LDAPinit_constants( PyObject* d )
 	add_int(d,MOD_DELETE);
 	add_int(d,MOD_REPLACE);
 	add_int(d,MOD_BVALUES);
+
+#if LDAP_API_VERSION >= 2000
+	/* OpenLDAPv2 */
+	add_int(d,FILTER_EXT);
+	add_int(d,FILTER_EXT_OID);
+	add_int(d,FILTER_EXT_TYPE);
+	add_int(d,FILTER_EXT_VALUE);
+	add_int(d,FILTER_EXT_DNATTRS);
+
+	add_int(d,SCOPE_DEFAULT);
+
+	add_int(d,MSG_ONE);
+	add_int(d,MSG_ALL);
+	add_int(d,MSG_RECEIVED);
+#endif
 
 	/* (errors.c contains the error constants) */
 
