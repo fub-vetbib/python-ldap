@@ -9,13 +9,14 @@ srcdir=		@srcdir@
 
 MAKEVARS=	srcdir=$(srcdir)/Modules VPATH=$(srcdir)/Modules
 
-build:   _ldapmodule-build
-install: _ldapmodule-install
+build:   _ldapmodule-build 
+install: _ldapmodule-install 
 
 _ldapmodule-build:
 	cd Modules && $(MAKE) $(MAKEVARS)
 
 _ldapmodule-install:
+	$(INSTALL_DIR) $(DESTDIR)$(LIBDEST)/site-packages/python-ldap
 	cd Modules && $(MAKE) $(MAKEVARS) install \
 				prefix='${DESTDIR}$${installdir}'
 	$(INSTALL_DIR) $(DESTDIR)$(LIBDEST)/site-packages/python-ldap
