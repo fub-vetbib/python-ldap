@@ -1,7 +1,7 @@
 # $Id$
 
-PYTHONSRC=	/usr/obj/ports/lang/python,threads/Python-2.0
-DOCTOOLSDIR=	./Python-2.0/Doc/tools
+PYTHONSRC=	/home/michael/src/Python-2.2
+DOCTOOLSDIR=	$(PYTHONSRC)/Doc/tools
 PAPER=		a4
 DVIPS=		dvips -N0 -t $(PAPER)
 PYTHON=		python
@@ -11,7 +11,7 @@ MKPDF=		$(MKHOWTO) --pdf
 TEXINPUTS=	$(PYTHONSRC)/Doc/texinputs::
 ENV=		/usr/bin/env TEXINPUTS=$(TEXINPUTS)
 
-SRCS=	lib.tex libldap.tex version.tex
+SRCS= lib.tex libldap.tex version.tex
 
 all: lib.dvi lib.ps lib.pdf lib/index.html
 
@@ -28,8 +28,8 @@ lib.dvi: $(SRCS) .link
 lib.pdf: $(SRCS) .link
 	$(ENV) $(MKPDF) lib.tex
 version.tex:
-	v=`cd .. && ${PYTHON} setup.py --version`; \
-	d=`date +"%B %e, %Y"`; \
+	v=`${PYTHON} ../setup.py --version`;
+	d=`date +"%B %e, %Y"`;
 	echo "%release{$$v}%setshortversion{$$v}%date{$$d}" | tr % "\\" >$@
 clean:
 	rm -f *~ *.aux *.idx *.ilg *.ind *.log *.toc 
