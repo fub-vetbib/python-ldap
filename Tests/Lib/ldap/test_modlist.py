@@ -42,12 +42,14 @@ modifyModlist_tests = [
       'objectClass':['person','pilotPerson'],
       'cn':['Michael Str\303\266der','Michael Stroeder'],
       'sn':['Str\303\266der'],
+      'enum':['a','b','c'],
       'c':['DE'],
     },
     {
       'objectClass':['person','inetOrgPerson'],
       'cn':['Michael Str\303\266der','Michael Stroeder'],
       'sn':[],
+      'enum':['a','b','d'],
       'mail':['michael@stroeder.com'],
     },
     [
@@ -56,6 +58,8 @@ modifyModlist_tests = [
       (ldap.MOD_DELETE,'c',None),
       (ldap.MOD_DELETE,'sn',None),
       (ldap.MOD_ADD,'mail',['michael@stroeder.com']),
+      (ldap.MOD_DELETE,'enum',None),
+      (ldap.MOD_ADD,'enum',['a','b','d']),
     ]
   ),
 
