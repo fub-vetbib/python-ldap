@@ -212,6 +212,7 @@ class ObjectClass:
 
 AttributeUsage = ldap.cidict.cidict({
   'userApplication':0,
+  'userApplications':0,
   'directoryOperation':1,
   'distributedOperation':2,
   'dSAOperation':3,
