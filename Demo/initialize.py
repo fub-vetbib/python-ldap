@@ -10,6 +10,9 @@ ldapi://%2ftmp%2fopenldap2 (domain socket /tmp/openldap2)
 
 import ldap
 
+# Set debugging level
+ldap.set_option(ldap.OPT_DEBUG_LEVEL,255)
+
 ##################################################################
 # LDAPv3 connection with StartTLS
 ##################################################################
