@@ -55,11 +55,6 @@ Author(s) contact:
    If you want new features or upgrades, please check the mailing list
    archives and then enquire about any progress.
 
-Notes for Microsoft WIN32:
-
-   If you have MSVC6.0 or equivalent, and want to build the module yourself,
-   you should refer to the README.txt file in the win32/ directory.
-
 Acknowledgements:
 
    Thanks to Konstantin Chuguev <Konstantin.Chuguev at dante.org.uk>
