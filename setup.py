@@ -24,22 +24,17 @@ class OpenLDAP2:
 #			 ('HAVE_LDAP_SET_CACHE_OPTIONS', None),
 #			 ('HAVE_LDAP_UNCACHE_ENTRY', None),
 #			 ('HAVE_LDAP_UNCACHE_REQUEST', None),
-			 ('HAVE_LDAP_START_TLS_S', None),
 			]
 
-#-- Read the [_ldap] section of setup.cfg to find out which class to use
+LDAP_CLASS = OpenLDAP2
+
+#-- Read the [_ldap] section of setup.cfg
 cfg = ConfigParser()
 cfg.read('setup.cfg')
 if cfg.has_section('_ldap'):
-    if cfg.has_option('_ldap', 'class'):
-	LDAP_CLASS = eval(cfg.get('_ldap', 'class'))
-    else:
-	LDAP_CLASS = OpenLDAP2
     for name in 'library_dirs', 'include_dirs', 'libs':
 	if cfg.has_option('_ldap', name):
 	    setattr(LDAP_CLASS, name, string.split(cfg.get('_ldap', name)))
-else:
-    LDAP_CLASS = OpenLDAP2
 
 #-- Let distutils do the rest
 setup(
@@ -74,6 +69,7 @@ setup(
 		    define_macros =	LDAP_CLASS.defines + \
               ('ldap_r' in LDAP_CLASS.libs)*[('HAVE_LIBLDAP_R',None)] + \
               ('sasl' in LDAP_CLASS.libs)*[('HAVE_SASL',None)] + \
+              ('ssl' in LDAP_CLASS.libs and 'crypto' in LDAP_CLASS.libs)*[('HAVE_LDAP_START_TLS_S',None)] + \
               [('LDAPMODULE_VERSION', version)]
 		),
 	],
