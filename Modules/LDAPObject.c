@@ -1240,7 +1240,7 @@ l_ldap_result( LDAPObject* self, PyObject *args )
 	if (timeout == 0)
 		return Py_BuildValue("(OO)", Py_None, Py_None);
 	else
-		return PyErr_SetObject(errobjects[LDAP_TIMEOUT], Py_None);
+		return PyErr_SetObject(LDAPerrobjects[LDAP_TIMEOUT], Py_None);
     }
 
     if (res_type == LDAP_RES_SEARCH_ENTRY
