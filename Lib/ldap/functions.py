@@ -70,6 +70,8 @@ def initialize(uri,trace_level=0,trace_file=sys.stdout):
         File object where to write the trace output to.
         Default is to use stdout.
   """
+  if not is_ldap_url(uri):
+    raise ValueError,"Parameter uri has to be a LDAP URL."
   return LDAPObject(uri,trace_level,trace_file)
 
 
@@ -83,6 +85,7 @@ def explode_dn(dn,notypes=0):
   """
   return _ldap_call(_ldap.explode_dn,dn,notypes)
 
+
 def explode_rdn(rdn,notypes=0):
   """
   explode_rdn(dn [, notypes=0]) -> list
@@ -94,9 +97,20 @@ def explode_rdn(rdn,notypes=0):
   """
   return _ldap_call(_ldap.explode_rdn,rdn,notypes)
 
+
 def get_option(option):
   return _ldap_call(_ldap.get_option,option)
+
 
 def set_option(option,invalue):
   _ldap_call(_ldap.set_option,option,invalue)
 
+
+def is_ldap_url(url):
+  """
+  is_ldap_url(url) -> int
+
+  This function returns true if url `looks like' an LDAP URL
+  (as opposed to some other kind of URL).
+  """
+  return _ldap_call(_ldap.is_ldap_url,url)
