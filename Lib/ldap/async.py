@@ -28,6 +28,7 @@ _entryResultTypes={
   'RES_SEARCH_RESULT':None,
 }
 
+
 class WrongResultType(Exception):
 
   def __init__(self,receivedResultType,expectedResultTypes):
@@ -156,8 +157,7 @@ class List(AsyncSearchHandler):
   """
 
   def __init__(self,l):
-    self._l = l
-    self._msgId = None
+    AsyncSearchHandler.__init__(self,l)
     self.allResults = []
 
   def _processSingleResult(self,resultType,resultItem):
