@@ -10,7 +10,7 @@ with Python 1.5.2 as well.
 """
 
 
-__version__ = '0.0.3'
+__version__ = '0.0.4'
 
 
 import string,ldap
@@ -24,12 +24,32 @@ def addModlist(entry,ignore_attr_types=[]):
     if string.lower(attrtype) in ignore_attr_types:
       # This attribute type is ignored
       continue
-    modlist.append((attrtype,entry[attrtype]))
+    # Eliminate empty attr value strings in list
+    attrvaluelist = filter(None,entry[attrtype])
+    if attrvaluelist:
+      modlist.append((attrtype,entry[attrtype]))
   return modlist
 
 
-def modifyModlist(old_entry,new_entry,ignore_attr_types=[]):
-  """Build differential modify list for call of method LDAPObject.modify()"""
+def modifyModlist(
+  old_entry,new_entry,ignore_attr_types=[],ignore_oldexistent=0
+):
+  """
+  Build differential modify list for calling LDAPObject.modify()/modify_s()
+
+  old_entry
+      Dictionary holding the old entry
+  new_entry
+      Dictionary holding what the new entry should be
+  ignore_attr_types
+      List of attribute type names to be ignored completely
+  ignore_oldexistent
+      If non-zero attribute type names which are in old_entry
+      but are not found in new_entry at all are not deleted.
+      This is handy for situations where your application
+      sets attribute value to '' for deleting an attribute.
+      In most cases leave zero.
+  """
   ignore_attr_types = map(string.lower,ignore_attr_types)
   modlist = []
   attrtype_lower_map = {}
@@ -59,14 +79,15 @@ def modifyModlist(old_entry,new_entry,ignore_attr_types=[]):
       # delete an existing attribute because attribute
       # value list is empty
       modlist.append((ldap.MOD_DELETE,attrtype,old_value))
-  # Remove all attributes of old_entry which are not present
-  # in new_entry at all
-  for a in attrtype_lower_map.keys():
-    if a in ignore_attr_types:
-      # This attribute type is ignored
-      continue
-    attrtype = attrtype_lower_map[a]
-    modlist.append((ldap.MOD_DELETE,attrtype,old_entry[attrtype]))
+  if not ignore_oldexistent:
+    # Remove all attributes of old_entry which are not present
+    # in new_entry at all
+    for a in attrtype_lower_map.keys():
+      if a in ignore_attr_types:
+        # This attribute type is ignored
+        continue
+      attrtype = attrtype_lower_map[a]
+      modlist.append((ldap.MOD_DELETE,attrtype,old_entry[attrtype]))
   return modlist
 
 def test():
