@@ -16,7 +16,7 @@ are assumed to be Unicode objects, string methods are used instead of
 module string and list comprehensions are used.
 """
 
-__version__ = '0.4.0'
+__version__ = '0.5.0'
 
 __all__ = [
   # constants
@@ -184,8 +184,8 @@ class LDAPUrl:
     hostport='',
     dn=None,
     attrs=None,
-    scope=LDAP_SCOPE_BASE,
-    filterstr='(objectclass=*)',
+    scope=None,
+    filterstr=None,
     extensions = {},
     charset='utf-8',
     who=None,
