@@ -77,4 +77,6 @@ print schema.all_attrs(
   ]  
 )
 
-schema.entryDict()
+schema.ldap_entry()
+
+schema.avail_objectclasses()

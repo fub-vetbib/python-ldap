@@ -2,7 +2,6 @@ import sys,ldap,ldap.schema,ldapurl
 
 schema_allow = ldap.schema.ALLOW_ALL
 schema_ignore_errors = 1
-schema_attrs = ldap.schema.SCHEMA_ATTRS
 
 ldap_url = ldapurl.LDAPUrl(sys.argv[1])
 
@@ -24,7 +23,7 @@ if subschemasubentry_dn is None:
 
 # Read the sub schema sub entry
 subschemasubentry_entry = l.read_subschemasubentry_s(
-  subschemasubentry_dn,attrs=schema_attrs
+  subschemasubentry_dn,attrs=['objectClasses']
 )
 print '*** Read schema from',repr(subschemasubentry_dn)
 print
@@ -37,14 +36,16 @@ schema = ldap.schema.SubSchema(
 )
 
 def PrintObjectclassTree(schema,oc_tree,oc_name,level):
-#  oc_obj = schema.get_schema_element(oc_name)
-#  assert oc_obj!=None
-  print '    '*level,'+---'*(level>0),oc_name
+  oc_obj = schema.get_schema_element(oc_name)
+  assert oc_obj!=None
+  print '|    '*(level-1)+'+---'*(level>0), \
+        oc_name, \
+        '(%s)' % oc_obj.oid
   for sub_oc_name in oc_tree[oc_name]:
-    print '    '*(level+1),'|'
+    print '|    '*(level+1)
     PrintObjectclassTree(schema,oc_tree,sub_oc_name,level+1)
 
-objectclass_tree = schema.objectclass_tree(ignore_errors=0)
+objectclass_tree = schema.objectclass_tree(ignore_errors=schema_ignore_errors)
 print '*** Object class tree ***'
 print
 
