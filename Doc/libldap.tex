@@ -29,23 +29,19 @@
 % Mention other important restrictions or general operating principles.
 
 This module provides access to the LDAP
-(Lightweight Directory Access Protocol) \C\ interface. 
-It is similar to the interface described in \rfc{1823},
-with the notable differences that lists are manipulated via Python
-list operations, and errors appear as exceptions.
+(Lightweight Directory Access Protocol) \C\ API implented
+in OpenLDAP 2.
+It is similar to the C API, with the notable differences
+that lists are manipulated via Python
+list operations and errors appear as exceptions.
 
 For far more detailed information on the \C\ interface, 
-please see the documentation that accompanies the underlying
-LDAP \C library, or see \rfc{1823}.
+please see the (expired) draft-ietf-ldapext-ldap-c-api-04.
 
 This documentation is current for the Python LDAP module, version
 $\version$.
 Source and binaries are available from
 \url{http://python-ldap.sourceforge.net/}.
-
-Much of this documentation has been derived from \rfc{1823} and
-the manual pages accompanying the University of Michigan's original
-LDAP library implementation.
 
 % ==== 3. ====
 % List the public functions defined by the module.  Begin with a

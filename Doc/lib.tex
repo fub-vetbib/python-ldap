@@ -1,10 +1,10 @@
 \documentclass{manual}
-\title{A low-level LDAP library for Python}
+\title{Accessing LDAP service with Python}
 % $Id$
 
-\author{David Leonard}
+\author{David Leonard, Michael Stroeder}
 \authoraddress{
-	The University of Queensland, Australia\\
+	python-ldap project at Sourceforge\\
 	E-mail: \email{python-ldap-dev@lists.sourceforge.net}
 }
 
@@ -18,14 +18,16 @@
 
 \begin{abstract}
 \noindent
-This documents a simple Python C wrapper module for the OpenLDAP library.
+This document describes the package python-ldap with its various modules
 \end{abstract}
 
 \tableofcontents
 
-\chapter{ The ldap module }
-
+\chapter{ python-ldap }
 \input{libldap}
+\input{libldif}
+\input{libldapurl}
+
 
 %begin{latexonly}
 %\renewcommand{\indexname}{Module Index}
