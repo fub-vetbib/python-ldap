@@ -1,4 +1,19 @@
 # $Id$
 
+PYTHON=		@PYTHON@
+LIBDEST=	@LIBDEST@
+INSTALL=	$(LIBDEST)/config/install-sh
+INSTALL_DATA=	$(INSTALL) -m 644
+INSTALL_DIR=	mkdir -p
+
 all:
-	cd Modules && ${MAKE} 
+	cd Modules && $(MAKE) 
+
+install:
+	cd Modules && $(MAKE) install
+	$(INSTALL_DATA) $(srcdir)/python-ldap.pth \
+		$(LIBDEST)/site-packages/python-ldap.pth
+	$(INSTALL_DIR) $(LIBDEST)/site-packages/python-ldap
+	#-- XXX need to copy contents of $(srcdir)/Lib/* to the new directory
+	$(PYTHON) $(LIBDEST)/compileall.py $(LIBDEST)/site-packages/python-ldap
+

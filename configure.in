@@ -46,6 +46,10 @@ AC_CACHE_CHECK(python version, ac_cv_ver_python, [
  ac_cv_ver_python=`$ac_cv_prog_python -c 'import sys;print sys.version[[:3]]'`])
 AC_CACHE_CHECK(python install prefix, ac_cv_path_python, [
  ac_cv_path_python=`$ac_cv_prog_python -c 'import sys;print sys.prefix'`])
+LIBDEST="$ac_cv_path_python/lib/python$ac_cv_ver_python"
+PYTHON="$ac_cv_prog_python"
+AC_SUBST(PYTHON)
+AC_SUBST(LIBDEST)
 
 dnl
 dnl Steal some configuration info from openldap.sh, if it was run
@@ -188,7 +192,7 @@ dnl
 dnl-- grab the Makefile.pre.in from python's config directory if it is there,
 dnl   otherwise we have to use the one we copied from 1.4's source.
 AC_MSG_CHECKING(python makefile)
-pymf="$ac_cv_path_python/lib/python$ac_cv_ver_python/config/Makefile.pre.in"
+pymf="$LIBDEST/config/Makefile.pre.in"
 if test -f "$pymf"; then
 	: we will use that one
 else
@@ -196,13 +200,12 @@ else
 fi
 AC_MSG_RESULT($pymf)
 cp "$pymf" Modules/Makefile.pre.in
-echo "PYTHON=$ac_cv_prog_python"
 
 AC_OUTPUT_COMMANDS([
 	echo bootstrapping makefile
 	rm -f Modules/Setup
 	(cd Modules && make -f Makefile.pre.in PYTHON="$PYTHON" boot)
-], [PYTHON="$ac_cv_prog_python"])
+], [PYTHON="$PYTHON"])
 
 AC_OUTPUT(Modules/Setup.in Makefile)
 
