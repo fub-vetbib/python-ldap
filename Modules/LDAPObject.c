@@ -1754,7 +1754,7 @@ repr( LDAPObject* self )
 
 	   (self->ldap->ld_options & LDAP_OPT_RESTART   ? "OPT_RESTART ":"")
 #else	/* LDAP_TYPE_IS_OPAQUE */
-	"LDAP"
+	"<LDAP>"
 #endif
     );
     return PyString_FromString( buf );
