@@ -3,7 +3,8 @@ LDAP module for Python
 ======================
 
 This module provides access to the LDAP (C language) library. It is 
-known to compile and work with:
+known to compile and work with basic functionality with the following
+versions:
 
   * Python 2.0+			<http://www.python.org/>
   * OpenLDAP 2.0.18		<http://www.openldap.org/>
