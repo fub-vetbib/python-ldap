@@ -7,7 +7,7 @@ See http://python-ldap.sourceforge.net for details.
 $Id$
 """
 
-__version__ = '2.0.4'
+__version__ = '2.0.5'
 
 import sys
 
