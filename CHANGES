@@ -1,6 +1,13 @@
 ----------------------------------------------------------------
 Released 2.1.0 2005-02-xx
 
+Changes since 2.0.6:
+
+* Added support for LDAP controls.
+  Contributors:
+  - Deepak Giridharagopal
+  - Ingo Steuwer
+
 Lib:/
 * New algorithm in ldap.schema.tokenizer.split_tokens()
   contributed by Wido Depping which is more robust
