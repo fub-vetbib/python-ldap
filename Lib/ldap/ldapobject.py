@@ -19,7 +19,7 @@ Basically calls into the LDAP lib are serialized by the module-wide
 lock self._ldap_object_lock.
 """
 
-__version__ = '0.5.3'
+__version__ = '0.5.4'
 
 __all__ = [
   'LDAPObject',
@@ -680,7 +680,7 @@ class ReconnectLDAPObject(SimpleLDAPObject):
         ))
       try:
         # Do the connect
-        self._l = ldap._ldap_function_call(_ldap.initialize,uri)
+        self._l = ldap.functions._ldap_function_call(_ldap.initialize,uri)
         self._restore_options()
         # StartTLS extended operation in case this was called before
         if self._start_tls:
