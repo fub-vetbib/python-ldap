@@ -3,6 +3,9 @@ Released 2.0.0pre21 2004-03-xx
 
 Changes since 2.0.0pre20:
 
+setup.py:
+* runtime_library_dirs is set if Python 2.3+ is used
+
 Modules/:
 * Removed meaningless repr() function from LDAPObject.c
 * Removed setting LDAP_OPT_PROTOCOL_VERSION in l_ldap_sasl_bind_s()
