@@ -113,7 +113,7 @@ class AsyncSearchHandler:
       result_type,result_list = None,None
       while go_ahead:
         while result_type is None and not result_list:
-          result_type,result_list = self._l.result(self._msgId,0,-1)
+          result_type,result_list = self._l.result(self._msgId,0,0)
         if not result_list:
           break
         if not _searchResultTypes.has_key(result_type):
@@ -125,9 +125,9 @@ class AsyncSearchHandler:
           elif processResultsCount==0 or result_counter<end_result_counter:
             self._processSingleResult(result_type,result_item)
           else:
-            go_ahead = 0
+            go_ahead = 0 # break-out from while go_ahead
             partial = 1
-            break # break-out for-loop
+            break # break-out from this for-loop
           result_counter = result_counter+1
         result_type,result_list = None,None
         self.endResultBreak = result_counter
