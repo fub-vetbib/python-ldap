@@ -72,6 +72,9 @@ ERRCODE2SCHERR = {
 }
 
 
+StringType=type('')
+
+
 def schema_func_wrapper(func,schema_element_str,schema_allow=0):
   """
   Wrapper functions to serialize calls into OpenLDAP libs with       
@@ -211,29 +214,30 @@ class ObjectClass:
 class AttributeType:
 
     def __init__(self, schema_element_str,schema_allow=0):
-        (self.oid,             #REQUIRED
-         self.names,           #OPTIONAL
-         self.desc,            #OPTIONAL
-         self.obsolete,        #0=no, 1=yes
-         self.sup_oid,         #OPTIONAL
-         self.equality_oid,    #OPTIONAL
-         self.ordering_oid,    #OPTIONAL
-         self.substr_oid,      #OPTIONAL
-         self.syntax_oid,      #OPTIONAL
-         self.syntax_len,      #OPTIONAL
-         self.single_value,    #0=no, 1=yes
-         self.collective,      #0=no, 1=yes
-         self.no_user_mod,     #0=no, 1=yes
-         self.usage,           #0=userApplications, 1=directoryOperation,
-                               #2=distributedOperation, 3=dSAOperation
-         self.ext              #OPTIONAL
-         ) = str2attributetype(schema_element_str,schema_allow)
-
+      (
+        self.oid,             #REQUIRED
+        self.names,           #OPTIONAL
+        self.desc,            #OPTIONAL
+        self.obsolete,        #0=no, 1=yes
+        self.sup,         #OPTIONAL
+        self.equality_oid,    #OPTIONAL
+        self.ordering_oid,    #OPTIONAL
+        self.substr_oid,      #OPTIONAL
+        self.syntax_oid,      #OPTIONAL
+        self.syntax_len,      #OPTIONAL
+        self.single_value,    #0=no, 1=yes
+        self.collective,      #0=no, 1=yes
+        self.no_user_mod,     #0=no, 1=yes
+        self.usage,           #0=userApplications, 1=directoryOperation,
+                              #2=distributedOperation, 3=dSAOperation
+        self.ext              #OPTIONAL
+      ) = str2attributetype(schema_element_str,schema_allow)
+      
     def __str__(self):
       result = [str(self.oid)]
       result.append(key_list('NAME',self.names,quoted=1))
       result.append(key_attr('DESC',self.desc,quoted=1))
-      result.append(key_attr('SUP',self.sup_oid))
+      result.append(key_attr('SUP',self.sup))
       result.append({0:'',1:' OBSOLETE'}[self.obsolete])
       result.append(key_attr('EQUALITY',self.equality_oid))
       result.append(key_attr('ORDERING',self.ordering_oid))
@@ -355,36 +359,46 @@ class SubSchema:
           del entry[k]
       return entry
 
-    def avail_objectclasses(self):
+    def all_available(self,schema_element_class):
       """
-      Returns a list of all available object classes by first name.
+      Returns a list of all available schema elements by first name
+      of a given class.
       """
       return [
         se.names[0]
         for se in self.schema_element.values()
-        if se.__class__==ObjectClass and se.names
+        if isinstance(se,schema_element_class)
       ]
 
-    def objectclass_tree(self,ignore_errors=0):
+    def schema_element_tree(self,schema_element_class,ignore_errors=0):
       """
       Returns a ldap.cidict.cidict dictionary representing the
-      tree structure of the object class inheritance.
+      tree structure of the schema element inheritance.
       Important note:
       Only object classes with class attribute names set are used.
       """
-      avail_objectclasses = self.avail_objectclasses()
-      tree = ldap.cidict.cidict({'top':[]})
+      assert schema_element_class in [ObjectClass,AttributeType]
+      avail_se = self.all_available(schema_element_class)
+      top_node = {0:'_',1:'top'}[schema_element_class==ObjectClass]
+      tree = ldap.cidict.cidict({top_node:[]})
       # 1. Pass: Register all nodes
-      for oc in avail_objectclasses:
-        tree[oc] = []
+      for se in avail_se:
+        tree[se] = []
       # 2. Pass: Register all sup references
-      for oc in avail_objectclasses:
-        oc_obj = self.get_schema_element(oc)
-        if oc_obj is None:
+      for se in avail_se:
+        se_obj = self.get_schema_element(se)
+        if se_obj is None:
           continue
-        for s in oc_obj.sup:
+        if type(se_obj.sup)==StringType:
+          if se_obj.sup:
+            sup = [se_obj.sup]
+          else:
+            sup = [top_node]
+        else:
+          sup = se_obj.sup
+        for s in sup:
           try:
-            tree[s].append(oc)
+            tree[s].append(se)
           except KeyError:
             if ignore_errors:
               continue
