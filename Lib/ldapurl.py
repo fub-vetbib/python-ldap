@@ -28,8 +28,6 @@ __all__ = [
   'LDAPUrlExtension','LDAPUrl'
 ]
 
-import re
-
 from urllib import quote,quote_plus,unquote_plus
 
 # Some widely used types
