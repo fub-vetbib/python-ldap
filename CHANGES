@@ -3,6 +3,15 @@ Released 2.0.0pre20 2004-02-xx
 
 Changes since 2.0.0pre19:
 
+Modules/:
+* Removed doc strings from functions.c
+* Removed probably unused wrapper function l_ldap_dn2ufn() since
+  ldap_dn2ufn() is deprecated in OpenLDAP 2.1+
+* Removed wrapper function l_ldap_is_ldap_url().
+
+ldap.functions:
+* Removed ldap_is_ldap_url(). The more general function
+  ldapurl.isLDAPUrl() should be used instead.
 
 ----------------------------------------------------------------
 Released 2.0.0pre19 2004-01-22

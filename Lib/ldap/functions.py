@@ -131,18 +131,18 @@ def explode_rdn(rdn,notypes=0):
 
 
 def get_option(option):
+  """
+  get_option(name) -> value
+
+  Get the value of an LDAP global option.
+  """
   return _ldap_function_call(_ldap.get_option,option)
 
 
 def set_option(option,invalue):
+  """
+  set_option(name, value)
+  
+  Set the value of an LDAP global option.
+  """
   _ldap_function_call(_ldap.set_option,option,invalue)
-
-
-def is_ldap_url(url):
-  """
-  is_ldap_url(url) -> int
-
-  This function returns true if url `looks like' an LDAP URL
-  (as opposed to some other kind of URL).
-  """
-  return _ldap_function_call(_ldap.is_ldap_url,url)

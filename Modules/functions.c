@@ -31,37 +31,6 @@ l_ldap_initialize(PyObject* unused, PyObject *args)
     return (PyObject*)newLDAPObject(ld);
 }
 
-static char doc_initialize[] = 
-"initialize(uri) -> LDAPObject\n\n"
-"\tReturns an LDAP object for new connection to LDAP server.\n"
-"\tThe actual connection open will occur when the first operation\n"
-"\tis attempted.\n";
-
-/* ldap_dn2ufn */
-
-static PyObject*
-l_ldap_dn2ufn( PyObject* unused, PyObject *args )
-{
-    char *dn;
-    char *ufn;
-    PyObject *result;
-
-    if (!PyArg_ParseTuple( args, "s", &dn )) return NULL;
-
-    ufn = ldap_dn2ufn(dn);
-    if (ufn == NULL)
-    	return PyErr_SetFromErrno(LDAPexception_class);
-    result = PyString_FromString( ufn );
-    free(ufn);
-    return result;
-}
-
-static char doc_dn2ufn[] =
-"dn2ufn(dn) -> string\n\n"
-"\tTurns the DN into a more user-friendly form, stripping off type names.\n"
-"\tSee RFC 1781 ``Using the Directory to Achieve User Friendly Naming''\n"
-"\tfor more details on the UFN format.";
-
 /* ldap_explode_dn */
 
 static PyObject*
@@ -90,15 +59,6 @@ l_ldap_explode_dn( PyObject* unused, PyObject *args )
     ldap_value_free(exploded);
     return result;
 }
-
-static char doc_explode_dn[] =
-"explode_dn(dn [, notypes=0]) -> list\n\n"
-"\tThis function takes the DN and breaks it up into its component parts.\n"
-"\tEach part is known as an RDN (Relative Distinguished Name). The notypes\n"
-"\tparameter is used to specify that only the RDN values be returned\n"
-"\tand not their types. For example, the DN \"cn=Bob, c=US\" would be\n"
-"\treturned as either [\"cn=Bob\", \"c=US\"] or [\"Bob\",\"US\"]\n"
-"\tdepending on whether notypes was 0 or 1, respectively.";
 
 /* ldap_explode_rdn */
 
@@ -129,28 +89,6 @@ l_ldap_explode_rdn( PyObject* unused, PyObject *args )
     return result;
 }
 
-static char doc_explode_rdn[] =
-"explode_rdn(dn [, notypes=0]) -> list\n\n"
-"\tThis function takes the RDN and breaks it up into its component parts.\n"
-"\tThe notypes parameter is used to specify that only the component's\n"
-"\tattribute values be returned and not the attribute types.\n";
-
-/* ldap_is_ldap_url */
-
-static PyObject*
-l_ldap_is_ldap_url( PyObject* unused, PyObject *args )
-{
-    char *url;
-
-    if (!PyArg_ParseTuple( args, "s", &url )) return NULL;
-    return PyInt_FromLong( ldap_is_ldap_url( url ));
-}
-
-static char doc_is_ldap_url[] = 
-"is_ldap_url(url) -> int\n\n"
-"\tThis function returns true if url `looks like' an LDAP URL\n"
-"\t(as opposed to some other kind of URL).";
-
 /* ldap_set_option (global options) */
 
 static PyObject*
@@ -167,10 +105,6 @@ l_ldap_set_option(PyObject* self, PyObject *args)
 	return Py_None;
 }
 
-static char doc_set_option[] = 
-"set_option(name, value)\n\n"
-"\tSet the value of an LDAP global option.\n";
-
 /* ldap_get_option (global options) */
 
 static PyObject*
@@ -184,28 +118,14 @@ l_ldap_get_option(PyObject* self, PyObject *args)
 }
 
 
-
-static char doc_get_option[] = 
-"get_option(name) -> value\n\n"
-"\tGet the value of an LDAP global option.\n";
-
 /* methods */
 
 static PyMethodDef methods[] = {
-    { "initialize",	(PyCFunction)l_ldap_initialize,		METH_VARARGS,
-    	doc_initialize },
-    { "dn2ufn",		(PyCFunction)l_ldap_dn2ufn,		METH_VARARGS,
-    	doc_dn2ufn },
-    { "explode_dn",	(PyCFunction)l_ldap_explode_dn,		METH_VARARGS,
-    	doc_explode_dn },
-    { "explode_rdn",	(PyCFunction)l_ldap_explode_rdn,	METH_VARARGS,
-    	doc_explode_rdn },
-    { "is_ldap_url",	(PyCFunction)l_ldap_is_ldap_url,	METH_VARARGS,
-    	doc_is_ldap_url },
-    { "set_option", (PyCFunction)l_ldap_set_option,		METH_VARARGS,
-    	doc_set_option },
-    { "get_option", (PyCFunction)l_ldap_get_option,		METH_VARARGS,
-    	doc_get_option },
+    { "initialize",	(PyCFunction)l_ldap_initialize,		METH_VARARGS },
+    { "explode_dn",	(PyCFunction)l_ldap_explode_dn,		METH_VARARGS },
+    { "explode_rdn",	(PyCFunction)l_ldap_explode_rdn,	METH_VARARGS },
+    { "set_option", (PyCFunction)l_ldap_set_option,		METH_VARARGS },
+    { "get_option", (PyCFunction)l_ldap_get_option,		METH_VARARGS },
     { NULL, NULL }
 };
 
