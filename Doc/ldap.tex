@@ -583,8 +583,10 @@ of an abandoned operation will not be returned from a future call to
 
 \begin{methoddesc}[LDAP]{add}{dn, modlist} % -> int
      \methodline{add_s}{dn, modlist}
-This function is similar to \method{modify()}, except that the operation
-integer is omitted from the tuples in \var{modlist}.
+This function adds a new entry with a distinguished name
+specified by \var{dn} which means it must not already exist.
+The argument \var{modlist} is similar to the one passed to \method{modify()},
+except that no operation integer need be included in the tuples.
 You might want to like into sub-module \refmodule{ldap.modlist} for
 generating \var{modlist}.
 \end{methoddesc}

@@ -132,9 +132,11 @@ class SimpleLDAPObject:
 
   def add(self,dn,modlist):
     """
-    add(dn, modlist) -> int    
-        This function is similar to modify(), except that no operation
-        integer need be included in the tuples.
+    add(dn, modlist) -> int
+        This function adds a new entry with a distinguished name
+        specified by dn which means it must not already exist.
+        The parameter modlist is similar to the one passed to modify(),
+        except that no operation integer need be included in the tuples.
     """
     return self._ldap_call(self._l.add,dn,modlist)
 
