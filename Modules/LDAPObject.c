@@ -689,45 +689,6 @@ l_ldap_modify_ext( LDAPObject* self, PyObject *args )
 }
 
 
-/* ldap_passwd */
-
-static PyObject *
-l_ldap_passwd( LDAPObject* self, PyObject *args )
-{
-    struct berval *user;
-    struct berval *oldpw;
-    struct berval *newpw;
-    PyObject *serverctrls = Py_None;
-    PyObject *clientctrls = Py_None;
-
-    int msgid;
-    int ldaperror;
-    struct berval buser;
-    struct berval boldpw;
-    struct berval bnewpw;
-
-    if (!PyArg_ParseTuple( args, "ss|ziOO", &user, &oldpw, &newpw, &serverctrls, &clientctrls ))
-    	return NULL;
-    if (not_valid(self)) return NULL;
-
-    buser.bv_val = (char *) user;
-    buser.bv_len = (user == NULL) ? 0 : strlen( user );
-    boldpw.bv_val = (char *) oldpw;
-    boldpw.bv_len = (oldpw == NULL) ? 0 : strlen( oldpw );
-    bnewpw.bv_val = (char *) newpw;
-    bnewpw.bv_len = (newpw == NULL) ? 0 : strlen( newpw );
-
-    LDAP_BEGIN_ALLOW_THREADS( self );
-    ldaperror = ldap_passwd( self->ldap, &buser, &boldpw, &bnewpw, NULL, NULL, &msgid );
-    LDAP_END_ALLOW_THREADS( self );
-
-    if ( ldaperror!=LDAP_SUCCESS )
-    	return LDAPerror( self->ldap, "ldap_passwd" );
-
-    return PyInt_FromLong( msgid );
-}
-
-
 /* ldap_rename */
 
 static PyObject *
