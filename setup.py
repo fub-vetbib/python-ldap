@@ -1,6 +1,13 @@
 #! /usr/bin/env python
 # $Id$
 
+from distutils.core import setup, Extension
+from ConfigParser import ConfigParser
+
+#-- Release version of Python-ldap
+version = '1.10'
+
+#-- A class describing the features and requirements of OpenLDAP 2.0
 class OpenLDAP2:
 	library_dirs =	[ "/usr/local/lib" ]
 	include_dirs =	[ "/usr/local/include" ]
@@ -22,11 +29,7 @@ class OpenLDAP2:
 			 ('HAVE_DISPTMPL_H', None),
 			]
 
-version = '1.10'
-
-from distutils.core import setup, Extension
-from ConfigParser import ConfigParser
-
+#-- Read the [_ldap] section of setup.cfg to find out which class to use
 cfg = ConfigParser()
 cfg.read('setup.cfg')
 if cfg.has_section('_ldap') and cfg.has_option('_ldap', 'class'):
@@ -34,7 +37,9 @@ if cfg.has_section('_ldap') and cfg.has_option('_ldap', 'class'):
 else:
 	LDAP_CLASS = OpenLDAP2
 
+#-- Let distutils do the rest
 setup(
+	#-- Package description
 	name =		'Python-LDAP',
 	version =	version,
 	description =	'API for LDAP C library',
@@ -42,6 +47,7 @@ setup(
 	author_email =	'python-ldap-dev@lists.sourceforge.net',
 	url =		'http://python-ldap.sourceforge.net/',
 
+	#-- C extension modules
 	ext_modules = [
 		Extension(
 		    '_ldap',
@@ -68,11 +74,14 @@ setup(
 		),
 	],
 
-	package_dir = { '': 'Lib' },
+	#-- Python modules
 	py_modules = [
 		'ldap',
 		'ldif',
 		#'perldap',
 	],
+
+	#-- where to find the python modules
+	package_dir = { '': 'Lib' },
 )
 
