@@ -76,7 +76,6 @@ setup(
 			'Modules/functions.c',
 			'Modules/schema.c',
 			'Modules/ldapmodule.c',
-			'Modules/linkedlist.c',
 			'Modules/message.c',
 			'Modules/version.c',
 			'Modules/options.c',

@@ -12,6 +12,7 @@ Modules/:
 * Wrapped ldap_sasl_bind() for simple binds instead of ldap_bind()
   since 1. the latter is marked deprecated and 2. ldap_sasl_bind()
   allows password credentials with null chars.
+* Removed unused sources linkedlist.c and linkedlist.h
 
 ldap.ldapobject:
 * LDAPObject.bind() only allows simple binds since Kerberos V4
