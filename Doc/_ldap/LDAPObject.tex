@@ -182,8 +182,6 @@ parameter has meaning only for \method{search} responses, and is used to select
 whether a single entry of the search response should be returned, or whether
 the \method{result} method should wait until all the results of the search 
 are available before returning. 
-If \var{all} is \constant{0}, one response at a time is returned, with 
-termination indicated by....?
 
 The \var{timeout} parameter is a limit on the number of seconds that the
 method will wait for a response from the server. 
@@ -202,6 +200,10 @@ The first element, \textit{result-type} is a string, being one of:
 \constant{'RES_MODRDN'}, or \constant{'RES_COMPARE'}.
 
 The constants \constant{RES_*} are set to these strings, for convenience.
+
+If \var{all} is \constant{0}, one response at a time is returned on
+each call to \method{result}, with termination indicated by 
+\textit{result-data} being an empty list.
 
 See \method{search} for a description of the search result's \var{result_data},
 otherwise the \var{result_data} is normally meaningless.
