@@ -1,10 +1,22 @@
 ------------------------------
-LDAP module package for Python
+LDAP client API for Python
 ------------------------------
 
-This module provides access to the LDAP (C language) library. It is 
-known to compile and work with basic functionality with the following
-versions:
+What is python-ldap?
+
+python-ldap provides an object-oriented API to access LDAP
+directory servers from Python programs. Mainly it wraps the
+OpenLDAP 2.x libs for that purpose.
+
+Additionally the package contains modules for other LDAP-related
+stuff (e.g. processing LDIF, LDAPURLs, LDAPv3 sub-schema, etc.).
+
+Not included: Direct BER support
+
+See TODO for planned features. Contributors welcome.
+
+It is known to compile and work with basic functionality with the
+following versions:
 
   * Python 2.0+			<http://www.python.org/>
   * OpenLDAP 2.0.18		<http://www.openldap.org/>
@@ -27,8 +39,8 @@ Quick usage example:
     l.simple_bind_s("","")
     l.search_s("o=My Organisation, c=AU", ldap.SCOPE_SUBTREE, "objectclass=*")
 
-Not included:
-   Direct BER support
+See directory Demo/ of source distribution package for more
+example code.
 
 Author(s) contact:
    http://python-ldap.sourceforge.net/
