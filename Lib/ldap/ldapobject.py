@@ -255,33 +255,32 @@ class LDAPObject:
         an attribute of the entry or not.  The asynchronous version
         returns the initiated message id.
 
-        This actually corresponds to the modrdn2* routines in the
-        C library.
+        This operation is emulated by rename() and rename_s() methods
+        since the modrdn2* routines in the C library are deprecated.
     """
-    return self._ldap_call(self._l.modrdn,dn,newrdn,delold)
+    return self.rename(dn,newrdn,None,delold)
 
   def modrdn_s(self,dn,newrdn,delold=1):
-    msgid = self.modrdn(dn,newrdn,delold)
-    self.result(msgid)
+    self.rename_s(dn,newrdn,None,delold)
 
-  def rename(self,dn,newrdn,newSuperior,delold=1):
+  def rename(self,dn,newrdn,newSuperior=None,delold=1):
     """
-    rename(dn, newrdn, newSuperior, [,delold=1]) -> int
-    rename_s(dn, newrdn, newSuperior, [,delold=1]) -> None    
+    rename(dn, newrdn [, newSuperior=None] [,delold=1]) -> int
+    rename_s(dn, newrdn [, newSuperior=None] [,delold=1]) -> None
         Perform a rename entry operation. These routines take dn, the
         DN of the entry whose RDN is to be changed, newrdn, the
         new RDN, and newSuperior, the new parent DN, to give to the entry.
-        The optional parameter delold
-        is used to specify whether the old RDN should be kept as
-        an attribute of the entry or not.  The asynchronous version
-        returns the initiated message id.
+        If newSuperior is None then only the RDN is modified.
+        The optional parameter delold is used to specify whether the
+        old RDN should be kept as an attribute of the entry or not.
+        The asynchronous version returns the initiated message id.
 
         This actually corresponds to the rename* routines in the
         LDAP-EXT C API library.
     """
     return self._ldap_call(self._l.rename,dn,newrdn,newSuperior,delold)
 
-  def rename_s(self,dn,newrdn,newSuperior,delold=1):
+  def rename_s(self,dn,newrdn,newSuperior=None,delold=1):
     msgid = self.rename(dn,newrdn,newSuperior,delold)
     self.result(msgid)
 
