@@ -41,6 +41,8 @@ if __debug__:
 
 import sys,string,time,_ldap,ldap
 
+from ldap import LDAPError
+
 class SimpleLDAPObject:
   """
   Drop-in wrapper class around _ldap.LDAPObject
@@ -48,18 +50,21 @@ class SimpleLDAPObject:
 
   _direct_class_attrs = ['_l','_trace_level','_trace_file','_uri','_ldap_object_lock']
 
-  def __init__(self,uri,trace_level=0,trace_file=sys.stdout):
+  def __init__(self,uri,trace_level=ldap._trace_level,trace_file=sys.stdout):
     self._trace_level = trace_level
     self._trace_file = trace_file
     self._uri = uri
-    self._l = ldap._ldap_call(_ldap.initialize,uri)
     if ldap.LIBLDAP_R:
       self._ldap_object_lock = ldap.LDAPLock()
     else:
       self._ldap_object_lock = ldap._ldap_module_lock
+    self._l = ldap._ldap_function_call(_ldap.initialize,uri)
 
   def _ldap_call(self,func,*args,**kwargs):
-    """Wrapper method mainly for trace logs"""
+    """
+    Wrapper method mainly for serializing calls into OpenLDAP libs
+    and trace logs
+    """
     if __debug__:
       if self._trace_level>=1:# and func.__name__!='result':
         self._trace_file.write('*** %s.%s (%s,%s)\n' % (
@@ -71,11 +76,16 @@ class SimpleLDAPObject:
           traceback.print_stack(file=self._trace_file)
     self._ldap_object_lock.acquire()
     try:
-      result = apply(func,args,kwargs)
-    finally:
-      self._ldap_object_lock.release()
-    if __debug__:
-      if self._trace_level>=1 and result!=None and result!=(None,None):
+      try:
+        result = apply(func,args,kwargs)
+      finally:
+        self._ldap_object_lock.release()
+    except LDAPError,e:
+      if __debug__ and self._trace_level>=1:
+        self._trace_file.write('=> LDAPError: %s\n' % (str(e)))
+      raise
+    if __debug__ and self._trace_level>=1:
+      if result!=None and result!=(None,None):
         self._trace_file.write('=> result: %s\n' % (repr(result)))
     return result
 

@@ -30,7 +30,7 @@ __all__ = [
 
 import sys,_ldap
 
-from ldap import _ldap_call
+from ldap import _ldap_function_call
 from ldap.ldapobject import LDAPObject
 
 
@@ -83,7 +83,7 @@ def explode_dn(dn,notypes=0):
   The notypes parameter is used to specify that only the component's
   attribute values be returned and not the attribute types.
   """
-  return _ldap_call(_ldap.explode_dn,dn,notypes)
+  return _ldap_function_call(_ldap.explode_dn,dn,notypes)
 
 
 def explode_rdn(rdn,notypes=0):
@@ -95,15 +95,15 @@ def explode_rdn(rdn,notypes=0):
   The notypes parameter is used to specify that only the component's
   attribute values be returned and not the attribute types.
   """
-  return _ldap_call(_ldap.explode_rdn,rdn,notypes)
+  return _ldap_function_call(_ldap.explode_rdn,rdn,notypes)
 
 
 def get_option(option):
-  return _ldap_call(_ldap.get_option,option)
+  return _ldap_function_call(_ldap.get_option,option)
 
 
 def set_option(option,invalue):
-  _ldap_call(_ldap.set_option,option,invalue)
+  _ldap_function_call(_ldap.set_option,option,invalue)
 
 
 def is_ldap_url(url):
@@ -113,4 +113,4 @@ def is_ldap_url(url):
   This function returns true if url `looks like' an LDAP URL
   (as opposed to some other kind of URL).
   """
-  return _ldap_call(_ldap.is_ldap_url,url)
+  return _ldap_function_call(_ldap.is_ldap_url,url)
