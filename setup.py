@@ -16,6 +16,7 @@ class OpenLDAP2:
 	defines =	[
 #			 ('WITH_KERBEROS', None),
 #			 ('HAVE_DES_SETKEY', None),
+                         # DEFINEs for caching feature in OpenLDAP libs
 #			 ('HAVE_LDAP_DESTROY_CACHE', None),
 #			 ('HAVE_LDAP_DISABLE_CACHE', None),
 #			 ('HAVE_LDAP_ENABLE_CACHE', None),
