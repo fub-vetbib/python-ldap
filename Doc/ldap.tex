@@ -6,16 +6,16 @@
 % \refbimodindex, \refstmodindex, \refexmodindex or \refmodindex, as
 % appropriate.
 
-\section{\module{ldap} --- LDAP library interface module}
+\declaremodule{extension}{ldap}		% not standard, in C
 
-\declaremodule[ldap]{extension}{ldap}		% not standard, in C
+\section{\module{ldap} --- LDAP library interface module}
 
 \platform{UNIX}
 
 % Author of the module code;
-\moduleauthor{python-ldap developers}{python-ldap-dev@lists.sourceforge.net}
+\moduleauthor{Michael Str\"oder}{python-ldap-dev@lists.sourceforge.net}
 % Author of the documentation,
-\sectionauthor{David Leonard}{leonard@users.sourceforge.net}
+\sectionauthor{Michael Str\"oder}{michael@stroeder.com}
 
 % Leave at least one blank line after this, to simplify ad-hoc tools
 % that are sometimes used to massage these files.
@@ -67,7 +67,7 @@ The \module{ldap} module defines the following functions:
 
 \begin{funcdesc}{initialize}{uri} % -> LDAPObject
   Opens a new connection with an LDAP server, and return an LDAP object
-  (see section~\ref{ldap-objects}) used to perform operations on that server.
+  (see \ref{ldap-objects}) used to perform operations on that server.
   Parameter \var{uri} has to be a valid LDAP URL
   \begin{seealso}
   \seerfc{2255}{The LDAP URL Format}{}
@@ -289,7 +289,7 @@ following option identifiers are defined as constants:
 The module defines the following exceptions:
 
 \begin{excdesc}{LDAPError}
-This is the base class of all execeptions raised by the module.
+This is the base class of all execeptions raised by the module \module{ldap}.
 Unlike the \C\ interface, errors are not returned as result codes, but
 are instead turned into exceptions, raised as soon an the error condition 
 is detected.
@@ -529,31 +529,6 @@ call does not indicate success.
 %  memberdesc	- data members, like datadesc, but with an optional
 %		  type name like methoddesc.
 
-
-% ==== 4. ====
-% Now is probably a good time for a complete example.  (Alternatively,
-% an example giving the flavor of the module may be given before the
-% detailed list of functions.)
-
-\subsection{Example \label{ldap-example}}
-
-The following example demonstrates how to open an LDAP server using the
-\module{ldap} module.
-
-\begin{verbatim}
->>> import ldap
->>> l = ldap.initialize("ldap://my-ldap-server.my-domain:389")
->>> l.simple_bind_s("","")
->>> l.search_s("o=My Organisation, c=AU", ldap.SCOPE_SUBTREE, "objectclass=*")
-\end{verbatim}
-% Note that there is no trailing ">>> " prompt shown.
-
-% ==== 5. ====
-% If your module defines new object types (for a built-in module) or
-% classes (for a module written in Python), you should list the
-% methods and instance variables (if any) of each type or class in a
-% separate subsection.
-
 \subsection{LDAP Objects}
 \label{ldap-objects}
 % This label is generally useful for referencing this section, but is
@@ -607,6 +582,8 @@ of an abandoned operation will not be returned from a future call to
      \methodline{add_s}{dn, modlist}
 This function is similar to \method{modify()}, except that the operation
 integer is omitted from the tuples in \var{modlist}.
+You might want to like into sub-module \refmodule{ldap.modlist} for
+generating \var{modlist}.
 \end{methoddesc}
 
 %%------------------------------------------------------------
@@ -677,8 +654,8 @@ may be \constant{None} indicating that all attributes are to be deleted.
 The asynchronous method \method{modify()} returns the message ID of the 
 initiated request.
 
-%See the \method{ber_*()} methods for decoding Basic Encoded ASN.1 values.
-%(To be implemented.)
+You might want to like into sub-module \refmodule{ldap.modlist} for
+generating \var{modlist}.
 \end{methoddesc}
 
 %%------------------------------------------------------------
@@ -1052,18 +1029,26 @@ These attributes are mutable unless described as read-only.
 \end{memberdesc}
 
 
-\subsection{\module{ldap.async} ---
-  framework for stream-processing of large search results }
+% ==== 4. ====
+% Now is probably a good time for a complete example.  (Alternatively,
+% an example giving the flavor of the module may be given before the
+% detailed list of functions.)
 
+\subsection{Example \label{ldap-example}}
 
-\subsection{\module{ldap.modlist} ---
-  generate modify lists }
+The following example demonstrates how to open an LDAP server using the
+\module{ldap} module.
 
-The \module{ldap.modlist} module defines the following functions:
+\begin{verbatim}
+>>> import ldap
+>>> l = ldap.initialize("ldap://my-ldap-server.my-domain:389")
+>>> l.simple_bind_s("","")
+>>> l.search_s("o=My Organisation, c=AU", ldap.SCOPE_SUBTREE, "objectclass=*")
+\end{verbatim}
 
-\begin{funcdesc}{addModlist}{entry \optional{, ignore_attr_types=\constant{[]}}} % -> list
-\end{funcdesc}
-
-\begin{funcdesc}{modifyModlist}{ old_entry, new_entry \optional{, ignore_attr_types=\constant{[]} \optional{, ignore_oldexistent=\constant{0}}}} % -> list
-\end{funcdesc}
+% ==== 5. ====
+% If your module defines new object types (for a built-in module) or
+% classes (for a module written in Python), you should list the
+% methods and instance variables (if any) of each type or class in a
+% separate subsection.
 
