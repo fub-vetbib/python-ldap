@@ -26,7 +26,7 @@ __all__ = [
 
 import UserDict
 
-from urllib import quote,quote_plus,unquote_plus
+from urllib import quote,unquote_plus
 
 LDAP_SCOPE_BASE = 0
 LDAP_SCOPE_ONELEVEL = 1
@@ -56,6 +56,11 @@ def isLDAPUrl(s):
     s_lower.startswith('ldap://') or \
     s_lower.startswith('ldaps://') or \
     s_lower.startswith('ldapi://')
+
+
+def ldapUrlEscape(s):
+  """Returns URL encoding of string s"""
+  return quote(s).replace(',','%2C').replace('/','%2F')
 
 
 class LDAPUrlExtension:
@@ -310,10 +315,6 @@ class LDAPUrl:
       self.extensions.parse(paramlist[4])
     return
 
-  def _urlEncoding(self,s):
-    """Returns URL encoding of string s"""
-    return quote(s).replace(',','%2C').replace('/','%2F')
-
   def applyDefaults(self,defaults):
     """
     Apply defaults to all class attributes which are None.
@@ -332,7 +333,7 @@ class LDAPUrl:
     """
     if self.urlscheme=='ldapi':
       # hostport part might contain slashes when ldapi:// is used
-      hostport = quote_plus(self.hostport)
+      hostport = ldapUrlEscape(self.hostport)
     else:
       hostport = self.hostport
     return '%s://%s' % (self.urlscheme,hostport)
@@ -349,11 +350,11 @@ class LDAPUrl:
     if self.filterstr is None:
       filterstr = ''
     else:
-      filterstr = self._urlEncoding(self.filterstr)
-    dn = self._urlEncoding(self.dn)
+      filterstr = ldapUrlEscape(self.filterstr)
+    dn = ldapUrlEscape(self.dn)
     if self.urlscheme=='ldapi':
       # hostport part might contain slashes when ldapi:// is used
-      hostport = quote_plus(self.hostport)
+      hostport = ldapUrlEscape(self.hostport)
     else:
       hostport = self.hostport
     ldap_url = u'%s://%s/%s?%s?%s?%s' % (
