@@ -182,14 +182,10 @@ LDAPinit_errors( PyObject*d ) {
 	seterrobj(REFERRAL);
 	seterrobj(REFERRAL_LIMIT_EXCEEDED);
 	seterrobj(RESULTS_TOO_LARGE);
-#ifdef HAVE_SASL
 	seterrobj(SASL_BIND_IN_PROGRESS);
-#endif
 	seterrobj(SERVER_DOWN);
 	seterrobj(SIZELIMIT_EXCEEDED);
-#ifdef LDAP_STRONG_AUTH_NOT_SUPPORTED
 	seterrobj(STRONG_AUTH_NOT_SUPPORTED);
-#endif
 	seterrobj(STRONG_AUTH_REQUIRED);
 	seterrobj(SUCCESS);
 	seterrobj(TIMELIMIT_EXCEEDED);
