@@ -54,13 +54,10 @@ Acknowledgements:
    ldaplib and perldap migration module.
 
    Thanks to Michael Stroeder <michael at stroeder.com> for the 
-   modules ldif, ldap/*.py modules.
+   modules ldif, ldapurl, ldap/schema/*.py, ldap/*.py.
 
    Thanks to Hans Aschauer <Hans.Aschauer at Physik.uni-muenchen.de>
-   for the subSchemaSubEntry and SASL support.
-
-   Thanks to all the guys on the python-ldap-dev mailing list for
-   their contributions and input into this package.
+   for the C wrapper schema and SASL support.
 
    Thanks to Mauro Cicognini <mcicogni at siosistemi.it> for the 
    WIN32/MSVC6 bits, and the pre-built WIN32 ldap.pyd.
@@ -76,8 +73,14 @@ Acknowledgements:
        Uche Ogbuji <uche.ogbuji at fourthought.com>
        Neale Pickett <neale at lanl.gov>
        Blake Weston <weston at platinum1.cambridge.scr.slb.com>
+       Wido Depping <wido.depping at gmail.com>
+       Deepak Giridharagopal <deepak at arlut.utexas.edu>
+       Ingo Steuwer <steuwer at univention.de>
+       
+   Thanks to all the guys on the python-ldap-dev mailing list for
+   their contributions and input into this package.
 
-   Thanks! I may have missed someone: please mail me if I have omitted
+   Thanks! We may have missed someone: please mail us if we have omitted
    your name.
 
 $Id$
