@@ -5,6 +5,10 @@ Changes since 2.0.0pre08:
 
 Modified setup.py to support Cyrus-SASL 2.x.
 
+ldap.schema:
+* Completed classes for nameForms, dITStructureRules and
+  dITContentRules
+
 ----------------------------------------------------------------
 Released 2.0.0pre08 2003-04-11
 
