@@ -21,6 +21,7 @@ Modules/
 
 Lib/
 - Remove obsolete/unsupported modules
-- LDAPv3 schema support (BNF parser needed)
+- Nice python classes for LDAPv3 schema support
+- Caching of search requests for each LDAPObject instance
 - LDIF parser for replication logs
 - DSML support
