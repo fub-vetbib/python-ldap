@@ -458,7 +458,7 @@ class SimpleLDAPObject:
     )
 
   def search_ext_s(self,base,scope,filterstr='(objectClass=*)',attrlist=None,attrsonly=0,serverctrls=None,clientctrls=None,timeout=-1,sizelimit=0):
-    msgid = self._ldap_call(self._l.search_ext,base,scope,filterstr,attrlist,attrsonly,serverctrls,clientctrls,timeout,sizelimit)
+    msgid = self.search_ext(base,scope,filterstr,attrlist,attrsonly,serverctrls,clientctrls,timeout,sizelimit)
     return self.result(msgid,all=1,timeout=timeout)[1]
 
   def search(self,base,scope,filterstr='(objectClass=*)',attrlist=None,attrsonly=0):
