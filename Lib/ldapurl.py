@@ -139,15 +139,6 @@ class LDAPUrlExtensions(UserDict.UserDict):
     for k,v in default.items():
       self[k]=v
 
-  def __getitem__(self,name):
-    """
-    This always returns LDAPUrlExtension instance
-    """
-    critical,exvalue = self.data[name]
-    return LDAPUrlExtension(
-      critical=critical,extype=name,exvalue=exvalue
-    )
-
   def __setitem__(self,name,value):
     """
     value
@@ -156,7 +147,7 @@ class LDAPUrlExtensions(UserDict.UserDict):
     """
     assert isinstance(value,LDAPUrlExtension)
     assert name==value.extype
-    self.data[name] = value.critical,value.exvalue
+    self.data[name] = value
 
   def values(self):
     return [
@@ -234,7 +225,7 @@ class LDAPUrl:
     self,
     ldapUrl=None,
     urlscheme='ldap',
-    hostport='',dn=None,attrs=None,scope=None,filterstr=None,
+    hostport='',dn='',attrs=None,scope=None,filterstr=None,
     extensions=LDAPUrlExtensions({}),
     who=None,cred=None
   ):
@@ -281,7 +272,7 @@ class LDAPUrl:
     if (slash_pos==-1) and (qemark_pos==-1):
       # No / and ? found at all
       self.hostport = unquote_plus(rest)
-      self.dn = u''
+      self.dn = ''
       return
     else:
       if slash_pos!=-1 and (qemark_pos==-1 or (slash_pos<qemark_pos)):
