@@ -1,5 +1,5 @@
 ----------------------------------------------------------------
-Released 2.0.0pre20 2004-02-xx
+Released 2.0.0pre20 2004-03-xx
 
 Changes since 2.0.0pre19:
 
@@ -10,7 +10,7 @@ Modules/:
 * Removed wrapper function l_ldap_is_ldap_url().
 
 ldap.functions:
-* Removed ldap_is_ldap_url(). The more general function
+* Removed is_ldap_url(). The more general function
   ldapurl.isLDAPUrl() should be used instead.
 
 ----------------------------------------------------------------
