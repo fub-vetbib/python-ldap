@@ -1,7 +1,10 @@
 ----------------------------------------------------------------
-Released 2.0.0pre14 2003-06-xx
+Released 2.0.0pre14 2003-08-xx
 
 Changes since 2.0.0pre13:
+
+setup.py:
+* Some modifications to ease building for Win32
 
 ldap.ldapobject:
 * Added class attribute LDAPObject.network_timeout mapped to
