@@ -47,6 +47,7 @@ LDAP_set_option(LDAPObject *self, int option, PyObject *value)
 {
     int res;
     int intval;
+    double doubleval;
     char *strval;
     struct timeval tv;
     void *ptr;
