@@ -65,10 +65,13 @@ LDAPinit_constants( PyObject* d )
 	add_int(d,API_VERSION);
 	add_int(d,VENDOR_VERSION);
 
-	add_int(d,PORT);
+        add_int(d,PORT);
 	add_int(d,VERSION1);
 	add_int(d,VERSION2);
+	add_int(d,VERSION3);
+	add_int(d,VERSION_MIN);
 	add_int(d,VERSION);
+	add_int(d,VERSION_MAX);
 	add_int(d,TAG_MESSAGE);
 	add_int(d,TAG_MSGID);
 
@@ -82,9 +85,6 @@ LDAPinit_constants( PyObject* d )
 	add_int(d,REQ_COMPARE);
 	add_int(d,REQ_ABANDON);
 
-	add_int(d,VERSION3);
-	add_int(d,VERSION_MIN);
-	add_int(d,VERSION_MAX);
 	add_int(d,TAG_LDAPDN);
 	add_int(d,TAG_LDAPCRED);
 	add_int(d,TAG_CONTROLS);
@@ -126,9 +126,6 @@ LDAPinit_constants( PyObject* d )
 
 	add_int(d,AUTH_NONE);
 	add_int(d,AUTH_SIMPLE);
-	add_int(d,AUTH_KRBV4);
-	add_int(d,AUTH_KRBV41);
-	add_int(d,AUTH_KRBV42);
 	add_int(d,SCOPE_BASE);
 	add_int(d,SCOPE_ONELEVEL);
 	add_int(d,SCOPE_SUBTREE);
