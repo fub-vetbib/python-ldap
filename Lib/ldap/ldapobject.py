@@ -525,6 +525,43 @@ class SimpleLDAPObject:
   def set_option(self,option,invalue):
     self._ldap_call(self._l.set_option,option,invalue)
 
+  def search_subschemasubentry_s(self,dn=''):
+    """
+    Returns the distinguished name of the sub schema sub entry
+    for a part of a DIT specified by dn.
+
+    None as result indicates that the sub schema sub entry could
+    not be determined.
+    """
+    r = self.search_s(
+      dn,ldap.SCOPE_BASE,'(objectClass=*)',['subschemaSubentry']
+    )
+    try:
+      if r:
+        e = ldap.cidict.cidict(r[0][1])
+        return e.get('subschemaSubentry',[None])[0]
+      else:
+        # Fall back to directly read attribute subschemaSube
+        # from RootDSE
+        r = self.search_s(
+          '',ldap.SCOPE_BASE,'(objectClass=*)',['subschemaSubentry']
+        )
+        e = ldap.cidict.cidict(r[0][1])
+        return e.get('subschemaSubentry',[None])[0]
+    except IndexError:
+      return None
+
+  def read_subschemasubentry_s(self,subschemasubentry_dn):
+    """
+    Returns the sub schema sub entry's data
+    """
+    return self.search_s(
+      subschemasubentry_dn,ldap.SCOPE_BASE,
+      '(objectClass=subschema)',
+      ldap.schema.SCHEMA_ATTRS
+    )[0][1]
+
+
 
 class NonblockingLDAPObject(SimpleLDAPObject):
 
@@ -558,7 +595,7 @@ class NonblockingLDAPObject(SimpleLDAPObject):
   def search_st(self,base,scope,filterstr='(objectClass=*)',attrlist=None,attrsonly=0,timeout=-1):
     msgid = self.search(base,scope,filterstr,attrlist,attrsonly)
     return self.result(msgid,all=1,timeout=timeout)
- 
+
 
 class SmartLDAPObject(SimpleLDAPObject):
   """
