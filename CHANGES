@@ -1,5 +1,5 @@
 ----------------------------------------------------------------
-Released 2.0.0pre21 2004-03-xx
+Released 2.0.0pre21 2004-03-29
 
 Changes since 2.0.0pre20:
 
@@ -7,6 +7,7 @@ setup.py:
 * runtime_library_dirs is set
 
 Modules/:
+* (Hopefully) fixed building with OpenLDAP 2.2 libs in errors.c
 * Removed meaningless repr() function from LDAPObject.c
 * Removed setting LDAP_OPT_PROTOCOL_VERSION in l_ldap_sasl_bind_s()
 * Modified string handling via berval instead of *char
@@ -16,6 +17,8 @@ Modules/:
   since 1. the latter is marked deprecated and 2. ldap_sasl_bind()
   allows password credentials with null chars.
 * Removed unused sources linkedlist.c and linkedlist.h
+* Function l_ldap_whoami_s() only added if built against
+  OpenLDAP 2.1.x+ libs (should preserve compability with 2.0 libs)
 
 ldap.ldapobject:
 * LDAPObject.bind() only allows simple binds since Kerberos V4
