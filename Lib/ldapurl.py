@@ -134,9 +134,9 @@ class LDAPUrlExtensions(UserDict.UserDict):
   dictionary type
   """
 
-  def __init__(self,default={}):
-    UserDict.UserDict.__init__(self,{})
-    for k,v in default.items():
+  def __init__(self,default=None):
+    UserDict.UserDict.__init__(self)
+    for k,v in (default or {}).items():
       self[k]=v
 
   def __setitem__(self,name,value):
@@ -226,7 +226,7 @@ class LDAPUrl:
     ldapUrl=None,
     urlscheme='ldap',
     hostport='',dn='',attrs=None,scope=None,filterstr=None,
-    extensions=LDAPUrlExtensions({}),
+    extensions=None,
     who=None,cred=None
   ):
     self.urlscheme=urlscheme
@@ -235,7 +235,7 @@ class LDAPUrl:
     self.attrs=attrs
     self.scope=scope
     self.filterstr=filterstr
-    self.extensions=extensions
+    self.extensions=(extensions or LDAPUrlExtensions({}))
     if ldapUrl!=None:
       self._parse(ldapUrl)
     if who!=None:
