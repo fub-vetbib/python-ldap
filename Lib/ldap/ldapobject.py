@@ -129,7 +129,7 @@ class SimpleLDAPObject:
         can expect that the result of an abandoned operation will not be
         returned from a future call to result().
     """
-    return self._ldap_call(self._l.abandon_ext,msgid,serverctrls,clientctrls)
+    return self._ldap_call(self._l.abandon_ext,msgid,EncodeControlTuples(serverctrls),EncodeControlTuples(clientctrls))
 
   def abandon(self,msgid):
     return self.abandon_ext(msgid,None,None)
@@ -142,7 +142,7 @@ class SimpleLDAPObject:
         The parameter modlist is similar to the one passed to modify(),
         except that no operation integer need be included in the tuples.
     """
-    return self._ldap_call(self._l.add_ext,dn,modlist,serverctrls,clientctrls)
+    return self._ldap_call(self._l.add_ext,dn,modlist,EncodeControlTuples(serverctrls),EncodeControlTuples(clientctrls))
 
   def add_ext_s(self,dn,modlist,serverctrls=None,clientctrls=None):
     msgid = self.add_ext(dn,modlist,serverctrls,clientctrls)
@@ -166,7 +166,7 @@ class SimpleLDAPObject:
     """
     simple_bind([who='' [,cred='']]) -> int
     """
-    return self._ldap_call(self._l.simple_bind,who,cred,serverctrls,clientctrls)
+    return self._ldap_call(self._l.simple_bind,who,cred,EncodeControlTuples(serverctrls),EncodeControlTuples(clientctrls))
 
   def simple_bind_s(self,who='',cred='',serverctrls=None,clientctrls=None):
     """
@@ -193,7 +193,7 @@ class SimpleLDAPObject:
     """
     sasl_interactive_bind_s(who, auth) -> None
     """
-    return self._ldap_call(self._l.sasl_interactive_bind_s,who,auth,serverctrls,clientctrls,sasl_flags)
+    return self._ldap_call(self._l.sasl_interactive_bind_s,who,auth,EncodeControlTuples(serverctrls),EncodeControlTuples(clientctrls),sasl_flags)
 
   def compare_ext(self,dn,attr,value,serverctrls=None,clientctrls=None):
     """
@@ -213,7 +213,7 @@ class SimpleLDAPObject:
         A design bug in the library prevents value from containing
         nul characters.
     """
-    return self._ldap_call(self._l.compare_ext,dn,attr,value,serverctrls,clientctrls)
+    return self._ldap_call(self._l.compare_ext,dn,attr,value,EncodeControlTuples(serverctrls),EncodeControlTuples(clientctrls))
 
   def compare_ext_s(self,dn,attr,value,serverctrls=None,clientctrls=None):
     msgid = self.compare_ext(dn,attr,value,serverctrls,clientctrls)
@@ -241,7 +241,7 @@ class SimpleLDAPObject:
         form returns the message id of the initiated request, and the
         result can be obtained from a subsequent call to result().
     """
-    return self._ldap_call(self._l.delete_ext,dn,serverctrls,clientctrls)
+    return self._ldap_call(self._l.delete_ext,dn,EncodeControlTuples(serverctrls),EncodeControlTuples(clientctrls))
 
   def delete_ext_s(self,dn,serverctrls=None,clientctrls=None):
     msgid = self.delete_ext(dn,serverctrls,clientctrls)
@@ -272,7 +272,7 @@ class SimpleLDAPObject:
     """
     modify_ext(dn, modlist[,serverctrls=None[,clientctrls=None]]) -> int
     """
-    return self._ldap_call(self._l.modify_ext,dn,modlist,serverctrls,clientctrls)
+    return self._ldap_call(self._l.modify_ext,dn,modlist,EncodeControlTuples(serverctrls),EncodeControlTuples(clientctrls))
 
   def modify_ext_s(self,dn,modlist,serverctrls=None,clientctrls=None):
     msgid = self.modify_ext(dn,modlist,serverctrls,clientctrls)
@@ -325,7 +325,7 @@ class SimpleLDAPObject:
     self.rename_s(dn,newrdn,None,delold)
 
   def passwd(self,user,oldpw,newpw,serverctrls=None,clientctrls=None):
-    return self._ldap_call(self._l.passwd,user,oldpw,newpw,serverctrls,clientctrls)
+    return self._ldap_call(self._l.passwd,user,oldpw,newpw,EncodeControlTuples(serverctrls),EncodeControlTuples(clientctrls))
 
   def passwd_s(self,user,oldpw,newpw,serverctrls=None,clientctrls=None):
     msgid = self.passwd(user,oldpw,newpw,serverctrls,clientctrls)
@@ -346,7 +346,7 @@ class SimpleLDAPObject:
         This actually corresponds to the rename* routines in the
         LDAP-EXT C API library.
     """
-    return self._ldap_call(self._l.rename,dn,newrdn,newsuperior,delold,serverctrls,clientctrls)
+    return self._ldap_call(self._l.rename,dn,newrdn,newsuperior,delold,EncodeControlTuples(serverctrls),EncodeControlTuples(clientctrls))
 
   def rename_s(self,dn,newrdn,newsuperior=None,delold=1):
     msgid = self.rename(dn,newrdn,newsuperior,delold)
@@ -531,7 +531,7 @@ class SimpleLDAPObject:
         The unbind and unbind_s methods are identical, and are
         synchronous in nature
     """
-    return self._ldap_call(self._l.unbind_ext,serverctrls,clientctrls)
+    return self._ldap_call(self._l.unbind_ext,EncodeControlTuples(serverctrls),EncodeControlTuples(clientctrls))
 
   def unbind_ext_s(self,serverctrls=None,clientctrls=None):
     msgid = self.unbind_ext(serverctrls,clientctrls)
