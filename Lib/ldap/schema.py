@@ -35,102 +35,103 @@ NOT_HUMAN_READABLE_LDAP_SYNTAXES = {
   '1.3.6.1.4.1.1466.115.121.1.49':None,
 }
 
-def split_tokens(s):
-  """
-  Returns list of syntax elements with quotes and spaces
-  stripped.
-  """
-  result = []
-  s_len = len(s)
-  i = 0
-  while i<s_len:
-    start = i
-    while i<s_len and s[i]!="'":
-      if s[i]=="(" or s[i]==")":
-        result.append(s[i])
-        i +=1 # Consume parentheses
-        start = i
-      elif s[i]==" ":
-        if i>start:
-          result.append(s[start:i])
-        # Consume space chars
-        while i<s_len and s[i]==" ":
-          i +=1
-        start = i
-      else:
-        i +=1
-    if i>start:
-      result.append(s[start:i])
-    i +=1
-    if i>=s_len:
-      break
-    start = i
-    while i<s_len and s[i]!="'":
-      i +=1
-    if i>=start:
-      result.append(s[start:i])
-    i +=1
-  return result # split_tokens()
 
+class SchemaElement:
 
-def extract_tokens(l,known_tokens={}):
-  """
-  Returns dictionary of known tokens with all values
-  """
-  assert l[0].strip()=="(" and l[-1].strip()==")",ValueError(repr(s),l)
-  result = known_tokens
-  i = 0
-  l_len = len(l)
-  while i<l_len:
-    if result.has_key(l[i]):
-      token = l[i]
-      i += 1 # Consume token
-      if i<l_len:
-        if result.has_key(l[i]):
-          # non-valued
-          result[token] = []
-        elif l[i]=="(":
-          # multi-valued
-          i += 1 # Consume left parentheses
+  def split_tokens(self,s):
+    """
+    Returns list of syntax elements with quotes and spaces
+    stripped.
+    """
+    result = []
+    s_len = len(s)
+    i = 0
+    while i<s_len:
+      start = i
+      while i<s_len and s[i]!="'":
+        if s[i]=="(" or s[i]==")":
+          result.append(s[i])
+          i +=1 # Consume parentheses
           start = i
-          while i<l_len and l[i]!=")":
-            i += 1
-          result[token] = l[start:i]
-          i += 1 # Consume right parentheses
+        elif s[i]==" ":
+          if i>start:
+            result.append(s[start:i])
+          # Consume space chars
+          while i<s_len and s[i]==" ":
+            i +=1
+          start = i
         else:
-          # single-valued
-          result[token] = [l[i]]
-          i += 1 # Consume single value
+          i +=1
+      if i>start:
+        result.append(s[start:i])
+      i +=1
+      if i>=s_len:
+        break
+      start = i
+      while i<s_len and s[i]!="'":
+        i +=1
+      if i>=start:
+        result.append(s[start:i])
+      i +=1
+    return result # split_tokens()
+
+  def extract_tokens(self,l,known_tokens={}):
+    """
+    Returns dictionary of known tokens with all values
+    """
+    assert l[0].strip()=="(" and l[-1].strip()==")",ValueError(repr(s),l)
+    result = known_tokens
+    i = 0
+    l_len = len(l)
+    while i<l_len:
+      if result.has_key(l[i]):
+        token = l[i]
+        i += 1 # Consume token
+        if i<l_len:
+          if result.has_key(l[i]):
+            # non-valued
+            result[token] = []
+          elif l[i]=="(":
+            # multi-valued
+            i += 1 # Consume left parentheses
+            start = i
+            while i<l_len and l[i]!=")":
+              i += 1
+            result[token] = l[start:i]
+            i += 1 # Consume right parentheses
+          else:
+            # single-valued
+            result[token] = [l[i]]
+            i += 1 # Consume single value
+      else:
+        i += 1 # Consume unrecognized item
+    return result
+
+  def key_attr(self,key,value,quoted=0):
+    assert value is None or type(value)==type(''),TypeError("value has to be of StringType, was %s" % repr(value))
+    if value:
+      if quoted:
+        return ' %s %s' % (key,repr(value))
+      else:
+        return ' %s %s' % (key,value)
     else:
-      i += 1 # Consume unrecognized item
-  return result
+      return ''
 
-
-def key_attr(key,value,quoted=0):
-  assert value is None or type(value)==type(''),TypeError("value has to be of StringType, was %s" % repr(value))
-  if value:
+  def key_list(self,key,values,sep=' ',quoted=0):
+    assert type(values)==type([]),TypeError("values has to be of ListType")
     if quoted:
-      return ' %s %s' % (key,repr(value))
+      quoted_values = [repr(n) for n in values]
     else:
-      return ' %s %s' % (key,value)
-  else:
-    return ''
-
-def key_list(key,values,sep=' ',quoted=0):
-  assert type(values)==type([]),TypeError("values has to be of ListType")
-  if quoted:
-    quoted_values = [repr(n) for n in values]
-  else:
-    quoted_values = values
-  if not values:
-    return ''
-  elif len(values)==1:
-    return ' %s %s' % (key,quoted_values[0])
-  else:
-    return ' %s ( %s )' % (key,sep.join(quoted_values))
+      quoted_values = values
+    if not values:
+      return ''
+    elif len(values)==1:
+      return ' %s %s' % (key,quoted_values[0])
+    else:
+      return ' %s ( %s )' % (key,sep.join(quoted_values))
 
 
-class ObjectClass:
+class ObjectClass(SchemaElement):
   """
   ObjectClassDescription = "(" whsp
       numericoid whsp      ; ObjectClass identifier
@@ -158,8 +159,8 @@ class ObjectClass:
     ext=None,#OPTIONAL
   ):
     if schema_element_str:
-      l = ldap.schema.split_tokens(schema_element_str)
-      d = ldap.schema.extract_tokens(
+      l = self.split_tokens(schema_element_str)
+      d = self.extract_tokens(
         l,
         {'NAME':[],'DESC':[None],'OBSOLETE':None,'SUP':[],
          'STRUCTURAL':None,'AUXILIARY':None,'ABSTRACT':None,
@@ -200,13 +201,13 @@ class ObjectClass:
 
   def __str__(self):
     result = [str(self.oid)]
-    result.append(key_list('NAME',self.names,quoted=1))
-    result.append(key_attr('DESC',self.desc,quoted=1))
-    result.append(key_list('SUP',self.sup))
+    result.append(self.key_list('NAME',self.names,quoted=1))
+    result.append(self.key_attr('DESC',self.desc,quoted=1))
+    result.append(self.key_list('SUP',self.sup))
     result.append({0:'',1:' OBSOLETE'}[self.obsolete])
     result.append({0:' STRUCTURAL',1:' ABSTRACT',2:' AUXILIARY'}[self.kind])
-    result.append(key_list('MUST',self.must,sep=' $ '))
-    result.append(key_list('MAY',self.may,sep=' $ '))
+    result.append(self.key_list('MUST',self.must,sep=' $ '))
+    result.append(self.key_list('MAY',self.may,sep=' $ '))
     return '( %s )' % ''.join(result)
 
 
@@ -219,7 +220,7 @@ AttributeUsage = ldap.cidict.cidict({
 })
 
 
-class AttributeType:
+class AttributeType(SchemaElement):
   """
       AttributeTypeDescription = "(" whsp
             numericoid whsp              ; AttributeType identifier
@@ -247,8 +248,8 @@ class AttributeType:
 
   def __init__(self, schema_element_str):
     if schema_element_str:
-      l = ldap.schema.split_tokens(schema_element_str)
-      d = ldap.schema.extract_tokens(
+      l = self.split_tokens(schema_element_str)
+      d = self.extract_tokens(
         l,
         {
            'NAME':[],
@@ -302,14 +303,14 @@ class AttributeType:
 
   def __str__(self):
     result = [str(self.oid)]
-    result.append(key_list('NAME',self.names,quoted=1))
-    result.append(key_attr('DESC',self.desc,quoted=1))
-    result.append(key_list('SUP',self.sup))
+    result.append(self.key_list('NAME',self.names,quoted=1))
+    result.append(self.key_attr('DESC',self.desc,quoted=1))
+    result.append(self.key_list('SUP',self.sup))
     result.append({0:'',1:' OBSOLETE'}[self.obsolete])
-    result.append(key_attr('EQUALITY',self.equality))
-    result.append(key_attr('ORDERING',self.ordering))
-    result.append(key_attr('SUBSTR',self.substr))
-    result.append(key_attr('SYNTAX',self.syntax))
+    result.append(self.key_attr('EQUALITY',self.equality))
+    result.append(self.key_attr('ORDERING',self.ordering))
+    result.append(self.key_attr('SUBSTR',self.substr))
+    result.append(self.key_attr('SYNTAX',self.syntax))
     if self.syntax_len!=None:
       result.append(('{%d}' % (self.syntax_len))*(self.syntax_len>0))
     result.append({0:'',1:' SINGLE-VALUE'}[self.single_value])
@@ -326,7 +327,7 @@ class AttributeType:
     return '( %s )' % ''.join(result)
 
 
-class LDAPSyntax:
+class LDAPSyntax(SchemaElement):
   """
       SyntaxDescription = "(" whsp
           numericoid whsp
@@ -336,8 +337,8 @@ class LDAPSyntax:
 
   def __init__(self, schema_element_str):
     if schema_element_str:
-      l = ldap.schema.split_tokens(schema_element_str)
-      d = ldap.schema.extract_tokens(
+      l = self.split_tokens(schema_element_str)
+      d = self.extract_tokens(
         l,
         {
           'DESC':[None],
@@ -352,14 +353,14 @@ class LDAPSyntax:
                                   
   def __str__(self):
     result = [str(self.oid)]
-    result.append(key_attr('DESC',self.desc,quoted=1))
+    result.append(self.key_attr('DESC',self.desc,quoted=1))
     result.append(
       {0:'',1:" X-NOT-HUMAN-READABLE 'TRUE'"}[self.not_human_readable]
     )
     return '( %s )' % ''.join(result)
 
 
-class MatchingRule:
+class MatchingRule(SchemaElement):
   """
       MatchingRuleDescription = "(" whsp
           numericoid whsp  ; MatchingRule identifier
@@ -371,8 +372,8 @@ class MatchingRule:
   """
 
   def __init__(self, schema_element_str):
-    l = ldap.schema.split_tokens(schema_element_str)
-    d = ldap.schema.extract_tokens(
+    l = self.split_tokens(schema_element_str)
+    d = self.extract_tokens(
       l,
       {
          'NAME':[],
@@ -396,14 +397,14 @@ class MatchingRule:
 
   def __str__(self):
     result = [str(self.oid)]
-    result.append(key_list('NAME',self.names,quoted=1))
-    result.append(key_attr('DESC',self.desc,quoted=1))
+    result.append(self.key_list('NAME',self.names,quoted=1))
+    result.append(self.key_attr('DESC',self.desc,quoted=1))
     result.append({0:'',1:' OBSOLETE'}[self.obsolete])
-    result.append(key_attr('SYNTAX',self.syntax))
+    result.append(self.key_attr('SYNTAX',self.syntax))
     return '( %s )' % ''.join(result)
 
 
-class MatchingRuleUse:
+class MatchingRuleUse(SchemaElement):
   """
       MatchingRuleUseDescription = "(" whsp
          numericoid 
@@ -416,8 +417,8 @@ class MatchingRuleUse:
   """
 
   def __init__(self, schema_element_str):
-    l = ldap.schema.split_tokens(schema_element_str)
-    d = ldap.schema.extract_tokens(
+    l = self.split_tokens(schema_element_str)
+    d = self.extract_tokens(
       l,
       {
          'NAME':[],
@@ -439,22 +440,56 @@ class MatchingRuleUse:
 
   def __str__(self):
     result = [str(self.oid)]
-    result.append(key_list('NAME',self.names,quoted=1))
-    result.append(key_attr('DESC',self.desc,quoted=1))
+    result.append(self.key_list('NAME',self.names,quoted=1))
+    result.append(self.key_attr('DESC',self.desc,quoted=1))
     result.append({0:'',1:' OBSOLETE'}[self.obsolete])
-    result.append(key_attr('SYNTAX',self.syntax))
+    result.append(self.key_attr('SYNTAX',self.syntax))
     return '( %s )' % ''.join(result)
 
 
-class Entry(ldap.cidict.cidict):
+class Entry(UserDict.UserDict):
+  """
+  Schema-aware implementation of an LDAP entry class.
+  
+  Mainly it holds the attributes in a string-keyed dictionary with
+  the OID as key.
+  """
 
-  def __init__(self,sub_schema,entry={}):
-    ldap.cidict.cidict.__init__(self)
-    for k,v in entry.items():
-      try:
-        self[sub_schema.name2oid[AttributeType][k]] = v
-      except KeyError:
-        self[k] = v
+  def __init__(self,schema,entry={}):
+    self._s = schema
+    UserDict.__init__(self,entry)
+
+  def _oid(self,nameoroid):
+    return self._s.name2oid[ldap.schema.AttributeType].get(nameoroid,nameoroid)
+
+  def __getitem__(self,nameoroid):
+    return self.data[self._oid(nameoroid)]
+
+  def __setitem__(self,nameoroid,schema_obj):
+    oid = self._oid(key)
+    self._keys[oid] = key
+    self.data[oid] = value
+
+  def __delitem__(self,nameoroid):
+    del self.data[self._oid(nameoroid)]
+
+  def has_key(self,nameoroid):
+    return UserDict.has_key(self,self._oid(nameoroid))
+
+  def get(self,nameoroid,failobj):
+    try:
+      return self[self._oid(nameoroid)]
+    except KeyError:
+      return failobj
+
+  def keys(self):
+    return self._keys.values()
+
+  def items(self):
+    result = []
+    for k in self._keys.values():
+      result.append((k,self[k]))
+    return result
 
 
 SCHEMA_CLASS_MAPPING = {
@@ -563,6 +598,24 @@ class SubSchema(UserDict.UserDict):
       Get a schema element by name or OID
       """
       return self.get(self.getoid(se_class,nameoroid),default)
+
+    def get_syntax(self,nameoroid):
+      """
+      Get the syntax of an attribute type specified by name or OID
+      """
+      at_oid = self.getoid(AttributeType,nameoroid)
+      try:
+        at_obj = self[at_oid]
+      except KeyError:
+        return None
+      if at_obj.syntax:
+        return at_obj.syntax
+      elif at_obj.sup:
+        for sup in at_obj.sup:
+          syntax = self.get_syntax(sup)
+          if syntax:
+            return syntax
+      return None
 
     def attribute_types(
       self,object_class_list,attr_type_filter={},strict=1,raise_keyerror=1
@@ -680,17 +733,14 @@ def urlfetch(uri,trace_level=0):
       )
     l.unbind_s()
     del l
-
   else:
     import urllib,ldif
     ldif_file = urllib.urlopen(uri)
     ldif_parser = ldif.LDIFRecordList(ldif_file,max_entries=1)
     ldif_parser.parse()
     subschemasubentry_dn,subschemasubentry_entry = ldif_parser.all_records[0]
-
   if subschemasubentry_dn!=None:
     parsed_sub_schema = ldap.schema.SubSchema(subschemasubentry_entry)
   else:
     parsed_sub_schema = None
-
   return subschemasubentry_dn, parsed_sub_schema
