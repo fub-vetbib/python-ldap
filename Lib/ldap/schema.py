@@ -12,7 +12,7 @@ Public domain. Do anything you want with this module.
 __version__ = '0.1.0'
 
 
-import ldap,ldap.cidict,ldap.functions,_ldap
+import UserDict,ldap,ldap.cidict,ldap.functions,_ldap
 
 
 class SchemaError(Exception):
@@ -472,20 +472,21 @@ for k in SCHEMA_ATTRS:
   SCHEMA_ATTR_MAPPING[SCHEMA_CLASS_MAPPING[k]] = k
 
 
-class SubSchema:
+class SubSchema(UserDict.UserDict):
     
     def __init__(self,sub_schema_sub_entry):
         """
         sub_schema_sub_entry
             Dictionary containing the sub schema sub entry
         """
-        self.sed = {}
-        self.name2oid = {
-          ObjectClass:ldap.cidict.cidict(),
-          AttributeType:ldap.cidict.cidict(),
-          LDAPSyntax:ldap.cidict.cidict(),
-          MatchingRule:ldap.cidict.cidict(),
-        }
+        # Initialize all dictionaries
+        UserDict.UserDict.__init__(self,{})
+        self.name2oid = {}
+        self.sed_class = {}
+        for c in SCHEMA_CLASS_MAPPING.values():
+          self.name2oid[c] = ldap.cidict.cidict()
+          self.sed_class[c] = {}
+
         e = ldap.cidict.cidict(sub_schema_sub_entry)
 
         # Build the schema registry
@@ -496,11 +497,15 @@ class SubSchema:
           for attr_value in e[attr_type]:
             se_class = SCHEMA_CLASS_MAPPING[attr_type]
             se_instance = se_class(attr_value)
-            self.sed[se_instance.oid] = se_instance
+            self[se_instance.oid] = se_instance
             if hasattr(se_instance,'names'):
               for name in se_instance.names:
                 self.name2oid[se_class][name] = se_instance.oid
         return # subSchema.__init__()        
+
+    def __setitem__(self,oid,element_instance):
+      self.data[oid] = element_instance
+      self.sed_class[element_instance.__class__][oid] = None
 
     def ldap_entry(self):
       """
@@ -510,7 +515,7 @@ class SubSchema:
       entry = {}
       # Collect the schema elements and store them in
       # entry's attributes
-      for se in self.sed.values():
+      for se in self.values():
         se_str = str(se)
         try:
           entry[SCHEMA_ATTR_MAPPING[se.__class__]].append(se_str)
@@ -520,15 +525,11 @@ class SubSchema:
 
     def listall(self,schema_element_class):
       """
-      Returns a list of all available schema elements by first name
-      of a given class.
+      Returns a list of OIDs of all available schema
+      elements of a given schema element class.
+      
       """
-      result = [
-        oid
-        for oid in self.sed.keys()
-        if isinstance(self.sed[oid],schema_element_class)
-      ]
-      return result
+      return self.sed_class[schema_element_class].keys()
 
     def tree(self,schema_element_class):
       """
@@ -544,7 +545,7 @@ class SubSchema:
         tree[se] = []
       # 2. Pass: Register all sup references
       for se_oid in avail_se:
-        se_obj = self.sed[se_oid]
+        se_obj = self[se_oid]
         for s in se_obj.sup:
           sup_oid = self.name2oid[schema_element_class].get(s,s)
           tree[sup_oid].append(se_oid)
@@ -557,11 +558,11 @@ class SubSchema:
       se_oid = nameoroid.split(';')[0].strip()
       return self.name2oid[se_class].get(se_oid,se_oid)
 
-    def get(self,se_class,nameoroid,default=None):
+    def get_obj(self,se_class,nameoroid,default=None):
       """
       Get a schema element by name or OID
       """
-      return self.sed.get(self.getoid(se_class,nameoroid),default)
+      return self.get(self.getoid(se_class,nameoroid),default)
 
     def attribute_types(
       self,object_class_list,attr_type_filter={},strict=1,raise_keyerror=1
@@ -596,7 +597,7 @@ class SubSchema:
         # Cache this OID as already being processed
         oid_cache[object_class_oid] = None
         try:
-          object_class = self.sed[object_class_oid]
+          object_class = self[object_class_oid]
         except KeyError:
           if raise_keyerror:
             raise
@@ -606,14 +607,14 @@ class SubSchema:
         assert hasattr(object_class,'may'),ValueError(object_class_oid)
         for a in object_class.must:
           try:
-            at_obj = self.sed[self.name2oid[AttributeType][a]]
+            at_obj = self[self.name2oid[AttributeType][a]]
           except KeyError:
             if raise_keyerror:
               raise
           r_must[at_obj.oid] = at_obj
         for a in object_class.may:
           try:
-            at_obj = self.sed[self.name2oid[AttributeType][a]]
+            at_obj = self[self.name2oid[AttributeType][a]]
           except KeyError:
             if raise_keyerror:
               raise
@@ -633,9 +634,9 @@ class SubSchema:
       if attr_type_filter:
         for l in [r_must,r_may]:
           for a in l.keys():
-            if self.sed.has_key(a):
+            if self.has_key(a):
               for afk,afv in attr_type_filter:
-                schema_attr_type = self.sed[a]
+                schema_attr_type = self[a]
                 try:
                   if not getattr(schema_attr_type,afk) in afv:
                     del l[a]

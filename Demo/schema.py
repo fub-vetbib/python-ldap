@@ -17,11 +17,11 @@ print '*** Schema from',repr(subschemasubentry_dn)
 # Display schema
 for attr_type,schema_class in ldap.schema.SCHEMA_CLASS_MAPPING.items():
   print '*'*66
-  for oid,se in schema.sed.items():
+  for oid,se in schema.items():
     if isinstance(se,schema_class):
       print attr_type,str(se)
 print '*** Testing object class inetOrgPerson ***'
-inetOrgPerson = schema.sed[schema.name2oid[ldap.schema.ObjectClass]['inetOrgPerson']]
+inetOrgPerson = schema[schema.name2oid[ldap.schema.ObjectClass]['inetOrgPerson']]
 print inetOrgPerson.must,inetOrgPerson.may
 print '*** person,organizationalPerson,inetOrgPerson ***'
 print schema.attribute_types(
@@ -35,7 +35,7 @@ print schema.attribute_types(
   ]  
 )
 try:
-  drink = schema.sed[schema.name2oid[ldap.schema.AttributeType]['favouriteDrink']]
+  drink = schema[schema.name2oid[ldap.schema.AttributeType]['favouriteDrink']]
 except KeyError:
   pass
 else:

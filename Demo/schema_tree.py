@@ -12,7 +12,7 @@ ldap.trace_level = 1
 
 def PrintSchemaTree(schema,se_class,se_tree,se_oid,level):
   """ASCII text output for console"""
-  se_obj = schema.sed.get(se_oid,None)
+  se_obj = schema.get_obj(se_class,se_oid)
   if se_obj!=None:
     print '|    '*(level-1)+'+---'*(level>0), \
           ', '.join(se_obj.names), \
@@ -24,7 +24,7 @@ def PrintSchemaTree(schema,se_class,se_tree,se_oid,level):
 
 def HTMLSchemaTree(schema,se_class,se_tree,se_oid,level):
   """HTML output for browser"""
-  se_obj = schema.get_schema_element(se_class,se_oid)
+  se_obj = schema.get_obj(se_class,se_oid)
   if se_obj!=None:
     print """
     <dt><strong>%s</strong></dt>
@@ -93,5 +93,9 @@ else:
   PrintSchemaTree(schema,ldap.schema.ObjectClass,oc_tree,'2.5.6.0',0)
 
   print '\n*** Attribute types tree ***\n'
-  PrintSchemaTree(schema,ldap.schema.AttributeType,at_tree,'_',0)
+  print
+  for a in schema.listall(ldap.schema.AttributeType):
+    if at_tree[a]:
+      PrintSchemaTree(schema,ldap.schema.AttributeType,at_tree,a,0)
+      print
 
