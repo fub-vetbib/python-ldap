@@ -22,6 +22,8 @@ time_mark1 = time.time()
 
 print 'Time elapsed search sub schema sub entry: %0.3f' % (time_mark1-time_mark0)
 
+# Read the sub schema sub entry
+
 subschemasubentry_entry = l.read_subschemasubentry_s(
   subschemasubentry_dn
 )
@@ -37,7 +39,7 @@ else:
 
   print '*** Schema from',repr(subschemasubentry_dn)
 
-  # Read the schema entry
+  # Parse the schema entry
   schema = ldap.schema.subSchema(
     subschemasubentry_entry,schema_allow=schema_allow
   )
@@ -60,4 +62,6 @@ else:
   inetOrgPerson = schema.schema_element[schema.name2oid['inetOrgPerson']]
   print inetOrgPerson.must,inetOrgPerson.may
   print '*** person,organizationalPerson,inetOrgPerson ***'
-  print schema.all_attrs(['person','organizationalPerson','inetOrgPerson'])
+  print schema.all_attrs(
+    ['person','organizationalPerson','inetOrgPerson']
+  )
