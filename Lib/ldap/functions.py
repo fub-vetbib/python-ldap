@@ -50,7 +50,7 @@ def open(host,port=389,trace_level=0,trace_file=sys.stdout):
         File object where to write the trace output to.
         Default is to use stdout.
   """
-  return LDAPObject('ldap://%s' % (host),trace_level,trace_file)
+  return LDAPObject('ldap://%s:%d' % (host,port),trace_level,trace_file)
 
 init = open
 
