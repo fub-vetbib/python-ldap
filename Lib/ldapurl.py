@@ -219,6 +219,7 @@ class LDAPUrl:
       raise AttributeError,'No attribute %s in instance of %s.' % (
         name,self.__class__.__name__
       )
+    return None # __getattr__()
 
   def __setattr__(self,name,value):
     if (name=='who' or name=='cred'):
