@@ -36,4 +36,6 @@ else:
     print repr(name),'->',repr(schema.name2oid[name])
   print '*** inetOrgPerson ***'
   inetOrgPerson = schema.schema_element[schema.name2oid['inetOrgPerson']]
-  print repr(inetOrgPerson.must),repr(inetOrgPerson.may)
+  print inetOrgPerson.must,inetOrgPerson.may
+  all_must,all_may = inetOrgPerson.all_attrs(schema)
+  print all_must,all_may

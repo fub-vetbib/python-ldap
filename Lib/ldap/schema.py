@@ -16,34 +16,72 @@ import ldap,ldap.cidict,ldap.functions,_ldap
 
 # Wrapper functions to serialize calls into OpenLDAP libs with
 # a module-wide thread lock
-def str2objectclass(schema_element_str,schema_allow):
+def str2objectclass(schema_element_str,schema_allow=0):
     return ldap.functions._ldap_function_call(_ldap.str2objectclass,schema_element_str)
 
-def str2attributetype(schema_element_str,schema_allow):
+def str2attributetype(schema_element_str,schema_allow=0):
     return ldap.functions._ldap_function_call(_ldap.str2attributetype,schema_element_str)
 
-def str2syntax(schema_element_str,schema_allow):
+def str2syntax(schema_element_str,schema_allow=0):
     return ldap.functions._ldap_function_call(_ldap.str2syntax,schema_element_str)
 
-def str2matchingrule(schema_element_str,schema_allow):
+def str2matchingrule(schema_element_str,schema_allow=0):
     return ldap.functions._ldap_function_call(_ldap.str2matchingrule,schema_element_str)
 
 
 class objectClass:
-    def __init__(self, schema_element_str):
-        (self.oid,           #REQUIRED
-         self.names,         #OPTIONAL
-         self.desc,          #OPTIONAL
-         self.obsolete,      #0=no, 1=yes
-         self.sup_oids,      #OPTIONAL
-         self.kind,          #0=ABSTRACT
-         self.must,          #OPTIONAL
-         self.may,           #OPTIONAL
-         self.ext,           #OPTIONAL
-         ) = str2objectclass(schema_element_str)
+
+    def __init__(
+      self,schema_element_str=None,schema_allow=0,
+      oid=None,#REQUIRED
+      names=None,#OPTIONAL
+      desc=None,#OPTIONAL
+      obsolete=0,#0=no, 1=yes
+      sup=[],#OPTIONAL
+      kind=1,#0=ABSTRACT
+      must=[],#OPTIONAL
+      may=[],#OPTIONAL
+      ext=None,#OPTIONAL
+    ):
+      if schema_element_str:
+        (
+          self.oid,self.names,self.desc,self.obsolete,self.sup,
+          self.kind,self.must,self.may,self.ext,
+        ) = str2objectclass(schema_element_str,schema_allow)
+      else:
+        self.oid = oid
+        self.names = names
+        self.desc = desc
+        self.obsolete = obsolete
+        self.sup = sup
+        self.kind = kind
+        self.must = must
+        self.may = may
+        self.ext = ext
+
+    def all_attrs(self,schema):
+      """
+      Return a 2-tuple of all must and may attributes including
+      all inherited attributes of superior object classes.
+      by walking up classes which the SUP
+      """
+      r_must,r_may = self.must,self.may
+      for sup_item in self.sup:
+        sup_oid = schema.name2oid.get(sup_item,sup_item)
+        sup_all_must,sup_all_may = schema.schema_element[sup_oid].all_attrs(schema)
+        r_must = ldap.cidict.strlist_union(
+          r_must,sup_all_must
+        )
+        r_may = ldap.cidict.strlist_union(
+          r_may,sup_all_may
+        )
+      r_may = ldap.cidict.strlist_minus(r_may,r_must)
+      return r_must,r_may
+
 
 class attributeType:
-    def __init__(self, schema_element_str):
+
+    def __init__(self, schema_element_str,schema_allow=0):
         (self.oid,             #REQUIRED
          self.names,           #OPTIONAL
          self.desc,            #OPTIONAL
@@ -60,25 +98,29 @@ class attributeType:
          self.usage,           #0=userApplications, 1=directoryOperation,
                                #2=distributedOperation, 3=dSAOperation
          self.ext              #OPTIONAL
-         ) = str2attributetype(schema_element_str)
+         ) = str2attributetype(schema_element_str,schema_allow)
+
 
 class ldapSyntax:
-    def __init__(self, schema_element_str):
+
+    def __init__(self, schema_element_str,schema_allow=0):
         (self.oid,    #REQUIRED
          self.names,  #OPTIONAL
          self.desc,   #OPTIONAL
          self.ext     #OPTIONAL
-         ) = str2syntax(schema_element_str)
+         ) = str2syntax(schema_element_str,schema_allow)
+
 
 class matchingRule:
-    def __init__(self, schema_element_str):
+
+    def __init__(self, schema_element_str,schema_allow=0):
         (self.oid,         #REQUIRED
          self.names,       #OPTIONAL
          self.desc,        #OPTIONAL
          self.obsolete,    #OPTIONAL
          self.syntax_oid,  #REQUIRED
          self.ext          #OPTIONAL
-         ) = str2matchingrule(schema_element_str)
+         ) = str2matchingrule(schema_element_str,schema_allow)
 
 
 SCHEMA_CLASS_MAPPING = {
