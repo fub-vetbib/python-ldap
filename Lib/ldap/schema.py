@@ -387,6 +387,17 @@ class MatchingRule:
     return '( %s )' % ''.join(result)
 
 
+class Entry(ldap.cidict.cidict):
+
+  def __init__(self,sub_schema,entry={}):
+    ldap.cidict.cidict.__init__(self)
+    for k,v in entry.items():
+      try:
+        self[sub_schema.name2oid[AttributeType][k]] = v
+      except KeyError:
+        self[k] = v
+
+
 SCHEMA_CLASS_MAPPING = {
   'objectClasses':ObjectClass,
   'attributeTypes':AttributeType,
@@ -457,14 +468,11 @@ class SubSchema:
       Returns a list of all available schema elements by first name
       of a given class.
       """
-      result = []
-      for se in self.schema_element.values():
-        if isinstance(se,schema_element_class):
-          if hasattr(se,'names') and se.names:
-            result.append(se.names[0])
-          else:
-            result.append(se.oid)
-      return result
+      return [
+        oid
+        for oid in self.schema_element.keys()
+        if isinstance(self.schema_element[oid],schema_element_class)
+      ]
 
     def schema_element_tree(self,schema_element_class):
       """
@@ -475,25 +483,17 @@ class SubSchema:
       """
       assert schema_element_class in [ObjectClass,AttributeType]
       avail_se = self.all_available(schema_element_class)
-      top_node = {0:'_',1:'top'}[schema_element_class==ObjectClass]
+      top_node = {0:'_',1:'2.5.6.0'}[schema_element_class==ObjectClass]
       tree = ldap.cidict.cidict({top_node:[]})
       # 1. Pass: Register all nodes
       for se in avail_se:
         tree[se] = []
       # 2. Pass: Register all sup references
-      for se in avail_se:
-        se_obj = self.get_schema_element(schema_element_class,se)
-        if se_obj is None:
-          continue
-        if type(se_obj.sup)==StringType:
-          if se_obj.sup:
-            sup = [se_obj.sup]
-          else:
-            sup = [top_node]
-        else:
-          sup = se_obj.sup
-        for s in sup:
-          tree[s].append(se)
+      for se_oid in avail_se:
+        se_obj = self.schema_element[se_oid]
+        for s in se_obj.sup:
+          sup_oid = self.name2oid[schema_element_class].get(s,s)
+          tree[sup_oid].append(se_oid)
       return tree
 
     def get_schema_element(self,schema_element_class,name,default=None):
@@ -509,18 +509,17 @@ class SubSchema:
       self,object_class_list,attr_type_filter={},strict=1
     ):
       """
-      Return a 2-tuple of all must and may attributes including
-      all inherited attributes of superior object classes.
-      by walking up classes along the SUP attribute
+      Returns a 2-tuple of all must and may attributes including
+      all inherited attributes of superior object classes
+      by walking up classes along the SUP attribute.
+      
+      The attributes are stored in a ldap.cidict.cidict dictionary.
 
       object_class_list
           list of strings specifying object class names or OIDs
       attr_type_filter
           list of 2-tuples containing lists of class attributes
           which has to be matched
-      strict
-          if zero non-existent object classes are simply ignored,
-          otherwise KeyError exceptions might be raised
       """
       # Map object_class_list to object_class_oids (list of OIDs)
       object_class_oids = [
@@ -543,9 +542,11 @@ class SubSchema:
         assert hasattr(object_class,'must'),ValueError(object_class_oid)
         assert hasattr(object_class,'may'),ValueError(object_class_oid)
         for a in object_class.must:
-          r_must[a] = a
+          at_obj = self.schema_element[self.name2oid[AttributeType][a]]
+          r_must[at_obj.oid] = at_obj
         for a in object_class.may:
-          r_may[a] = a
+          at_obj = self.schema_element[self.name2oid[AttributeType][a]]
+          r_may[at_obj.oid] = at_obj
         object_class_oids.extend([
           self.name2oid[ObjectClass].get(o,o)
           for o in object_class.sup
@@ -559,16 +560,15 @@ class SubSchema:
       if attr_type_filter:
         for l in [r_must,r_may]:
           for a in l.keys():
-            if self.name2oid[AttributeType].has_key(a):
+            if self.schema_element.has_key(a):
               for afk,afv in attr_type_filter:
-                schema_attr_type = self.schema_element[self.name2oid[AttributeType][a]]
-                print str(schema_attr_type)
+                schema_attr_type = self.schema_element[a]
                 if not getattr(schema_attr_type,afk) in afv:
                   del l[a]
                   break
             else:
               raise KeyError,'No schema element found with name %s' % (a)
-      return r_must.values(),r_may.values()
+      return r_must,r_may
 
 
 def urlfetch(uri):
