@@ -122,4 +122,4 @@ CIDict_New()
 	return (mp);
 }
 
-#endif USE_CIDICT
+#endif /* USE_CIDICT */
