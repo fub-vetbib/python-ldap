@@ -130,6 +130,20 @@ class SimpleLDAPObject:
     """
     return self._ldap_call(self._l.abandon,msgid)
 
+  def add_ext(self,dn,modlist,serverctrls=None,clientctrls=None):
+    """
+    add_ext(dn, modlist[,serverctrls=None[,clientctrls=None]]) -> int
+        This function adds a new entry with a distinguished name
+        specified by dn which means it must not already exist.
+        The parameter modlist is similar to the one passed to modify(),
+        except that no operation integer need be included in the tuples.
+    """
+    return self._ldap_call(self._l.add_ext,dn,modlist,serverctrls,clientctrls)
+
+  def add_ext_s(self,dn,modlist,serverctrls=None,clientctrls=None):
+    msgid = self.add_ext(dn,modlist,serverctrls,clientctrls)
+    self.result(msgid,all=1,timeout=self.timeout)
+
   def add(self,dn,modlist):
     """
     add(dn, modlist) -> int
@@ -138,7 +152,7 @@ class SimpleLDAPObject:
         The parameter modlist is similar to the one passed to modify(),
         except that no operation integer need be included in the tuples.
     """
-    return self._ldap_call(self._l.add,dn,modlist)
+    return self.add_ext(dn,modlist,None,None)
 
   def add_s(self,dn,modlist):
     msgid = self.add(dn,modlist)
@@ -163,8 +177,10 @@ class SimpleLDAPObject:
     """
     return self._ldap_call(self._l.sasl_bind_s,who,auth)
 
-  def compare(self,dn,attr,value):
+  def compare_ext(self,dn,attr,value,serverctrls=None,clientctrls=None):
     """
+    compare_ext(dn, attr, value [,serverctrls=None[,clientctrls=None]]) -> int
+    compare_ext_s(dn, attr, value [,serverctrls=None[,clientctrls=None]]) -> int    
     compare(dn, attr, value) -> int
     compare_s(dn, attr, value) -> int    
         Perform an LDAP comparison between the attribute named attr of
@@ -179,10 +195,10 @@ class SimpleLDAPObject:
         A design bug in the library prevents value from containing
         nul characters.
     """
-    return self._ldap_call(self._l.compare,dn,attr,value)
+    return self._ldap_call(self._l.compare_ext,dn,attr,value,serverctrls,clientctrls)
 
-  def compare_s(self,dn,attr,value):
-    msgid = self.compare(dn,attr,value)
+  def compare_ext_s(self,dn,attr,value,serverctrls=None,clientctrls=None):
+    msgid = self.compare_ext(dn,attr,value,serverctrls,clientctrls)
     try:
       self.result(msgid,all=1,timeout=self.timeout)
     except _ldap.COMPARE_TRUE:
@@ -191,15 +207,30 @@ class SimpleLDAPObject:
       return 0
     return None
 
-  def delete(self,dn):
+  def compare(self,dn,attr,value):
+    return self.compare_ext(dn,attr,value,None,None)
+
+  def compare_s(self,dn,attr,value):
+    return self.compare_ext_s(dn,attr,value,None,None)
+
+  def delete_ext(self,dn,serverctrls=None,clientctrls=None):
     """
     delete(dn) -> int
-    delete_s(dn) -> None    
+    delete_s(dn) -> None
+    delete_ext(dn[,serverctrls=None[,clientctrls=None]]) -> int
+    delete_ext_s(dn[,serverctrls=None[,clientctrls=None]]) -> None
         Performs an LDAP delete operation on dn. The asynchronous
         form returns the message id of the initiated request, and the
         result can be obtained from a subsequent call to result().
     """
-    return self._ldap_call(self._l.delete,dn)
+    return self._ldap_call(self._l.delete_ext,dn,serverctrls,clientctrls)
+
+  def delete_ext_s(self,dn,serverctrls=None,clientctrls=None):
+    msgid = self.delete_ext(dn,serverctrls,clientctrls)
+    self.result(msgid,all=1,timeout=self.timeout)
+
+  def delete(self,dn):
+    return self.delete_ext(dn,None,None)
 
   def delete_s(self,dn):
     msgid = self.delete(dn)
@@ -212,10 +243,22 @@ class SimpleLDAPObject:
     """
     self._ldap_call(self._l.manage_dsa_it,enable,critical)
   
+  def modify_ext(self,dn,modlist,serverctrls=None,clientctrls=None):
+    """
+    modify_ext(dn, modlist[,serverctrls=None[,clientctrls=None]]) -> int
+    """
+    return self._ldap_call(self._l.modify_ext,dn,modlist,serverctrls,clientctrls)
+
+  def modify_ext_s(self,dn,modlist,serverctrls=None,clientctrls=None):
+    msgid = self.modify_ext(dn,modlist,serverctrls,clientctrls)
+    self.result(msgid,all=1,timeout=self.timeout)
+
   def modify(self,dn,modlist):
     """
     modify(dn, modlist) -> int
     modify_s(dn, modlist) -> None    
+    modify_ext(dn, modlist[,serverctrls=None[,clientctrls=None]]) -> int
+    modify_ext_s(dn, modlist[,serverctrls=None[,clientctrls=None]]) -> None
         Performs an LDAP modify operation on an entry's attributes.
         dn is the DN of the entry to modify, and modlist is the list
         of modifications to make to the entry.
@@ -231,7 +274,7 @@ class SimpleLDAPObject:
         The asynchronous modify() returns the message id of the
         initiated request.
     """
-    return self._ldap_call(self._l.modify,dn,modlist)
+    return self.modify_ext(dn,modlist,None,None)
 
   def modify_s(self,dn,modlist):
     msgid = self.modify(dn,modlist)
@@ -256,10 +299,10 @@ class SimpleLDAPObject:
   def modrdn_s(self,dn,newrdn,delold=1):
     self.rename_s(dn,newrdn,None,delold)
 
-  def rename(self,dn,newrdn,newsuperior=None,delold=1):
+  def rename(self,dn,newrdn,newsuperior=None,delold=1,serverctrls=None,clientctrls=None):
     """
-    rename(dn, newrdn [, newsuperior=None] [,delold=1]) -> int
-    rename_s(dn, newrdn [, newsuperior=None] [,delold=1]) -> None
+    rename(dn, newrdn [, newsuperior=None [,delold=1][,serverctrls=None[,clientctrls=None]]]) -> int
+    rename_s(dn, newrdn [, newsuperior=None] [,delold=1][,serverctrls=None[,clientctrls=None]]) -> None
         Perform a rename entry operation. These routines take dn, the
         DN of the entry whose RDN is to be changed, newrdn, the
         new RDN, and newsuperior, the new parent DN, to give to the entry.
@@ -271,7 +314,7 @@ class SimpleLDAPObject:
         This actually corresponds to the rename* routines in the
         LDAP-EXT C API library.
     """
-    return self._ldap_call(self._l.rename,dn,newrdn,newsuperior,delold)
+    return self._ldap_call(self._l.rename,dn,newrdn,newsuperior,delold,serverctrls,clientctrls)
 
   def rename_s(self,dn,newrdn,newsuperior=None,delold=1):
     msgid = self.rename(dn,newrdn,newsuperior,delold)
@@ -453,10 +496,12 @@ class SimpleLDAPObject:
     """
     self._ldap_call(self._l.start_tls_s,*args,**kwargs)
   
-  def unbind(self):
+  def unbind_ext(self,serverctrls=None,clientctrls=None):
     """
-    unbind_s() -> None
     unbind() -> int    
+    unbind_s() -> None
+    unbind_ext() -> int    
+    unbind_ext_s() -> None
         This call is used to unbind from the directory, terminate
         the current association, and free resources. Once called, the
         connection to the LDAP server is closed and the LDAP object
@@ -466,7 +511,15 @@ class SimpleLDAPObject:
         The unbind and unbind_s methods are identical, and are
         synchronous in nature
     """
-    return self._ldap_call(self._l.unbind)
+    return self._ldap_call(self._l.unbind_ext,serverctrls,clientctrls)
+
+  def unbind_ext_s(self,serverctrls=None,clientctrls=None):
+    msgid = self.unbind_ext(serverctrls,clientctrls)
+    if msgid!=None:
+      self.result(msgid,all=1,timeout=self.timeout)
+
+  def unbind(self):
+    return self.unbind_ext(None,None)
 
   def unbind_s(self):
     msgid = self.unbind()
@@ -703,16 +756,16 @@ class ReconnectLDAPObject(SimpleLDAPObject):
     self._last_bind = (self.sasl_bind_s,(who,auth),{})
     return self._ldap_call(self._l.sasl_bind_s,who,auth)
 
-  def add_s(self,*args,**kwargs):
+  def add_ext_s(self,*args,**kwargs):
     return self._apply_method_s(SimpleLDAPObject.add_s,*args,**kwargs)
 
   def compare_s(self,*args,**kwargs):
     return self._apply_method_s(SimpleLDAPObject.compare_s,*args,**kwargs)
 
-  def delete_s(self,*args,**kwargs):
+  def delete_ext_s(self,*args,**kwargs):
     return self._apply_method_s(SimpleLDAPObject.delete_s,*args,**kwargs)
 
-  def modify_s(self,*args,**kwargs):
+  def modify_ext_s(self,*args,**kwargs):
     return self._apply_method_s(SimpleLDAPObject.modify_s,*args,**kwargs)
 
   def rename_s(self,*args,**kwargs):
