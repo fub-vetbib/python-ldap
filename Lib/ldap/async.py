@@ -61,6 +61,8 @@ class AsyncSearchHandler:
     filterStr,
     attrList=None,
     attrsOnly=0,
+    timeout=-1,
+    sizelimit=0
   ):
     """
     searchRoot
@@ -73,9 +75,15 @@ class AsyncSearchHandler:
         See parameter attrlist of method LDAPObject.search()
     attrsOnly
         See parameter attrsonly of method LDAPObject.search()
+    timeout
+        Maximum time the server shall use for search operation
+    sizeLimit
+        Maximum number of entries a server should return
+        (request client-side limit)
     """
-    self._msgId = self._l.search(
-      searchRoot,searchScope,filterStr,attrList,attrsOnly
+    self._msgId = self._l.search_ext(
+      searchRoot,searchScope,filterStr,
+      attrList,attrsOnly,None,None,timeout,sizelimit
     )
     return # startSearch()
 

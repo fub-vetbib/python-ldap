@@ -1021,10 +1021,10 @@ l_ldap_result( LDAPObject* self, PyObject *args )
 
 static char doc_result[] = "";
 
-/* ldap_search */
+/* ldap_search_ext */
 
 static PyObject*
-l_ldap_search( LDAPObject* self, PyObject* args )
+l_ldap_search_ext( LDAPObject* self, PyObject* args )
 {
     char *base;
     int scope;
@@ -1033,31 +1033,47 @@ l_ldap_search( LDAPObject* self, PyObject* args )
     char **attrs;
     int attrsonly = 0;
 
-    int msgid;
+    PyObject *serverctrls = Py_None;
+    PyObject *clientctrls = Py_None;
 
-    if (!PyArg_ParseTuple( args, "sis|Oi", 
-    	&base, &scope, &filter, &attrlist, &attrsonly)) return NULL;
+    double timeout = -1.0;
+    struct timeval tv;
+    struct timeval* tvp;
+
+    int sizelimit = 0;
+
+    int msgid;
+    int dummy;
+
+    if (!PyArg_ParseTuple( args, "sis|OiOOdi", 
+    	&base, &scope, &filter, &attrlist, &attrsonly, &serverctrls, &clientctrls, &timeout, &sizelimit )) return NULL;
     if (not_valid(self)) return NULL;
 
     if (!attrs_from_List( attrlist, &attrs )) 
    	 return NULL;
 
+    if (timeout >= 0) {
+        tvp = &tv;
+	set_timeval_from_double( tvp, timeout );
+    } else {
+    	tvp = NULL;
+    }
+
     LDAP_BEGIN_ALLOW_THREADS( self );
-    msgid = ldap_search( self->ldap, base, scope, filter, 
-                             attrs, attrsonly );
+    dummy = ldap_search_ext( self->ldap, base, scope, filter, 
+                             attrs, attrsonly, NULL, NULL, tvp, sizelimit, &msgid );
     LDAP_END_ALLOW_THREADS( self );
 
     free_attrs( &attrs );
 
     if (msgid == -1)
-    	return LDAPerror( self->ldap, "ldap_search" );
+    	return LDAPerror( self->ldap, "ldap_search_ext" );
 
     return PyInt_FromLong( msgid );
 }	
 
-static char doc_search[] = "";
+static char doc_search_ext[] = "";
 
-/* ldap_sort_entries */
 
 #ifdef HAVE_TLS
 /* ldap_start_tls_s */
@@ -1217,7 +1233,7 @@ static PyMethodDef methods[] = {
     {"modify",		(PyCFunction)l_ldap_modify,		METH_VARARGS,	doc_modify},
     {"rename",		(PyCFunction)l_ldap_rename,		METH_VARARGS,	doc_rename},
     {"result",		(PyCFunction)l_ldap_result,		METH_VARARGS,	doc_result},
-    {"search",		(PyCFunction)l_ldap_search,		METH_VARARGS,	doc_search},
+    {"search_ext",	(PyCFunction)l_ldap_search_ext,		METH_VARARGS,	doc_search_ext},
 #ifdef HAVE_TLS
     {"start_tls_s",	(PyCFunction)l_ldap_start_tls_s,	METH_VARARGS,	doc_start_tls},
 #endif

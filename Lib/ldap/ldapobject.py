@@ -372,7 +372,7 @@ class SimpleLDAPObject:
     """
     return self._ldap_call(self._l.result,msgid,all,timeout)
  
-  def search(self,base,scope,filterstr='(objectClass=*)',attrlist=None,attrsonly=0):
+  def search_ext(self,base,scope,filterstr='(objectClass=*)',attrlist=None,attrsonly=0,serverctrls=None,clientctrls=None,timeout=-1,sizelimit=0):
     """
     search(base, scope [,filterstr='(objectClass=*)' [,attrlist=None [,attrsonly=0]]) -> int
     search_s(base, scope [,filterstr='(objectClass=*)' [,attrlist=None [,attrsonly=0]])
@@ -417,14 +417,20 @@ class SimpleLDAPObject:
         negative). A TIMEOUT exception is raised if no result is
         received within the time.
     """
-    return self._ldap_call(self._l.search,base,scope,filterstr,attrlist,attrsonly)
+    return self._ldap_call(self._l.search_ext,base,scope,filterstr,attrlist,attrsonly,timeout,sizelimit)
+
+  def search_ext_s(self,base,scope,filterstr='(objectClass=*)',attrlist=None,attrsonly=0,serverctrls=None,clientctrls=None,timeout=-1,sizelimit=0):
+    msgid = self._ldap_call(self._l.search_ext,base,scope,filterstr,attrlist,attrsonly,serverctrls,clientctrls,timeout,sizelimit)
+    return self.result(msgid,all=1,timeout=timeout)[1]
+
+  def search(self,base,scope,filterstr='(objectClass=*)',attrlist=None,attrsonly=0):
+    return self.search_ext(base,scope,filterstr,attrlist,attrsonly)
 
   def search_s(self,base,scope,filterstr='(objectClass=*)',attrlist=None,attrsonly=0):
-    return self.search_st(base,scope,filterstr,attrlist,attrsonly,timeout=-1)
+    return self.search_ext_s(base,scope,filterstr,attrlist,attrsonly)
 
   def search_st(self,base,scope,filterstr='(objectClass=*)',attrlist=None,attrsonly=0,timeout=-1):
-    msgid = self.search(base,scope,filterstr,attrlist,attrsonly)
-    return self.result(msgid,all=1,timeout=timeout)[1]
+    return self.search_ext_s(base,scope,filterstr,attrlist,attrsonly,timeout)
 
   def set_cache_options(self,*args,**kwargs):
     """
