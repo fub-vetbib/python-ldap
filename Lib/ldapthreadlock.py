@@ -14,8 +14,9 @@ Compability:
   thread support (module threading is imported).
 
 Usage:
-You can simply use function open() of this module instead of function
-open() of module ldap to create an instance of LDAPObject class.
+You can simply use function open() / intialize() of this module
+instead of function open() / intialize() of module ldap to create
+an instance of LDAPObject class.
 
 Basically calls into the LDAP lib are serialized by the module-wide
 lock _ldapmodule_lock. To avoid blocking of other threads synchronous
@@ -26,7 +27,9 @@ The timeout handling is done within the method result() which probably leads
 to less exact timing.
 """
 
-__version__ = '0.2.1'
+__version__ = '0.3.0'
+
+__all__ = ['open','initialize','init','get_option','set_option']
 
 import time,threading,ldap
 
@@ -61,8 +64,13 @@ class LDAPObject:
         print '=> result:',result
     return result
 
-  def __init__(self,host):
-    self._l = self._ldap_call(ldap.open,host)
+  def __init__(self,host=None,uri=None):
+    if uri!=None:
+      self._l = self._ldap_call(ldap.intialize,uri)
+    elif host!=None:
+      self._l = self._ldap_call(ldap.open,host)
+    else:
+      raise ValueError,"Either host or uri must be set."
 
   def __setattr__(self,name,value):
     if name!='_l':
@@ -228,7 +236,25 @@ class LDAPObject:
   def url_search_st(self,*args,**kwargs):
     return self._ldap_call(self._l.url_search_st,*args,**kwargs)
 
+  def get_option(self,*args,**kwargs):
+    return self._ldap_call(self._l.get_option,*args,**kwargs)
+
+  def set_option(self,*args,**kwargs):
+    return self._ldap_call(self._l.get_option,*args,**kwargs)
+
 def open(host):
   """Return ldapthreadlock.LDAPObject instance"""
-  return LDAPObject(host)
+  return LDAPObject(host=host)
+
+def initialize(uri):
+  """Return ldapthreadlock.LDAPObject instance"""
+  return LDAPObject(uri=uri)
+# init() is just an alias for initialize()
+init = initialize
+
+def get_option(self,*args,**kwargs):
+  return self._ldap_call(ldap.get_option,*args,**kwargs)
+
+def set_option(self,*args,**kwargs):
+  return self._ldap_call(ldap.get_option,*args,**kwargs)
 
