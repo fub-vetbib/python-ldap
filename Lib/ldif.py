@@ -10,7 +10,7 @@ Python compability note:
 Tested with Python 2.0+, but should work with Python 1.5.2+.
 """
 
-__version__ = '0.5.1'
+__version__ = '0.5.2'
 
 __all__ = [
   # constants
@@ -27,8 +27,8 @@ except ImportError:
   from StringIO import StringIO
 
 attrtype_pattern = r'[\w;.]+(;[\w_-]+)*'
-data_pattern = r'(([^,]|\\,)+|".*?")'
-rdn_pattern = attrtype_pattern + r'[ ]*=[ ]*' + data_pattern
+attrvalue_pattern = r'(([^,]|\\,)*|".*?")'
+rdn_pattern = attrtype_pattern + r'[ ]*=[ ]*' + attrvalue_pattern
 dn_pattern   = rdn_pattern + r'([ ]*,[ ]*' + rdn_pattern + r')*[ ]*'
 dn_regex   = re.compile('^%s$' % dn_pattern)
 
@@ -193,8 +193,8 @@ class LDIFWriter:
           or a list with a modify list like for LDAPObject.modify().
     """
     if not record:
-      # Don't know what to do with empty records
-      raise ValueError,"LDIF record is not allowed to be empty"
+      # Simply ignore empty records
+      return
     # Start with line containing the distinguished name
     self._unparseAttrTypeandValue('dn',dn)
     # Dispatch to record type specific writers
