@@ -1,7 +1,7 @@
 *** List of things to-do in no particular order ***
 
 General:
-- Define common license for all modules
+- Define common Python style license for all modules
 
 Modules/
 - Validating server's certificate when calling start_tls_s() or
@@ -11,15 +11,19 @@ Modules/
   - server-side sorting control
   - Binding in DSA control mode (rewrite necessary)
   - Persistent search control
-- Wrap ldap_parse_reference()
 - Support for Win32 (and other platforms?)
 - Support Extended Operations by wrapping
   ldap_extended_operation() and ldap_parse_extended_result()
   - Set Password ext. op.
   - Whoami ext. op.
+- Wrap ldap_bv2dn, ldap_str2dn ldap_dn2bv, ldap_dn2str, 
+  ldap_bv2rdn, ldap_str2rdn, ldap_rdn2bv, ldap_rdn2str,
+  ldap_dn_normalize and implement explode_dn() and
+  explode_rdn() in ldap.functions module with these
+  functions.
+- Check for deprecated functions in OpenLDAP's ldap.h
 
 Lib/
-- Remove obsolete/unsupported modules
 - Caching of search requests for each LDAPObject instance
 - LDIF parser for replication logs
 - DSMLv2 support
