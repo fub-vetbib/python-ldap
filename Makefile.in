@@ -6,8 +6,9 @@ INSTALL=	$(LIBDEST)/config/install-sh
 INSTALL_DATA=	$(INSTALL) -m 644
 INSTALL_DIR=	mkdir -p
 srcdir=		@srcdir@
+srcdir_ABS=	`cd $(srcdir) && pwd`
 
-MAKEVARS=	srcdir=$(srcdir)/Modules VPATH=$(srcdir)/Modules
+MAKEVARS=	srcdir=$(srcdir_ABS)/Modules VPATH=$(srcdir_ABS)/Modules
 
 all:	 build
 
