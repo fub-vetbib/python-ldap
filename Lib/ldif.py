@@ -11,7 +11,7 @@ Python compability note:
 Tested with Python 2.0+, but should work with Python 1.5.2+.
 """
 
-__version__ = '0.4.0'
+__version__ = '0.5.0'
 
 __all__ = [
   # constants
@@ -34,8 +34,6 @@ dn_pattern   = rdn_pattern + r'([ ]*,[ ]*' + rdn_pattern + r')*[ ]*'
 dn_regex   = re.compile('^%s$' % dn_pattern)
 
 ldif_pattern = '^((dn(:|::) %(dn_pattern)s)|(%(attrtype_pattern)s(:|::) .*)$)+' % vars()
-
-linesep = '\n'
 
 MOD_OP_INTEGER = {
   'add':0,'delete':1,'replace':2
@@ -80,49 +78,127 @@ def list_dict(l):
   return d
 
 
-def CreateAttrTypeandValueLDIF(attr_type,attr_value,base64_attrs=[],cols=76):
+class LDIFWriter:
   """
-  Write a single attribute to one or many folded LDIF line(s).
-  
-  attr_type
-        attribute type
-  attr_value
-        attribute value
-  base64_attrs
+  Write LDIF entry or change records to file object
+  Copy LDIF input to a file output object containing all data retrieved
+  via URLs
+  """
+
+  def __init__(self,output_file,base64_attrs=[],cols=76,line_sep='\n'):
+    """
+    output_file
+        file object for output
+    base64_attrs
         list of attribute types to be base64-encoded in any case
-  cols
+    cols
         Specifies how many columns a line may have before it's
         folded into many lines.
-  """
-  # Encode with base64 if necessary
-  if (attr_type in base64_attrs) or needs_base64(attr_value):
-    line = '%s:: %s' % (
-      attr_type,
-      string.replace(base64.encodestring(attr_value),'\n','')
-    )
-  else:
-    line = '%s: %s' % (attr_type,attr_value)
-  # Check maximum line length
-  line_len = len(line)
-  if line_len<=cols:
-    return line
-  # Fold line
-  pos = cols
-  result = [line[0:min(line_len,cols)]]
-  while pos<line_len:
-    result.append(line[pos:min(line_len,pos+cols-1)])
-    pos = pos+cols-1
-  return string.join(result,linesep+' ')
+    line_sep
+        String used as line separator
+    """
+    self._output_file = output_file
+    self._base64_attrs = list_dict(map(string.lower,base64_attrs))
+    self._cols = cols
+    self._line_sep = line_sep
+    self.records_written = 0
+
+  def _unfoldLDIFLine(self,line):
+    """
+    Write string line as one or more folded lines
+    """
+    # Check maximum line length
+    line_len = len(line)
+    if line_len<=self._cols:
+      self._output_file.write(line)
+      self._output_file.write(self._line_sep)
+    else:
+      # Fold line
+      pos = self._cols
+      self._output_file.write(line[0:min(line_len,self._cols)])
+      self._output_file.write(self._line_sep)
+      while pos<line_len:
+        self._output_file.write(' ')
+        self._output_file.write(line[pos:min(line_len,pos+self._cols-1)])
+        self._output_file.write(self._line_sep)
+        pos = pos+self._cols-1
+    return # _unfoldLDIFLine()
+
+  def _unparseAttrTypeandValue(self,attr_type,attr_value):
+    """
+    Write a single attribute type/value pair
+
+    attr_type
+          attribute type
+    attr_value
+          attribute value
+    """
+    if self._base64_attrs.has_key(string.lower(attr_type)) or \
+       needs_base64(attr_value):
+      # Encode with base64
+      self._unfoldLDIFLine(string.join(
+        [attr_type,string.replace(base64.encodestring(attr_value),'\n','')],':: '
+      ))
+    else:
+      self._unfoldLDIFLine(string.join(
+        [attr_type,attr_value],': '
+      ))
+    return # _unparseAttrTypeandValue()
+
+  def _unparseEntryRecord(self,entry):
+    """
+    entry
+        dictionary holding an entry
+    """
+    attr_types = entry.keys()[:]
+    attr_types.sort()
+    for attr_type in attr_types:
+      for attr_value in entry[attr_type]:
+        self._unparseAttrTypeandValue(attr_type,attr_value)
+
+  def _unparseChangeRecord(self,modlist):
+    """
+    modlist
+        list of modifications
+    """
+    for mod_op,mod_type,mod_vals in modlist:
+      self._unparseAttrTypeandValue('changetype','modify')
+      self._unparseAttrTypeandValue(MOD_OP_STR[mod_op],mod_type)
+      if type(mod_vals)==types.StringType:
+        mod_vals = [mod_vals]
+      for mod_val in mod_vals:
+        self._unparseAttrTypeandValue(mod_type,mod_val)
+
+  def unparse(self,dn,record):
+    """
+    dn
+          string-representation of distinguished name
+    record
+          Either a dictionary holding the LDAP entry {attrtype:record}
+          or a list with a modify list like for LDAPObject.modify().
+    """
+    # Start with line containing the distinguished name
+    self._unparseAttrTypeandValue('dn',dn)
+    # Dispatch to record type specific writers
+    if type(record)==types.DictType:
+      self._unparseEntryRecord(record)
+    elif type(record)==types.ListType:
+      self._unparseChangeRecord(record)
+    # Write empty line separating the records
+    self._output_file.write(self._line_sep)
+    # Count records written
+    self.records_written = self.records_written+1
+    return # unparse()
 
 
-def CreateLDIF(dn,data,base64_attrs=[],cols=76):
+def CreateLDIF(dn,record,base64_attrs=[],cols=76):
   """
-  Create LDIF formatted entry including trailing empty line.
+  Create LDIF single formatted record including trailing empty line.
   
   dn
         string-representation of distinguished name
-  data
-        Either a dictionary holding the LDAP entry {attrtype:data}
+  record
+        Either a dictionary holding the LDAP entry {attrtype:record}
         or a list with a modify list like for LDAPObject.modify().
   base64_attrs
         list of attribute types to be base64-encoded in any case
@@ -130,40 +206,12 @@ def CreateLDIF(dn,data,base64_attrs=[],cols=76):
         Specifies how many columns a line may have before it's
         folded into many lines.
   """
-  # At first prepare line with distinguished name
-  result = [CreateAttrTypeandValueLDIF('dn',dn,cols=cols)]
-  if type(data)==types.DictType:
-    #-----------------------------------------------------
-    # Assume data contains a dictionary with a LDAP entry
-    #-----------------------------------------------------
-    entry=data
-    attr_types = entry.keys()[:]
-    attr_types.sort()
-    for attr_type in attr_types:
-      for attr_value in entry[attr_type]:
-        result.append(CreateAttrTypeandValueLDIF(attr_type,attr_value,base64_attrs,cols))
-  elif type(data)==types.ListType:
-    #-----------------------------------------------------
-    # Assume data contains a list of modifications
-    #-----------------------------------------------------
-    modlist=data
-    for mod_op,mod_type,mod_vals in modlist:
-      result.append(
-        CreateAttrTypeandValueLDIF('changetype','modify',cols=cols)
-      )
-      result.append(
-        CreateAttrTypeandValueLDIF(MOD_OP_STR[mod_op],mod_type,cols=cols)
-      )
-      if type(mod_vals)==types.StringType:
-        mod_vals = [mod_vals]
-      for mod_val in mod_vals:
-        result.append(
-          CreateAttrTypeandValueLDIF(
-            mod_type,mod_val,base64_attrs,cols
-          )
-        )
-  result.append(linesep)
-  return string.join(result,linesep)
+  f = StringIO()
+  ldif_writer = LDIFWriter(f,base64_attrs,cols,'\n')
+  ldif_writer.unparse(dn,record)
+  s = f.getvalue()
+  f.close()
+  return s
 
 
 class LDIFParser:
@@ -190,11 +238,8 @@ class LDIFParser:
       return s
 
   def __init__(
-    self,
-    input_file,
-    ignored_attr_types=[],
-    max_entries=0,
-    process_url_schemes=[],
+    self,input_file,ignored_attr_types=[],
+    max_entries=0,process_url_schemes=[],line_sep='\n'
   ):
     """
     Parameters:
@@ -209,11 +254,14 @@ class LDIFParser:
         List containing strings with URLs schemes to process with urllib.
         An empty list turns off all URL processing and the attribute
         is ignored completely.
+    line_sep
+        String used as line separator
     """
     self._input_file = input_file
     self._max_entries = max_entries
     self._process_url_schemes = list_dict(map(string.lower,process_url_schemes))
     self._ignored_attr_types = list_dict(map(string.lower,ignored_attr_types))
+    self._line_sep = line_sep
     self.records_read = 0
 
   def handle(self,*args,**kwargs):
