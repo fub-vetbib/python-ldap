@@ -132,7 +132,7 @@ class SimpleLDAPObject:
     return self._ldap_call(self._l.abandon_ext,msgid,serverctrls,clientctrls)
 
   def abandon(self,msgid):
-    return self.abandon.ext(msgid,None,None)
+    return self.abandon_ext(msgid,None,None)
 
   def add_ext(self,dn,modlist,serverctrls=None,clientctrls=None):
     """
