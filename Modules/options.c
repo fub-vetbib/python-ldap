@@ -262,6 +262,9 @@ LDAP_get_option(LDAPObject *self, int option)
 
 	    if (res != LDAP_OPT_SUCCESS)
 		return LDAPerr(res);
+
+            if (lcs == NULL)
+                return PyList_New(0);
             
             /* Get the number of controls */
             num_controls = 0;
