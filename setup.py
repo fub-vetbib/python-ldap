@@ -68,7 +68,7 @@ setup(
 		    runtime_library_dirs = LDAP_CLASS.library_dirs,                    
 		    define_macros =	LDAP_CLASS.defines + \
               ('ldap_r' in LDAP_CLASS.libs)*[('HAVE_LIBLDAP_R',None)] + \
-              ('sasl' in LDAP_CLASS.libs)*[('HAVE_SASL',None)] + \
+              ('sasl' in LDAP_CLASS.libs or 'sasl2' in LDAP_CLASS.libs)*[('HAVE_SASL',None)] + \
               ('ssl' in LDAP_CLASS.libs and 'crypto' in LDAP_CLASS.libs)*[('HAVE_TLS',None)] + \
               [('LDAPMODULE_VERSION', version)]
 		),
