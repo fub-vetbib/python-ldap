@@ -5,6 +5,8 @@
  * $Id$ 
  */
 
+#include "Python.h"
+
 #ifndef __h_common 
 #define __h_common 
 
@@ -23,8 +25,6 @@
 #include <string.h>
 #define streq( a, b ) \
 	( (*(a)==*(b)) && 0==strcmp(a,b) )
-
-#include "Python.h"
 
 void LDAPadd_methods( PyObject*d, PyMethodDef*methods );
 #define PyNone_Check(o) ((o) == Py_None)

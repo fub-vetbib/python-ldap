@@ -4,9 +4,9 @@
 
 /* $Id$ */
 
+#include "Python.h"
 #include "lber.h"
 #include "ldap.h"
-#include "Python.h"
 
 extern PyObject* LDAPmessage_to_python( LDAP*ld, LDAPMessage*m );
 

@@ -3,6 +3,9 @@ Released 2.0.0pre15 2003-11-xx
 
 Changes since 2.0.0pre14:
 
+Modules/:
+Follow rule "Always include Python.h first"
+
 ----------------------------------------------------------------
 Released 2.0.0pre14 2003-10-03
 

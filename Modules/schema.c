@@ -5,6 +5,8 @@
  * $Id$
  */
 
+#include "Python.h"
+
 #include "schema.h"
 #include "ldap_schema.h"
 
