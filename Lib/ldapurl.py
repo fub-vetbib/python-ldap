@@ -207,7 +207,7 @@ class LDAPUrl:
       self._parse(ldapUrl)
 
   def __getattr__(self,name):
-    if name=='who' or name=='cred':
+    if self.attr2extype.has_key(name):
       extype = self.attr2extype[name]
       if self.extensions.has_key(extype):
         return unquote_plus(
@@ -311,6 +311,17 @@ class LDAPUrl:
     if type(s)==UnicodeType:
       s = s.encode(charset)
     return quote(s).replace(',','%2C').replace('/','%2F')
+
+  def initializeUrl(self):
+    """
+    Returns LDAP URL suitable to be passed to ldap.initialize()
+    """
+    if self.urlscheme=='ldapi':
+      # hostport part might contain slashes when ldapi:// is used
+      hostport = quote_plus(self.hostport)
+    else:
+      hostport = self.hostport
+    return '%s://%s' % (self.urlscheme,self.hostport)
 
   def unparse(self,charset=None,urlEncode=0):
     """
