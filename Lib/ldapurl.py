@@ -336,7 +336,7 @@ class LDAPUrl:
         Dictionary containing a mapping from class attributes
         to default values
     """
-    for k in defaults:
+    for k in defaults.keys():
       if getattr(self,k) is None:
         setattr(self,k,defaults[k])
 
