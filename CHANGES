@@ -3,6 +3,14 @@ Released 2.0.0pre16 2003-11-xx
 
 Changes since 2.0.0pre15:
 
+dsml:
+- Renamed DSMLWriter._f to DSMLWriter._output_file
+- Added wrapper method DSMLWriter.unparse() which simply
+  calls DSMLWriter.writeRecord()
+
+ldap.async:
+- Added class DSMLWriter
+
 ----------------------------------------------------------------
 Released 2.0.0pre15 2003-11-11
 

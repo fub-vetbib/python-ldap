@@ -53,7 +53,7 @@ class DSMLWriter:
     indent
           String used for indentiation of next nested level.
     """
-    self._f = f
+    self._output_file = f
     self._base64_attrs = list_dict(map(string.lower,base64_attrs))
     self._dsml_comment = dsml_comment
     self._indent = indent
@@ -73,7 +73,7 @@ class DSMLWriter:
     """
     Write the header
     """
-    self._f.write('\n'.join([
+    self._output_file.write('\n'.join([
         '<?xml version="1.0" encoding="UTF-8"?>',
         '<!DOCTYPE root PUBLIC "dsml.dtd" "http://www.dsml.org/1.0/dsml.dtd">',
         '<dsml:dsml xmlns:dsml="http://www.dsml.org/DSML">',
@@ -81,17 +81,20 @@ class DSMLWriter:
       ])
     )
     if self._dsml_comment:
-      self._f.write('%s<!--\n' % (self._indent))
-      self._f.write('%s%s\n' % (self._indent,self._dsml_comment))
-      self._f.write('%s-->\n' % (self._indent))
+      self._output_file.write('%s<!--\n' % (self._indent))
+      self._output_file.write('%s%s\n' % (self._indent,self._dsml_comment))
+      self._output_file.write('%s-->\n' % (self._indent))
 
   def writeFooter(self):
     """
     Write the footer
     """
-    self._f.write('%s</dsml:directory-entries>\n' % (self._indent))
-    self._f.write('</dsml:dsml>\n')
+    self._output_file.write('%s</dsml:directory-entries>\n' % (self._indent))
+    self._output_file.write('</dsml:dsml>\n')
     
+  def unparse(self,dn,entry):
+    return self.writeRecord(dn,entry)
+
   def writeRecord(self,dn,entry):
     """
     dn
@@ -101,7 +104,7 @@ class DSMLWriter:
     """
 
     # Write line dn: first
-    self._f.write(
+    self._output_file.write(
       '%s<dsml:entry dn="%s">\n' % (
         self._indent*2,replace_char(dn)
       )
@@ -109,10 +112,10 @@ class DSMLWriter:
 
     objectclasses = entry.get('objectclass',entry.get('objectClass',[]))
 
-    self._f.write('%s<dsml:objectclass>\n' % (self._indent*3))
+    self._output_file.write('%s<dsml:objectclass>\n' % (self._indent*3))
     for oc in objectclasses:
-      self._f.write('%s<dsml:oc-value>%s</dsml:oc-value>\n' % (self._indent*4,oc))
-    self._f.write('%s</dsml:objectclass>\n' % (self._indent*3))
+      self._output_file.write('%s<dsml:oc-value>%s</dsml:oc-value>\n' % (self._indent*4,oc))
+    self._output_file.write('%s</dsml:objectclass>\n' % (self._indent*3))
 
     attr_types = entry.keys()[:]
     try:
@@ -122,7 +125,7 @@ class DSMLWriter:
       pass
     attr_types.sort()
     for attr_type in attr_types:
-      self._f.write('%s<dsml:attr name="%s">\n' % (self._indent*3,attr_type))
+      self._output_file.write('%s<dsml:attr name="%s">\n' % (self._indent*3,attr_type))
       for attr_value_item in entry[attr_type]:
         needs_base64_encoding = self._needs_base64_encoding(
           attr_type,attr_value_item
@@ -131,22 +134,22 @@ class DSMLWriter:
           attr_value_item = base64.encodestring(attr_value_item)
         else:
           attr_value_item = replace_char(attr_value_item)
-  	self._f.write('%s<dsml:value%s>\n' % (
+  	self._output_file.write('%s<dsml:value%s>\n' % (
             self._indent*4,
             ' encoding="base64"'*needs_base64_encoding
           )
         )
-  	self._f.write('%s%s\n' % (
+  	self._output_file.write('%s%s\n' % (
             self._indent*5,
             attr_value_item
           )
         )
-  	self._f.write('%s</dsml:value>\n' % (
+  	self._output_file.write('%s</dsml:value>\n' % (
             self._indent*4,
           )
         )
-      self._f.write('%s</dsml:attr>\n' % (self._indent*3))
-    self._f.write('%s</dsml:entry>\n' % (self._indent*2))
+      self._output_file.write('%s</dsml:attr>\n' % (self._indent*3))
+    self._output_file.write('%s</dsml:entry>\n' % (self._indent*2))
     return
 
 
