@@ -32,67 +32,6 @@ default_ldap_port()
 }
 
 
-/* ldap_open */
-
-static PyObject*
-l_ldap_open(PyObject* unused, PyObject *args)
-{
-    char *host;
-    int port = 0;
-    LDAP *ld;
-
-    if (!PyArg_ParseTuple(args, "s|i", &host, &port))
-    	return NULL;
-
-    /* Look up the ldap service from /etc/services if not port not given. */
-    if (port == 0) 
-	port = default_ldap_port();
-
-    Py_BEGIN_ALLOW_THREADS
-    ld = ldap_open(host, port);
-    Py_END_ALLOW_THREADS
-    if (ld == NULL)
-    	return LDAPerror(ld, "ldap_open");
-    return (PyObject*)newLDAPObject(ld);
-}
-
-static char doc_open[] = 
-"open(host [,port=PORT]) -> LDAPObject\n\n"
-"\tOpens a new connection with an LDAP server, and returns an LDAP object\n"
-"\trepresentative of this.\n"
-"\t(This function is depreciated: use init() or initialize() instead.)";
-
-
-/* ldap_init */
-
-static PyObject*
-l_ldap_init(PyObject* unused, PyObject *args)
-{
-    char *host;
-    int port = 0;
-    LDAP *ld;
-
-    if (!PyArg_ParseTuple(args, "s|i", &host, &port))
-    	return NULL;
-
-    /* Look up the ldap service from /etc/services if not port not given. */
-    if (port == 0)
-	port = default_ldap_port();
-
-    Py_BEGIN_ALLOW_THREADS
-    ld = ldap_init(host, port);
-    Py_END_ALLOW_THREADS
-    if (ld == NULL)
-    	return LDAPerror(ld, "ldap_init");
-    return (PyObject*)newLDAPObject(ld);
-}
-
-static char doc_init[] = 
-"init(host [,port=PORT]) -> LDAPObject\n\n"
-"\tReturns an LDAP object for new connection to LDAP server.\n"
-"\tThe actual connection will be openend when the first operation\n"
-"\tis attempted.\n";
-
 /* ldap_initialize */
 
 static PyObject*
@@ -272,10 +211,6 @@ static char doc_get_option[] =
 /* methods */
 
 static PyMethodDef methods[] = {
-    { "open",		(PyCFunction)l_ldap_open,		METH_VARARGS,
-    	doc_open },
-    { "init",		(PyCFunction)l_ldap_init,		METH_VARARGS,
-    	doc_init },
     { "initialize",	(PyCFunction)l_ldap_initialize,		METH_VARARGS,
     	doc_initialize },
     { "dn2ufn",		(PyCFunction)l_ldap_dn2ufn,		METH_VARARGS,
