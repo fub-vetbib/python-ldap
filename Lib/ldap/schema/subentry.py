@@ -151,7 +151,7 @@ class SubSchema(UserDict):
       return None
 
     def attribute_types(
-      self,object_class_list,attr_type_filter={},strict=1,raise_keyerror=1
+      self,object_class_list,attr_type_filter=None,strict=1,raise_keyerror=1
     ):
       """
       Returns a 2-tuple of all must and may attributes including

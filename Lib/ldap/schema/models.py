@@ -421,10 +421,10 @@ class Entry(ldap.cidict.cidict):
   the OID as key.
   """
 
-  def __init__(self,schema,entry={}):
+  def __init__(self,schema,entry=None):
     self._at_oid2name = {}
     self._s = schema
-    ldap.cidict.cidict.__init__(self,entry)
+    ldap.cidict.cidict.__init__(self,(entry or {}))
 
   def _at_oid(self,nameoroid):
     """

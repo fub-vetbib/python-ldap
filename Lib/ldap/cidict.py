@@ -18,10 +18,10 @@ class cidict(UserDict):
   Case-insensitive bud case-respecting dictionary.
   """
 
-  def __init__(self,default={}):
+  def __init__(self,default=None):
     self._keys = {}
     UserDict.__init__(self,{})
-    self.update(default)
+    self.update(default or {})
 
   def __getitem__(self,key):
     return self.data[lower(key)]

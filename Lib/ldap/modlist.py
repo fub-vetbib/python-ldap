@@ -27,9 +27,9 @@ def list_dict(l):
   return d
 
 
-def addModlist(entry,ignore_attr_types=[]):
+def addModlist(entry,ignore_attr_types=None):
   """Build modify list for call of method LDAPObject.add()"""
-  ignore_attr_types = list_dict(map(string.lower,ignore_attr_types))
+  ignore_attr_types = list_dict(map(string.lower,(ignore_attr_types or [])))
   modlist = []
   for attrtype in entry.keys():
     if ignore_attr_types.has_key(string.lower(attrtype)):
@@ -39,11 +39,11 @@ def addModlist(entry,ignore_attr_types=[]):
     attrvaluelist = filter(None,entry[attrtype])
     if attrvaluelist:
       modlist.append((attrtype,entry[attrtype]))
-  return modlist
+  return modlist # addModlist()
 
 
 def modifyModlist(
-  old_entry,new_entry,ignore_attr_types=[],ignore_oldexistent=0
+  old_entry,new_entry,ignore_attr_types=None,ignore_oldexistent=0
 ):
   """
   Build differential modify list for calling LDAPObject.modify()/modify_s()
@@ -61,7 +61,7 @@ def modifyModlist(
       sets attribute value to '' for deleting an attribute.
       In most cases leave zero.
   """
-  ignore_attr_types = list_dict(map(string.lower,ignore_attr_types))
+  ignore_attr_types = list_dict(map(string.lower,(ignore_attr_types or [])))
   modlist = []
   attrtype_lower_map = {}
   for a in old_entry.keys():
@@ -78,11 +78,9 @@ def modifyModlist(
       del attrtype_lower_map[attrtype_lower]
     else:
       old_value = []
-
     if not old_value and new_value:
       # Add a new attribute to entry
       modlist.append((ldap.MOD_ADD,attrtype,new_value))
-
     elif old_value and new_value:
       # Replace existing attribute
       old_value_dict={}
@@ -101,11 +99,9 @@ def modifyModlist(
           add_values.append(v)
       if add_values:
         modlist.append((ldap.MOD_ADD,attrtype,add_values))
-
     elif old_value and not new_value:
       # Completely delete an existing attribute
       modlist.append((ldap.MOD_DELETE,attrtype,None))
-
   if not ignore_oldexistent:
     # Remove all attributes of old_entry which are not present
     # in new_entry at all
@@ -115,5 +111,4 @@ def modifyModlist(
         continue
       attrtype = attrtype_lower_map[a]
       modlist.append((ldap.MOD_DELETE,attrtype,None))
-
-  return modlist
+  return modlist # modifyModlist()

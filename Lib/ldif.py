@@ -84,7 +84,7 @@ class LDIFWriter:
   via URLs
   """
 
-  def __init__(self,output_file,base64_attrs=[],cols=76,line_sep='\n'):
+  def __init__(self,output_file,base64_attrs=None,cols=76,line_sep='\n'):
     """
     output_file
         file object for output
@@ -97,7 +97,7 @@ class LDIFWriter:
         String used as line separator
     """
     self._output_file = output_file
-    self._base64_attrs = list_dict(map(string.lower,base64_attrs))
+    self._base64_attrs = list_dict(map(string.lower,(base64_attrs or [])))
     self._cols = cols
     self._line_sep = line_sep
     self.records_written = 0
@@ -193,7 +193,7 @@ class LDIFWriter:
     return # unparse()
 
 
-def CreateLDIF(dn,record,base64_attrs=[],cols=76):
+def CreateLDIF(dn,record,base64_attrs=None,cols=76):
   """
   Create LDIF single formatted record including trailing empty line.
   
@@ -240,8 +240,12 @@ class LDIFParser:
       return s
 
   def __init__(
-    self,input_file,ignored_attr_types=[],
-    max_entries=0,process_url_schemes=[],line_sep='\n'
+    self,
+    input_file,
+    ignored_attr_types=None,
+    max_entries=0,
+    process_url_schemes=None,
+    line_sep='\n'
   ):
     """
     Parameters:
@@ -261,8 +265,8 @@ class LDIFParser:
     """
     self._input_file = input_file
     self._max_entries = max_entries
-    self._process_url_schemes = list_dict(map(string.lower,process_url_schemes))
-    self._ignored_attr_types = list_dict(map(string.lower,ignored_attr_types))
+    self._process_url_schemes = list_dict(map(string.lower,(process_url_schemes or [])))
+    self._ignored_attr_types = list_dict(map(string.lower,(ignored_attr_types or [])))
     self._line_sep = line_sep
     self.records_read = 0
 
@@ -374,8 +378,10 @@ class LDIFRecordList(LDIFParser):
   """
 
   def __init__(
-    self,input_file,ignored_attr_types=[],max_entries=0,process_url_schemes=[],
-    all_records=[]
+    self,
+    input_file,
+    ignored_attr_types=None,max_entries=0,process_url_schemes=None,
+    all_records=None
   ):
     """
     See LDIFParser.__init__()
@@ -385,7 +391,7 @@ class LDIFRecordList(LDIFParser):
         List instance for storing parsed records
     """
     LDIFParser.__init__(self,input_file,ignored_attr_types,max_entries,process_url_schemes)
-    self.all_records = all_records
+    self.all_records = (all_records or [])
 
   def handle(self,dn,entry):
     """
@@ -403,7 +409,10 @@ class FileWriter(LDIFParser):
   """
 
   def __init__(
-    self,input_file,output_file,ignored_attr_types=[],max_entries=0,process_url_schemes=[]):
+    self,
+    input_file,output_file,
+    ignored_attr_types=None,max_entries=0,process_url_schemes=None
+  ):
     """
     See LDIFParser.__init__()
 
@@ -429,7 +438,7 @@ class LDIFCopy(FileWriter):
     self._output_file.write(ldif_data)
 
 
-def ParseLDIF(f,ignore_attrs=[],maxentries=0):
+def ParseLDIF(f,ignore_attrs=None,maxentries=0):
   """
   Compability function with old module.
   
@@ -440,5 +449,3 @@ def ParseLDIF(f,ignore_attrs=[],maxentries=0):
   )
   ldif_parser.parse()
   return ldif_parser.all_records
-
-
