@@ -539,15 +539,16 @@ class SimpleLDAPObject:
     try:
       if r:
         e = ldap.cidict.cidict(r[0][1])
-        return e.get('subschemaSubentry',[None])[0]
-      else:
-        # Fall back to directly read attribute subschemaSube
-        # from RootDSE
-        r = self.search_s(
-          '',ldap.SCOPE_BASE,'(objectClass=*)',['subschemaSubentry']
-        )
-        e = ldap.cidict.cidict(r[0][1])
-        return e.get('subschemaSubentry',[None])[0]
+        search_subschemasubentry_dn = e.get('subschemaSubentry',[None])[0]
+        if search_subschemasubentry_dn!=None:
+          return search_subschemasubentry_dn
+      # Fall back to directly read attribute subschemaSube
+      # from RootDSE
+      r = self.search_s(
+        '',ldap.SCOPE_BASE,'(objectClass=*)',['subschemaSubentry']
+      )
+      e = ldap.cidict.cidict(r[0][1])
+      return e.get('subschemaSubentry',[None])[0]
     except IndexError:
       return None
 
