@@ -101,7 +101,7 @@ def modifyModlist(
       if add_values:
         modlist.append((ldap.MOD_ADD,attrtype,add_values))
 
-    elif not new_value:
+    elif old_value and not new_value:
       # Completely delete an existing attribute
       modlist.append((ldap.MOD_DELETE,attrtype,None))
 
