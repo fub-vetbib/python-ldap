@@ -576,6 +576,8 @@ class Entry(UserDict.UserDict):
   def __delitem__(self,nameoroid):
     k = self._at2key(nameoroid)
     del self.data[k]
+    del self._attrtype2keytuple[nameoroid]
+    del self._keytuple2attrtype[k]
 
   def has_key(self,nameoroid):
     k = self._at2key(nameoroid)

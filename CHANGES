@@ -6,6 +6,10 @@ Changes since 2.0.0:
 dsml:
 * Fixed wrong exception message format string
 
+ldap.schema.models:
+* Fixed Entry.__delitem__() to delete really everything
+  when deleting an attribute dictionary item.
+
 ----------------------------------------------------------------
 Released 2.0.0 2004-05-18
 
