@@ -516,7 +516,7 @@ The asynchronous version returns the initiated message id.
 \end{methoddesc}
 
 %%------------------------------------------------------------
-%% modrdn
+%% rename
 
 \begin{methoddesc}[LDAP]{rename}{dn, newrdn \optional{, newsuperior=\constant{None}} \optional{, delold=\constant{1}}}
 		%-> int
@@ -698,6 +698,22 @@ LDAP URLs are fully described in \rfc{2255}.
 \begin{methoddesc}[LDAP]{set_option}{option, invalue} % -> None
   This function sets the value of the LDAPObject option
   specified by \var{option} to \var{invalue}.
+\end{methoddesc}
+
+%%------------------------------------------------------------
+%% manage_dsa_it
+
+\begin{methoddesc}[LDAP]{manage_dsa_it}{enable, \optional{, critical=\constant{0}}}
+		%-> None
+Enables or disables manageDSAit mode (see draft-zeilenga-ldap-namedref)
+according to the specified integer flag \var{enable}. The
+integer flag \var{critical} specifies if the use of this extended
+control is marked critical.
+
+\textbf{Note}
+This method is somewhat immature and might vanish in future versions
+if full support for extended controls will be implemented. You have been
+warned!
 \end{methoddesc}
 
 \subsubsection{Cache control}
