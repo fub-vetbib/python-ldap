@@ -48,7 +48,17 @@ class SimpleLDAPObject:
   Drop-in wrapper class around _ldap.LDAPObject
   """
 
-  _direct_class_attrs = ['_l','_trace_level','_trace_file','_uri','_ldap_object_lock']
+  CLASSATTR_OPTION_MAPPING = {
+    # taken from Modules/options.h
+    "protocol_version":   ldap.OPT_PROTOCOL_VERSION,
+    "deref":              ldap.OPT_DEREF,
+    "referrals":          ldap.OPT_REFERRALS,
+    "timelimit":          ldap.OPT_TIMELIMIT,
+    "sizelimit":          ldap.OPT_SIZELIMIT,
+#    "error_number":       ldap.OPT_ERROR_NUMBER,
+#    "error_string":       ldap.OPT_ERROR_STRING,
+    "matched_dn":         ldap.OPT_MATCHED_DN,
+  }
 
   def __init__(self,uri,trace_level=ldap._trace_level,trace_file=sys.stdout):
     self._trace_level = trace_level
@@ -90,39 +100,18 @@ class SimpleLDAPObject:
     return result
 
   def __setattr__(self,name,value):
-    if name in self._direct_class_attrs:
-      self.__dict__[name] = value
+    if self.CLASSATTR_OPTION_MAPPING.has_key(name):
+      self.set_option(self.CLASSATTR_OPTION_MAPPING[name],value)
     else:
-      if __debug__:
-        if self._trace_level>=1:
-          self._trace_file.write('*** %s\n' % (
-            self.__module__+self.__class__.__name__+'.__setattr__(%s,%s)' % (name,value)
-          ))
-          if self._trace_level>=2:
-            traceback.print_stack(file=self._trace_file)
-      self._ldap_object_lock.acquire()
-      try:
-        setattr(self._l,name,value)
-      finally:
-        self._ldap_object_lock.release()
+      self.__dict__[name] = value
 
   def __getattr__(self,name):
-    if name in self._direct_class_attrs:
+    if self.CLASSATTR_OPTION_MAPPING.has_key(name):
+      self.set_option(self.CLASSATTR_OPTION_MAPPING[name],value)
+    elif self.__dict__.has_key(name):
       return self.__dict__[name]
     else:
-      self._ldap_object_lock.acquire()
-      try:
-        value = getattr(self._l,name)
-      finally:
-        self._ldap_object_lock.release()
-      if __debug__:
-        if self._trace_level>=1:
-          self._trace_file.write('*** %s\n' % (
-            self.__module__+self.__class__.__name__+'.__getattr__(%s)' % (name),'=>',value
-          ))
-          if self._trace_level>=2:
-            traceback.print_stack(file=sys.stdout)
-    return value
+      raise AttributeError
 
   def abandon(self,msgid):
     """
@@ -536,8 +525,6 @@ class SimpleLDAPObject:
 
 
 class NonblockingLDAPObject(SimpleLDAPObject):
-
-  _direct_class_attrs = SimpleLDAPObject._direct_class_attrs+['_result_timeout']
 
   def __init__(self,uri,trace_level=0,trace_file=sys.stdout,result_timeout=-1):
     self._result_timeout = result_timeout
