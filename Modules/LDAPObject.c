@@ -1204,6 +1204,65 @@ static char doc_modrdn[] =
 "\tC library.";
 
 
+/* ldap_rename */
+
+static PyObject *
+l_ldap_rename( LDAPObject* self, PyObject *args )
+{
+    char *dn, *newrdn, *newSuperior;
+    int delold = 1;
+    int result, msgid;
+
+    if (!PyArg_ParseTuple( args, "sss|i", &dn, &newrdn, &newSuperior, &delold ))
+    	return NULL;
+    if (not_valid(self)) return NULL;
+
+    LDAP_BEGIN_ALLOW_THREADS( self );
+    result = ldap_rename( self->ldap, dn, newrdn, newSuperior, delold, NULL, NULL, &msgid );
+    LDAP_END_ALLOW_THREADS( self );
+    if ( result != LDAP_SUCCESS )
+    	return LDAPerror( self->ldap, "ldap_rename" );
+    return PyInt_FromLong( msgid );
+}
+
+/* ldap_rename_s */
+
+static PyObject *
+l_ldap_rename_s( LDAPObject* self, PyObject *args )
+{
+    char *dn, *newrdn, *newSuperior;
+    int delold = 1;
+    int result;
+
+    if (!PyArg_ParseTuple( args, "sss|i", &dn, &newrdn, &newSuperior, &delold ))
+    	return NULL;
+    if (not_valid(self)) return NULL;
+
+    LDAP_BEGIN_ALLOW_THREADS( self );
+    result = ldap_rename_s( self->ldap, dn, newrdn, newSuperior, delold, NULL, NULL );
+    LDAP_END_ALLOW_THREADS( self );
+
+    if ( result != LDAP_SUCCESS )
+    	return LDAPerror( self->ldap, "ldap_rename_s" );
+    Py_INCREF( Py_None );
+    return Py_None;
+}
+
+static char doc_rename[] =
+"rename(dn, newrdn, newSuperior, [,delold=1]) -> int\n"
+"rename_s(dn, newrdn, newSuperior, [,delold=1]) -> None\n\n"
+"\tPerform a rename entry operation. These routines take dn, the\n"
+"\tDN of the entry whose RDN is to be changed, newrdn, the\n"
+"\tnew RDN, and newSuperior, the new parent DN, to give to the entry.\n"
+"\tThe optional parameter delold\n"
+"\tis used to specify whether the old RDN should be kept as\n"
+"\tan attribute of the entry or not.  The asynchronous version\n"
+"\treturns the initiated message id.\n"
+"\n"
+"\tThis actually corresponds to the rename* routines in the\n"
+"\tLDAP-EXT C API library.";
+
+
 /* ldap_result */
 
 static PyObject *
@@ -1682,6 +1741,8 @@ static PyMethodDef methods[] = {
     {"modify_s",	(PyCFunction)l_ldap_modify_s,		METH_VARARGS,	doc_modify},	
     {"modrdn",		(PyCFunction)l_ldap_modrdn,		METH_VARARGS,	doc_modrdn},	
     {"modrdn_s",	(PyCFunction)l_ldap_modrdn_s,		METH_VARARGS,	doc_modrdn},
+    {"rename",		(PyCFunction)l_ldap_rename,		METH_VARARGS,	doc_rename},	
+    {"rename_s",	(PyCFunction)l_ldap_rename_s,		METH_VARARGS,	doc_rename},
     {"result",		(PyCFunction)l_ldap_result,		METH_VARARGS,	doc_result},	
     {"search",		(PyCFunction)l_ldap_search,		METH_VARARGS,	doc_search},	
     {"search_s",	(PyCFunction)l_ldap_search_st,		METH_VARARGS,	doc_search},	
