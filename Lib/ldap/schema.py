@@ -15,135 +15,85 @@ __version__ = '0.1.0'
 import ldap,ldap.cidict,ldap.functions,_ldap
 
 
-# Flags that control how liberal the parsing routines are.
-
-# Allow missing oid
-ALLOW_NO_OID = 0x01
-# Allow bogus extra quotes
-ALLOW_QUOTED = 0x02
-# Allow descr instead of OID
-ALLOW_DESCR = 0x04
-# Allow descr as OID prefix    
-ALLOW_DESCR_PREFIX = 0x08
-# Allow OID macros in slapd    
-ALLOW_OID_MACRO = 0x10
-
-# Combined constants
-# Strict parsing
-ALLOW_NONE = 0x00
-# Be very liberal in parsing
-ALLOW_ALL = 0x1f
-
-
-class SchemaError(Exception): pass
-
-class SCHERR_OUTOFMEM(SchemaError): pass
-
-class SCHERR_UNEXPTOKEN(SchemaError): pass
-
-class SCHERR_NOLEFTPAREN(SchemaError): pass
-
-class SCHERR_NORIGHTPAREN(SchemaError): pass
-
-class SCHERR_NODIGIT(SchemaError): pass
-
-class SCHERR_BADNAME(SchemaError): pass
-
-class SCHERR_BADDESC(SchemaError): pass
-
-class SCHERR_BADSUP(SchemaError): pass
-
-class SCHERR_DUPOPT(SchemaError): pass
-
-class SCHERR_EMPTY(SchemaError): pass
-
-
-ERRCODE2SCHERR = {
-    1:SCHERR_OUTOFMEM,
-    2:SCHERR_UNEXPTOKEN,
-    3:SCHERR_NOLEFTPAREN,
-    4:SCHERR_NORIGHTPAREN,
-    5:SCHERR_NODIGIT,
-    6:SCHERR_BADNAME,
-    7:SCHERR_BADDESC,
-    8:SCHERR_BADSUP,
-    9:SCHERR_DUPOPT,
-   10:SCHERR_EMPTY
-}
+class SchemaError(Exception):
+  pass
 
 
 StringType=type('')
 
 
-def schema_func_wrapper(func,schema_element_str,schema_allow=0):
+def split_tokens(s):
   """
-  Wrapper functions to serialize calls into OpenLDAP libs with       
-  a module-wide thread lock and correct error handling. The schema   
-  parsing functions return an integer in case of an error; in this   
-  case we raise the appropriate exception. If everything is ok, they 
-  return a tuple, which we return to the caller.
+  Returns list of syntax elements with quotes and spaces
+  stripped.
   """
+  result = []
+  s_len = len(s)
+  i = 0
+  while i<s_len:
+    start = i
+    while i<s_len and s[i]!="'":
+      if s[i]=="(" or s[i]==")":
+        result.append(s[i])
+        i +=1 # Consume parentheses
+        start = i
+      elif s[i]==" ":
+        if i>start:
+          result.append(s[start:i])
+        # Eat whitespaces
+        while i<s_len and s[i]==" ":
+          i +=1
+        start = i
+      else:
+        i +=1
+    if i>start:
+      result.append(s[start:i])
+    i +=1
+    if i>=s_len:
+      break
+    start = i
+    while i<s_len and s[i]!="'":
+      i +=1
+    if i>start:
+      result.append(s[start:i])
+    i +=1
+  return result
 
-  def sanitize(schema_element_str):
-    len_pos = schema_element_str.find(' {')
-    if len_pos==-1:
-      result = schema_element_str
-    elif len_pos>1:
-      result = schema_element_str[:len_pos]+schema_element_str[len_pos+1:]
+
+def extract_tokens(l,known_tokens={}):
+  """
+  Returns dictionary of known tokens with all values
+  """
+  result = known_tokens
+  i = 0
+  l_len = len(l)
+  while i<l_len:
+    if result.has_key(l[i]):
+      token = l[i]
+      i += 1 # Consume token
+      if i<l_len:
+        if result.has_key(l[i]):
+          # non-valued
+          result[token] = []
+        elif l[i]=="(":
+          # multi-valued
+          i += 1 # Consume left parentheses
+          start = i
+          while i<l_len and l[i]!=")":
+            i += 1
+          result[token] = l[start:i]
+          i += 1 # Consume right parentheses
+        else:
+          # single-valued
+          result[token] = [l[i]]
+          i += 1 # Consume single value
     else:
-      result = schema_element_str
-    return result
-
-  def parse_oid(schema_element_str):
-    name_pos = schema_element_str.find('NAME',1)
-    if name_pos==-1:
-      SCHERR_UNEXPTOKEN(2,schema_element_str)
-    oid = schema_element_str[1:name_pos].strip()
-    s = '( 0.0.0.0.0.0.0.0.0.0.0.0.0 '+schema_element_str[name_pos:]
-    return oid,s
-
-  if schema_allow==ALLOW_ALL:
-    # This is a work-around as long as OpenLDAP libs
-    # does not accept non-numeric OID
-    oid, fake_str = parse_oid(sanitize(schema_element_str))
-    res = ldap.functions._ldap_function_call(
-      func,fake_str,schema_allow
-    )
-    if type(res)==type(0):
-      raise ERRCODE2SCHERR.get(res,SchemaError)(res,schema_element_str)
-    else:
-      assert type(res)==type([])
-      res[0] = oid
-      return res
-  else:
-    # This is the normal code
-    res = ldap.functions._ldap_function_call(
-      func,schema_element_str,schema_allow
-    )
-    if type(res)==type(0):
-      raise ERRCODE2SCHERR.get(res,SchemaError)(res,schema_element_str)
-    else:
-      assert type(res)==type([])
-      return res
-
-
-# Wrapper functions to serialize calls into OpenLDAP libs with
-# a module-wide thread lock
-def str2objectclass(schema_element_str,schema_allow=0):
-  return schema_func_wrapper(_ldap.str2objectclass,schema_element_str,schema_allow)
-
-def str2attributetype(schema_element_str,schema_allow=0):
-  return schema_func_wrapper(_ldap.str2attributetype,schema_element_str,schema_allow)
-
-def str2syntax(schema_element_str,schema_allow=0):
-  return schema_func_wrapper(_ldap.str2syntax,schema_element_str,schema_allow)
-
-def str2matchingrule(schema_element_str,schema_allow=0):
-  return schema_func_wrapper(_ldap.str2matchingrule,schema_element_str,schema_allow)
+      i += 1 # Consume unrecognized item
+  return result
 
 
 def key_attr(key,value,quoted=0):
-  assert type(value)==type(''),TypeError("value has to be of StringType")
+  assert value is None or type(value)==type(''),TypeError("value has to be of StringType, was %s" % repr(value))
   if value:
     if quoted:
       return ' %s %s' % (key,repr(value))
@@ -167,131 +117,274 @@ def key_list(key,values,sep=' ',quoted=0):
 
 
 class ObjectClass:
+  """
+  ObjectClassDescription = "(" whsp
+      numericoid whsp      ; ObjectClass identifier
+      [ "NAME" qdescrs ]
+      [ "DESC" qdstring ]
+      [ "OBSOLETE" whsp ]
+      [ "SUP" oids ]       ; Superior ObjectClasses
+      [ ( "ABSTRACT" / "STRUCTURAL" / "AUXILIARY" ) whsp ]
+                           ; default structural
+      [ "MUST" oids ]      ; AttributeTypes
+      [ "MAY" oids ]       ; AttributeTypes
+  whsp ")"
+  """
 
-    def __init__(
-      self,schema_element_str=None,schema_allow=0,
-      oid=None,#REQUIRED
-      names=None,#OPTIONAL
-      desc=None,#OPTIONAL
-      obsolete=0,#0=no, 1=yes
-      sup=[],#OPTIONAL
-      kind=1,#0=ABSTRACT
-      must=[],#OPTIONAL
-      may=[],#OPTIONAL
-      ext=None,#OPTIONAL
-    ):
-      if schema_element_str:
-        (
-          self.oid,self.names,self.desc,self.obsolete,self.sup,
-          self.kind,self.must,self.may,self.ext,
-        ) = str2objectclass(schema_element_str,schema_allow)
-      else:
-        self.oid = oid
-        self.names = names
-        self.desc = desc
-        self.obsolete = obsolete
-        self.sup = sup
-        self.kind = kind
-        self.must = must
-        self.may = may
-        self.ext = ext
-      assert self.oid!=None,ValueError("%s.oid is None" % (self.__class__.__name__))
-#      assert self.names,ValueError("%s.names empty" % (self.__class__.__name__))
-      return # ObjectClass.__init__()
+  def __init__(
+    self,schema_element_str=None,
+    oid=None,#REQUIRED
+    names=None,#OPTIONAL
+    desc=None,#OPTIONAL
+    obsolete=0,#0=no, 1=yes
+    sup=[],#OPTIONAL
+    kind=1,#0=ABSTRACT
+    must=[],#OPTIONAL
+    may=[],#OPTIONAL
+    ext=None,#OPTIONAL
+  ):
+    if schema_element_str:
+      l = ldap.schema.split_tokens(schema_element_str)
+      assert l[0].strip()=="(" and l[-1].strip()==")",ValueError(repr(schema_element_str),repr(l))
+      d = ldap.schema.extract_tokens(
+        l,
+        {'NAME':[],'DESC':[None],'OBSOLETE':[None],'SUP':[],
+         'STRUCTURAL':[None],'AUXILIARY':[None],'ABSTRACT':[None],
+         'MUST':[],'MAY':[]}
+      )
+      self.oid = l[1]
+      self.obsolete = d['OBSOLETE']!=None
+      self.names = d['NAME']
+      self.desc = d['DESC'][0]
+      self.sup = [ v for v in d['SUP'] if v!="$"]
+      self.must = [ v for v in d['MUST'] if v!="$" ]
+      self.may = [ v for v in d['MAY'] if v!="$" ]
+      if d['ABSTRACT']!=None:
+        self.kind = 0
+      elif d['STRUCTURAL']!=None:
+        self.kind = 1
+      elif d['AUXILIARY']!=None:
+        self.kind = 2
+    else:
+      self.oid = oid
+      self.names = names
+      self.desc = desc
+      self.obsolete = obsolete
+      self.sup = sup
+      self.kind = kind
+      self.must = must
+      self.may = may
+      self.ext = ext
+    assert self.oid!=None,ValueError("%s.oid is None" % (self.__class__.__name__))
+    assert type(self.names)==type([])
+    assert self.desc is None or type(self.desc)==type('')
+    assert type(self.obsolete)==type(0)
+    assert type(self.sup)==type([])
+    assert type(self.kind)==type(0)
+    assert type(self.must)==type([])
+    assert type(self.may)==type([])
+    return # ObjectClass.__init__()
 
-    def __str__(self):
-      result = [str(self.oid)]
-      result.append(key_list('NAME',self.names,quoted=1))
-      result.append(key_attr('DESC',self.desc,quoted=1))
-      result.append(key_list('SUP',self.sup))
-      result.append({0:'',1:' OBSOLETE'}[self.obsolete])
-      result.append({0:' ABSTRACT',1:' STRUCTURAL',2:' AUXILIARY'}[self.kind])
-      result.append(key_list('MUST',self.must,sep=' $ '))
-      result.append(key_list('MAY',self.may,sep=' $ '))
-      return '( %s )' % ''.join(result)
+  def __str__(self):
+    result = [str(self.oid)]
+    result.append(key_list('NAME',self.names,quoted=1))
+    result.append(key_attr('DESC',self.desc,quoted=1))
+    result.append(key_list('SUP',self.sup))
+    result.append({0:'',1:' OBSOLETE'}[self.obsolete])
+    result.append({0:' ABSTRACT',1:' STRUCTURAL',2:' AUXILIARY'}[self.kind])
+    result.append(key_list('MUST',self.must,sep=' $ '))
+    result.append(key_list('MAY',self.may,sep=' $ '))
+    return '( %s )' % ''.join(result)
+
+
+AttributeUsage = ldap.cidict.cidict({
+  'userApplications':0,
+  'directoryOperation':1,
+  'distributedOperation':2,
+  'dSAOperation':3,
+})
 
 
 class AttributeType:
+  """
+      AttributeTypeDescription = "(" whsp
+            numericoid whsp              ; AttributeType identifier
+          [ "NAME" qdescrs ]             ; name used in AttributeType
+          [ "DESC" qdstring ]            ; description
+          [ "OBSOLETE" whsp ]
+          [ "SUP" woid ]                 ; derived from this other
+                                         ; AttributeType
+          [ "EQUALITY" woid              ; Matching Rule name
+          [ "ORDERING" woid              ; Matching Rule name
+          [ "SUBSTR" woid ]              ; Matching Rule name
+          [ "SYNTAX" whsp noidlen whsp ] ; see section 4.3
+          [ "SINGLE-VALUE" whsp ]        ; default multi-valued
+          [ "COLLECTIVE" whsp ]          ; default not collective
+          [ "NO-USER-MODIFICATION" whsp ]; default user modifiable
+          [ "USAGE" whsp AttributeUsage ]; default userApplications
+          whsp ")"
 
-    def __init__(self, schema_element_str,schema_allow=0):
-      (
-        self.oid,             #REQUIRED
-        self.names,           #OPTIONAL
-        self.desc,            #OPTIONAL
-        self.obsolete,        #0=no, 1=yes
-        self.sup,         #OPTIONAL
-        self.equality_oid,    #OPTIONAL
-        self.ordering_oid,    #OPTIONAL
-        self.substr_oid,      #OPTIONAL
-        self.syntax_oid,      #OPTIONAL
-        self.syntax_len,      #OPTIONAL
-        self.single_value,    #0=no, 1=yes
-        self.collective,      #0=no, 1=yes
-        self.no_user_mod,     #0=no, 1=yes
-        self.usage,           #0=userApplications, 1=directoryOperation,
-                              #2=distributedOperation, 3=dSAOperation
-        self.ext              #OPTIONAL
-      ) = str2attributetype(schema_element_str,schema_allow)
-      
-    def __str__(self):
-      result = [str(self.oid)]
-      result.append(key_list('NAME',self.names,quoted=1))
-      result.append(key_attr('DESC',self.desc,quoted=1))
-      result.append(key_attr('SUP',self.sup))
-      result.append({0:'',1:' OBSOLETE'}[self.obsolete])
-      result.append(key_attr('EQUALITY',self.equality_oid))
-      result.append(key_attr('ORDERING',self.ordering_oid))
-      result.append(key_attr('SUBSTR',self.substr_oid))
-      result.append(key_attr('SYNTAX',self.syntax_oid))
-      result.append(('{%d}' % (self.syntax_len))*(self.syntax_len>0))
-      result.append({0:'',1:' SINGLE-VALUE'}[self.single_value])
-      result.append({0:'',1:' COLLECTIVE'}[self.collective])
-      result.append({0:'',1:' NO-USER-MODIFICATION'}[self.no_user_mod])
-      result.append(
+      AttributeUsage =
+          "userApplications"     /
+          "directoryOperation"   /
+          "distributedOperation" / ; DSA-shared
+          "dSAOperation"          ; DSA-specific, value depends on server
+  """
+
+  def __init__(self, schema_element_str):
+    if schema_element_str:
+      l = ldap.schema.split_tokens(schema_element_str)
+      assert l[0].strip()=="(" and l[-1].strip()==")",ValueError(repr(schema_element_str),repr(l))
+      d = ldap.schema.extract_tokens(
+        l,
         {
-          0:"",
-          1:" USAGE directoryOperation",
-          2:" USAGE distributedOperation",
-          3:" USAGE dSAOperation",
-        }[self.usage]
+           'NAME':[],
+           'DESC':[None],
+           'OBSOLETE':None,
+           'SUP':[],
+           'EQUALITY':[None],
+           'ORDERING':[None],'SUBSTR':[None],
+           'SUBSTR':[None],
+           'SYNTAX':[None],
+           'SINGLE-VALUE':None,
+           'COLLECTIVE':None,
+           'NO-USER-MODIFICATION':None,
+           'USAGE':['userApplications']
+        }
       )
-      return '( %s )' % ''.join(result)
+      self.oid = l[1]
+      self.names = d['NAME']
+      self.desc = d['DESC'][0]
+      self.obsolete = d['OBSOLETE']!=None
+      self.sup = [ v for v in d['SUP'] if v!="$"]
+      self.equality = d['EQUALITY'][0]
+      self.ordering = d['ORDERING'][0]
+      self.substr = d['SUBSTR'][0]
+      syntax = d['SYNTAX'][0]
+      if syntax is None:
+        self.syntax = None
+        self.syntax_len = None
+      else:
+        try:
+          self.syntax,self.syntax_len = d['SYNTAX'][0].split("{")
+        except ValueError:
+          self.syntax = d['SYNTAX'][0]
+          self.syntax_len = None
+          for i in l:
+            if i.startswith("{") and i.endswith("}"):
+              self.syntax_len=int(i[1:-1])
+        self.syntax = None
+        self.syntax_len = None
+      self.single_value = d['SINGLE-VALUE']!=None
+      self.collective = d['COLLECTIVE']!=None
+      self.no_user_mod = d['NO-USER-MODIFICATION']!=None
+      self.usage = AttributeUsage[d['USAGE'][0]]
+    assert self.oid!=None,ValueError("%s.oid is None" % (self.__class__.__name__))
+    assert type(self.names)==type([])
+    assert self.desc is None or type(self.desc)==type('')
+    assert type(self.obsolete)==type(0)
+    assert type(self.sup)==type([])
+
+
+  def __str__(self):
+    result = [str(self.oid)]
+    result.append(key_list('NAME',self.names,quoted=1))
+    result.append(key_attr('DESC',self.desc,quoted=1))
+    result.append(key_list('SUP',self.sup))
+    result.append({0:'',1:' OBSOLETE'}[self.obsolete])
+    result.append(key_attr('EQUALITY',self.equality))
+    result.append(key_attr('ORDERING',self.ordering))
+    result.append(key_attr('SUBSTR',self.substr))
+    result.append(key_attr('SYNTAX',self.syntax))
+    if self.syntax_len!=None:
+      result.append(('{%d}' % (self.syntax_len))*(self.syntax_len>0))
+    result.append({0:'',1:' SINGLE-VALUE'}[self.single_value])
+    result.append({0:'',1:' COLLECTIVE'}[self.collective])
+    result.append({0:'',1:' NO-USER-MODIFICATION'}[self.no_user_mod])
+    result.append(
+      {
+        0:"",
+        1:" USAGE directoryOperation",
+        2:" USAGE distributedOperation",
+        3:" USAGE dSAOperation",
+      }[self.usage]
+    )
+    return '( %s )' % ''.join(result)
 
 
 class LDAPSyntax:
+  """
+      SyntaxDescription = "(" whsp
+          numericoid whsp
+          [ "DESC" qdstring ]
+          whsp ")"
+  """
 
-    def __init__(self, schema_element_str,schema_allow=0):
-        (self.oid,    #REQUIRED
-         self.names,  #OPTIONAL
-         self.desc,   #OPTIONAL
-         self.ext     #OPTIONAL
-         ) = str2syntax(schema_element_str,schema_allow)
+  def __init__(self, schema_element_str):
+    if schema_element_str:
+      l = ldap.schema.split_tokens(schema_element_str)
+      assert l[0].strip()=="(" and l[-1].strip()==")",ValueError(repr(schema_element_str),repr(l))
+      d = ldap.schema.extract_tokens(l,{'DESC':[None]})
+      self.oid = l[1]
+      self.desc = d['DESC'][0]
 
-    def __str__(self):
-      result = [str(self.oid)]
-      result.append(key_list('NAME',self.names,quoted=1))
-      result.append(key_attr('DESC',self.desc,quoted=1))
-      return '( %s )' % ''.join(result)
+  def __str__(self):
+    result = [str(self.oid)]
+    result.append(key_attr('DESC',self.desc,quoted=1))
+    return '( %s )' % ''.join(result)
 
 
 class MatchingRule:
+  """
+      MatchingRuleDescription = "(" whsp
+          numericoid whsp  ; MatchingRule identifier
+          [ "NAME" qdescrs ]
+          [ "DESC" qdstring ]
+          [ "OBSOLETE" whsp ]
+          "SYNTAX" numericoid
+      whsp ")"
 
-    def __init__(self, schema_element_str,schema_allow=0):
-        (self.oid,         #REQUIRED
-         self.names,       #OPTIONAL
-         self.desc,        #OPTIONAL
-         self.obsolete,    #OPTIONAL
-         self.syntax_oid,  #REQUIRED
-         self.ext          #OPTIONAL
-         ) = str2matchingrule(schema_element_str,schema_allow)
+      MatchingRuleUseDescription = "(" whsp
+          numericoid whsp  ; MatchingRule identifier
+          [ "NAME" qdescrs ]
+          [ "DESC" qdstring ]
+          [ "OBSOLETE" ]
+         "APPLIES" oids    ; AttributeType identifiers
+      whsp ")"
+  """
 
-    def __str__(self):
-      result = [str(self.oid)]
-      result.append(key_list('NAME',self.names,quoted=1))
-      result.append(key_attr('DESC',self.desc,quoted=1))
-      result.append({0:'',1:' OBSOLETE'}[self.obsolete])
-      result.append(key_attr('SYNTAX',self.syntax_oid))
-      return '( %s )' % ''.join(result)
+  def __init__(self, schema_element_str):
+    l = ldap.schema.split_tokens(schema_element_str)
+    assert l[0].strip()=="(" and l[-1].strip()==")",ValueError(repr(schema_element_str),repr(l))
+    d = ldap.schema.extract_tokens(
+      l,
+      {
+         'NAME':[],
+         'DESC':[None],
+         'OBSOLETE':None,
+         'SYNTAX':[None],
+         'APPLIES':[None],
+      }
+    )
+    self.oid = l[1]
+    self.names = d['NAME']
+    self.desc = d['DESC'][0]
+    self.obsolete = d['OBSOLETE']!=None
+    self.syntax = d['SYNTAX'][0]
+    self.applies = d['APPLIES'][0]
+    assert self.oid!=None,ValueError("%s.oid is None" % (self.__class__.__name__))
+    assert type(self.names)==type([])
+    assert self.desc is None or type(self.desc)==type('')
+    assert type(self.obsolete)==type(0)
+    assert self.syntax is None or type(self.syntax)==type('')
+
+  def __str__(self):
+    result = [str(self.oid)]
+    result.append(key_list('NAME',self.names,quoted=1))
+    result.append(key_attr('DESC',self.desc,quoted=1))
+    result.append({0:'',1:' OBSOLETE'}[self.obsolete])
+    result.append(key_attr('SYNTAX',self.syntax))
+    return '( %s )' % ''.join(result)
 
 
 SCHEMA_CLASS_MAPPING = {
@@ -307,35 +400,35 @@ SCHEMA_ATTR_MAPPING = {}
 for k in SCHEMA_ATTRS:
   SCHEMA_ATTR_MAPPING[SCHEMA_CLASS_MAPPING[k]] = k
 
+
 class SubSchema:
     
-    def __init__(self,sub_schema_sub_entry,schema_allow=0,ignore_errors=0):
+    def __init__(self,sub_schema_sub_entry):
         """
         sub_schema_sub_entry
             Dictionary containing the sub schema sub entry
-        schema_allow
-            Integer with flags defining workarounds for
-            broken schema data
         """
         self.schema_element = {}
-        self.name2oid = ldap.cidict.cidict()
+        self.name2oid = {
+          ObjectClass:ldap.cidict.cidict(),
+          AttributeType:ldap.cidict.cidict(),
+          LDAPSyntax:ldap.cidict.cidict(),
+          MatchingRule:ldap.cidict.cidict(),
+        }
+        e = ldap.cidict.cidict(sub_schema_sub_entry)
 
         # Build the schema registry
         for attr_type in SCHEMA_ATTRS:
-          if not sub_schema_sub_entry.has_key(attr_type) or \
-             not sub_schema_sub_entry[attr_type]:
+          if not e.has_key(attr_type) or \
+             not e[attr_type]:
             continue
-          for attr_value in sub_schema_sub_entry[attr_type]:
-            try:
-              se = SCHEMA_CLASS_MAPPING[attr_type](attr_value,schema_allow)
-            except SchemaError:
-              if not ignore_errors:
-                raise
-            else:
-              self.schema_element[se.oid] = se
-              for name in se.names:
-                self.name2oid[name] = se.oid
-
+          for attr_value in e[attr_type]:
+            se_class = SCHEMA_CLASS_MAPPING[attr_type]
+            se_instance = se_class(attr_value)
+            self.schema_element[se_instance.oid] = se_instance
+            if hasattr(se_instance,'names'):
+              for name in se_instance.names:
+                self.name2oid[se_class][name] = se_instance.oid
         return # subSchema.__init__()        
 
     def ldap_entry(self):
@@ -364,13 +457,16 @@ class SubSchema:
       Returns a list of all available schema elements by first name
       of a given class.
       """
-      return [
-        se.names[0]
-        for se in self.schema_element.values()
-        if isinstance(se,schema_element_class)
-      ]
+      result = []
+      for se in self.schema_element.values():
+        if isinstance(se,schema_element_class):
+          if hasattr(se,'names') and se.names:
+            result.append(se.names[0])
+          else:
+            result.append(se.oid)
+      return result
 
-    def schema_element_tree(self,schema_element_class,ignore_errors=0):
+    def schema_element_tree(self,schema_element_class):
       """
       Returns a ldap.cidict.cidict dictionary representing the
       tree structure of the schema element inheritance.
@@ -386,7 +482,7 @@ class SubSchema:
         tree[se] = []
       # 2. Pass: Register all sup references
       for se in avail_se:
-        se_obj = self.get_schema_element(se)
+        se_obj = self.get_schema_element(schema_element_class,se)
         if se_obj is None:
           continue
         if type(se_obj.sup)==StringType:
@@ -397,22 +493,16 @@ class SubSchema:
         else:
           sup = se_obj.sup
         for s in sup:
-          try:
-            tree[s].append(se)
-          except KeyError:
-            if ignore_errors:
-              continue
-            else:
-              raise
+          tree[s].append(se)
       return tree
 
-    def get_schema_element(self,name,default=None):
+    def get_schema_element(self,schema_element_class,name,default=None):
       """
       Get a schema element by name
       """
       element_name = name.split(';')[0].strip()
       return self.schema_element.get(
-        self.name2oid.get(element_name,element_name),None
+        self.name2oid[schema_element_class].get(element_name,element_name),default
       )        
 
     def all_attrs(
@@ -434,9 +524,9 @@ class SubSchema:
       """
       # Map object_class_list to object_class_oids (list of OIDs)
       object_class_oids = [
-        self.name2oid[o]
+        self.name2oid[ObjectClass][o]
         for o in object_class_list
-        if strict or self.name2oid.has_key(o)
+        if strict or self.name2oid[ObjectClass].has_key(o)
       ]
       # Initialize
       oid_cache = {}
@@ -450,14 +540,15 @@ class SubSchema:
         # Cache this OID as already being processed
         oid_cache[object_class_oid] = None
         object_class = self.schema_element[object_class_oid]
+        assert hasattr(object_class,'must'),ValueError(object_class_oid)
+        assert hasattr(object_class,'may'),ValueError(object_class_oid)
         for a in object_class.must:
           r_must[a] = a
         for a in object_class.may:
           r_may[a] = a
         object_class_oids.extend([
-          self.name2oid[o]
+          self.name2oid[ObjectClass].get(o,o)
           for o in object_class.sup
-          if strict or self.name2oid.has_key(o)
         ])
       # Removed all mandantory attribute types from
       # optional attribute type list
@@ -468,9 +559,10 @@ class SubSchema:
       if attr_type_filter:
         for l in [r_must,r_may]:
           for a in l.keys():
-            if self.name2oid.has_key(a):
+            if self.name2oid[AttributeType].has_key(a):
               for afk,afv in attr_type_filter:
-                schema_attr_type = self.schema_element[self.name2oid[a]]
+                schema_attr_type = self.schema_element[self.name2oid[AttributeType][a]]
+                print str(schema_attr_type)
                 if not getattr(schema_attr_type,afk) in afv:
                   del l[a]
                   break
@@ -479,7 +571,7 @@ class SubSchema:
       return r_must.values(),r_may.values()
 
 
-def urlfetch(uri,schema_allow=0):
+def urlfetch(uri):
   """
   Fetches a parsed schema entry by uri.
   
@@ -516,4 +608,4 @@ def urlfetch(uri,schema_allow=0):
     subschemasubentry_dn,subschemasubentry_entry = ldif_parser.all_records[0]
 
   return subschemasubentry_dn, \
-         ldap.schema.SubSchema(subschemasubentry_entry,schema_allow)
+         ldap.schema.SubSchema(subschemasubentry_entry)
