@@ -13,6 +13,8 @@ ldap.ldapobject:
 ldap.sasl:
 * Added class ldap.sasl.sasl_external for handling
   the SASL mechanism EXTERNAL
+* Dictionary ldap.sasl.saslmech_handler_class built during import
+  for all the known SASL mechanisms derived from class definitions
 
 ldap.schema:
 * More graceful handling of KeyError in SubSchema.attribute_types()
