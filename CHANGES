@@ -8,6 +8,8 @@ The noisy output during SASL bind is avoided now. Interaction
 with output on stderr can be enabled by the calling application
 by explicitly defining SASL flags.
 
+Removed obsolete directory Win32/.
+
 Lib/:
 * Make sure that ldap.sasl.sasl.cb_value_dict is a dictionary
   even when the caller passes in None to argument cb_value_dict
