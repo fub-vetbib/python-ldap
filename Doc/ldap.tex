@@ -684,7 +684,7 @@ whether the old RDN should be kept as an attribute of the entry or not.
 %%------------------------------------------------------------
 %% result
 
-\begin{methoddesc}[LDAP]{result}{\optional{ msgid=\constant{RES_ANY} \optional{, all=\constant{1} \optional{, timeout=\constant{-1}}}}} % -> tuple
+\begin{methoddesc}[LDAP]{result}{\optional{ msgid=\constant{RES_ANY} \optional{, all=\constant{1} \optional{, timeout=\constant{None}}}}} % -> tuple
 This method is used to wait for and return the result of an operation
 previously initiated by one of the LDAP \emph{asynchronous} operations
 (eg \method{search()}, \method{modify()}, etc.) 
@@ -806,9 +806,9 @@ If \var{attrsonly} is non-zero, the values of \var{attrs} will be meaningless
 The retrieved attributes can be limited with the \var{attrlist} parameter.
 If \var{attrlist} is \constant{None}, all the attributes of each entry are returned.
 
-To do: \var{serverctrls}
+\var{serverctrls} not implemented yet.
 
-To do: \var{clientctrls}
+\var{clientctrls} not implemented yet.
 
 The synchronous form with timeout, \method{search_st()} or \method{search_ext_s()},
 will block for at most \var{timeout} seconds (or indefinitely if \var{timeout}
@@ -820,23 +820,6 @@ The amount of search results retrieved can be limited with the
 or \method{search_ext_s()} (client-side search limit). If non-zero
 not more than \var{sizelimit} results are returned by the server.
 
-\end{methoddesc}
-
-%%------------------------------------------------------------
-%% set_rebind_proc
-
-\begin{methoddesc}{set_rebind_proc}{func}
-If a referral is returned from the server, automatic
-re-binding can be achieved by providing a function that accepts as an argument
-the newly opened LDAP object and returns the tuple \code{(who, cred, method)}.
-
-Passing a value of \constant{None} for \var{func} will disable
-this facility. 
-
-Because of restrictions in the implementation, only one
-rebinding function is supported at any one time.
-In addition, this method is only
-available if support is available in the underlying library (LDAP_REFERRALS).
 \end{methoddesc}
 
 %%------------------------------------------------------------
@@ -894,47 +877,27 @@ These attributes are mutable unless described as read-only.
 %% deref
 
 \begin{memberdesc}[LDAP]{deref} % -> int
-    Controls for when an automatic dereference of a referral occurs.
+    Controls whether aliases are automatically dereferenced.
     This must be one of
     \constant{DEREF_NEVER}, \constant{DEREF_SEARCHING}, \constant{DEREF_FINDING},
     or \constant{DEREF_ALWAYS}.
+    This option is mapped to option constant \constant{OPT_DEREF}
+    and used in the underlying OpenLDAP lib.
 \end{memberdesc}
 
 %%------------------------------------------------------------
-%% errno
+%% protocol_version
 
-\begin{memberdesc}[LDAP]{errno} % -> int
-   \memberline[LDAP]{error} % -> string
-   \memberline[LDAP]{matched} % -> string
-    These attributes are set after an exception has been raised, and
-    are also included with the value raised. 
-    (See also \ref{subsec:exceptfrommeth}.)
-    (All read-only.)
-\end{memberdesc}
+\begin{memberdesc}[LDAP]{protocol_version} % -> int
+    Version of LDAP in use (either \constant{VERSION2} for LDAPv2
+    or \constant{VERSION3} for LDAPv3).
+    This option is mapped to option constant \constant{OPT_PROTOCOL_VERSION}
+    and used in the underlying OpenLDAP lib.
 
-%%------------------------------------------------------------
-%% lberoptions
-
-\begin{memberdesc}[LDAP]{lberoptions} % -> int
-    Options for the BER library.
-\end{memberdesc}
-
-%%------------------------------------------------------------
-%% options
-
-\begin{memberdesc}[LDAP]{options} % -> int
-    General options. This field is the bitiwse OR of the flags
-	\constant{OPT_REFERRALS} (follow referrals), and
-	\constant{OPT_RESTART}   (restart the \cfunction{select()} system call
-			      when interrupted).
-\end{memberdesc}
-
-%%------------------------------------------------------------
-%% refhoplimit
-
-\begin{memberdesc}[LDAP]{refhoplimit} % -> int
-    Maximum number of referrals to follow before raising an exception.
-    Defaults to 5.
+\textbf{Note}
+It is highly recommended to set the protocol version after establishing
+a LDAP connection with \function{initialize()} and before submitting
+the first request.
 \end{memberdesc}
 
 %%------------------------------------------------------------
@@ -943,6 +906,9 @@ These attributes are mutable unless described as read-only.
 \begin{memberdesc}[LDAP]{sizelimit} % -> int
     Limit on size of message to receive from server. 
     Defaults to \constant{NO_LIMIT}.
+    This option is mapped to option constant \constant{OPT_SIZELIMIT}
+    and used in the underlying OpenLDAP lib. Its use is deprecated
+    in favour of \var{sizelimit} parameter when using \method{search_ext()}.
 \end{memberdesc}
 
 %%------------------------------------------------------------
@@ -951,15 +917,18 @@ These attributes are mutable unless described as read-only.
 \begin{memberdesc}[LDAP]{timelimit} % -> int
     Limit on waiting for any response, in seconds. 
     Defaults to \constant{NO_LIMIT}.
+    This option is mapped to option constant \constant{OPT_TIMELIMIT}
+    and used in the underlying OpenLDAP lib. Its use is deprecated
+    in favour of using \var{timeout}.
 \end{memberdesc}
 
 %%------------------------------------------------------------
-%% valid
+%% timeout
 
-\begin{memberdesc}[LDAP]{valid} % -> int
-    If zero, the connection has been unbound. See \method{unbind()} for
-    more information.
-    (read-only)
+\begin{memberdesc}[LDAP]{timeout} % -> int
+    Limit on waiting for any response, in seconds. 
+    Defaults to \constant{NO_LIMIT}.
+    This option is used in the wrapper module.
 \end{memberdesc}
 
 
