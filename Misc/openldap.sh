@@ -17,6 +17,11 @@ MAKE=make
 LYNX=lynx
 
 case "$1" in
+  -beta)
+    SRCDIR=openldap-2.0-beta
+    OPENLDAP="openldap-beta/${SRCDIR}"
+    MD5HASH=075a4b0cd43c63ec58fee718d77fcc6c
+    ;;
   -alpha)
     SRCDIR=openldap-2.0-alpha3
     OPENLDAP="openldap-alpha/${SRCDIR}"
