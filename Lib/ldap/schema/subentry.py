@@ -196,9 +196,9 @@ class SubSchema:
       assert hasattr(object_class,'may'),ValueError(object_class_oid)
       for a in object_class.must:
         try:
-          at_obj = self.sed[AttributeType][self.name2oid[AttributeType][a]]
+          at_obj = self.sed[AttributeType][self.name2oid[AttributeType].get(a,a)]
         except KeyError:
-          if raise_keyerror:
+#          if raise_keyerror:
             raise
         r_must[at_obj.oid] = at_obj
       for a in object_class.may:
