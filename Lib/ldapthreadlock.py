@@ -41,31 +41,37 @@ class LDAPObject:
 
   def _ldap_call(self,func,*args,**kwargs):
     """Wrapper function which locks calls to func with via ldap_module_lock"""
-    if __debug__  and _module_debug_level>0:
-      print \
-        self.__module__+'.'+self.__class__.__name__+'.'+func.__name__,\
-        repr(args),repr(kwargs)
+    if __debug__:
+      if _module_debug_level>0:
+        print '************',\
+          self.__module__+'.'+self.__class__.__name__+'.'+func.__name__,\
+          repr(args),repr(kwargs)
+        if _module_debug_level>=2:
+          import sys,traceback
+          traceback.print_stack(file=sys.stdout)
     _ldapmodule_lock.acquire()
     try:
       result = apply(func,args,kwargs)
     finally:
       _ldapmodule_lock.release()
+    if __debug__:
+      if _module_debug_level>0:
+        print '=> result:',result
     return result
 
   def __init__(self,host):
     self._l = self._ldap_call(ldap.open,host)
 
-  def __hasattr__(self,name):
-    if name!='_l':
-      return hasattr(self._l,name)
-    else:
-      self.__dict__.has_key(name)
-
   def __setattr__(self,name,value):
-    if __debug__  and _module_debug_level>0:
-      print self.__module__+'.'+self.__class__.__name__+'.__setattr__(%s,%s)' % (name,value)
     if name!='_l':
-      _ldapmodule_lock.acquire()
+      if __debug__:
+        if _module_debug_level>0:
+          print '************',\
+            self.__module__+'.'+self.__class__.__name__+'.__setattr__(%s,%s)' % (name,value)
+          if _module_debug_level>=2:
+            import sys,traceback
+            traceback.print_stack(file=sys.stdout)
+        _ldapmodule_lock.acquire()
       try:
         setattr(self._l,name,value)
       finally:
@@ -80,10 +86,15 @@ class LDAPObject:
         value = getattr(self._l,name)
       finally:
         _ldapmodule_lock.release()
+      if __debug__:
+        if _module_debug_level>0:
+          print '************',\
+            self.__module__+'.'+self.__class__.__name__+'.__getattr__(%s)' % (name),'=>',value
+          if _module_debug_level>=2:
+            import sys,traceback
+            traceback.print_stack(file=sys.stdout)
     else:
       value = self.__dict__[name]
-    if __debug__  and _module_debug_level>0:
-      print self.__module__+'.'+self.__class__.__name__+'.__getattr__(%s)' % (name),'=>',value
     return value
 
   def abandon(self,msgid):
