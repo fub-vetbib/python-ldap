@@ -23,7 +23,7 @@ static PyMethodDef methods[]  = {
 /* module initialisation */
 
 void
-initldap()
+init_ldap()
 {
 	PyObject *m, *d;
 
@@ -33,7 +33,7 @@ initldap()
 #endif
 
 	/* Create the module and add the functions */
-	m = Py_InitModule("ldap", methods);
+	m = Py_InitModule("_ldap", methods);
 
 	/* Add some symbolic constants to the module */
 	d = PyModule_GetDict(m);
@@ -46,5 +46,5 @@ initldap()
 
 	/* Check for errors */
 	if (PyErr_Occurred())
-		Py_FatalError("can't initialize module ldap");
+		Py_FatalError("can't initialize module _ldap");
 }

@@ -1,5 +1,6 @@
 Change history for ldapmodule
 
+	- renamed ldap to _ldap for higher level abstraction
 1.9
 	- removed mod_next for RedHat 5.2 <esj%harvee.billerica.ma.us>
 	- fixed bug where error objects would sometimes be wrong

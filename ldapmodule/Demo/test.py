@@ -2,10 +2,10 @@
 import sys
 sys.path.append("/homes/leonard/src/ldapmodule")
 import getpass
-import ldap
+import _ldap
 
-#l = ldap.open("localhost", 31001)
-l = ldap.open("marta.it.uq.edu.au")
+#l = _ldap.open("localhost", 31001)
+l = _ldap.open("marta.it.uq.edu.au")
 
 login_dn = "cn=root,ou=CSEE,o=UQ,c=AU"
 login_pw = getpass.getpass("Password for %s: " % login_dn)
@@ -27,7 +27,7 @@ try:
 	 ]
        )
 
-except ldap.LDAPError:
+except _ldap.LDAPError:
     pass
 
 #
@@ -100,7 +100,7 @@ l.add_s(dn,
 
 res = l.search_s(
 	"ou=CSEE, o=UQ, c=AU", 
-	ldap.SCOPE_SUBTREE, 
+	_ldap.SCOPE_SUBTREE, 
 	"objectclass=*",
       )
 print res

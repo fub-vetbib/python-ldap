@@ -11,7 +11,7 @@
 #	-DNO_CACHE		- don't compile in caching methods
 #
 
-ldap  \
+_ldap  \
 	LDAPObject.o common.o constants.o errors.o functions.o  \
 	ldapmodule.o message.o version.o \
 	CIDict.o \
