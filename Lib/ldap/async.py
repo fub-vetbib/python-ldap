@@ -110,8 +110,12 @@ class AsyncSearchHandler:
     self.beginResultsDropped = 0
     self.endResultBreak = result_counter
     try:
-      result_type,result_list = self._l.result(self._msgId,0)
-      while go_ahead and result_type and result_list:
+      result_type,result_list = None,None
+      while go_ahead:
+        while result_type is None and result_list is None:
+          result_type,result_list = self._l.result(self._msgId,0)
+        if result_list is None:
+          break
         if not _searchResultTypes.has_key(result_type):
           raise WrongResultType(result_typeValueError,_searchResultTypes.keys())
         # Loop over list of search results
@@ -125,11 +129,8 @@ class AsyncSearchHandler:
             partial = 1
             break # break-out for-loop
           result_counter = result_counter+1
+        result_type,result_list = None,None
         self.endResultBreak = result_counter
-        if go_ahead:
-          result_type,result_list = self._l.result(self._msgId,0)
-        else:
-          break # break-out outer while-loop
     finally:
       if self._msgId!=None:
         self._l.abandon(self._msgId)
