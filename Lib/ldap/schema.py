@@ -25,15 +25,15 @@ def subschemasubentry_dn(l,dn=''):
   )
   if r:
     e = ldap.cidict.cidict(r[0][1])
-    return e.get('subschemaSube',[None])[0]
+    return e.get('subschemaSubentry',[None])[0]
   else:
     # Fall back to directly read attribute subschemaSube
     # from RootDSE
     r = l.search_s(
-      '',ldap.SCOPE_BASE,'(objectClass=*)',['subschemaSube']
+      '',ldap.SCOPE_BASE,'(objectClass=*)',['subschemaSubentry']
     )
     e = ldap.cidict.cidict(r[0][1])
-    return e.get('subschemaSube',[None])[0]
+    return e.get('subschemaSubentry',[None])[0]
   
 
 # Wrapper functions to serialize calls into OpenLDAP libs with
