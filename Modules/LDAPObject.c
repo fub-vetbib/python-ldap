@@ -988,7 +988,6 @@ static char doc_get_option[] =  "";
 
 static PyMethodDef methods[] = {
     {"unbind",		(PyCFunction)l_ldap_unbind,		METH_VARARGS,	doc_unbind},
-    {"unbind_s",	(PyCFunction)l_ldap_unbind,		METH_VARARGS,	doc_unbind},
     {"abandon",		(PyCFunction)l_ldap_abandon,		METH_VARARGS,	doc_abandon},
     {"add",		(PyCFunction)l_ldap_add,		METH_VARARGS,	doc_add},
     {"bind",		(PyCFunction)l_ldap_bind,		METH_VARARGS,	doc_bind},
