@@ -1,4 +1,13 @@
 ----------------------------------------------------------------
+Released 2.0.0pre10 2003-04-xx
+
+Changes since 2.0.0pre09:
+
+ldap.schema:
+* Emulate BooleanType for compability with Python2.3 in assert
+  statements
+
+----------------------------------------------------------------
 Released 2.0.0pre09 2003-04-19
 
 Changes since 2.0.0pre08:
