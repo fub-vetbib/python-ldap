@@ -8,6 +8,7 @@
 #include "Python.h"
 
 #include <math.h>
+#include <stdlib.h>
 #include <limits.h>
 #include "common.h"
 #include "errors.h"
@@ -632,6 +633,12 @@ l_ldap_sasl_interactive_bind_s( LDAPObject* self, PyObject* args )
 {
     char *c_mechanism;
     char *who, *cred;
+    char *parse_format;
+
+    /* According to the docs, the minor version number of Python is always
+     * the 3rd character in the version string. */
+    const char *py_version = Py_GetVersion();
+    int minor_version = atoi(&py_version[2]);
 
     PyObject *serverctrls = Py_None;
     PyObject *clientctrls = Py_None;
@@ -645,7 +652,19 @@ l_ldap_sasl_interactive_bind_s( LDAPObject* self, PyObject* args )
     void *defaults;
     static unsigned sasl_flags = LDAP_SASL_QUIET;
 
-    if (!PyArg_ParseTuple(args, "sOOOI", &who, &SASLObject, &serverctrls, &clientctrls, &sasl_flags ))
+    /* 
+     * In Python 2.3+, a "I" format argument indicates that we're either
+     * converting the Python object into a long or an unsigned int. In versions
+     * prior to that, it will always convert to a long. Since the sasl_flags
+     * variable is an unsigned int, we need to use the "I" flag if we're
+     * running Python 2.3+ and a "i" otherwise. 
+     */
+    if (minor_version < 3)
+        parse_format = "sOOOi";
+    else
+        parse_format = "sOOOI";
+
+    if (!PyArg_ParseTuple(args, parse_format, &who, &SASLObject, &serverctrls, &clientctrls, &sasl_flags ))
       return NULL;
 
     if (not_valid(self)) return NULL;
