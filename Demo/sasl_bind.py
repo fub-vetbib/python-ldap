@@ -44,6 +44,14 @@ for ldap_uri,sasl_mech,sasl_cb_value_dict in [
   ),
   (
     "ldap://localhost:1390/",
+    'NTLM',
+    {
+      ldap.sasl.CB_AUTHNAME    :'fred',
+      ldap.sasl.CB_PASS        :'secret',
+    }
+  ),
+  (
+    "ldap://localhost:1390/",
     'DIGEST-MD5',
     {
       ldap.sasl.CB_AUTHNAME    :'fred',
