@@ -13,17 +13,16 @@ addModlist_tests = [
       'objectClass':['person','pilotPerson'],
       'cn':['Michael Str\303\266der','Michael Stroeder'],
       'sn':['Str\303\266der'],
-      'dummy':[],
-      'dummy':[''],
-      'dummy':['2'],
-      'dummy2':[],
-      'dummy2':[''],
+      'dummy1':[],
+      'dummy2':['2'],
+      'dummy3':[''],
     },
     [
       ('objectClass',['person','pilotPerson']),
       ('cn',['Michael Str\303\266der','Michael Stroeder']),
       ('sn',['Str\303\266der']),
-      ('dummy',['2']),
+      ('dummy2',['2']),
+      ('dummy3',['']),
     ]
   ),
 ]
@@ -52,8 +51,8 @@ modifyModlist_tests = [
       'mail':['michael@stroeder.com'],
     },
     [
-      (ldap.MOD_DELETE,'objectClass',['pilotPerson']),
-      (ldap.MOD_ADD,'objectClass',['inetOrgPerson']),
+      (ldap.MOD_DELETE,'objectClass',None),
+      (ldap.MOD_ADD,'objectClass',['person','inetOrgPerson']),
       (ldap.MOD_DELETE,'c',None),
       (ldap.MOD_DELETE,'sn',None),
       (ldap.MOD_ADD,'mail',['michael@stroeder.com']),
@@ -65,18 +64,17 @@ modifyModlist_tests = [
   (
     {
       'objectClass':['person'],
-      'cn':[],
+      'cn':[None],
       'sn':[''],
       'c':['DE'],
     },
     {
       'objectClass':[],
       'cn':[],
-      'sn':[''],
+      'sn':[None],
     },
     [
       (ldap.MOD_DELETE,'c',None),
-      (ldap.MOD_DELETE,'cn',None),
       (ldap.MOD_DELETE,'objectClass',None),
       (ldap.MOD_DELETE,'sn',None),
     ]
