@@ -8,9 +8,11 @@ are assumed to be Unicode objects, string methods instead of
 string module and list comprehensions are used.
 """
 
-__version__ = '0.3.1'
+__version__ = '0.3.2'
 
-import re,urllib,ldap
+import re,ldap
+
+from urllib import quote_plus,unquote_plus
 
 host_pattern = r'([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+|[a-zA-Z]+[a-zA-Z0-9-]*(\.[a-zA-Z]+[a-zA-Z0-9-]*)*)+(:[0-9]*)*'
 host_regex = re.compile('^%s$' % host_pattern)
@@ -43,7 +45,7 @@ def isLDAPUrl(s):
 
 
 def decode_dn(dn,charset,relaxed_charset_handling):
-  dn = urllib.unquote_plus(dn)
+  dn = unquote_plus(dn)
   try:
     result_dn = unicode(dn,charset)
   except UnicodeError:
@@ -86,7 +88,7 @@ class LDAPUrlExtension:
       extension = extension[1:].strip()
     self.extype,self.exvalue = extension.split('=',1)
     self.extype = self.extype.strip()
-    self.exvalue = urllib.unquote_plus(self.exvalue.strip())
+    self.exvalue = unquote_plus(self.exvalue.strip())
 
   def __str__(self):
     return '%s%s=%s' % (
@@ -140,7 +142,7 @@ class LDAPUrl:
     if name=='who' or name=='cred':
       extype = self.attr2extype[name]
       if self.extensions.has_key(extype):
-        return urllib.unquote_plus(
+        return unquote_plus(
           self.extensions[extype].exvalue
         )
       else:
@@ -154,7 +156,7 @@ class LDAPUrl:
     if (name=='who' or name=='cred') and value:
       extype = self.attr2extype[name]
       self.extensions[extype] = LDAPUrlExtension(
-        extype=extype,exvalue=urllib.unquote_plus(value)
+        extype=extype,exvalue=unquote_plus(value)
       )
     else:
       self.__dict__[name] = value
@@ -174,18 +176,18 @@ class LDAPUrl:
     qemark_pos = rest.find('?')
     if (slash_pos==-1) and (qemark_pos==-1):
       # No / and ? found at all
-      self.hostport = urllib.unquote_plus(rest)
+      self.hostport = unquote_plus(rest)
       self.dn = u''
       return
     else:
       if slash_pos!=-1 and (qemark_pos==-1 or (slash_pos<qemark_pos)):
         # Slash separates DN from hostport
-        self.hostport = urllib.unquote_plus(rest[:slash_pos])
+        self.hostport = unquote_plus(rest[:slash_pos])
         # Eat the slash from rest
         rest = rest[slash_pos+1:]
       elif qemark_pos!=1 and (slash_pos==-1 or (slash_pos>qemark_pos)):
         # Question mark separates hostport from rest, DN is assumed to be empty
-        self.hostport = urllib.unquote_plus(rest[:qemark_pos])
+        self.hostport = unquote_plus(rest[:qemark_pos])
         # Do not eat question mark
         rest = rest[qemark_pos:]
       else:
@@ -195,14 +197,14 @@ class LDAPUrl:
     if paramlist_len>=1:
       self.dn = decode_dn(paramlist[0],self.charset,relaxed_charset_handling)
     if (paramlist_len>=2) and (paramlist[1]):
-      self.attrs = urllib.unquote_plus(paramlist[1].strip()).split(',')
+      self.attrs = unquote_plus(paramlist[1].strip()).split(',')
     if paramlist_len>=3:
       try:
         self.scope = SEARCH_SCOPE[paramlist[2].strip()]
       except KeyError:
         raise ValueError, "Search scope must be either one of base, one or sub. LDAP URL contained %s" % repr(paramlist[2])
     if paramlist_len>=4:
-      filterstr = urllib.unquote_plus(paramlist[3].strip())
+      filterstr = unquote_plus(paramlist[3].strip())
       if not filterstr:
         filterstr='(objectclass=*)'
       try:
@@ -224,7 +226,7 @@ class LDAPUrl:
     """Returns URL encoding of string s"""
     if type(s)==UnicodeType:
       s = s.encode(charset)
-    return urllib.quote(s).replace(',','%2C').replace('/','%2F')
+    return quote(s).replace(',','%2C').replace('/','%2F')
 
   def unparse(self,charset=None,urlEncode=0):
     """
@@ -248,7 +250,7 @@ class LDAPUrl:
       dn = self.dn ; filterstr = self.filterstr
     if self.urlscheme=='ldapi':
       # hostport part might contain slashes when ldapi:// is used
-      hostport = urllib.quote_plus(self.hostport)
+      hostport = quote_plus(self.hostport)
     else:
       hostport = self.hostport
     ldap_url = u'%s://%s/%s?%s?%s?%s' % (
@@ -296,21 +298,22 @@ def test():
   print '\nTesting function isLDAPUrl():'
   is_ldap_url_tests = {
     # Examples from RFC2255
-    u'ldap:///o=University%20of%20Michigan,c=US':1,
-    u'ldap://ldap.itd.umich.edu/o=University%20of%20Michigan,c=US':1,
-    u'ldap://ldap.itd.umich.edu/o=University%20of%20Michigan,':1,
-    u'ldap://host.com:6666/o=University%20of%20Michigan,':1,
-    u'ldap://ldap.itd.umich.edu/c=GB?objectClass?one':1,
-    u'ldap://ldap.question.com/o=Question%3f,c=US?mail':1,
-    u'ldap://ldap.netscape.com/o=Babsco,c=US??(int=%5c00%5c00%5c00%5c04)':1,
-    u'ldap:///??sub??bindname=cn=Manager%2co=Foo':1,
-    u'ldap:///??sub??!bindname=cn=Manager%2co=Foo':1,
+    'ldap:///o=University%20of%20Michigan,c=US':1,
+    'ldap://ldap.itd.umich.edu/o=University%20of%20Michigan,c=US':1,
+    'ldap://ldap.itd.umich.edu/o=University%20of%20Michigan,':1,
+    'ldap://host.com:6666/o=University%20of%20Michigan,':1,
+    'ldap://ldap.itd.umich.edu/c=GB?objectClass?one':1,
+    'ldap://ldap.question.com/o=Question%3f,c=US?mail':1,
+    'ldap://ldap.netscape.com/o=Babsco,c=US??(int=%5c00%5c00%5c00%5c04)':1,
+    'ldap:///??sub??bindname=cn=Manager%2co=Foo':1,
+    'ldap:///??sub??!bindname=cn=Manager%2co=Foo':1,
     # More examples from various sources
-    u'ldap://ldap.nameflow.net:1389/c%3dDE':1,
-    u'ldap://root.openldap.org/dc=openldap,dc=org':1,
-    u'ldap://root.openldap.org/dc=openldap,dc=org':1,
-    u'ldap://x500.mh.se/o=Mitthogskolan,c=se????1.2.752.58.10.2=T.61':1,
-    u'ldp://root.openldap.org/dc=openldap,dc=org':0,
+    'ldap://ldap.nameflow.net:1389/c%3dDE':1,
+    'ldap://root.openldap.org/dc=openldap,dc=org':1,
+    'ldap://root.openldap.org/dc=openldap,dc=org':1,
+    'ldap://x500.mh.se/o=Mitthogskolan,c=se????1.2.752.58.10.2=T.61':1,
+    'ldp://root.openldap.org/dc=openldap,dc=org':0,
+    'ldap://localhost:1389/ou%3DUnstructured%20testing%20tree%2Cdc%3Dstroeder%2Cdc%3Dcom??one':1,
   }
   for ldap_url in is_ldap_url_tests.keys():
     result_is_ldap_url = isLDAPUrl(ldap_url)
