@@ -118,11 +118,41 @@ class SubSchema:
     se_oid = nameoroid.split(';')[0].strip()
     return self.name2oid[se_class].get(se_oid,se_oid)
 
+  def get_inheritedattr(self,se_class,nameoroid,name):
+    """
+    Get a possibly inherited attribute specified by name
+    of a schema element specified by nameoroid.
+    Returns None if class attribute is not set at all.
+    
+    Raises KeyError if no schema element is found by nameoroid.
+    """
+    se = self.sed[se_class][self.getoid(se_class,nameoroid)]
+    try:
+      result = getattr(se,name)
+    except AttributeError:
+      result = None
+    if result is None and se.sup:
+      result = self.get_inheritedattr(se_class,se.sup[0],name)
+    return result
+
   def get_obj(self,se_class,nameoroid,default=None):
     """
     Get a schema element by name or OID
     """
     return self.sed[se_class].get(self.getoid(se_class,nameoroid),default)
+
+  def get_inheritedobj(self,se_class,nameoroid,inherited=None):
+    """
+    Get a schema element by name or OID with all class attributes
+    set including inherited class attributes
+    """
+    import copy
+    inherited = inherited or []
+    se = copy.copy(self.sed[se_class].get(self.getoid(se_class,nameoroid)))
+    if se and hasattr(se,'sup'):
+      for class_attr_name in inherited:
+        setattr(se,class_attr_name,self.get_inheritedattr(se_class,nameoroid,class_attr_name))
+    return se
 
   def get_syntax(self,nameoroid):
     """
@@ -130,17 +160,11 @@ class SubSchema:
     """
     at_oid = self.getoid(AttributeType,nameoroid)
     try:
-      at_obj = self.get_obj(AttributeType,at_oid)
+      at_obj = self.get_inheritedobj(AttributeType,at_oid)
     except KeyError:
       return None
-    if at_obj.syntax:
+    else:
       return at_obj.syntax
-    elif at_obj.sup:
-      for sup in at_obj.sup:
-        syntax = self.get_syntax(sup)
-        if syntax:
-          return syntax
-    return None
 
   def attribute_types(
     self,object_class_list,attr_type_filter=None,strict=1,raise_keyerror=1
