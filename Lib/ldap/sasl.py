@@ -19,7 +19,7 @@ Compability:
 - Tested with Python 2.0+ but should work with Python 1.5.x
 """
 
-__version__ = '0.0.1'
+__version__ = '0.0.2'
 
 class sasl:
     """This class handles SASL interactions for authentication.
