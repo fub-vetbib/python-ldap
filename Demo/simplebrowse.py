@@ -5,7 +5,7 @@
 #
 
 import ldap
-from string import join
+import string
 from traceback import print_exc
 
 url = "ldap://ldap.openldap.org/"
@@ -34,6 +34,7 @@ while 1:
 		print  "cd <dn>	- change DN to <dn>"
 		print  "cd <n>	- change DN to number <n> of last 'ls'"
 		print  "cd -	- change to previous DN"
+		print  "cd ..	- change to one-level higher DN"
 		print  "cd 	- change to root DN"
 		print  "ls	- list children of crrent DN"
 		print  ".	- show attributes of current DN"
@@ -65,10 +66,13 @@ while 1:
 		dn = ""
 		dnlist = None
 
-	if cmd.startswith("cd "):
+	elif cmd.startswith("cd "):
 		arg = cmd[3:]
 		if arg == '-':
 			lastdn,dn = dn,lastdn
+		elif arg == '..':
+			dn = string.join(string.split(dn, ",")[1:], ",")
+			dn = string.strip(dn)
                 else:
 		        try:
 			        i = int(arg)
@@ -116,7 +120,8 @@ while 1:
 		    expr, []):
 			print "  %24s", name
 
-	print "unknown command - try '?' for help"
+	else:
+		print "unknown command - try '?' for help"
 
     except:
 	print_exc()
