@@ -580,8 +580,8 @@ look into sub-module l\refmodule{ldap.modlist} for generating the modlist.
 
 \begin{methoddesc}[LDAP]{bind}{who, cred, method} % -> int
      \methodline[LDAP]{bind_s}{who, cred, method} % -> None
-     \methodline[LDAP]{simple_bind}{who, passwd} % -> None
-     \methodline[LDAP]{simple_bind_s}{who, passwd} % -> None
+     \methodline[LDAP]{simple_bind}{\optional{who=\constant{''} \optional{, cred=\constant{''}}}} % -> int
+     \methodline[LDAP]{simple_bind_s}{\optional{who=\constant{''} \optional{, cred=\constant{''}}}} % -> None
 After an LDAP object is created, and before any other operations can be
 attempted over the connection, a bind operation must be performed.
 
