@@ -78,11 +78,11 @@ parse_ldap_url_tests = [
     LDAPUrl(
       hostport='x500.mh.se',
       dn='o=Mitthogskolan,c=se',
-      extensions={
-        '1.2.752.58.10.2':LDAPUrlExtension(
+      extensions=LDAPUrlExtensions({
+        '1.2.752.58.10.2':ldapurl.LDAPUrlExtension(
           critical=0,extype='1.2.752.58.10.2',exvalue='T.61'
         )
-      }
+      })
     )
   ),
   (
@@ -90,14 +90,14 @@ parse_ldap_url_tests = [
     LDAPUrl(
       hostport='localhost:12345',
       dn='dc=stroeder,dc=com',
-      extensions={
+      extensions=LDAPUrlExtensions({
         'bindname':LDAPUrlExtension(
           critical=1,extype='bindname',exvalue='cn=Michael,dc=stroeder,dc=com'
         ),
         'X-BINDPW':LDAPUrlExtension(
           critical=1,extype='X-BINDPW',exvalue='secretpassword'
         ),
-      },
+      }),
     )
   ),
   (
@@ -130,13 +130,25 @@ parse_ldap_url_tests = [
 for ldap_url_str,test_ldap_url_obj in parse_ldap_url_tests:
 #  print '\nTesting LDAP URL:',repr(ldap_url)
   ldap_url_obj = LDAPUrl(ldapUrl=ldap_url_str)
+  print '#'*72
+  print test_ldap_url_obj.unparse()
   if ldap_url_obj.__ne__(test_ldap_url_obj):
-    print 'Attributes of LDAPUrl(%s) are:\n%s\ninstead of:\n%s\n' % (
-      repr(ldap_url_str),repr(ldap_url_obj),repr(test_ldap_url_obj)
+    print '-'*72
+    print 'Parsing error! Attributes of LDAPUrl(%s) are:\n%s\ninstead of:\n%s' % (
+      repr(ldap_url_str),
+      repr(ldap_url_obj),
+      repr(test_ldap_url_obj)
     )
-  unparsed_ldap_url_str = test_ldap_url_obj.unparse()
-  unparsed_ldap_url_obj = LDAPUrl(ldapUrl=unparsed_ldap_url_str)
-  if unparsed_ldap_url_obj.__ne__(test_ldap_url_obj):
-    print 'Unparsed LDAP URL differs:\n%s\n%s' % (
-      repr(unparsed_ldap_url_str),repr(unparsed_ldap_url_obj)
-    )
+  else:
+    print 'Parsing ok'
+    unparsed_ldap_url_str = test_ldap_url_obj.unparse()
+    unparsed_ldap_url_obj = LDAPUrl(ldapUrl=unparsed_ldap_url_str)
+    if unparsed_ldap_url_obj.__ne__(test_ldap_url_obj):
+      print '-'*72
+      print 'Unparsing error! Attributes of LDAPUrl(%s) are:\n%s\ninstead of:\n%s' % (
+        repr(unparsed_ldap_url_str),
+        repr(unparsed_ldap_url_obj),
+        repr(test_ldap_url_obj)
+      )
+    else:
+      print 'Unparsing ok'

@@ -25,7 +25,7 @@ __all__ = [
   # functions
   'isLDAPUrl',
   # classes
-  'LDAPUrlExtension','LDAPUrl'
+  'LDAPUrlExtension','LDAPUrlExtensions','LDAPUrl'
 ]
 
 import UserDict
@@ -138,7 +138,9 @@ class LDAPUrlExtensions(UserDict.UserDict):
   """
 
   def __init__(self,default={}):
-    UserDict.UserDict.__init__(self,default)
+    UserDict.UserDict.__init__(self,{})
+    for k,v in default.items():
+      self[k]=v
 
   def __getitem__(self,name):
     """
@@ -178,7 +180,11 @@ class LDAPUrlExtensions(UserDict.UserDict):
     )
 
   def __eq__(self,other):
+    assert isinstance(other,self.__class__),TypeError(
+      "other has to be instance of %s" % (self.__class__)
+    )
     result = (self.data==other.data)
+    return result
     
   def parse(self,extListStr):
     extensions = [
