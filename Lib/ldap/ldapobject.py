@@ -27,7 +27,13 @@ to less exact timing.
 
 __version__ = '0.1.1'
 
-__all__ = ['LDAPObject','SmartLDAPObject']
+__all__ = [
+  'LDAPObject',
+  'SimpleLDAPObject',
+  'NonblockingLDAPObject',
+  'SmartLDAPObject'
+]
+
 
 if __debug__:
   # Tracing is only supported in debugging mode
@@ -35,7 +41,7 @@ if __debug__:
 
 import sys,string,time,_ldap,ldap
 
-class LDAPObject:
+class SimpleLDAPObject:
   """
   Drop-in wrapper class around _ldap.LDAPObject
   """
@@ -509,15 +515,92 @@ class LDAPObject:
     self._ldap_call(self._l.set_option,option,invalue)
 
 
-class SmartLDAPObject(LDAPObject):
+class NonblockingLDAPObject(SimpleLDAPObject):
+
+  def __init__(self,uri,trace_level=0,trace_file=sys.stdout,result_timeout=0.05):
+    self._result_timeout = result_timeout
+    SimpleLDAPObject.__init__(self,uri,trace_level,trace_file)
+
+  def result(self,msgid=_ldap.RES_ANY,all=1,timeout=-1):
+    """
+    result([msgid=RES_ANY [,all=1 [,timeout=-1]]]) -> (result_type, result_data)
+
+        This method is used to wait for and return the result of an
+        operation previously initiated by one of the LDAP asynchronous
+        operation routines (eg search(), modify(), etc.) They all
+        returned an invocation identifier (a message id) upon successful
+        initiation of their operation. This id is guaranteed to be
+        unique across an LDAP session, and can be used to request the
+        result of a specific operation via the msgid parameter of the
+        result() method.
+
+        If the result of a specific operation is required, msgid should
+        be set to the invocation message id returned when the operation
+        was initiated; otherwise RES_ANY should be supplied.
+
+        The all parameter only has meaning for search() responses
+        and is used to select whether a single entry of the search
+        response should be returned, or to wait for all the results
+        of the search before returning.
+
+        A search response is made up of zero or more search entries
+        followed by a search result. If all is 0, search entries will
+        be returned one at a time as they come in, via separate calls
+        to result(). If all is 1, the search response will be returned
+        in its entirety, i.e. after all entries and the final search
+        result have been received.
+
+        The method returns a tuple of the form (result_type,
+        result_data).  The result_type is a string, being one of:
+        'RES_BIND', 'RES_SEARCH_ENTRY', 'RES_SEARCH_RESULT',
+        'RES_MODIFY', 'RES_ADD', 'RES_DELETE', 'RES_MODRDN', or
+        'RES_COMPARE'.
+
+        The constants RES_* are set to these strings, for convenience.
+
+        See search() for a description of the search result's
+        result_data, otherwise the result_data is normally meaningless.
+
+        The result() method will block for timeout seconds, or
+        indefinitely if timeout is negative.  A timeout of 0 will effect
+        a poll.  The timeout can be expressed as a floating-point value.
+
+        If a timeout occurs, a TIMEOUT exception is raised, unless
+        polling (timeout = 0), in which case (None, None) is returned.
+    """
+    ldap_result = self._ldap_call(self._l.result,msgid,0,self._result_timeout)
+    if not all:
+      return ldap_result
+    start_time = time.time()
+    all_results = []
+    while all:
+      while ldap_result[0] is None:
+        if (timeout>=0) and (time.time()-start_time>timeout):
+          self._ldap_call(self._l.abandon,msgid)
+          raise _ldap.TIMEOUT(
+            "LDAP time limit (%d secs) exceeded." % (timeout)
+          )
+        time.sleep(0.00001)
+        ldap_result = self._ldap_call(self._l.result,msgid,0,self._result_timeout)
+      if ldap_result[1] is None:
+        break
+      all_results.extend(ldap_result[1])
+      ldap_result = None,None
+    return all_results
+ 
+
+class SmartLDAPObject(SimpleLDAPObject):
   """
   Mainly the __init__() method does some smarter things.
   """
 
   def __init__(
-    self,uri,who='',cred='',start_tls=1,
-    tls_cacertfile=None,tls_clcertfile=None,tls_clkeyfile=None,
-    trace_level=0,trace_file=sys.stdout
+    self,uri,
+    trace_level=0,trace_file=sys.stdout,
+    who='',cred='',
+    start_tls=1,
+    tls_cacertfile=None,tls_cacertdir=None,
+    tls_clcertfile=None,tls_clkeyfile=None,
   ):
     """
     Return LDAPObject instance by opening LDAP connection to
@@ -570,7 +653,7 @@ class SmartLDAPObject(LDAPObject):
     # Strip white-spaces from uri
     uri = string.strip(uri)
     # Initialize LDAP connection
-    LDAPObject.__init__(self,uri,trace_level,trace_file)
+    SimpleLDAPObject.__init__(self,uri,trace_level,trace_file)
     # Set protocol version to LDAPv3
     self.set_option(ldap.OPT_PROTOCOL_VERSION,ldap.VERSION3)
     try:
@@ -597,4 +680,9 @@ class SmartLDAPObject(LDAPObject):
           raise ValueError,"StartTLS extended operation only possible on LDAPv3+ server!"
     if protocol_version==ldap.VERSION2 or (who and cred):
       self.simple_bind_s(who,cred)
+
+
+# The class called LDAPObject will be used as default for
+# ldap.open() and ldap.initialize()
+LDAPObject = SimpleLDAPObject
 
