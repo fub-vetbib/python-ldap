@@ -539,7 +539,7 @@ LDAP objects, have the following methods:
 %%------------------------------------------------------------
 %% abandon
 
-\begin{methoddesc}[LDAP]{abandon}{msgid}
+\begin{methoddesc}[LDAPObject]{abandon}{msgid}
 Abandons or cancels an LDAP operation in progress. The \var{msgid} argument
 should be the message ID of an outstanding LDAP operation as returned by
 the asynchronous methods \method{search()}, \method{modify()}, etc. 
@@ -551,7 +551,7 @@ of an abandoned operation will not be returned from a future call to
 %%------------------------------------------------------------
 %% add
 
-\begin{methoddesc}[LDAP]{add}{dn, modlist} % -> int
+\begin{methoddesc}[LDAPObject]{add}{dn, modlist} % -> int
      \methodline{add_s}{dn, modlist}
 Performs an LDAP add operation. The \var{dn} argument is the distinguished
 name (DN) of the entry to add, and \var{modlist} is a list of attributes to be
@@ -563,10 +563,10 @@ look into sub-module l\refmodule{ldap.modlist} for generating the modlist.
 %%------------------------------------------------------------
 %% bind
 
-\begin{methoddesc}[LDAP]{bind}{who, cred, method} % -> int
-     \methodline[LDAP]{bind_s}{who, cred, method} % -> None
-     \methodline[LDAP]{simple_bind}{\optional{who=\constant{''} \optional{, cred=\constant{''}}}} % -> int
-     \methodline[LDAP]{simple_bind_s}{\optional{who=\constant{''} \optional{, cred=\constant{''}}}} % -> None
+\begin{methoddesc}[LDAPObject]{bind}{who, cred, method} % -> int
+     \methodline[LDAPObject]{bind_s}{who, cred, method} % -> None
+     \methodline[LDAPObject]{simple_bind}{\optional{who=\constant{''} \optional{, cred=\constant{''}}}} % -> int
+     \methodline[LDAPObject]{simple_bind_s}{\optional{who=\constant{''} \optional{, cred=\constant{''}}}} % -> None
 After an LDAP object is created, and before any other operations can be
 attempted over the connection, a bind operation must be performed.
 
@@ -578,10 +578,17 @@ be \constant{AUTH_SIMPLE}.
 \end{methoddesc}
 
 %%------------------------------------------------------------
+%% sasl_interactive_bind_s
+
+\begin{methoddesc}[None]{sasl_interactive_bind_s}{who, auth} % -> None
+This call is used to bind to the directory with a SASL bind request.
+\end{methoddesc}
+
+%%------------------------------------------------------------
 %% compare
 
-\begin{methoddesc}[LDAP]{compare}{dn, attr, value} % -> int
-     \methodline[LDAP]{compare_s}{dn, attr, value} % -> tuple
+\begin{methoddesc}[LDAPObject]{compare}{dn, attr, value} % -> int
+     \methodline[LDAPObject]{compare_s}{dn, attr, value} % -> tuple
 Perform an LDAP comparison between the attribute named \var{attr} of 
 entry \var{dn}, and the value \var{value}. The synchronous form
 returns \constant{0} for false, or \constant{1} for true.
@@ -600,8 +607,8 @@ from containing nul characters.
 %%------------------------------------------------------------
 %% delete
 
-\begin{methoddesc}[LDAP]{delete}{dn} % -> int
-     \methodline[LDAP]{delete_s}{dn} % -> None
+\begin{methoddesc}[LDAPObject]{delete}{dn} % -> int
+     \methodline[LDAPObject]{delete_s}{dn} % -> None
 Performs an LDAP delete operation on \var{dn}. The asynchronous form
 returns the message id of the initiated request, and the result can be obtained
 from a subsequent call to \method{result()}.
@@ -610,8 +617,8 @@ from a subsequent call to \method{result()}.
 %%------------------------------------------------------------
 %% modify
 
-\begin{methoddesc}[LDAP]{modify}{ dn, modlist } % -> int
-     \methodline[LDAP]{modify_s}{ dn, modlist } % -> None
+\begin{methoddesc}[LDAPObject]{modify}{ dn, modlist } % -> int
+     \methodline[LDAPObject]{modify_s}{ dn, modlist } % -> None
 Performs an LDAP modify operation on an entry's attributes. 
 The \var{dn} argument is the distinguished name (DN) of the entry to modify,
 and \var{modlist} is a list of modifications to make to that entry.
@@ -635,9 +642,9 @@ generating \var{modlist}.
 %%------------------------------------------------------------
 %% modrdn
 
-\begin{methoddesc}[LDAP]{modrdn}{dn, newrdn \optional{, delold=\constant{1}}}
+\begin{methoddesc}[LDAPObject]{modrdn}{dn, newrdn \optional{, delold=\constant{1}}}
 		%-> int
-     \methodline[LDAP]{modrdn_s}{dn, newrdn \optional{, delold=\constant{1}}}
+     \methodline[LDAPObject]{modrdn_s}{dn, newrdn \optional{, delold=\constant{1}}}
 		% -> None
 Perform a `modify RDN' operation, (i.e. a renaming operation).
 These routines take \var{dn} (the DN
@@ -651,9 +658,9 @@ The asynchronous version returns the initiated message id.
 %%------------------------------------------------------------
 %% rename
 
-\begin{methoddesc}[LDAP]{rename}{dn, newrdn \optional{, newsuperior=\constant{None}} \optional{, delold=\constant{1}}}
+\begin{methoddesc}[LDAPObject]{rename}{dn, newrdn \optional{, newsuperior=\constant{None}} \optional{, delold=\constant{1}}}
 		%-> int
-     \methodline[LDAP]{rename_s}{dn, newrdn \optional{, newsuperior=\constant{None} \optional{, delold=\constant{1}}}}
+     \methodline[LDAPObject]{rename_s}{dn, newrdn \optional{, newsuperior=\constant{None} \optional{, delold=\constant{1}}}}
 		% -> None
 Perform a `Rename' operation, (i.e. a renaming operation).
 These routines take \var{dn} (the DN
@@ -669,7 +676,7 @@ whether the old RDN should be kept as an attribute of the entry or not.
 %%------------------------------------------------------------
 %% result
 
-\begin{methoddesc}[LDAP]{result}{\optional{ msgid=\constant{RES_ANY} \optional{, all=\constant{1} \optional{, timeout=\constant{-1}}}}} % -> 2-tuple
+\begin{methoddesc}[LDAPObject]{result}{\optional{ msgid=\constant{RES_ANY} \optional{, all=\constant{1} \optional{, timeout=\constant{-1}}}}} % -> 2-tuple
 This method is used to wait for and return the result of an operation
 previously initiated by one of the LDAP \emph{asynchronous} operations
 (eg \method{search()}, \method{modify()}, etc.) 
@@ -732,7 +739,7 @@ See \method{search()} for a description of the search result's
 
 \end{methoddesc}
 
-\begin{methoddesc}[LDAP]{result2}{\optional{ msgid=\constant{RES_ANY} \optional{, all=\constant{1} \optional{, timeout=\constant{-1}}}}} % -> 3-tuple
+\begin{methoddesc}[LDAPObject]{result2}{\optional{ msgid=\constant{RES_ANY} \optional{, all=\constant{1} \optional{, timeout=\constant{-1}}}}} % -> 3-tuple
 This method behaves almost exactly like \method{result()}. But
 it returns a 3-tuple also containing the message id of the
 outstanding LDAP operation a particular result message belongs
@@ -744,15 +751,15 @@ threads which invoked a particular LDAP operation.
 %%------------------------------------------------------------
 %% search
 
-\begin{methoddesc}[LDAP]{search}{base, scope \optional{,filterstr=\constant{'(objectClass=*)'} \optional{, 
+\begin{methoddesc}[LDAPObject]{search}{base, scope \optional{,filterstr=\constant{'(objectClass=*)'} \optional{, 
 	attrlist=\constant{None} \optional{, attrsonly=\constant{0}}}}} %->int
-     \methodline[LDAP]{search_s}{base, scope \optional{,filterstr=\constant{'(objectClass=*)'} \optional{, 
+     \methodline[LDAPObject]{search_s}{base, scope \optional{,filterstr=\constant{'(objectClass=*)'} \optional{, 
      	attrlist=\constant{None} \optional{, attrsonly=\constant{0}}}}} 
 		%->list|None
-    \methodline[LDAP]{search_st}{base, scope \optional{,filterstr=\constant{'(objectClass=*)'} \optional{,
+    \methodline[LDAPObject]{search_st}{base, scope \optional{,filterstr=\constant{'(objectClass=*)'} \optional{,
     	attrlist=\constant{None} \optional{, attrsonly=\constant{0} 
 	\optional{, timeout=\constant{-1}}}}}}
-    \methodline[LDAP]{search_ext}{
+    \methodline[LDAPObject]{search_ext}{
         base, scope
         \optional{,filterstr=\constant{'(objectClass=*)'}
         \optional{, attrlist=\constant{None} 
@@ -762,7 +769,7 @@ threads which invoked a particular LDAP operation.
 	\optional{, timeout=\constant{-1} 
         \optional{, sizelimit=\constant{0}}}}}}}}}
 		%->int
-    \methodline[LDAP]{search_ext_s}{
+    \methodline[LDAPObject]{search_ext_s}{
         base, scope
         \optional{,filterstr=\constant{'(objectClass=*)'}
         \optional{, attrlist=\constant{None} 
@@ -821,8 +828,8 @@ not more than \var{sizelimit} results are returned by the server.
 %%------------------------------------------------------------
 %% unbind
 
-\begin{methoddesc}[int]{unbind}{}
-       \methodline{unbind_s}{}
+\begin{methoddesc}[LDAPObject]{unbind}{} % -> int
+       \methodline{unbind_s}{} % -> None
 This call is used to unbind from the directory, terminate the current
 association, and free resources. Once called, the connection to the
 LDAP server is closed and the LDAP object is marked invalid.
@@ -832,14 +839,26 @@ The \method{unbind()} and \method{unbind_s()} methods are both
 synchronous in nature
 \end{methoddesc}
 
+%%------------------------------------------------------------
+%% whoami_s
+
+\begin{methoddesc}[LDAPObject]{whoami_s}{} % -> string
+This synchronous method implements the LDAP "Who Am I?"
+extended operation.
+
+It is useful for finding out to find out which identity
+is assumed by the LDAP server after a SASL bind.
+\end{methoddesc}
+
+
 \subsubsection{LDAP options}
 
-\begin{methoddesc}[LDAP]{get_option}{option} % -> None
+\begin{methoddesc}[LDAPObject]{get_option}{option} % -> None
   This function returns the value of the LDAPObject option
   specified by \var{option}.
 \end{methoddesc}
 
-\begin{methoddesc}[LDAP]{set_option}{option, invalue} % -> None
+\begin{methoddesc}[LDAPObject]{set_option}{option, invalue} % -> None
   This function sets the value of the LDAPObject option
   specified by \var{option} to \var{invalue}.
 \end{methoddesc}
@@ -847,7 +866,7 @@ synchronous in nature
 %%------------------------------------------------------------
 %% manage_dsa_it
 
-\begin{methoddesc}[LDAP]{manage_dsa_it}{enable, \optional{, critical=\constant{0}}}
+\begin{methoddesc}[LDAPObject]{manage_dsa_it}{enable, \optional{, critical=\constant{0}}}
 		%-> None
 Enables or disables manageDSAit mode (see draft-zeilenga-ldap-namedref)
 according to the specified integer flag \var{enable}. The
