@@ -548,7 +548,7 @@ TemplateItem_setattr(self, attr, value)
 }
 
 static PyTypeObject TemplateItem_Type = {
-#ifdef WIN32
+#if defined(WIN32) || defined(__CYGWIN__)
 	PyObject_HEAD_INIT(NULL)
 #else /* ! WIN32 */
 	PyObject_HEAD_INIT(&PyType_Type)
@@ -725,7 +725,7 @@ fprintf(stderr, "TemplateDefault_repr RETURN obj %d\n", (int)s);
 }
 
 static PyTypeObject TemplateDefault_Type = {
-#ifdef WIN32
+#if defined(WIN32) || defined(__CYGWIN__)
 	PyObject_HEAD_INIT(NULL)
 #else /* ! WIN32 */
 	PyObject_HEAD_INIT(&PyType_Type)
@@ -908,7 +908,7 @@ Template_setattr(self, attr, value)
 }
 
 static PyTypeObject Template_Type = {
-#ifdef WIN32
+#if defined(WIN32) || defined(__CYGWIN__)
 	PyObject_HEAD_INIT(NULL)
 #else /* ! WIN32 */
 	PyObject_HEAD_INIT(&PyType_Type)

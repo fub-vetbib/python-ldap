@@ -111,7 +111,7 @@ static PySequenceMethods default_methods = {
 };
 
 static PyTypeObject default_type = {
-#ifdef WIN32
+#if defined(WIN32) || defined(__CYGWIN__)
 	/* see http://www.python.org/doc/FAQ.html#3.24 */
 	PyObject_HEAD_INIT(NULL)
 #else /* ! WIN32 */

@@ -1842,7 +1842,7 @@ setattr( LDAPObject* self, char* name, PyObject* value )
 /* type entry */
 
 PyTypeObject LDAP_Type = {
-#ifdef WIN32
+#if defined(WIN32) || defined(__CYGWIN__)
 	/* see http://www.python.org/doc/FAQ.html#3.24 */
 	PyObject_HEAD_INIT(NULL)
 #else /* ! WIN32 */
