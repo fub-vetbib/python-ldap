@@ -5,7 +5,7 @@ LDAP module for Python
 This module provides access to the LDAP (C language) library.
 It is known to compile and work with:
   * UM LDAP library v3.3, ftp://terminator.rs.itd.umich.edu/ldap/ldap.tar.Z
-  * OpenLDAP release 1.2.7, http://www.openldap.org/
+  * OpenLDAP release 1.2.11, http://www.openldap.org/
 
 For extensive module usage documentation, look in the Doc directory.
 
@@ -24,14 +24,19 @@ Not included:
    Direct BER support
    CLDAP 
 
-Author contact:
-   (I am really hoping that someone will add the CLDAP support and 
+Author(s) contact:
+   python-ldap-dev@lists.sourceforge.net
+   http://python-ldap.sourceforge.net/
+
+   If you are looking for help, please use the same mailing list address.
+   Be warned that questions will be ignored if they are deemed to be 
+   trivially answered by referring to the documentation.
+
+   We are really hoping that someone will add the CLDAP support and 
    possibly the OpenLDAP extensions such as display templates to this
-   library. If you are interested, please contact me at:)
-	
-   David Leonard
-   David.Leonard@csee.uq.edu.au
-   http://www.csee.uq.edu.au/~leonard/dc-prj/ldapmodule/
+   library. If you are interested in helping, please contact the mailing list.
+   If you want new features or upgrades, please check the mailing list
+   archives and then enquire about any progress.
 
 Notes for Microsoft WIN32:
    You are now looking at the source distribution.  A precompiled ldap.pyd 
@@ -42,62 +47,21 @@ Notes for Microsoft WIN32:
    If you have MSVC6.0 or equivalent, and want to build the module yourself,
    you should refer to the README.txt file in the win32 directory.
 
-Notes on building for getting started quickly:
-   Here are some notes on quickly building an external library (either UM's
-   LDAP or OpenLDAP) for *sole* use with this Python module. (You don't
-   need to be here if you have already built and installed LDAP libraries.)
+Obtaining a C LDAP library (libldap.a)
+   In many cases you will already have a C LDAP library installed (eg
+   Solaris, Netscape or OpenLDAP libraries). You ought to run the configure
+   script first to see if and which such libraries are found.
 
-   The idea here is to download and compile just enough of those parts
-   of the third-party C libraries so that ldapmodule may be compiled
-   and installed.
-
-   First, follow one of the package-specific instructions below. After
-   doing that, you should have built the essential LDAP library and 
-   header files in /tmp/ldap-pfx.
-   After doing that you then go back into the ldapmodule directory and
-   tell configure where to find everything with something like this:
-
-   	$ sh configure --with-ldap=/tmp/ldap-pfx
-	$ make
-
-   If you have problems building shared libraries, remove the '*shared*'
-   from the Setup file and re-make.
-
-   After building and installing ldapmodule, you can delete /tmp/ldap-pfx.
-
- OpenLDAP (release 1.2.1 or higher)
-   [There is a shell script included, openldap.sh, that tries to do the
-    following steps automatically.]
-   1. Download and extract the release source code (from the download page at 
-      http://www.openldap.org/ or from 
-      ftp://ftp.openldap.org/pub/OpenLDAP/openldap-release/)
-   2. Create a directory such as /tmp/ldap-pfx that will be used to hold the
-      built libraries.
-      $ mkdir -p /tmp/ldap-pfx/lib /tmp/ldap-pfx/include
-   3. Run the configure script from within the extracted 'ldap' directory:
-      $ sh configure --help   			# (read the options carefully)
-   4. $ sh configure --prefix=/tmp/ldap-pfx --disable-slapd --disable-slurpd \
-   		   --disable-libui --disable-threads # add other needed options
-   7. $ cd include; make && make install
-   5. $ cd ../libraries/liblber; make && make install
-   6. $ cd ../libldap; make && make install
-
- UM LDAP (ldap-3.3)
-   1. Download and extract ftp://terminator.rs.itd.umich.edu/ldap/ldap.tar.Z
-      It unpacked into a directory called ldap-3.3 for me.
-   2. Create a directory such as /tmp/ldap-pfx that will be used to hold the 
-      built libraries:
-      $ mkdir -p /tmp/ldap-pfx/lib /tmp/ldap-pfx/include
-   3. Edit Make-common in ldap-3.3, changing INSTROOT to be /tmp/ldap-pfx
-   4. Run the makeconfig script from the 'ldap-3.3' directory:
-      $ make makeconfig				# bootstrap future makes
-   5. $ cd libraries/liblber; make install	# build the BER library
-   6. $ cd ../libldap; make install		# build the LDAP library
-   7. $ cd ../../include; make install
+   If no C LDAP library is found, you should run the openldap.sh script
+   found with this distribution. It will download and compile enough of
+   a standard OpenLDAP library within a temporary area so that it
+   can be statically linked into the Python ldapmodule. After the 
+   ldapmodule has been created you can safely destroy the temporary area,
+   even though no C LDAP library was installed in your system.
 
 Copyright and licensing:
-   The author places this software into the public domain. The author
-   licenses the use of this software for any purpose to anyone at no
+   The author(s) place this software into the public domain. The author(s)
+   license the use of this software for any purpose to anyone at no
    charge, subject to the following disclaimer. 
 
 Standard disclaimer:
@@ -105,12 +69,12 @@ Standard disclaimer:
    and "as is".  All users of this free software are solely and entirely
    responsible for their own choice and use of this software for their
    own purposes.  By using this software, each user agrees that the
-   author shall not be liable for damages of any kind in relation to
+   author(s) shall not be liable for damages of any kind in relation to
    its use or performance.
 
    Although not a condition of the licensing, I strongly urge that any
    improvements you may make be sent back to me for inclusion into 
-   future versions of this module (under the same free licsensing).
+   future versions of this module (under the same free licensing).
 
 Acknowledgements:
    Thanks to Mauro Cicognini <mcicogni at siosistemi.it> for the 
