@@ -8,7 +8,7 @@ Prerequisites:
 
     - Python 2.0 or newer (see http://www.python.org)
 
-    - OpenLDAP 2.1.x client libs or newer
+    - OpenLDAP 2.1.3 client libs or newer
       (see http://www.openldap.org)
 
   Optional:
