@@ -36,7 +36,7 @@ def addModlist(entry,ignore_attr_types=None):
       # This attribute type is ignored
       continue
     # Eliminate empty attr value strings in list
-    attrvaluelist = filter(None,entry[attrtype])
+    attrvaluelist = filter(lambda x:x!=None,entry[attrtype])
     if attrvaluelist:
       modlist.append((attrtype,entry[attrtype]))
   return modlist # addModlist()
@@ -72,9 +72,10 @@ def modifyModlist(
       # This attribute type is ignored
       continue
     # Filter away null-strings
-    new_value = filter(None,new_entry[attrtype])
+    new_value = filter(lambda x:x!=None,new_entry[attrtype])
     if attrtype_lower_map.has_key(attrtype_lower):
       old_value = old_entry.get(attrtype_lower_map[attrtype_lower],[])
+      old_value = filter(lambda x:x!=None,old_value)
       del attrtype_lower_map[attrtype_lower]
     else:
       old_value = []
