@@ -32,7 +32,7 @@ import time,threading,ldap
 
 if __debug__:
   import sys,traceback
-  _module_debug_level = 1
+  _module_debug_level = 0
 
 _ldapmodule_lock = threading.Lock()
 
@@ -45,7 +45,7 @@ class LDAPObject:
   def _ldap_call(self,func,*args,**kwargs):
     """Wrapper function which locks calls to func with via ldap_module_lock"""
     if __debug__:
-      if _module_debug_level>=1:
+      if _module_debug_level>=1 and func.__name__!='result':
         print '*** %s:' % (self.__module__),\
           self.__class__.__name__+'.'+func.__name__,\
           repr(args),repr(kwargs)
