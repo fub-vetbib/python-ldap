@@ -26,3 +26,6 @@ Lib/
 - LDIF parser for replication logs
 - DSML support
 - Support for SASL mechanims GSS-API
+
+Tests/
+Clean up and finish the mess of test scripts started.
