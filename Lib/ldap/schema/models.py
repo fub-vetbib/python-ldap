@@ -58,13 +58,13 @@ class SchemaElement:
 
   def key_list(self,key,values,sep=' ',quoted=0):
     assert type(values)==type([]),TypeError("values has to be of ListType")
-    if quoted:
-      quoted_values = [repr(n) for n in values]
-    else:
-      quoted_values = values
     if not values:
       return ''
-    elif len(values)==1:
+    if quoted:
+      quoted_values = map(repr,values)
+    else:
+      quoted_values = values
+    if len(values)==1:
       return ' %s %s' % (key,quoted_values[0])
     else:
       return ' %s ( %s )' % (key,sep.join(quoted_values))
