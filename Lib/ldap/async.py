@@ -224,12 +224,10 @@ class LDIFWriter(FileWriter):
         used for output
     """
     import ldif
-    if isinstance(writer_obj,file):
-      self._ldif_writer = ldif.LDIFWriter(writer_obj)
-    elif isinstance(writer_obj,ldif.LDIFWriter):
+    if isinstance(writer_obj,ldif.LDIFWriter):
       self._ldif_writer = writer_obj
     else:
-      raise TypeError,"Argument writer_obj must either be a file-like object or a ldif.LDIFWriter instance"
+      self._ldif_writer = ldif.LDIFWriter(writer_obj)
     FileWriter.__init__(self,l,self._ldif_writer._output_file,headerStr,footerStr)
 
   def _processSingleResult(self,resultType,resultItem):
