@@ -156,8 +156,6 @@ LDAPinit_constants( PyObject* d )
 	add_int(d,FILTER_EXT_VALUE);
 	add_int(d,FILTER_EXT_DNATTRS);
 
-	add_int(d,SCOPE_DEFAULT);
-
 	add_int(d,MSG_ONE);
 	add_int(d,MSG_ALL);
 	add_int(d,MSG_RECEIVED);
