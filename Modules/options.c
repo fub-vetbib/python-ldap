@@ -6,6 +6,7 @@
 #include "common.h"
 #include "errors.h"
 #include "LDAPObject.h"
+#include "ldapcontrol.h"
 #include "options.h"
 
 void
