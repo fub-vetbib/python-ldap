@@ -596,21 +596,28 @@ l_ldap_set_rebind_proc( LDAPObject* self, PyObject* args )
     if (!PyArg_ParseTuple( args, "O", &func)) return NULL;
     if (not_valid(self)) return NULL;
 
+
     if ( PyNone_Check(func) ) {
+        PY_XDECREF(rebind_callback_func);
+        PY_XDECREF(rebind_callback_ld);
+        rebind_callback_func = NULL;
+        rebind_callback_ld = NULL;
 #ifdef LDAP_SET_REBIND_PROC_3ARGS
     	ldap_set_rebind_proc( self->ldap, NULL, 0);
 #else
     	ldap_set_rebind_proc( self->ldap, NULL );
 #endif
-	rebind_callback_func = NULL;
-	rebind_callback_ld = NULL;
 	Py_INCREF(Py_None);
 	return Py_None;
     }
 
-    if ( PyFunction_Check(func) ) {
+    if ( PyCallable_Check(func) ) {
+        PY_XDECREF(rebind_callback_func);
+        PY_XDECREF(rebind_callback_ld);
 	rebind_callback_func = func;
 	rebind_callback_ld = self;
+	PY_INCREF(func);
+	PY_INCREF(self);
 #ifdef LDAP_SET_REBIND_PROC_3ARGS
         ldap_set_rebind_proc( self->ldap, rebind_callback, 0);
 #else
