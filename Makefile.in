@@ -16,7 +16,8 @@ _ldapmodule-build:
 	cd Modules && $(MAKE) $(MAKEVARS)
 
 _ldapmodule-install:
-	cd Modules && $(MAKE) $(MAKEVARS) install
+	cd Modules && $(MAKE) $(MAKEVARS) install \
+				prefix='${DESTDIR}$${installdir}'
 	$(INSTALL_DIR) $(DESTDIR)$(LIBDEST)/site-packages/python-ldap
 	$(INSTALL_DATA) $(srcdir)/Misc/ldap.pth \
 		$(DESTDIR)$(LIBDEST)/site-packages/ldap.pth
