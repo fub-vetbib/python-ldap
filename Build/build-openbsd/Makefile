@@ -3,7 +3,7 @@
 WRKDIST=		${.CURDIR}/../..
 VERSION!=		sh ${WRKDIST}/Build/version.sh
 
-PKGNAME=		ldap-${VERSION}
+PKGNAME=		python-ldap-${VERSION}
 RUN_DEPENDS=		python:lang/python
 CATEGORIES=		misc
 MAINATINER=		leonard@users.sourceforge.net
