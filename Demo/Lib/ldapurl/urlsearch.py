@@ -19,4 +19,12 @@ for a in [
   print a,repr(getattr(ldapUrl,a))
 
 l = ldap.open(ldapUrl.hostport,trace_level=1)
+if ldapUrl.who!=None:
+  if ldapUrl.cred!=None:
+    cred=ldapUrl.cred
+  else:
+    print 'Enter password for simple bind with',repr(ldapUrl.who)
+    cred=getpass.getpass()
+  l.simple_bind_s(ldapUrl.who,cred)
+
 l.search_s(ldapUrl.dn,ldapUrl.scope,ldapUrl.filterstr,ldapUrl.attrs)
