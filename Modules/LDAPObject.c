@@ -1076,12 +1076,12 @@ setattr(LDAPObject* self, char* name, PyObject* value)
 /* type entry */
 
 PyTypeObject LDAP_Type = {
-#if defined(WIN32) || defined(__CYGWIN__)
+#if defined(MS_WINDOWS) || defined(__CYGWIN__)
 	/* see http://www.python.org/doc/FAQ.html#3.24 */
 	PyObject_HEAD_INIT(NULL)
-#else /* ! WIN32 */
+#else /* ! MS_WINDOWS */
 	PyObject_HEAD_INIT(&PyType_Type)
-#endif /* ! WIN32 */
+#endif /* MS_WINDOWS */
 	0,                      /*ob_size*/
 	"LDAP",                 /*tp_name*/
 	sizeof(LDAPObject),     /*tp_basicsize*/

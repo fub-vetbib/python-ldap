@@ -28,8 +28,7 @@ init_ldap()
 {
 	PyObject *m, *d;
 
-#if defined(WIN32) || defined(__CYGWIN__)
-	/* See http://www.python.org/doc/FAQ.html#3.24 */
+#if defined(MS_WINDOWS) || defined(__CYGWIN__)
 	LDAP_Type.ob_type = &PyType_Type;
 #endif
 

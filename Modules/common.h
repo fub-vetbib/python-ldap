@@ -14,7 +14,7 @@
 #include "config.h"
 #endif
 
-#if defined(WIN32)
+#if defined(MS_WINDOWS)
 #include <winsock.h>
 #else /* unix */
 #include <netdb.h>

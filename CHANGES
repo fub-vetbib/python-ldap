@@ -6,6 +6,9 @@ Changes since 2.0.3:
 Modules/:
 * Applied some fixes for 64-bit platforms to LDAPObject.c
 
+setup.py and Modules/:
+* Applied some fixes for building under Win32
+
 ----------------------------------------------------------------
 Released 2.0.3 2004-10-06
 
