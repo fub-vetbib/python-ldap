@@ -71,9 +71,14 @@ Copyright and licensing:
    future versions of this package (under the same free licensing).
 
 Acknowledgements:
-   Thanks to Michael Stroeder <michael at stroeder.com> and all
-   the other guys on the python-ldap-dev mailing list for their
-   contributions and input into this package.
+   Thanks to Federico Di Gregorio <fog at mixadlive.com> for the 
+   ldaplib and perldap migration module.
+
+   Thanks to Michael Stroeder <michael at stroeder.com> for the 
+   ldif and ldapthreadlock module.
+
+   Thanks to all the guys on the python-ldap-dev mailing list for
+   their contributions and input into this package.
 
    Thanks to Mauro Cicognini <mcicogni at siosistemi.it> for the 
    WIN32/MSVC6 bits, and the pre-built WIN32 ldap.pyd.
