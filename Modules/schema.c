@@ -91,9 +91,8 @@ l_ldap_str2objectclass(PyObject* self, PyObject *args)
 	return NULL;
   o = ldap_str2objectclass( oc_string, &ret, &errp, flag);
   if (ret) {
-    printf("Error: %d: %s", ret, errp);
-    /* XXX Do error handling... */
-    return NULL;
+    py_ret = PyInt_FromLong(ret);
+    return py_ret;
   }
 
   oc_sup_oids     = c_string_array_to_python(o->oc_sup_oids);
@@ -139,9 +138,8 @@ l_ldap_str2attributetype(PyObject* self, PyObject *args)
     return NULL;
   a = ldap_str2attributetype( at_string, &ret, &errp, flag);
   if (ret) {
-    printf("Error: %d: %s", ret, errp);
-    /* XXX Do error handling... */
-    return NULL;
+    py_ret = PyInt_FromLong(ret);
+    return py_ret;
   }
   
   py_ret = PyList_New(15);
@@ -208,9 +206,8 @@ l_ldap_str2syntax(PyObject* self, PyObject *args)
     return NULL;
   s = ldap_str2syntax(syn_string, &ret, &errp, flag);
   if (ret) {
-    printf("Error: %d: %s", ret, errp);
-    /* XXX Do error handling... */
-    return NULL;
+    py_ret = PyInt_FromLong(ret);
+    return py_ret;
   }
   py_ret = PyList_New(4);
   PyList_SetItem(py_ret, 0, PyString_FromString(s->syn_oid));
@@ -243,9 +240,8 @@ l_ldap_str2matchingrule(PyObject* self, PyObject *args)
     return NULL;
   m = ldap_str2matchingrule(mr_string, &ret, &errp, flag);
   if (ret) {
-    printf("Error: %d: %s", ret, errp);
-    /* XXX Do error handling... */
-    return NULL;
+    py_ret = PyInt_FromLong(ret);
+    return py_ret;
   }
   py_ret = PyList_New(6);
   PyList_SetItem(py_ret, 0, PyString_FromString(m->mr_oid));
