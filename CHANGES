@@ -12,6 +12,8 @@ setup.py:
 ldap.ldapobject:
 * Added class attribute LDAPObject.network_timeout mapped to
   set_option(ldap.OPT_NETWORK_TIMEOUT,..)
+* LDAPObject.search_ext(): Pass arguments serverctrls,clientctrls
+  to _ldap.search_ext()
 
 ldap.sasl:
 * Added class ldap.sasl.external for handling
