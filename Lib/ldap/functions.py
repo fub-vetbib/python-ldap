@@ -94,9 +94,9 @@ def explode_rdn(rdn,notypes=0):
   """
   return _ldap_call(_ldap.explode_rdn,rdn,notypes)
 
-def get_option(*args,**kwargs):
-  return _ldap_call(_ldap.get_option,*args,**kwargs)
+def get_option(option):
+  return _ldap_call(_ldap.get_option,option)
 
-def set_option(*args,**kwargs):
-  _ldap_call(_ldap.set_option,*args,**kwargs)
+def set_option(option,invalue):
+  _ldap_call(_ldap.set_option,option,invalue)
 
