@@ -51,7 +51,7 @@ class SchemaElement:
 
   def _set_attrs(self,l,d):
     self.desc = d['DESC'][0]
-    return # SchemaElement.__init__()
+    return
 
   def set_id(self,element_id):
     self.oid = element_id
@@ -135,7 +135,7 @@ class ObjectClass(SchemaElement):
     assert type(self.kind)==IntType
     assert type(self.must)==TupleType
     assert type(self.may)==TupleType
-    return # ObjectClass.__init__()
+    return
 
   def __str__(self):
     result = [str(self.oid)]
@@ -238,7 +238,7 @@ class AttributeType(SchemaElement):
     assert type(self.no_user_mod)==BooleanType and (self.no_user_mod==0 or self.no_user_mod==1)
     assert self.syntax is None or type(self.syntax)==StringType
     assert self.syntax_len is None or type(self.syntax_len)==type(0L)
-    return # AttributeType.__init__()
+    return
 
   def __str__(self):
     result = [str(self.oid)]
@@ -285,7 +285,7 @@ class LDAPSyntax(SchemaElement):
       NOT_HUMAN_READABLE_LDAP_SYNTAXES.has_key(self.oid) or \
       d['X-NOT-HUMAN-READABLE'][0]=='TRUE'
     assert self.desc is None or type(self.desc)==StringType
-    return # LDAPSyntax.__init__()
+    return
                                   
   def __str__(self):
     result = [str(self.oid)]
@@ -323,7 +323,7 @@ class MatchingRule(SchemaElement):
     assert self.desc is None or type(self.desc)==StringType
     assert type(self.obsolete)==BooleanType and (self.obsolete==0 or self.obsolete==1)
     assert self.syntax is None or type(self.syntax)==StringType
-    return # MatchingRule.__init__()
+    return
 
   def __str__(self):
     result = [str(self.oid)]
@@ -362,7 +362,7 @@ class MatchingRuleUse(SchemaElement):
     assert self.desc is None or type(self.desc)==StringType
     assert type(self.obsolete)==BooleanType and (self.obsolete==0 or self.obsolete==1)
     assert type(self.applies)==TupleType
-    return # MatchingRuleUse._set_attrs()
+    return
 
   def __str__(self):
     result = [str(self.oid)]
@@ -412,7 +412,7 @@ class DITContentRule(SchemaElement):
     assert type(self.must)==TupleType
     assert type(self.may)==TupleType
     assert type(self.nots)==TupleType
-    return # MatchingRuleUse._set_attrs()
+    return
 
   def __str__(self):
     result = [str(self.oid)]
@@ -511,7 +511,7 @@ class NameForm(SchemaElement):
     assert type(self.oc)==TupleType
     assert type(self.must)==TupleType
     assert type(self.may)==TupleType
-    return # MatchingRuleUse._set_attrs()
+    return
 
   def __str__(self):
     result = [str(self.oid)]
