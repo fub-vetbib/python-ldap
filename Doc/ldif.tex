@@ -31,3 +31,33 @@ This module parses and generates LDAP data in the format LDIF.
 \begin{seealso}
 \seerfc{2849}{The LDAP Data Interchange Format (LDIF) - Technical Specification}{}
 \end{seealso}
+
+\subsection{Example \label{ldif-example}}
+
+Important security advice:
+For security reasons you shouldn't specify passwords in LDAP URLs
+unless you really know what you are doing.
+
+The following example demonstrates how to parse an LDIF file
+with \module{ldif} module.
+
+\begin{verbatim}
+\end{verbatim}
+
+The following example demonstrates how to write LDIF output
+of an LDAP entry with \module{ldif} module.
+
+\begin{verbatim}
+>>> import sys,ldif
+>>> entry={'objectClass':['top','person'],'cn':['Michael Stroeder'],'sn':['Stroeder']}
+>>> dn='cn=Michael Stroeder,ou=Test'
+>>> ldif_writer=ldif.LDIFWriter(sys.stdout)
+>>> ldif_writer.unparse(dn,entry)
+dn: cn=Michael Stroeder,ou=Test
+cn: Michael Stroeder
+objectClass: top
+objectClass: person
+sn: Stroeder
+
+>>> 
+\end{verbatim}
