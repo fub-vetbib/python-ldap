@@ -5,11 +5,16 @@ VERSION=`sh $WRKDIST/Build/version.sh`		# version of src dist
 DIST=python-ldap-$VERSION			# directory name to make
 FLAGS="-rHEAD"					# flags to extract right vers
 
+rm -rf $DIST
+
 echo "Extracting release '$FLAGS' for $DIST"
 
-cvs -q \
-    -d :pserver:anonymous@cvs.python-ldap.sourceforge.net:/cvsroot/python-ldap \
-    export -d $DIST $FLAGS python-ldap
+if test "" = "$CVSROOT"; then
+    CVSROOT=":pserver:anonymous@cvs.python-ldap.sourceforge.net:/cvsroot/python-ldap"
+    export CVSROOT
+fi
+
+cvs -q -z3 export -d $DIST $FLAGS python-ldap
 
 # create the configure script
 (cd $DIST && autoreconf)
