@@ -214,8 +214,22 @@ class LDIFWriter(FileWriter):
   Class for writing a stream LDAP search results to a LDIF file
   """
 
+  def __init__(self,l,f,headerStr='',footerStr=''):
+    """
+    Initialize a StreamResultHandler
+    
+    Parameters:
+    l
+        LDAPObject instance
+    f
+        File object instance where the LDIF data is written to
+    """
+    FileWriter.__init__(self,l,f,headerStr,footerStr)
+    self._ldif_writer = ldif.LDIFWriter(f)
+
   def _processSingleResult(self,resultType,resultItem):
     if _entryResultTypes.has_key(resultType):
       # Search continuations are ignored
       dn,entry = resultItem
-      self._f.write(ldif.CreateLDIF(dn,entry,[]))
+      self._ldif_writer.unparse(dn,entry)
+
