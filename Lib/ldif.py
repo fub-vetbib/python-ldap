@@ -289,7 +289,7 @@ class LDIFParser:
     self._line_sep = line_sep
     self.records_read = 0
 
-  def handle(self,*args,**kwargs):
+  def handle(self,dn,entry):
     """
     Process a single content LDIF record. This method should be
     implemented by applications using LDIFParser.
