@@ -66,7 +66,6 @@ LDAPinit_constants( PyObject* d )
 	add_int(d,VERSION1);
 	add_int(d,VERSION2);
 	add_int(d,VERSION);
-	add_int(d,MAX_ATTR_LEN);
 	add_int(d,TAG_MESSAGE);
 	add_int(d,TAG_MSGID);
 
@@ -79,9 +78,6 @@ LDAPinit_constants( PyObject* d )
 	add_int(d,REQ_MODRDN);
 	add_int(d,REQ_COMPARE);
 	add_int(d,REQ_ABANDON);
-	add_int(d,REQ_UNBIND_30);
-	add_int(d,REQ_DELETE_30);
-	add_int(d,REQ_ABANDON_30);
 
 	/* reversibles */
 
@@ -106,9 +102,6 @@ LDAPinit_constants( PyObject* d )
 	add_int(d,AUTH_KRBV4);
 	add_int(d,AUTH_KRBV41);
 	add_int(d,AUTH_KRBV42);
-	add_int(d,AUTH_SIMPLE_30);
-	add_int(d,AUTH_KRBV41_30);
-	add_int(d,AUTH_KRBV42_30);
 	add_int(d,FILTER_AND);
 	add_int(d,FILTER_OR);
 	add_int(d,FILTER_NOT);
@@ -118,13 +111,9 @@ LDAPinit_constants( PyObject* d )
 	add_int(d,FILTER_LE);
 	add_int(d,FILTER_PRESENT);
 	add_int(d,FILTER_APPROX);
-	add_int(d,FILTER_PRESENT_30);
 	add_int(d,SUBSTRING_INITIAL);
 	add_int(d,SUBSTRING_ANY);
 	add_int(d,SUBSTRING_FINAL);
-	add_int(d,SUBSTRING_INITIAL_30);
-	add_int(d,SUBSTRING_ANY_30);
-	add_int(d,SUBSTRING_FINAL_30);
 	add_int(d,SCOPE_BASE);
 	add_int(d,SCOPE_ONELEVEL);
 	add_int(d,SCOPE_SUBTREE);
@@ -135,7 +124,6 @@ LDAPinit_constants( PyObject* d )
 
 	/* (errors.c contains the error constants) */
 
-	add_int(d,DEFAULT_REFHOPLIMIT);
 #ifdef LDAP_CACHE_BUCKETS
 	add_int(d,CACHE_BUCKETS);
 #endif
@@ -161,8 +149,6 @@ LDAPinit_constants( PyObject* d )
 
 	/* XXX - these belong in errors.c */
 
-	add_int(d,URL_ERR_NOTLDAP);
-	add_int(d,URL_ERR_NODN);
 	add_int(d,URL_ERR_BADSCOPE);
 	add_int(d,URL_ERR_MEM);
 
