@@ -20,7 +20,7 @@ __all__ = [
   'AttrTypeandValueLDIF','CreateLDIF','ParseLDIF',
 ]
 
-import os,string,urllib,base64,re,types
+import os,string,urlparse,urllib,base64,re,types
 
 try:
   from cStringIO import StringIO
@@ -69,6 +69,15 @@ def needs_base64(s):
   """
   return not safe_string_re.search(s) is None
 
+
+def list_dict(l):
+  """
+  return a dictionary with all items of l being the keys of the dictionary
+  """
+  d = {}
+  for i in l:
+    d[i]=None
+  return d
 
 def CreateAttrTypeandValueLDIF(attr_type,attr_value,base64_attrs=[],cols=76):
   """
@@ -179,7 +188,13 @@ class LDIFParser:
     else:
       return s
 
-  def __init__(self,inputfile,ignored_attr_types=[],max_entries=0):
+  def __init__(
+    self,
+    inputfile,
+    ignored_attr_types=[],
+    max_entries=0,
+    process_url_schemes=[],
+  ):
     """
     Parameters:
     inputfile
@@ -189,30 +204,15 @@ class LDIFParser:
     max_entries
         If non-zero specifies the maximum number of entries to be
         read from f.
+    process_url_schemes
+        List containing strings with URLs schemes to process with urllib.
+        An empty list turns off all URL processing and the attribute
+        is ignored completely.
     """
     self._inputfile = inputfile
     self._max_entries = max_entries
-    self._ignored_attr_types = {}
-    for attr_type in ignored_attr_types:
-      self._ignored_attr_types[string.lower(attr_type)] = None
-    self.records_read = 0
-
-  def __init__(self,inputfile,ignored_attr_types=[],max_entries=0):
-    """
-    Parameters:
-    inputfile
-        File-object to read the LDIF input from
-    ignored_attr_types
-        Attributes with these attribute type names will be ignored.
-    max_entries
-        If non-zero specifies the maximum number of entries to be
-        read from f.
-    """
-    self._inputfile = inputfile
-    self._max_entries = max_entries
-    self._ignored_attr_types = {}
-    for attr_type in ignored_attr_types:
-      self._ignored_attr_types[string.lower(attr_type)] = None
+    self._process_url_schemes = list_dict(map(string.lower,process_url_schemes))
+    self._ignored_attr_types = list_dict(map(string.lower,ignored_attr_types))
     self.records_read = 0
 
   def handle(self,*args,**kwargs):
@@ -232,17 +232,10 @@ class LDIFParser:
       self._line = self._inputfile.readline()
     return unfolded_line
 
-
   def _parseAttrTypeandValue(self):
     """
     Parse a single attribute type and value pair from one or
-    more lines of LDIF data read from file object f
-
-    first_line
-          first (or single) line containing attribute type
-          and (parts of) value
-    f
-          file object to read continous lines from
+    more lines of LDIF data
     """
     # Reading new attribute line
     unfolded_line = self._unfoldLDIFLine()
@@ -260,12 +253,16 @@ class LDIFParser:
       attr_value = base64.decodestring(attr_value)
     elif value_spec==':<':
       # fetch attribute value from URL
-      attr_value = urllib.urlopen(attr_value).read()
+      url = attr_value; attr_value = None
+      if self._process_url_schemes:
+        u = urlparse.urlparse(url)
+        if self._process_url_schemes.has_key(u[0]):
+          attr_value = urllib.urlopen(url).read()
     return attr_type,attr_value
 
   def parse(self):
     """
-    Continously read from LDIF file and parse input
+    Continously read and parse LDIF records
     """
     self._line = self._inputfile.readline()
 
@@ -296,7 +293,8 @@ class LDIFParser:
           if not valid_changetype_dict.has_key(attr_value):
 	    raise ValueError, 'changetype value %s is invalid.' % (repr(attr_value))
           dn = attr_value
-        elif not self._ignored_attr_types.has_key(string.lower(attr_type)):
+        elif attr_value!=None and \
+             not self._ignored_attr_types.has_key(string.lower(attr_type)):
           # Add the attribute to the entry if not ignored attribute
           if entry.has_key(attr_type):
             entry[attr_type].append(attr_value)
@@ -320,9 +318,19 @@ class LDIFRecordList(LDIFParser):
   with DN as string keys. It can be a memory hog!
   """
 
-  def __init__(self,inputfile,ignored_attr_types=[],max_entries=0):
-    LDIFParser.__init__(self,inputfile,ignored_attr_types,max_entries)
-    self.all_records = []
+  def __init__(
+    self,inputfile,ignored_attr_types=[],max_entries=0,process_url_schemes=[],
+    all_records=[]
+  ):
+    """
+    See LDIFParser.__init__()
+
+    Additional Parameters:
+    all_records
+        List instance for storing parsed records
+    """
+    LDIFParser.__init__(self,input_file,ignored_attr_types,max_entries,process_url_schemes)
+    self.all_records = all_records
 
   def handle(self,dn,entry):
     """
@@ -339,20 +347,16 @@ class LDIFCopy(LDIFParser):
   via URLs
   """
 
-  def __init__(self,input_file,output_file,ignored_attr_types=[],max_entries=0):
+  def __init__(
+    self,input_file,output_file,ignored_attr_types=[],max_entries=0,process_url_schemes=[]):
     """
-    Parameters:
-    input_file
-        File-object to read the LDIF input from
+    See LDIFParser.__init__()
+
+    Additional Parameters:
     output_file
         File-object to write the LDIF output to
-    ignored_attr_types
-        Attributes with these attribute type names will be ignored.
-    max_entries
-        If non-zero specifies the maximum number of entries to be
-        read from f.
     """
-    LDIFParser.__init__(self,input_file,ignored_attr_types,max_entries)
+    LDIFParser.__init__(self,input_file,ignored_attr_types,max_entries,process_url_schemes)
     self._output_file = output_file
 
   def handle(self,dn,entry):
@@ -370,7 +374,7 @@ def ParseLDIF(f,ignore_attrs=[],maxentries=0):
   Use is deprecated!
   """
   ldif_parser = LDIFRecordList(
-    f,ignored_attr_types=ignore_attrs,max_entries=maxentries
+    f,ignored_attr_types=ignore_attrs,max_entries=maxentries,process_url_schemes=0
   )
   ldif_parser.parse()
   return ldif_parser.all_records

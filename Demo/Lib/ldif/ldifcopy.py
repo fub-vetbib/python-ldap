@@ -22,6 +22,7 @@ outfile = sys.stdout
 ldif_collector = ldif.LDIFCopy(
   infile,
   outfile,
+  process_url_schemes=['file','ftp','http']
 )
 ldif_collector.parse()
 
