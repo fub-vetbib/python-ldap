@@ -49,14 +49,10 @@ class SubSchema:
         for attr_value in e[attr_type]:
           se_class = SCHEMA_CLASS_MAPPING[attr_type]
           se_instance = se_class(attr_value)
-          try:
-            self.sed[se_class][se_instance.oid] = se_instance
-          except AttributeError:
-            # Ignore schema elements without oid class attribute
-            pass
+          self.sed[se_class][se_instance.get_id()] = se_instance
           if hasattr(se_instance,'names'):
             for name in se_instance.names:
-              self.name2oid[se_class][name] = se_instance.oid
+              self.name2oid[se_class][name] = se_instance.get_id()
       return # subSchema.__init__()
 
   def ldap_entry(self):
@@ -109,7 +105,10 @@ class SubSchema:
         )
       for s in se_obj.sup:
         sup_oid = self.name2oid[schema_element_class].get(s,s)
-        tree[sup_oid].append(se_oid)
+        try:
+          tree[sup_oid].append(se_oid)
+        except:
+          pass
     return tree
 
   def getoid(self,se_class,nameoroid):
@@ -161,6 +160,7 @@ class SubSchema:
     """
     AttributeType = ldap.schema.AttributeType
     ObjectClass = ldap.schema.ObjectClass
+
     # Map object_class_list to object_class_oids (list of OIDs)
     object_class_oids = [
       self.name2oid[ObjectClass].get(o,o)
@@ -168,7 +168,14 @@ class SubSchema:
     ]
     # Initialize
     oid_cache = {}
+
     r_must,r_may = ldap.cidict.cidict(),ldap.cidict.cidict()
+    if '1.3.6.1.4.1.1466.101.120.111' in object_class_oids:
+      # Object class 'extensibleObject' MAY carry every attribute type
+      for at_obj in self.sed[AttributeType].values():
+        r_may[at_obj.oid] = at_obj
+
+    # Loop over OIDs of all given object classes
     while object_class_oids:
       object_class_oid = object_class_oids.pop(0)
       # Check whether the objectClass with this OID
@@ -184,9 +191,7 @@ class SubSchema:
           raise
         # Ignore this object class
         continue
-      if object_class.__class__!=ObjectClass:
-        # Check if we really have an ObjectClass instance
-        continue
+      assert isinstance(object_class,ObjectClass)
       assert hasattr(object_class,'must'),ValueError(object_class_oid)
       assert hasattr(object_class,'may'),ValueError(object_class_oid)
       for a in object_class.must:
@@ -209,11 +214,13 @@ class SubSchema:
         self.name2oid[ObjectClass].get(o,o)
         for o in object_class.sup
       ])
+
     # Removed all mandantory attribute types from
     # optional attribute type list
     for a in r_may.keys():
       if r_must.has_key(a):
         del r_may[a]
+
     # Apply attr_type_filter to results
     if attr_type_filter:
       for l in [r_must,r_may]:
@@ -233,6 +240,7 @@ class SubSchema:
                   except KeyError: pass
           else:
             raise KeyError,'No schema element found with name %s' % (a)
+
     return r_must,r_may # attribute_types()
 
 

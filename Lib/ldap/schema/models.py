@@ -39,14 +39,20 @@ class SchemaElement:
   def __init__(self,schema_element_str=None):
     if schema_element_str:
       l = split_tokens(schema_element_str)
-      self.oid = l[1]
-      assert type(self.oid)==StringType
+      self.set_id(l[1])
+      assert type(self.get_id())==StringType
       d = extract_tokens(l,self.token_defaults)
       self._set_attrs(l,d)
 
   def _set_attrs(self,l,d):
     self.desc = d['DESC'][0]
     return # SchemaElement.__init__()
+
+  def set_id(self,element_id):
+    self.oid = element_id
+
+  def get_id(self):
+    return self.oid
 
   def key_attr(self,key,value,quoted=0):
     assert value is None or type(value)==StringType,TypeError("value has to be of StringType, was %s" % repr(value))
@@ -336,10 +342,10 @@ class MatchingRuleUse(SchemaElement):
   """
   schema_attribute = 'matchingRuleUse'
   token_defaults = {
-       'NAME':(()),
-       'DESC':(None,),
-       'OBSOLETE':None,
-       'APPLIES':(()),
+    'NAME':(()),
+    'DESC':(None,),
+    'OBSOLETE':None,
+    'APPLIES':(()),
   }
 
   def _set_attrs(self,l,d):
@@ -351,7 +357,7 @@ class MatchingRuleUse(SchemaElement):
     assert self.desc is None or type(self.desc)==StringType
     assert type(self.obsolete)==IntType and (self.obsolete==0 or self.obsolete==1)
     assert type(self.applies)==TupleType
-    return # MatchingRuleUse.__init__()
+    return # MatchingRuleUse._set_attrs()
 
   def __str__(self):
     result = [str(self.oid)]
@@ -375,7 +381,44 @@ class DITContentRule(SchemaElement):
       [ SP "NOT" SP oids ]       ; attribute types
       extensions WSP RPAREN      ; extensions
   """
-schema_attribute = 'dITContentRules'
+  schema_attribute = 'dITContentRules'
+  token_defaults = {
+    'NAME':(()),
+    'DESC':(None,),
+    'OBSOLETE':None,
+    'AUX':(()),
+    'MUST':(()),
+    'MAY':(()),
+    'NOT':(()),
+  }
+
+  def _set_attrs(self,l,d):
+    self.names = d['NAME']
+    self.desc = d['DESC'][0]
+    self.obsolete = d['OBSOLETE']!=None
+    self.aux = d['AUX']
+    self.must = d['MUST']
+    self.may = d['MAY']
+    self.nots = d['NOT']
+    assert type(self.names)==TupleType
+    assert self.desc is None or type(self.desc)==StringType
+    assert type(self.obsolete)==IntType and (self.obsolete==0 or self.obsolete==1)
+    assert type(self.aux)==TupleType
+    assert type(self.must)==TupleType
+    assert type(self.may)==TupleType
+    assert type(self.nots)==TupleType
+    return # MatchingRuleUse._set_attrs()
+
+  def __str__(self):
+    result = [str(self.oid)]
+    result.append(self.key_list('NAME',self.names,quoted=1))
+    result.append(self.key_attr('DESC',self.desc,quoted=1))
+    result.append({0:'',1:' OBSOLETE'}[self.obsolete])
+    result.append(self.key_list('AUX',self.aux,sep=' $ '))
+    result.append(self.key_list('MUST',self.must,sep=' $ '))
+    result.append(self.key_list('MAY',self.may,sep=' $ '))
+    result.append(self.key_list('NOT',self.nots,sep=' $ '))
+    return '( %s )' % ''.join(result)
 
 
 class DITStructureRule(SchemaElement):
@@ -388,14 +431,44 @@ class DITStructureRule(SchemaElement):
       SP "FORM" SP oid           ; NameForm
       [ SP "SUP" ruleids ]       ; superior rules
       extensions WSP RPAREN      ; extensions
-
-  ruleids = ruleid / LPAREN WSP ruleidlist WSP RPAREN
-
-  ruleidlist = [ ruleid *( SP ruleid ) ]
-
-  ruleid = number
   """
   schema_attribute = 'dITStructureRules'
+
+  token_defaults = {
+    'NAME':(()),
+    'DESC':(None,),
+    'OBSOLETE':None,
+    'FORM':(None,),
+    'SUP':(()),
+  }
+
+  def set_id(self,element_id):
+    self.ruleid = element_id
+
+  def get_id(self):
+    return self.ruleid
+
+  def _set_attrs(self,l,d):
+    self.names = d['NAME']
+    self.desc = d['DESC'][0]
+    self.obsolete = d['OBSOLETE']!=None
+    self.form = d['FORM'][0]
+    self.sup = d['SUP']
+    assert type(self.names)==TupleType
+    assert self.desc is None or type(self.desc)==StringType
+    assert type(self.obsolete)==IntType and (self.obsolete==0 or self.obsolete==1)
+    assert type(self.form)==StringType
+    assert type(self.sup)==TupleType
+    return
+
+  def __str__(self):
+    result = [str(self.ruleid)]
+    result.append(self.key_list('NAME',self.names,quoted=1))
+    result.append(self.key_attr('DESC',self.desc,quoted=1))
+    result.append({0:'',1:' OBSOLETE'}[self.obsolete])
+    result.append(self.key_attr('FORM',self.form,quoted=0))
+    result.append(self.key_list('SUP',self.sup,sep=' $ '))
+    return '( %s )' % ''.join(result)
 
 
 class NameForm(SchemaElement):
@@ -411,6 +484,39 @@ class NameForm(SchemaElement):
       extensions WSP RPAREN      ; extensions
   """
   schema_attribute = 'nameForms'
+  token_defaults = {
+    'NAME':(()),
+    'DESC':(None,),
+    'OBSOLETE':None,
+    'OC':(()),
+    'MUST':(()),
+    'MAY':(()),
+  }
+
+  def _set_attrs(self,l,d):
+    self.names = d['NAME']
+    self.desc = d['DESC'][0]
+    self.obsolete = d['OBSOLETE']!=None
+    self.oc = d['OC']
+    self.must = d['MUST']
+    self.may = d['MAY']
+    assert type(self.names)==TupleType
+    assert self.desc is None or type(self.desc)==StringType
+    assert type(self.obsolete)==IntType and (self.obsolete==0 or self.obsolete==1)
+    assert type(self.oc)==TupleType
+    assert type(self.must)==TupleType
+    assert type(self.may)==TupleType
+    return # MatchingRuleUse._set_attrs()
+
+  def __str__(self):
+    result = [str(self.oid)]
+    result.append(self.key_list('NAME',self.names,quoted=1))
+    result.append(self.key_attr('DESC',self.desc,quoted=1))
+    result.append({0:'',1:' OBSOLETE'}[self.obsolete])
+    result.append(self.key_list('OC',self.oc,sep=' $ '))
+    result.append(self.key_list('MUST',self.must,sep=' $ '))
+    result.append(self.key_list('MAY',self.may,sep=' $ '))
+    return '( %s )' % ''.join(result)
 
 
 class Entry(UserDict.UserDict):
