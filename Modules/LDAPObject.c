@@ -348,21 +348,26 @@ l_ldap_unbind_ext( LDAPObject* self, PyObject* args )
     return Py_None;
 }
 
-/* ldap_abandon */
+/* ldap_abandon_ext */
 
 static PyObject*
-l_ldap_abandon( LDAPObject* self, PyObject* args )
+l_ldap_abandon_ext( LDAPObject* self, PyObject* args )
 {
     int msgid;
-    int ret;
+    PyObject *serverctrls = Py_None;
+    PyObject *clientctrls = Py_None;
 
-    if (!PyArg_ParseTuple( args, "i", &msgid)) return NULL;
+    int ldaperror;
+
+    if (!PyArg_ParseTuple( args, "i|OO", &msgid, &serverctrls, &clientctrls)) return NULL;
     if (not_valid(self)) return NULL;
     LDAP_BEGIN_ALLOW_THREADS( self );
-    ret = ldap_abandon( self->ldap, msgid );
+    ldaperror = ldap_abandon_ext( self->ldap, msgid, NULL, NULL );
     LDAP_END_ALLOW_THREADS( self );
-    if (ret == -1)
-    	return LDAPerror( self->ldap, "ldap_abandon" );
+
+    if ( ldaperror!=LDAP_SUCCESS )
+    	return LDAPerror( self->ldap, "ldap_abandon_ext" );
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -934,7 +939,7 @@ l_ldap_get_option(PyObject* self, PyObject *args)
 
 static PyMethodDef methods[] = {
     {"unbind_ext",	(PyCFunction)l_ldap_unbind_ext,		METH_VARARGS },
-    {"abandon",		(PyCFunction)l_ldap_abandon,		METH_VARARGS },
+    {"abandon_ext",	(PyCFunction)l_ldap_abandon_ext,	METH_VARARGS },
     {"add_ext",		(PyCFunction)l_ldap_add_ext,		METH_VARARGS },
     {"bind",		(PyCFunction)l_ldap_bind,		METH_VARARGS },
 #ifdef HAVE_SASL

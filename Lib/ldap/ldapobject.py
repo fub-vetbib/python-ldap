@@ -19,7 +19,7 @@ Basically calls into the LDAP lib are serialized by the module-wide
 lock self._ldap_object_lock.
 """
 
-__version__ = '0.5.4'
+__version__ = '0.6.0'
 
 __all__ = [
   'LDAPObject',
@@ -119,8 +119,9 @@ class SimpleLDAPObject:
         self.__class__.__name__,repr(name)
       )
 
-  def abandon(self,msgid):
+  def abandon_ext(self,msgid,serverctrls=None,clientctrls=None):
     """
+    abandon_ext(msgid[,serverctrls=None[,clientctrls=None]]) -> None    
     abandon(msgid) -> None    
         Abandons or cancels an LDAP operation in progress. The msgid should
         be the message id of an outstanding LDAP operation as returned
@@ -128,7 +129,10 @@ class SimpleLDAPObject:
         can expect that the result of an abandoned operation will not be
         returned from a future call to result().
     """
-    return self._ldap_call(self._l.abandon,msgid)
+    return self._ldap_call(self._l.abandon_ext,msgid,serverctrls,clientctrls)
+
+  def abandon(self,msgid):
+    return self.abandon.ext(msgid,None,None)
 
   def add_ext(self,dn,modlist,serverctrls=None,clientctrls=None):
     """
