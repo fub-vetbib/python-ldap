@@ -4,7 +4,14 @@
 srcdir=`dirname $0`/..
 version=`sh ${srcdir}/Build/version.sh`
 release=1
-specfile=python-ldap-$version-$release.spec
+specfile=SPECS/python-ldap-$version-$release.spec
+
+if test  -f $HOME/.rpmmacros; then
+	: hope it works
+else
+	mkdir -p BUILD RPMS SPECS SOURCES
+	echo "%_topdir		"`pwd` > $HOME/.rpmmacros
+fi
 
 rm -f ${specfile}
 sed -e "s/@version@/$version/g" \
@@ -12,4 +19,5 @@ sed -e "s/@version@/$version/g" \
     < ${srcdir}/Build/template.spec \
     > ${specfile}
 
-rpm -b --buildroot `pwd`/root --test $specfile
+rpm -bb $specfile
+
