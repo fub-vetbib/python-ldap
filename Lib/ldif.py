@@ -8,7 +8,7 @@ License:
 Public domain. Do anything you want with this module.
 
 Python compability note:
-This module should work with Python 1.5.2+.
+Tested with Python 2.0+, but should work with Python 1.5.2+.
 """
 
 __version__ = '0.4.0'
