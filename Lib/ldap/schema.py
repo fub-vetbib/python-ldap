@@ -149,9 +149,9 @@ class attributeType:
          self.substr_oid,      #OPTIONAL
          self.syntax_oid,      #OPTIONAL
          self.syntax_len,      #OPTIONAL
-         self.single_value,    #0=no, 1=yes		    
-         self.collectiove,     #0=no, 1=yes			    
-         self.no_user_mod,     #0=no, 1=yes 			    
+         self.single_value,    #0=no, 1=yes
+         self.collective,     #0=no, 1=yes
+         self.no_user_mod,     #0=no, 1=yes
          self.usage,           #0=userApplications, 1=directoryOperation,
                                #2=distributedOperation, 3=dSAOperation
          self.ext              #OPTIONAL
