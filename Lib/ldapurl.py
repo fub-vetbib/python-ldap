@@ -319,7 +319,7 @@ class LDAPUrl:
       hostport = quote_plus(self.hostport)
     else:
       hostport = self.hostport
-    return '%s://%s' % (self.urlscheme,self.hostport)
+    return '%s://%s' % (self.urlscheme,hostport)
 
   def unparse(self,charset=None,urlEncode=0):
     """
