@@ -28,9 +28,7 @@
 
 This module parses and generates LDAP URLs.
 
-Compability note: This modules uses Unicode support found
-in Python 1.6 and above. Therefore it is unpossible to use
-it with Python 1.5.2 or prior versions.
+Compability note: This module has been solely tested on Python 2.x and above.
 
 \begin{seealso}
 \seerfc{2255}{The LDAP URL Format}{}
@@ -40,7 +38,7 @@ it with Python 1.5.2 or prior versions.
 
 Important security advice:
 For security reasons you shouldn't specify passwords in LDAP URLs
-unless you really know what you're doing.
+unless you really know what you are doing.
 
 The following example demonstrates how to parse a LDAP URL
 with \module{ldapurl} module.
@@ -50,13 +48,13 @@ with \module{ldapurl} module.
 >>> ldap_url = ldapurl.LDAPUrl('ldap://localhost:1389/dc=stroeder,dc=com?cn,mail???bindname=cn=Michael%2cdc=stroeder%2cdc=com,X-BINDPW=secret')
 >>> # Using the parsed LDAP URL by reading the class attributes
 >>> ldap_url.dn
-u'dc=stroeder,dc=com'
+'dc=stroeder,dc=com'
 >>> ldap_url.hostport
 'localhost:1389'
 >>> ldap_url.attrs
 ['cn','mail']
 >>> ldap_url.filterstr
-u'(objectclass=*)'
+'(objectclass=*)'
 >>> ldap_url.who
 'cn=Michael,dc=stroeder,dc=com'
 >>> ldap_url.cred
@@ -70,7 +68,7 @@ with \module{ldapurl} module.
 
 \begin{verbatim}
 >>> import ldapurl
->>> ldap_url = ldapurl.LDAPUrl(hostport='localhost:1389',dn=u'dc=stroeder,dc=com',attrs=['cn','mail'],who='cn=Michael,dc=stroeder,dc=com',cred='secret')
+>>> ldap_url = ldapurl.LDAPUrl(hostport='localhost:1389',dn='dc=stroeder,dc=com',attrs=['cn','mail'],who='cn=Michael,dc=stroeder,dc=com',cred='secret')
 >>> ldap_url.unparse()
-u'ldap://localhost:1389/dc=stroeder,dc=com?cn,mail?base?(objectclass=*)?bindname=cn=Michael%2Cdc=stroeder%2Cdc=com,X-BINDPW=secret'
+'ldap://localhost:1389/dc=stroeder,dc=com?cn,mail?base?(objectclass=*)?bindname=cn=Michael%2Cdc=stroeder%2Cdc=com,X-BINDPW=secret'
 \end{verbatim}

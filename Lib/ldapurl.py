@@ -362,7 +362,7 @@ class LDAPUrl:
     )
     if self.extensions:
       ldap_url = ldap_url+'?'+self.extensions.unparse()
-    return ldap_url.encode('ascii')
+    return ldap_url
   
   def htmlHREF(self,urlPrefix='',hrefText=None,hrefTarget=None):
     """Complete """
