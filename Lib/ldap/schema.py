@@ -21,6 +21,16 @@ class SchemaError(Exception):
 
 StringType=type('')
 
+NOT_HUMAN_READABLE_LDAP_SYNTAXES = {
+  '1.3.6.1.4.1.1466.115.121.1.4':None,
+  '1.3.6.1.4.1.1466.115.121.1.5':None,
+  '1.3.6.1.4.1.1466.115.121.1.6':None,
+  '1.3.6.1.4.1.1466.115.121.1.8':None,
+  '1.3.6.1.4.1.1466.115.121.1.9':None,
+  '1.3.6.1.4.1.1466.115.121.1.10':None,
+  '1.3.6.1.4.1.1466.115.121.1.28':None,
+  '1.3.6.1.4.1.1466.115.121.1.49':None,
+}
 
 def split_tokens(s):
   """
@@ -266,15 +276,15 @@ class AttributeType:
         self.syntax_len = None
       else:
         try:
-          self.syntax,self.syntax_len = d['SYNTAX'][0].split("{")
+          self.syntax,syntax_len = d['SYNTAX'][0].split("{")
         except ValueError:
           self.syntax = d['SYNTAX'][0]
           self.syntax_len = None
           for i in l:
             if i.startswith("{") and i.endswith("}"):
               self.syntax_len=int(i[1:-1])
-        self.syntax = None
-        self.syntax_len = None
+        else:
+          self.syntax_len = int(syntax_len[:-1])
       self.single_value = d['SINGLE-VALUE']!=None
       self.collective = d['COLLECTIVE']!=None
       self.no_user_mod = d['NO-USER-MODIFICATION']!=None
@@ -284,7 +294,6 @@ class AttributeType:
     assert self.desc is None or type(self.desc)==type('')
     assert type(self.obsolete)==type(0)
     assert type(self.sup)==type([])
-
 
   def __str__(self):
     result = [str(self.oid)]
@@ -324,13 +333,25 @@ class LDAPSyntax:
     if schema_element_str:
       l = ldap.schema.split_tokens(schema_element_str)
       assert l[0].strip()=="(" and l[-1].strip()==")",ValueError(repr(schema_element_str),repr(l))
-      d = ldap.schema.extract_tokens(l,{'DESC':[None]})
+      d = ldap.schema.extract_tokens(
+        l,
+        {
+          'DESC':[None],
+          'X-NOT-HUMAN-READABLE':[None],
+        }
+      )
       self.oid = l[1]
       self.desc = d['DESC'][0]
-
+      self.not_human_readable = \
+        NOT_HUMAN_READABLE_LDAP_SYNTAXES.has_key(self.oid) or \
+        d['X-NOT-HUMAN-READABLE'][0]=='TRUE'
+                                  
   def __str__(self):
     result = [str(self.oid)]
     result.append(key_attr('DESC',self.desc,quoted=1))
+    result.append(
+      {0:'',1:" X-NOT-HUMAN-READABLE 'TRUE'"}[self.not_human_readable]
+    )
     return '( %s )' % ''.join(result)
 
 
