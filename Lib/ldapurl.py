@@ -90,12 +90,13 @@ class LDAPUrlExtension:
   """
   Class for parsing and unparsing extensions in LDAP URLs
   """
-  def __init__(self,extension=None,**kwargs):
-    self.critical = 0
-    if extension is None:
-      self.__dict__.update(kwargs)
+  def __init__(self,extensionStr=None,critical=0,extype=None,exvalue=None):
+    if extensionStr is None:
+      self.critical = critical
+      self.extype = extype
+      self.exvalue = exvalue
     else:
-      self._parse(extension)
+      self._parse(extensionStr)
 
   def _parse(self,extension):
     extension = extension.strip()
@@ -165,8 +166,8 @@ class LDAPUrl:
     self.filterstr=filterstr
     self.extensions=extensions
     self.charset=charset
-    if who!=None: self.who=who
-    if cred!=None: self.cred=cred
+    self.who = who
+    self.cred = cred
     if ldapUrl!=None:
       self._parse(ldapUrl)
 
@@ -185,13 +186,25 @@ class LDAPUrl:
       )
 
   def __setattr__(self,name,value):
-    if (name=='who' or name=='cred') and value:
+    if (name=='who' or name=='cred'):
       extype = self.attr2extype[name]
-      self.extensions[extype] = LDAPUrlExtension(
-        extype=extype,exvalue=unquote_plus(value)
-      )
+      if value is None and self.extensions.has_key(extype):
+        # A value of None means that extension is deleted
+        del self.extensions[extype]
+      elif value!=None:
+        # Add appropriate extension
+        self.extensions[extype] = LDAPUrlExtension(
+          extype=extype,exvalue=unquote_plus(value)
+        )
     else:
       self.__dict__[name] = value
+
+  def __delattr__(self,name):
+    if (name=='who' or name=='cred'):
+      extype = self.attr2extype[name]
+      del self.extensions[extype]
+    else:
+      del self.__dict__[name]
 
   def _parse(self,ldap_url,relaxed_charset_handling=1):
     """
