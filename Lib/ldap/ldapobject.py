@@ -189,7 +189,7 @@ class SimpleLDAPObject:
     msgid = self.bind(who,cred,method)
     return self.result(msgid,all=1,timeout=self.timeout)
 
-  def sasl_interactive_bind_s(self,who,auth,cred='',serverctrls=None,clientctrls=None):
+  def sasl_interactive_bind_s(self,who,auth,serverctrls=None,clientctrls=None):
     """
     sasl_interactive_bind_s(who, auth) -> None
     """
@@ -749,21 +749,21 @@ class ReconnectLDAPObject(SimpleLDAPObject):
     self._options[option] = invalue
     SimpleLDAPObject.set_option(self,option,invalue)
 
-  def bind_s(self,*args,**kwargs):
-    self._last_bind = (self.bind_s,args,kwargs)
-    return SimpleLDAPObject.bind_s(self,*args,**kwargs)
+  def simple_bind_s(self,*args,**kwargs):
+    self._last_bind = (self.simple_bind_s,args,kwargs)
+    return SimpleLDAPObject.simple_bind_s(self,*args,**kwargs)
 
   def start_tls_s(self):
     res = SimpleLDAPObject.start_tls_s(self)
     self._start_tls = 1
     return res
 
-  def sasl_interactive_bind_s(self,who,auth):
+  def sasl_interactive_bind_s(self,*args,**kwargs):
     """
     sasl_interactive_bind_s(who, auth) -> None
     """
-    self._last_bind = (self.sasl_interactive_bind_s,(who,auth),{})
-    return self._ldap_call(self._l.sasl_interactive_bind_s,who,auth)
+    self._last_bind = (self.sasl_interactive_bind_s,args,kwargs)
+    return SimpleLDAPObject.sasl_interactive_bind_s(self,*args,**kwargs)
 
   def add_ext_s(self,*args,**kwargs):
     return self._apply_method_s(SimpleLDAPObject.add_s,*args,**kwargs)
