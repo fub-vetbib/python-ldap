@@ -146,10 +146,23 @@ if test -n "$with_ldap_inc"; then
   CPPFLAGS="-I$with_ldap_inc $CPPFLAGS"
 fi
 
+dnl The only LDAP functions described in RFC1823 are:
+dnl
+dnl ldap_abandon ldap_add/_s ldap_bind/_s ldap_count_entries ldap_count_values
+dnl ldap_count_values_len ldap_delete/_s ldap_dn2ufn ldap_err2string
+dnl ldap_explode_dn ldap_first_attribute ldap_first_entry ldap_get_dn
+dnl ldap_get_values ldap_get_values_len ldap_kerberos_bind/_s ldap_modify/_s
+dnl ldap_modrdn/_s ldap_msgfree ldap_next_attribute ldap_next_entry
+dnl ldap_open ldap_perror ldap_result ldap_result2error ldap_search/_s/_st
+dnl ldap_simple_bind/_s ldap_unbind ldap_value_free ldap_value_free_len
+dnl
+dnl everything else is optional
+
 AC_SEARCH_LIBS(ber_free, lber)
 AC_SEARCH_LIBS(ldap_open, ldap)
 AC_CHECK_FUNC(ldap_open,, [no_ldap "Couldn't find LDAP library"])
 AC_CHECK_HEADER(ldap.h,, [no_ldap "Couldn't find ldap.h"])
+AC_CHECK_HEADER(lber.h,, [no_ldap "Couldn't find lber.h"])
 
 dnl
 dnl LDAP library specifics
@@ -166,6 +179,16 @@ if test "$ac_cv_ldap_set_rebind_proc" = 3; then
 	AC_DEFINE(LDAP_SET_REBIND_PROC_3ARGS)
 fi
 
+if test no != "$with_kerberos"; then 
+	AC_CHECK_FUNCS(ldap_kerberos_bind1 \
+		       ldap_kerberos_bind1_s ldap_kerberos_bind2 \
+		       ldap_kerberos_bind2_s)
+fi
+
+AC_CHECK_FUNCS(ldap_enable_cache ldap_disable_cache ldap_set_cache_options \
+	       ldap_destroy_cache ldap_flush_cache ldap_uncache_entry \
+	       ldap_uncache_request)
+		       
 dnl-- is the LDAP structure opaque?
 AC_CACHE_CHECK([whether the LDAP type is opaque],
 	ac_cv_LDAP_is_opaque,
