@@ -83,13 +83,6 @@ The \module{ldap} module defines the following functions:
   Note: Using this function is deprecated.
 \end{funcdesc}
 
-\begin{funcdesc}{dn2ufn}{dn} % -> string
-  Turns \var{dn} into a more user-friendly form, stripping off type names.
-  \begin{seealso}
-  \seerfc{1781}{Using the Directory to Achieve User Friendly Naming}{}
-  \end{seealso}
-\end{funcdesc}
-
 \begin{funcdesc}{explode_dn}{dn \optional{, notypes=\constant{0}}} % -> list
   This function takes \var{dn} and breaks it up into its component parts. 
   Each part is known as an RDN (Relative Distinguished Name). The
@@ -110,14 +103,6 @@ The \module{ldap} module defines the following functions:
   into a list of characteristic attributes. The
   \var{notypes} parameter is used to specify that only the RDN values be 
   returned and not their types.
-\end{funcdesc}
-
-\begin{funcdesc}{is_ldap_url}{url} % -> boolean
-  This function returns true if \var{url} `looks like' an LDAP URL 
-  (as opposed to some other kind of URL). 
-  \begin{seealso}
-    \seerfc{2255}{The LDAP URL Format}{}
-  \end{seealso}
 \end{funcdesc}
 
 \begin{funcdesc}{get_option}{option} % -> None
