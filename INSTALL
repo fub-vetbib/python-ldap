@@ -10,7 +10,7 @@ Prerequisites:
     (see http://www.openldap.org)
 
 Quick build instructions:
-    edit setup.cfg
+    edit setup.cfg (see Build/ for platform-specific examples)
     python setup.py build
     python setup.py install
 
