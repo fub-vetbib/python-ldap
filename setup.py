@@ -12,7 +12,7 @@ from ConfigParser import ConfigParser
 import sys,string,time
 
 #-- Release version of Python-ldap
-version = '2.0.0pre06-%s' % (time.strftime('%Y%m%d',time.gmtime(time.time())))
+version = '2.0.0pre06' # -%s' % (time.strftime('%Y%m%d',time.gmtime(time.time())))
 
 #-- A class describing the features and requirements of OpenLDAP 2.0
 class OpenLDAP2:
