@@ -162,7 +162,7 @@ def CreateLDIF(dn,data,base64_attrs=[],cols=76):
             mod_type,mod_val,base64_attrs,cols
           )
         )
-  result.append('\n')
+  result.append('')
   return string.join(result,linesep)
 
 
