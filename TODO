@@ -6,6 +6,7 @@ General:
 Modules/
 - Completion of start_tls_s() with SSL context
 - Support for LDAP over SSL
+- Support for ldapi://
 - Look into OpenLDAP 2's lib ldap_r to make python-ldap re-entrant
 - Support for SASL bind
 - Support for VLV control
