@@ -1,6 +1,7 @@
 """
 schema.py - support for subSchemaSubEntry information
 written by Hans Aschauer <Hans.Aschauer@Physik.uni-muenchen.de>
+modified by Michael Stroeder <michael@stroeder.com>
 
 \$Id$
 
@@ -11,7 +12,7 @@ Public domain. Do anything you want with this module.
 __version__ = '0.0.3'
 
 
-import ldap,ldap.functions,_ldap
+import ldap,ldap.cidict,ldap.functions,_ldap
 
 
 # Wrapper functions to serialize calls into OpenLDAP libs with
@@ -34,8 +35,8 @@ class objectClass:
          self.obsolete,      #0=no, 1=yes
          self.sup_oids,      #OPTIONAL
          self.kind,          #0=ABSTRACT
-         self.oids_must,     #OPTIONAL
-         self.oids_may,      #OPTIONAL
+         self.must,          #OPTIONAL
+         self.may,           #OPTIONAL
          self.ext,           #OPTIONAL
          ) = str2objectclass(schema_element_str)
 
@@ -97,7 +98,7 @@ class subSchema:
                 Distinguished name of sub schema sub entry to read
         """
         self.schema_element = {}
-        self.name2oid = {}
+        self.name2oid = ldap.cidict.cidict()
         result = l.search_s(
           schema_dn,
           ldap.SCOPE_BASE,"(objectClass=*)",
@@ -122,20 +123,3 @@ class subSchema:
               self.name2oid[name] = se.oid
 
         return # subSchema.__init__()        
-
-
-if __name__ == '__main__':
-    l=ldap.initialize('ldap://localhost:1389')
-    l.simple_bind_s('','')
-
-    schema = subSchema(l,'cn=Subschema')
-    for attr_type,schema_class in SCHEMA_CLASS_MAPPING.items():
-      print '***',repr(attr_type),'***'
-      for oid,se in schema.schema_element.items():
-        if isinstance(se,schema_class):
-          print repr(oid),repr(se)
-    schema_element_names = schema.name2oid.keys()
-    schema_element_names.sort()
-    for name in schema_element_names:
-      print repr(name),'->',repr(schema.name2oid[name])
-
