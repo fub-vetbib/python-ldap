@@ -8,6 +8,8 @@ Usage: schema_oc_tree.py [--html] [LDAP URL]
 import sys,getopt,ldap,ldap.schema
 
 
+ldap.trace_level = 1
+
 def PrintSchemaTree(schema,se_class,se_tree,se_oid,level):
   """ASCII text output for console"""
   se_obj = schema.sed.get(se_oid,None)
@@ -42,7 +44,7 @@ ldap.set_option(ldap.OPT_DEBUG_LEVEL,0)
 
 ldap._trace_level = 0
 
-subschemasubentry_dn,schema = ldap.schema.urlfetch(sys.argv[-1])
+subschemasubentry_dn,schema = ldap.schema.urlfetch(sys.argv[-1],ldap.trace_level)
 
 if subschemasubentry_dn is None:
   print 'No sub schema sub entry found!'
