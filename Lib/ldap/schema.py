@@ -12,8 +12,9 @@ Public domain. Do anything you want with this module.
 __version__ = '0.1.0'
 
 
-import UserDict,ldap,ldap.cidict,ldap.functions,_ldap
+import ldap,ldap.cidict,ldap.functions,_ldap
 
+from UserDict import UserDict
 
 class SchemaError(Exception):
   """
@@ -447,7 +448,7 @@ class MatchingRuleUse(SchemaElement):
     return '( %s )' % ''.join(result)
 
 
-class Entry(UserDict.UserDict):
+class Entry(UserDict):
   """
   Schema-aware implementation of an LDAP entry class.
   
@@ -507,7 +508,7 @@ for k in SCHEMA_ATTRS:
   SCHEMA_ATTR_MAPPING[SCHEMA_CLASS_MAPPING[k]] = k
 
 
-class SubSchema(UserDict.UserDict):
+class SubSchema(UserDict):
     
     def __init__(self,sub_schema_sub_entry):
         """
@@ -515,7 +516,7 @@ class SubSchema(UserDict.UserDict):
             Dictionary containing the sub schema sub entry
         """
         # Initialize all dictionaries
-        UserDict.UserDict.__init__(self,{})
+        UserDict.__init__(self,{})
         self.name2oid = {}
         self.sed_class = {}
         for c in SCHEMA_CLASS_MAPPING.values():
