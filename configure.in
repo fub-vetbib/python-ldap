@@ -224,6 +224,7 @@ else
 	pymf="$srcdir/Makefile.python-1.4"
 fi
 AC_MSG_RESULT($pymf)
+test -d Modules || mkdir Modules
 cp "$pymf" Modules/Makefile.pre.in
 
 AC_OUTPUT_COMMANDS([

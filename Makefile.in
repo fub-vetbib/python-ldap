@@ -7,11 +7,13 @@ INSTALL_DATA=	$(INSTALL) -m 644
 INSTALL_DIR=	mkdir -p
 srcdir=		@srcdir@
 
+MAKEVARS=	SRCDIR=$(srcdir)/Modules VPATH=$(srcdir)/Modules
+
 all:
-	cd Modules && $(MAKE) 
+	cd Modules && $(MAKE) $(MAKEVARS)
 
 install:
-	cd Modules && $(MAKE) install
+	cd Modules && $(MAKE) $(MAKEVARS) install
 	$(INSTALL_DIR) $(DESTDIR)$(LIBDEST)/site-packages/python-ldap
 	$(INSTALL_DATA) $(srcdir)/python-ldap.pth \
 		$(DESTDIR)$(LIBDEST)/site-packages/python-ldap.pth
