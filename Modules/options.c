@@ -57,7 +57,6 @@ LDAP_set_option(LDAPObject *self, int option, PyObject *value)
 
     switch(option) {
     case LDAP_OPT_API_INFO:
-    case LDAP_OPT_DESC:
     case LDAP_OPT_API_FEATURE_INFO:
 #ifdef HAVE_SASL
     case LDAP_OPT_X_SASL_SSF:
@@ -192,7 +191,6 @@ LDAP_get_option(LDAPObject *self, int option)
 #endif
     case LDAP_OPT_REFERRALS:
     case LDAP_OPT_RESTART:
-    case LDAP_OPT_DESC:
     case LDAP_OPT_DEREF:
     case LDAP_OPT_SIZELIMIT:
     case LDAP_OPT_TIMELIMIT:
