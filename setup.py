@@ -3,14 +3,15 @@
 
 from distutils.core import setup, Extension
 from ConfigParser import ConfigParser
+import string
 
 #-- Release version of Python-ldap
 version = '1.10'
 
 #-- A class describing the features and requirements of OpenLDAP 2.0
 class OpenLDAP2:
-	library_dirs =	[ "/usr/local/lib" ]
-	include_dirs =	[ "/usr/local/include" ]
+	library_dirs =	[ ]
+	include_dirs =	[ ]
 	libs =		['ldap', 'lber']
 	defines =	[('USE_CIDICT', None),
 			 #('WITH_KERBEROS', None),
@@ -32,10 +33,16 @@ class OpenLDAP2:
 #-- Read the [_ldap] section of setup.cfg to find out which class to use
 cfg = ConfigParser()
 cfg.read('setup.cfg')
-if cfg.has_section('_ldap') and cfg.has_option('_ldap', 'class'):
-	LDAP_CLASS = eval(cfg.get('_ldap', 'class', raw=1))
-else:
+if cfg.has_section('_ldap'):
+    if cfg.has_option('_ldap', 'class'):
+	LDAP_CLASS = eval(cfg.get('_ldap', 'class'))
+    else:
 	LDAP_CLASS = OpenLDAP2
+    for name in 'library_dirs', 'include_dirs', 'libs':
+	if cfg.has_option('_ldap', name):
+	    setattr(LDAP_CLASS, name, string.split(cfg.get('_ldap', name)))
+else:
+    LDAP_CLASS = OpenLDAP2
 
 #-- Let distutils do the rest
 setup(
@@ -78,6 +85,7 @@ setup(
 	py_modules = [
 		'ldap',
 		'ldif',
+		'ldapthreadlock',
 		#'perldap',
 	],
 
