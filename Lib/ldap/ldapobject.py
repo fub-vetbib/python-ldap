@@ -473,38 +473,6 @@ class SimpleLDAPObject:
     if msgid!=None:
       self.result(msgid,all=1,timeout=self.timeout)
 
-  def uncache_entry(self,dn):
-    """
-    uncache_entry(dn) -> None    
-        Removes all cached entries that make reference to dn. This should be
-        used, for example, after doing a modify() involving dn.
-    """
-    self._ldap_call(self._l.uncache_entry,dn)
-
-  def uncache_request(self,msgid):
-    """
-    uncache_request(msgid) -> None    
-        Remove the request indicated by msgid from the cache.
-    """
-    self._ldap_call(self._l.uncache_request,msgid)
-
-  def url_search(self,url,attrsonly=0):
-    """
-    url_search(url [,attrsonly=0])
-    url_search_s(url [,attrsonly=0])
-    url_search_st(url [,attrsonly=0 [,timeout=-1]])
-        These routine works much like search_s*, except that many
-        search parameters are pulled out of the URL url (see RFC 2255).
-    """
-    return self._ldap_call(self._l.url_search,url,attrsonly)
-
-  def url_search_st(self,url,attrsonly=0,timeout=-1):
-    msgid = self.url_search(url,attrsonly)
-    return self.result(msgid,all=1,timeout=timeout)[1]
-
-  def url_search_s(self,url,attrsonly=0):
-    return self.url_search_st(url,attrsonly,timeout=self.timeout)
-
   def get_option(self,option):
     return self._ldap_call(self._l.get_option,option)
 
