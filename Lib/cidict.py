@@ -21,8 +21,10 @@ class cidict(UserDict):
 		return self.data[lower(name)]
 	def __setitem__(self, name, value):
 		self.data[lower(name)] = value
-	def __detitem__(self, name):
+	def __delitem__(self, name):
 		del self.data[lower(name)]
+	def has_key(self, name):
+		return UserDict.has_key(self, lower(name))
 
 if __name__ == '__main__':
 	x = { 'AbCDeF' : 123 }
@@ -30,4 +32,6 @@ if __name__ == '__main__':
 	assert cix["ABCDEF"] == 123
 	cix["xYZ"] = 987
 	assert cix["XyZ"] == 987
+	del cix["abcdEF"]
+	assert not cix.has_key("AbCDef")
 
