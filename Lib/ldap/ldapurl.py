@@ -8,7 +8,7 @@ are assumed to be Unicode objects, string methods instead of
 string module and list comprehensions are used.
 """
 
-__version__ = '0.3.0'
+__version__ = '0.3.1'
 
 import re,urllib,ldap
 
@@ -119,47 +119,53 @@ class LDAPUrl:
     extensions   list of extensions
     charset      Character set ot be assumed for LDAP data
   """
+  attr2extype = {'who':'bindname','cred':'X-BINDPW'}
 
   def __init__(self,ldapUrl=None,**kwargs):
     self.urlscheme='ldap'
     self.hostport=''
-    self.dn=''
+    self.dn=None
     self.attrs=None
     self.scope=ldap.SCOPE_BASE
     self.filterstr='(objectclass=*)'
-    self.extensions=[]
+    self.extensions = {}
     self.charset = 'utf-8'
     if ldapUrl is None:
-      self.__dict__.update(kwargs)
+      for name,value in kwargs.items():
+        setattr(self,name,value)
     else:
-      self._parse(ldapUrl.strip())
+      self._parse(ldapUrl)
 
-  def bindName(self,default=None):
-    """
-    Return bindname extension if present, default else.
-    """
-    for e in self.extensions:
-      if e.extype=='bindname':
-        return urllib.unquote_plus(e.exvalue)
-    return default
+  def __getattr__(self,name):
+    if name=='who' or name=='cred':
+      extype = self.attr2extype[name]
+      if self.extensions.has_key(extype):
+        return urllib.unquote_plus(
+          self.extensions[extype].exvalue
+        )
+      else:
+        None
+    else:
+      raise AttributeError,'No attribute %s in instance of %s.' % (
+        name,self.__class__.__name__
+      )
 
-  def bindPW(self,default=None):
-    """
-    Return bindname extension if present, default else.
-    """
-    for e in self.extensions:
-      if e.extype=='X-BINDPW':
-        return urllib.unquote_plus(e.exvalue)
-    return default
+  def __setattr__(self,name,value):
+    if (name=='who' or name=='cred') and value:
+      extype = self.attr2extype[name]
+      self.extensions[extype] = LDAPUrlExtension(
+        extype=extype,exvalue=urllib.unquote_plus(value)
+      )
+    else:
+      self.__dict__[name] = value
 
   def _parse(self,ldap_url,relaxed_charset_handling=1):
     """
     parse a LDAP URL and set the class attributes
     urlscheme,host,dn,attrs,scope,filterstr,extensions
     """
-
     if not isLDAPUrl(ldap_url):
-      raise ValueError,'ldap_url does not seem to be a LDAP URL.'
+      raise ValueError,'Parameter ldap_url does not seem to be a LDAP URL.'
     scheme,rest = ldap_url.split('://',1)
     self.urlscheme = scheme.strip()
     if not self.urlscheme in ['ldap','ldaps','ldapi']:
@@ -204,10 +210,13 @@ class LDAPUrl:
       except:
         self.filterstr = unicode(filterstr,'iso-8859-1')
     if paramlist_len>=5:
-      self.extensions = [
+      extensions = [
         LDAPUrlExtension(extension)
         for extension in paramlist[4].strip().split(',')
       ]
+      self.extensions = {}
+      for e in extensions:
+        self.extensions[e.extype] = e
     return
 
 
@@ -254,7 +263,7 @@ class LDAPUrl:
       ldap_url = ldap_url+'?'+','.join(
         [
           str(e)
-          for e in self.extensions
+          for e in self.extensions.values()
         ]
       )
     if charset is None:
@@ -375,14 +384,14 @@ def test():
     print 'Unparsed LDAP URL',ldapUrl.unparse()
     if (
          ldapUrl.urlscheme,ldapUrl.hostport,ldapUrl.dn,ldapUrl.attrs,
-         ldapUrl.scope,ldapUrl.filterstr,map(str,ldapUrl.extensions)
+         ldapUrl.scope,ldapUrl.filterstr,map(str,ldapUrl.extensions.values())
        ) != \
        parse_ldap_url_tests[ldap_url]:
       print 'Attributes of LDAPUrl(%s) are:\n%s\ninstead of:\n%s\n' % (
         repr(ldap_url),
         (
          ldapUrl.urlscheme,ldapUrl.hostport,ldapUrl.dn,ldapUrl.attrs,
-         ldapUrl.scope,ldapUrl.filterstr,map(str,ldapUrl.extensions)
+         ldapUrl.scope,ldapUrl.filterstr,map(str,ldapUrl.extensions.values())
         ),
         repr(parse_ldap_url_tests[ldap_url])
       )
