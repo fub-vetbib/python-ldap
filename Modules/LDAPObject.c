@@ -1232,6 +1232,7 @@ l_ldap_result( LDAPObject* self, PyObject *args )
     	return Py_None;
     }
 
+    /* thanks to Konstantin Chuguev for this */
     if (res_type != LDAP_RES_SEARCH_ENTRY) {
 	LDAP_BEGIN_ALLOW_THREADS( self );
 	result = ldap_result2error( self->ldap, msg, 0 );
