@@ -21,7 +21,7 @@
 import string
 from _ldap import *
 
-__all__ = ['connection', 'entry', 'widgets', 'parse']
+__all__ = ['connection', 'entry', 'widgets', 'parse', 'utils', 'session']
 
 #### some short and usefull functions
 def canonical_dn(*parts):

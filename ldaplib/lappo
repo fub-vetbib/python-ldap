@@ -270,7 +270,7 @@ def dialog_info(msg, type='information', buttons=STOCK_BUTTON_OK):
     return v
 
 #### dialog yes/no
-def
+#def
 
 #### ldap error dialog
 def dialog_ldap(msg, err):
