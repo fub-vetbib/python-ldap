@@ -553,7 +553,7 @@ l_ldap_sasl_bind_s( LDAPObject* self, PyObject* args )
 {
     char *bind_dn, *c_mechanism;
     PyObject       *SASLObject = NULL;
-    PyStringObject *mechanism = NULL;
+    PyObject *mechanism = NULL;
     int msgid, version;
 
     void *defaults;
@@ -948,6 +948,7 @@ static PyMethodDef methods[] = {
     {"compare_ext",	(PyCFunction)l_ldap_compare_ext,	METH_VARARGS },
     {"delete_ext",	(PyCFunction)l_ldap_delete_ext,		METH_VARARGS },
     {"modify_ext",	(PyCFunction)l_ldap_modify_ext,		METH_VARARGS },
+    {"passwd",	        (PyCFunction)l_ldap_passwd,	        METH_VARARGS },
     {"rename",	        (PyCFunction)l_ldap_rename,		METH_VARARGS },
     {"result",		(PyCFunction)l_ldap_result,		METH_VARARGS },
     {"search_ext",	(PyCFunction)l_ldap_search_ext,		METH_VARARGS },
