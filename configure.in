@@ -7,7 +7,7 @@ dnl
 dnl Version
 dnl
 
-AC_DEFINE(LDAPMODULE_VERSION, 1.10alpha2)
+AC_DEFINE(LDAPMODULE_VERSION, 1.10alpha3)
 
 dnl
 dnl Options
@@ -51,6 +51,12 @@ LIBDEST="$ac_cv_path_python/lib/python$ac_cv_ver_python"
 PYTHON="$ac_cv_prog_python"
 AC_SUBST(PYTHON)
 AC_SUBST(LIBDEST)
+
+dnl
+dnl For many evil reasons, we need to know the absolute path to srcdir
+dnl
+srcdir_abs=`cd ${srcdir} && pwd`
+AC_SUBST(srcdir_abs)
 
 dnl
 dnl Steal some configuration info from openldap.sh, if it was run
@@ -256,9 +262,13 @@ cp "$pymf" Modules/Makefile.pre.in
 
 AC_OUTPUT_COMMANDS([
 	echo bootstrapping makefile
-	rm -f Modules/Setup
-	(cd Modules && make -f Makefile.pre.in PYTHON="$PYTHON" boot)
+	if test "$srcdir" == "."; then
+		(cd Modules && make -f Makefile.pre.in PYTHON="$PYTHON" boot)
+	else
+		(cd Modules && make -f Makefile.pre.in PYTHON="$PYTHON" \
+		 srcdir="$srcdir/Modules" VPATH="$srcdir/Modules" boot)
+	fi
 ], [PYTHON="$PYTHON"])
 
-AC_OUTPUT(Modules/Setup.in Makefile)
+AC_OUTPUT(Modules/Setup Makefile)
 

@@ -6,9 +6,9 @@ INSTALL=	$(LIBDEST)/config/install-sh
 INSTALL_DATA=	$(INSTALL) -m 644
 INSTALL_DIR=	mkdir -p
 srcdir=		@srcdir@
-srcdir_ABS=	`cd $(srcdir) && pwd`
+srcdir_abs=	@srcdir_abs@
 
-MAKEVARS=	srcdir=$(srcdir_ABS)/Modules VPATH=$(srcdir_ABS)/Modules
+MAKEVARS=	srcdir=$(srcdir_abs)/Modules VPATH=$(srcdir_abs)/Modules
 
 all:	 build
 
@@ -46,3 +46,7 @@ _ldapmodule-filelist:
 
 _empty-filelist:	
 	cp /dev/null filelist
+
+distclean:
+	cd Modules && $(MAKE) $(MAKEVARS) distclean
+	rm -f Modules/Setup Modules/config.h config.* Makefile
