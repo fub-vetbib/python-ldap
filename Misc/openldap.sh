@@ -3,7 +3,7 @@
 # David Leonard, <david.leonard@csee.uq.edu.au> 1999. Public domain.
 #
 # This script provides a simple way of downloading, configuring, and
-# building OpenLDAP 1.2.7 for use with the Python ldapmodule.
+# building OpenLDAP-release for use with the Python ldapmodule.
 # Run this script first and then run the configure script in the ldapmodule
 # directory (it will notice that this script has been run.)
 #
@@ -23,9 +23,9 @@ case "$1" in
     MD5HASH=0f08e59f5dd8a9b70ddc6bddb40d21d7
     ;;
   *)
-    SRCDIR=ldap
-    OPENLDAP=openldap-release/openldap-1.2.7
-    MD5HASH=be5866cfa50fdf083f5230b3837181e8
+    SRCDIR=openldap-1.2.11
+    OPENLDAP=openldap-release/openldap-1.2.11
+    MD5HASH=ac469c0fe66ece3893e96182f14b7886
     ;;
 esac
 
@@ -34,6 +34,15 @@ URL="ftp://ftp.openldap.org/pub/OpenLDAP/${OPENLDAP}.tgz"
 CONFIGURE_ARGS="--disable-slapd --disable-slurpd --disable-libui --without-threads --disable-shared"
 
 set -e
+
+cat <<.
+@@ This script will download, extract, and compile just enough of
+@@ $SRCDIR to be used for building the python _ldap module.
+@@ Only the static libraries libldap.a and liblber.a are created. They
+@@ are later copied into _ldapmodule.so, so after that is created, the
+@@ temporary directory $PREFIX is safe to be removed.
+
+.
 
 #
 # try downloading a file using either Python's urllib, or lynx.
