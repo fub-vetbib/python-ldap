@@ -1,0 +1,99 @@
+
+LDAP module for Python
+======================
+
+This module provides access to the LDAP (C language) library.
+It is known to compile and work with:
+  * UM LDAP library v3.3, ftp://terminator.rs.itd.umich.edu/ldap/ldap.tar.Z
+  * OpenLDAP release 1.2.11, http://www.openldap.org/
+
+For extensive module usage documentation, look in the Doc directory.
+
+Standard build instructions:
+    sh configure
+    make
+    make install  (possibly)
+
+Quick usage example:
+    import _ldap
+    l = _ldap.open("my_ldap_server.my_domain")
+    l.simple_bind_s("","")
+    l.search_s("o=My Organisation, c=AU", _ldap.SCOPE_SUBTREE, "objectclass=*")
+
+Not included:
+   Direct BER support
+   CLDAP 
+
+Author(s) contact:
+   python-ldap-dev@lists.sourceforge.net
+   http://python-ldap.sourceforge.net/
+
+   If you are looking for help, please use the same mailing list address.
+   Be warned that questions will be ignored if they are deemed to be 
+   trivially answered by referring to the documentation.
+
+   We are really hoping that someone will add the CLDAP support and 
+   possibly the OpenLDAP extensions such as display templates to this
+   library. If you are interested in helping, please contact the mailing list.
+   If you want new features or upgrades, please check the mailing list
+   archives and then enquire about any progress.
+
+Notes for Microsoft WIN32:
+   You are now looking at the source distribution.  A precompiled ldap.pyd 
+   for WIN32 architectures can also be found at:
+
+   	http://www.csee.uq.edu.au/~leonard/dc-prj/ldapmodule/
+
+   If you have MSVC6.0 or equivalent, and want to build the module yourself,
+   you should refer to the README.txt file in the win32 directory.
+
+Obtaining a C LDAP library (libldap.a)
+   In many cases you will already have a C LDAP library installed (eg
+   Solaris, Netscape or OpenLDAP libraries). You ought to run the configure
+   script first to see if and which such libraries are found.
+
+   If no C LDAP library is found, you should run the openldap.sh script
+   found with this distribution. It will download and compile enough of
+   a standard OpenLDAP library within a temporary area so that it
+   can be statically linked into the Python ldapmodule. After the 
+   ldapmodule has been created you can safely destroy the temporary area,
+   even though no C LDAP library was installed in your system.
+
+Copyright and licensing:
+   The author(s) place this software into the public domain. The author(s)
+   license the use of this software for any purpose to anyone at no
+   charge, subject to the following disclaimer. 
+
+Standard disclaimer:
+   This software is made available by the author to the public for free
+   and "as is".  All users of this free software are solely and entirely
+   responsible for their own choice and use of this software for their
+   own purposes.  By using this software, each user agrees that the
+   author(s) shall not be liable for damages of any kind in relation to
+   its use or performance.
+
+   Although not a condition of the licensing, I strongly urge that any
+   improvements you may make be sent back to me for inclusion into 
+   future versions of this module (under the same free licensing).
+
+Acknowledgements:
+   Thanks to Mauro Cicognini <mcicogni at siosistemi.it> for the 
+   WIN32/MSVC6 bits, and the pre-built WIN32 ldap.pyd.
+
+   These very kind people have supplied patches or suggested changes
+   (@-signs omitted to avoid spam):
+
+       John Benninghoff <johnb at netscape.com>
+       Donn Cave <donn at u.washington.edu>
+       Jason Gunthorpe <jgg at debian.org>
+       gurney_j <gurney_j at 4j.lane.edu>
+       Eric S. Johansson <esj at harvee.billerica.ma.us>
+       David Margrave <davidma at premier1.net>
+       Uche Ogbuji <uche.ogbuji at fourthought.com>
+       Neale Pickett <neale at lanl.gov>
+       Blake Weston <weston at platinum1.cambridge.scr.slb.com>
+
+   Thanks!
+
+
+$Id$
