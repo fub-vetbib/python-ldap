@@ -57,7 +57,7 @@ class SchemaElement:
       return ''
 
   def key_list(self,key,values,sep=' ',quoted=0):
-    assert type(values)==type(tuple()),TypeError("values has to be of ListType")
+    assert type(values)==type((())),TypeError("values has to be of ListType")
     if not values:
       return ''
     if quoted:
@@ -91,14 +91,14 @@ class ObjectClass(SchemaElement):
   """
   schema_attribute = 'objectClasses'
   token_defaults = {
-    'NAME':tuple(),
+    'NAME':(()),
     'DESC':(None,),
     'OBSOLETE':None,
-    'SUP':tuple(),
+    'SUP':(()),
     'STRUCTURAL':None,
     'AUXILIARY':None,
     'ABSTRACT':None,
-    'MUST':tuple(),
+    'MUST':(()),
     'MAY':()
   }
 
@@ -115,13 +115,13 @@ class ObjectClass(SchemaElement):
       self.kind = 1
     elif d['AUXILIARY']!=None:
       self.kind = 2
-    assert type(self.names)==type(tuple())
+    assert type(self.names)==type((()))
     assert self.desc is None or type(self.desc)==type('')
     assert type(self.obsolete)==type(0) and (self.obsolete==0 or self.obsolete==1)
-    assert type(self.sup)==type(tuple())
+    assert type(self.sup)==type((()))
     assert type(self.kind)==type(0)
-    assert type(self.must)==type(tuple())
-    assert type(self.may)==type(tuple())
+    assert type(self.must)==type((()))
+    assert type(self.may)==type((()))
     return # ObjectClass.__init__()
 
   def __str__(self):
@@ -172,10 +172,10 @@ class AttributeType(SchemaElement):
   """
   schema_attribute = 'attributeTypes'
   token_defaults = {
-    'NAME':tuple(),
+    'NAME':(()),
     'DESC':(None,),
     'OBSOLETE':None,
-    'SUP':tuple(),
+    'SUP':(()),
     'EQUALITY':(None,),
     'ORDERING':(None,),
     'SUBSTR':(None,),
@@ -217,9 +217,9 @@ class AttributeType(SchemaElement):
     except KeyError:
       raise
     self.usage = AttributeUsage.get(d['USAGE'][0],0)
-    assert type(self.names)==type(tuple())
+    assert type(self.names)==type((()))
     assert self.desc is None or type(self.desc)==type('')
-    assert type(self.sup)==type(tuple()),'attribute sup has type %s' % (type(self.sup))
+    assert type(self.sup)==type((())),'attribute sup has type %s' % (type(self.sup))
     assert type(self.obsolete)==type(0) and (self.obsolete==0 or self.obsolete==1)
     assert type(self.single_value)==type(0) and (self.single_value==0 or self.single_value==1)
     assert type(self.no_user_mod)==type(0) and (self.no_user_mod==0 or self.no_user_mod==1)
@@ -295,7 +295,7 @@ class MatchingRule(SchemaElement):
   """
   schema_attribute = 'matchingRules'
   token_defaults = {
-    'NAME':tuple(),
+    'NAME':(()),
     'DESC':(None,),
     'OBSOLETE':None,
     'SYNTAX':(None,),
@@ -306,7 +306,7 @@ class MatchingRule(SchemaElement):
     self.desc = d['DESC'][0]
     self.obsolete = d['OBSOLETE']!=None
     self.syntax = d['SYNTAX'][0]
-    assert type(self.names)==type(tuple())
+    assert type(self.names)==type((()))
     assert self.desc is None or type(self.desc)==type('')
     assert type(self.obsolete)==type(0) and (self.obsolete==0 or self.obsolete==1)
     assert self.syntax is None or type(self.syntax)==type('')
@@ -334,10 +334,10 @@ class MatchingRuleUse(SchemaElement):
   """
   schema_attribute = 'matchingRuleUse'
   token_defaults = {
-       'NAME':tuple(),
+       'NAME':(()),
        'DESC':(None,),
        'OBSOLETE':None,
-       'APPLIES':tuple(),
+       'APPLIES':(()),
   }
 
   def _set_attrs(self,l,d):
@@ -345,10 +345,10 @@ class MatchingRuleUse(SchemaElement):
     self.desc = d['DESC'][0]
     self.obsolete = d['OBSOLETE']!=None
     self.applies = d['APPLIES']
-    assert type(self.names)==type(tuple())
+    assert type(self.names)==type((()))
     assert self.desc is None or type(self.desc)==type('')
     assert type(self.obsolete)==type(0) and (self.obsolete==0 or self.obsolete==1)
-    assert type(self.applies)==type(tuple())
+    assert type(self.applies)==type((()))
     return # MatchingRuleUse.__init__()
 
   def __str__(self):

@@ -66,7 +66,7 @@ def extract_tokens(l,known_tokens):
       if i<l_len:
         if result_has_key(l[i]):
           # non-valued
-          result[token] = tuple()
+          result[token] = (())
         elif l[i]=="(":
           # multi-valued
           i += 1 # Consume left parentheses
