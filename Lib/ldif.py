@@ -11,7 +11,7 @@ Python compability note:
 This module should work with Python 1.5.2+.
 """
 
-__version__ = '0.3.0'
+__version__ = '0.3.1'
 
 __all__ = [
   # constants
@@ -36,6 +36,7 @@ dn_regex   = re.compile('^%s$' % dn_pattern)
 ldif_pattern = '^((dn(:|::) %(dn_pattern)s)|(%(attrtype_pattern)s(:|::) .*)$)+' % vars()
 ldif_regex   = re.compile('^%s$' % ldif_pattern,re.M)
 
+linesep = '\n'
 
 def is_dn(s):
   """
@@ -88,7 +89,7 @@ def CreateLDIFLine(attr_type,attr_value,base64_attrs=[],cols=66):
   while pos<line_len:
     result.append(line[pos:min(line_len,pos+cols-1)])
     pos = pos+cols-1
-  return string.join(result,os.linesep+' ')
+  return string.join(result,linesep+' ')
 
 
 def CreateLDIF(dn,entry={},base64_attrs=[],cols=66):
@@ -113,7 +114,7 @@ def CreateLDIF(dn,entry={},base64_attrs=[],cols=66):
     for attr_value in entry[attr_type]:
       result.append(CreateLDIFLine(attr_type,attr_value,base64_attrs,cols))
   result.append('')
-  return string.join(result,os.linesep)
+  return string.join(result,linesep)
 
 
 def StripLineSep(s):
