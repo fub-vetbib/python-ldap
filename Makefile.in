@@ -2,7 +2,7 @@
 
 PYTHON=		@PYTHON@
 LIBDEST=	@LIBDEST@
-INSTALL=	$(LIBDEST)/config/install-sh
+INSTALL=	$(LIBDEST)/config/install-sh -c
 INSTALL_DATA=	$(INSTALL) -m 644
 INSTALL_DIR=	mkdir -p
 srcdir=		@srcdir@
