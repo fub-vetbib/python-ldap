@@ -229,7 +229,7 @@ class subSchema:
       object_class_oids = [
         self.name2oid.get(o,o) for o in object_class_list
       ]
-      r_must,r_may = {},{}
+      r_must,r_may = ldap.cidict.cidict(),ldap.cidict.cidict()
       while object_class_oids:
         object_class_oid = object_class_oids.pop(0)
         # Check whether the objectClass with this OID
@@ -240,9 +240,9 @@ class subSchema:
         oid_cache[object_class_oid] = None
         object_class = self.schema_element[object_class_oid]
         for a in object_class.must:
-          r_must[a] = None
+          r_must[a] = a
         for a in object_class.may:
-          r_may[a] = None
+          r_may[a] = a
         object_class_oids.extend([
           self.name2oid.get(s,s)
           for s in object_class.sup
@@ -252,5 +252,5 @@ class subSchema:
       for a in r_may.keys():
         if r_must.has_key(a):
           del r_may[a]
-      return r_must.keys(),r_may.keys()
+      return r_must.values(),r_may.values()
 
