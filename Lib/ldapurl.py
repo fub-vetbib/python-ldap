@@ -113,6 +113,12 @@ class LDAPUrlExtension:
   def __str__(self):
     return self.unparse()
 
+  def __eq__(self,other):
+    return \
+      (self.critical==other.critical) and \
+      (self.extype==other.extype) and \
+      (self.exvalue==other.exvalue)
+
 
 class LDAPUrl:
   """
@@ -146,8 +152,6 @@ class LDAPUrl:
         (see RFC 2254)
     extensions
         Dictionary used as extensions store
-    charset
-        Character set to be assumed for LDAP data
     who
         Maps automagically to bindname LDAP URL extension
     cred
@@ -166,7 +170,6 @@ class LDAPUrl:
     scope=None,
     filterstr=None,
     extensions = {},
-    charset='utf-8',
     who=None,
     cred=None,
   ):
@@ -177,7 +180,6 @@ class LDAPUrl:
     self.scope=scope
     self.filterstr=filterstr
     self.extensions=extensions
-    self.charset=charset
     self.who = who
     self.cred = cred
     if ldapUrl!=None:
@@ -220,7 +222,18 @@ class LDAPUrl:
     else:
       del self.__dict__[name]
 
-  def _parse(self,ldap_url,relaxed_charset_handling=1):
+  def __eq__(self,other):
+    return \
+      self.ldapUrl==other.ldapUrl and \
+      self.urlscheme==other.urlscheme and \
+      self.hostport==other.hostport and \
+      self.dn==other.dn and \
+      self.attrs==other.attrs and \
+      self.scope==other.scope and \
+      self.filterstr==other.filterstr and \
+      self.extensions ==other.extensions
+
+  def _parse(self,ldap_url):
     """
     parse a LDAP URL and set the class attributes
     urlscheme,host,dn,attrs,scope,filterstr,extensions
@@ -281,8 +294,7 @@ class LDAPUrl:
         self.extensions[e.extype] = e
     return
 
-
-  def _urlEncoding(self,s,charset):
+  def _urlEncoding(self,s):
     """Returns URL encoding of string s"""
     return quote(s).replace(',','%2C').replace('/','%2F')
 
@@ -309,8 +321,8 @@ class LDAPUrl:
     if self.filterstr is None:
       filterstr = ''
     else:
-      filterstr = self._urlEncoding(self.filterstr,self.charset)
-    dn = self._urlEncoding(self.dn,self.charset)
+      filterstr = self._urlEncoding(self.filterstr)
+    dn = self._urlEncoding(self.dn)
     if self.urlscheme=='ldapi':
       # hostport part might contain slashes when ldapi:// is used
       hostport = quote_plus(self.hostport)
@@ -329,7 +341,7 @@ class LDAPUrl:
       )
     return ldap_url.encode('ascii')
   
-  def htmlHREF(self,urlPrefix='',hrefText=None,hrefTarget=None,httpCharset='utf-8'):
+  def htmlHREF(self,urlPrefix='',hrefText=None,hrefTarget=None):
     """Complete """
     assert type(urlPrefix)==StringType, "urlPrefix must be StringType"
     if hrefText is None:
