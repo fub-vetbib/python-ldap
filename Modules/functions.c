@@ -10,7 +10,6 @@
 #include "LDAPObject.h"
 #include "errors.h"
 #include "template.h"
-#include "CIDict.h"
 #include "options.h"
 
 static short default_ldap_port(void);

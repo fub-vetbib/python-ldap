@@ -7,7 +7,6 @@
 #include "common.h"
 #include "message.h"
 #include "errors.h"
-#include "CIDict.h"
 
 PyObject*
 LDAPmessage_to_python( LDAP*ld, LDAPMessage*m )
@@ -43,11 +42,7 @@ LDAPmessage_to_python( LDAP*ld, LDAPMessage*m )
 	     return LDAPerror( ld, "ldap_get_dn" );
 	 }
 
-#ifdef USE_CIDICT
-	 attrdict = CIDict_New();
-#else /* use standard python dictionary */
 	 attrdict = PyDict_New();
-#endif /* !CIDICT */
 	 if (attrdict == NULL) {
 		Py_DECREF(result);
 		ldap_msgfree( m );
