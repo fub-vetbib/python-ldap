@@ -225,11 +225,18 @@ l_ldap_set_option(PyObject* unused, PyObject *args)
 	case LDAP_OPT_X_SASL_SSF:
 		PyErr_SetString( LDAPexception_class, "read-only option" );
     		return NULL;
+	case LDAP_OPT_REFERRALS:
+	case LDAP_OPT_RESTART:
+		if (!PyArg_Parse( value, "i", &intval )) {
+	    		PyErr_SetString( PyExc_TypeError, "expected integer" );
+	    		return NULL;
+		}
+		if (intval) ptr=LDAP_OPT_ON;
+		else ptr=LDAP_OPT_OFF;
+		break;
 	case LDAP_OPT_DEREF:
 	case LDAP_OPT_SIZELIMIT:
 	case LDAP_OPT_TIMELIMIT:
-	case LDAP_OPT_REFERRALS:
-	case LDAP_OPT_RESTART:
 	case LDAP_OPT_PROTOCOL_VERSION:
 	case LDAP_OPT_ERROR_NUMBER:
 	case LDAP_OPT_DEBUG_LEVEL:
