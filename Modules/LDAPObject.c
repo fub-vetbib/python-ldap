@@ -515,6 +515,10 @@ l_ldap_bind_s( LDAPObject* self, PyObject* args )
     return Py_None;
 }
 
+
+#if 0 
+/* removed until made OpenLDAP2 compatible */
+
 /* ldap_set_rebind_proc */
 
 /* XXX - this could be called when threads are allowed!!! */
@@ -642,6 +646,9 @@ static char doc_set_rebind_proc[] =
 "\trebinding function is supported at any one time. This method\n"
 "\tis only available if the module and library were compiled with\n"
 "\tsupport for it.";
+
+#endif
+
 
 /* ldap_simple_bind */
 
@@ -1582,7 +1589,9 @@ static PyMethodDef methods[] = {
     {"add_s",		(PyCFunction)l_ldap_add_s,		METH_VARARGS,	doc_add},	
     {"bind",		(PyCFunction)l_ldap_bind,		METH_VARARGS,	doc_bind},	
     {"bind_s",		(PyCFunction)l_ldap_bind_s,		METH_VARARGS,	doc_bind},	
+#if 0    
     {"set_rebind_proc",	(PyCFunction)l_ldap_set_rebind_proc,	METH_VARARGS,	doc_set_rebind_proc},	
+#endif
     {"simple_bind",	(PyCFunction)l_ldap_simple_bind,	METH_VARARGS,	doc_bind},	
     {"simple_bind_s",	(PyCFunction)l_ldap_simple_bind_s,	METH_VARARGS,	doc_bind},	
 #ifdef WITH_KERBEROS
