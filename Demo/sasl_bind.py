@@ -3,7 +3,7 @@
 
 import ldap,ldap.sasl
 
-ldap.sasl._trace_level=1
+ldap.sasl._trace_level=0
 
 ldap.set_option(ldap.OPT_DEBUG_LEVEL,0)
 
@@ -35,6 +35,11 @@ for ldap_uri,sasl_mech,sasl_cb_value_dict in [
   (
     "ldapi://%2Ftmp%2Fopenldap-socket/",
     'EXTERNAL',
+    { }
+  ),
+  (
+    "ldap://localhost:1390/",
+    'GSSAPI',
     { }
   ),
   (
