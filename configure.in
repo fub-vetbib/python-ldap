@@ -204,6 +204,33 @@ fi
 AC_CHECK_FUNCS(ldap_modrdn2_s ldap_modrdn2 ldap_init_templates)
 AC_CHECK_HEADERS(disptmpl.h)
 
+dnl
+dnl Check number of arguments to ldap_modrdn(), but only
+dnl if there is no ldap_modrdn2() defined.
+dnl
+if test yes != ${ac_cv_func_ldap_modrdn2}; then
+	AC_CACHE_CHECK([number of arguments to ldap_modrdn()],
+		ac_cv_ldap_modrdn,
+		[AC_TRY_COMPILE([#include <lber.h>
+#include <ldap.h>],
+	[(void)ldap_modrdn(0,0,0,0);],
+	ac_cv_ldap_modrdn=4, ac_cv_ldap_modrdn=3)])
+	if test "$ac_cv_ldap_modrdn" = 3; then
+		AC_DEFINE(LDAP_MODRDN_3ARGS)
+	fi
+fi
+if test yes != ${ac_cv_func_ldap_modrdn2_s}; then
+	AC_CACHE_CHECK([number of arguments to ldap_modrdn_s()],
+		ac_cv_ldap_modrdn_s,
+		[AC_TRY_COMPILE([#include <lber.h>
+#include <ldap.h>],
+	[(void)ldap_modrdn_s(0,0,0,0);],
+	ac_cv_ldap_modrdn_s=4, ac_cv_ldap_modrdn_s=3)])
+	if test "$ac_cv_ldap_modrdn_s" = 3; then
+		AC_DEFINE(LDAP_MODRDN_S_3ARGS)
+	fi
+fi
+
 dnl-- check for case-insensitive dictionary to be used
 if test no != "${enable_cidict-no}"; then
 	AC_DEFINE(USE_CIDICT)
