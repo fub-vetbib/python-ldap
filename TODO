@@ -2,6 +2,7 @@
 
 General:
 - Define common license for all modules
+- Create a test script that exercises everything with a public server
 
 Modules/
 - Validating server's certificate when calling start_tls_s() or
