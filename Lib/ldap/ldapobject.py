@@ -548,9 +548,9 @@ class SimpleLDAPObject:
       r = self.search_s(
         dn,ldap.SCOPE_BASE,'(objectClass=*)',['subschemaSubentry']
       )
-    except ldap.NO_SUCH_OBJECT:
+    except (ldap.NO_SUCH_OBJECT,ldap.NO_SUCH_ATTRIBUTE):
       r = []
-    except (ldap.UNDEFINED_TYPE,ldap.NO_SUCH_ATTRIBUTE):
+    except ldap.UNDEFINED_TYPE:
       return None
     try:
       if r:
@@ -647,6 +647,7 @@ class ReconnectLDAPObject(SimpleLDAPObject):
     self._retry_max = retry_max
     self._retry_delay = retry_delay
     self._start_tls = 0
+    self._reconnects_done = 0L
 
   def _apply_last_bind(self):
     if self._last_bind!=None:
@@ -691,7 +692,7 @@ class ReconnectLDAPObject(SimpleLDAPObject):
           self._trace_file.write('*** %d. reconnect to %s successful, last operation will be repeated\n' % (
             self._retry_max-reconnect_counter+1,uri
           ))
-        reconnect_counter = reconnect_counter-1
+        self._reconnects_done = self._reconnects_done + 1L
         break
 
   def _apply_method_s(self,func,*args,**kwargs):
