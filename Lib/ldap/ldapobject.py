@@ -577,15 +577,19 @@ class SimpleLDAPObject:
     """
     Returns the sub schema sub entry's data
     """
-    r = self.search_s(
-      subschemasubentry_dn,ldap.SCOPE_BASE,
-      '(objectClass=subschema)',
-      attrs
-    )
-    if r:
-      return r[0][1]
-    else:
+    try:
+      r = self.search_s(
+        subschemasubentry_dn,ldap.SCOPE_BASE,
+        '(objectClass=subschema)',
+        attrs
+      )
+    except ldap.NO_SUCH_OBJECT:
       return None
+    else:
+      if r:
+        return r[0][1]
+      else:
+        return None
 
 
 class NonblockingLDAPObject(SimpleLDAPObject):
