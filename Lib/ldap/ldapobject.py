@@ -16,12 +16,7 @@ overridden.
 
 Thread-lock:
 Basically calls into the LDAP lib are serialized by the module-wide
-lock self._ldap_object_lock. To avoid long-time blocking of other threads
-synchronous methods like search_s() etc. and the result() method
-were rewritten to do solely asynchronous LDAP lib calls with zero
-timeout.
-The timeout handling is done within the method result() which probably leads
-to less exact timing.
+lock self._ldap_object_lock.
 """
 
 __version__ = '0.4.0'
