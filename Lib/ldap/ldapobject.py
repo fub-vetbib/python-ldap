@@ -111,7 +111,9 @@ class SimpleLDAPObject:
     elif self.__dict__.has_key(name):
       return self.__dict__[name]
     else:
-      raise AttributeError
+      raise AttributeError,'%s has no attribute %s' % (
+        self.__class__.__name__,repr(name)
+      )
 
   def abandon(self,msgid):
     """
