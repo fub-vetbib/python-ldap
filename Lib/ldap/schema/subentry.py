@@ -210,6 +210,22 @@ class SubSchema:
     return result
 
 
+  def get_applicable_aux_classes(self,nameoroid):
+    """
+    Return a list of the applicable AUXILIARY object classes
+    for a STRUCTURAL object class specified by 'nameoroid'
+    if the object class is governed by a DIT content rule.
+    If there's no DIT content rule all available AUXILIARY
+    object classes are returned.
+    """
+    content_rule = self.get_obj(DITContentRule,nameoroid)
+    if content_rule:
+      # Return AUXILIARY object classes from DITContentRule instance
+      return content_rule.aux
+    else:
+      # list all AUXILIARY object classes
+      return self.listall(ObjectClass,[('kind',[2])])
+
   def attribute_types(
     self,object_class_list,attr_type_filter=None,strict=1,raise_keyerror=1
   ):
@@ -294,44 +310,48 @@ class SubSchema:
       if r_must.has_key(a):
         del r_may[a]
 
-    # Process applicable DIT content rule
-    dit_content_rule = self.get_obj(DITContentRule,self.get_structural_oc(object_class_list))
-    if dit_content_rule:
-      for a in dit_content_rule.must:
-        try:
-          at_obj = self.sed[AttributeType][self.name2oid[AttributeType].get(a,a)]
-        except KeyError:
-          if raise_keyerror:
-            raise
-          else:
-            r_must[a] = None
-        else:
-          r_must[at_obj.oid] = at_obj
-      for a in dit_content_rule.may:
-        try:
-          at_obj = self.sed[AttributeType][self.name2oid[AttributeType].get(a,a)]
-        except KeyError:
-          if raise_keyerror:
-            raise
-          else:
-            r_may[a] = None
-        else:
-          r_may[at_obj.oid] = at_obj
-      for a in dit_content_rule.nots:
-        try:
-          at_obj = self.sed[AttributeType][self.name2oid[AttributeType].get(a,a)]
-        except KeyError:
-          if raise_keyerror:
-            raise
-        else:
+    structural_oc = self.get_structural_oc(object_class_list)
+    if structural_oc:
+      # Process applicable DIT content rule
+      dit_content_rule = self.get_obj(DITContentRule,structural_oc)
+      if dit_content_rule:
+        for a in dit_content_rule.must:
           try:
-            del r_must[at_obj.oid]
+            at_obj = self.sed[AttributeType][self.name2oid[AttributeType].get(a,a)]
           except KeyError:
-            pass
+            if raise_keyerror:
+              raise
+            else:
+              r_must[a] = None
+          else:
+            r_must[at_obj.oid] = at_obj
+        for a in dit_content_rule.may:
           try:
-            del r_may[at_obj.oid]
+            at_obj = self.sed[AttributeType][self.name2oid[AttributeType].get(a,a)]
           except KeyError:
-            pass
+            if raise_keyerror:
+              raise
+            else:
+              r_may[a] = None
+          else:
+            r_may[at_obj.oid] = at_obj
+        for a in dit_content_rule.nots:
+          a_oid = self.name2oid[AttributeType].get(a,a)
+          if not r_must.has_key(a_oid):
+            try:
+              at_obj = self.sed[AttributeType][a_oid]
+            except KeyError:
+              if raise_keyerror:
+                raise
+            else:
+              try:
+                del r_must[at_obj.oid]
+              except KeyError:
+                pass
+              try:
+                del r_may[at_obj.oid]
+              except KeyError:
+                pass
 
     # Apply attr_type_filter to results
     if attr_type_filter:
