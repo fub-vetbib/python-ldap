@@ -80,7 +80,7 @@ class SubSchema:
     avail_se = self.sed[schema_element_class]
     if schema_element_filters:
       result = []
-      for se_key in avail_se:
+      for se_key in avail_se.keys():
         se = avail_se[se_key]
         for fk,fv in schema_element_filters:
           try:
