@@ -669,7 +669,7 @@ whether the old RDN should be kept as an attribute of the entry or not.
 %%------------------------------------------------------------
 %% result
 
-\begin{methoddesc}[LDAP]{result}{\optional{ msgid=\constant{RES_ANY} \optional{, all=\constant{1} \optional{, timeout=\constant{-1}}}}} % -> tuple
+\begin{methoddesc}[LDAP]{result}{\optional{ msgid=\constant{RES_ANY} \optional{, all=\constant{1} \optional{, timeout=\constant{-1}}}}} % -> 2-tuple
 This method is used to wait for and return the result of an operation
 previously initiated by one of the LDAP \emph{asynchronous} operations
 (eg \method{search()}, \method{modify()}, etc.) 
@@ -679,8 +679,10 @@ method.
 The identifier is guaranteed to be unique across an LDAP session,
 and tells the \method{result()} method to request the result of that
 specific operation.
+
 If a result is desired from any one of the in-progress operations,
-\var{msgid} should be specified as the constant \constant{RES_ANY}.
+\var{msgid} should be specified as the constant \constant{RES_ANY}
+and the method \method{result2()} should be used instead.
 
 The \var{all} parameter only has meaning for \method{search()} responses
 and is used to select whether a single entry of the search
@@ -695,9 +697,10 @@ in its entirety, i.e. after all entries and the final search
 result have been received.
 
 For \var{all} set to 0, result tuples
-trickle in (with the same message id), and with the result type
-\constant{'RES_SEARCH_ENTRY'}, until the final result which has a result
-type of \constant{'RES_SEARCH_RESULT'} and a (usually) empty data field.
+trickle in (with the same message id), and with the result types
+\constant{RES_SEARCH_ENTRY} and \constant{RES_SEARCH_REFERENCE},
+until the final result which has a result
+type of \constant{RES_SEARCH_RESULT} and a (usually) empty data field.
 When all is set to 1, only one result is returned, with a
 result type of RES_SEARCH_RESULT, and all the result tuples
 listed in the data field.
@@ -713,13 +716,12 @@ unless polling, in which case \constant{(None, None)} is returned.
 
 The \method{result()} method returns a tuple of the form 
 \code{(\textit{result-type}, \textit{result-data})}.
-The first element, \textit{result-type} is a string, being one of:
-\constant{'RES_BIND'}, \constant{'RES_SEARCH_ENTRY'},
-\constant{'RES_SEARCH_REFERENCE'}, \constant{'RES_SEARCH_RESULT'}, 
-\constant{'RES_MODIFY'}, \constant{'RES_ADD'}, \constant{'RES_DELETE'}, 
-\constant{'RES_MODRDN'}, or \constant{'RES_COMPARE'}.
-(The module constants \constant{RES_*} are set to these strings,
-for your convenience.)
+The first element, \textit{result-type} is a string, being one of
+these module constants:
+\constant{RES_BIND}, \constant{RES_SEARCH_ENTRY},
+\constant{RES_SEARCH_REFERENCE}, \constant{RES_SEARCH_RESULT}, 
+\constant{RES_MODIFY}, \constant{RES_ADD}, \constant{RES_DELETE}, 
+\constant{RES_MODRDN}, or \constant{RES_COMPARE}.
 
 If \var{all} is \constant{0}, one response at a time is returned on
 each call to \method{result()}, with termination indicated by 
@@ -728,6 +730,15 @@ each call to \method{result()}, with termination indicated by
 See \method{search()} for a description of the search result's 
 \var{result-data}, otherwise the \var{result-data} is normally meaningless.
 
+\end{methoddesc}
+
+\begin{methoddesc}[LDAP]{result2}{\optional{ msgid=\constant{RES_ANY} \optional{, all=\constant{1} \optional{, timeout=\constant{-1}}}}} % -> 3-tuple
+This method behaves almost exactly like \method{result()}. But
+it returns a 3-tuple also containing the message id of the
+outstanding LDAP operation a particular result message belongs
+to. This is especially handy if one needs to dispatch results
+obtained with \var{msgid=\constant{RES_ANY}} to several consumer
+threads which invoked a particular LDAP operation.
 \end{methoddesc}
 
 %%------------------------------------------------------------
