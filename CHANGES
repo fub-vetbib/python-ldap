@@ -4,32 +4,32 @@ Released 2.0.0pre16 2003-12-xx
 Changes since 2.0.0pre15:
 
 Modules/:
-- Removed definition of unused constant RES_EXTENDED_PARTIAL since
+* Removed definition of unused constant RES_EXTENDED_PARTIAL since
   the corresponding symbol LDAP_RES_EXTENDED_PARTIAL seems to not
   be available in OpenLDAP-HEAD (pre 2.2) anymore.
 
 All in Lib/:
-- Fixed some subtle bugs/oddities mentioned by pychecker.
+* Fixed some subtle bugs/oddities mentioned by pychecker.
 
 dsml:
-- Renamed DSMLWriter._f to DSMLWriter._output_file
-- Added wrapper method DSMLWriter.unparse() which simply
+* Renamed DSMLWriter._f to DSMLWriter._output_file
+* Added wrapper method DSMLWriter.unparse() which simply
   calls DSMLWriter.writeRecord()
 
 ldap.ldapobject:
-- Simplified LDAPObject.search_subschemasubentry_s()
+* Simplified LDAPObject.search_subschemasubentry_s()
 
 ldap.functions:
-- Moved ldap._ldap_function_call() into ldap.functions.
-- apply() is not used anymore since it seems deprecated
+* Moved ldap._ldap_function_call() into ldap.functions.
+* apply() is not used anymore since it seems deprecated
 
 ldap.async:
-- Added class DSMLWriter
+* Added class DSMLWriter
 
 ldap.schema:
-- Removed unused key-word argument strict from
+* Removed unused key-word argument strict from
   ldap.schema.subentry.SubSchema.attribute_types()
-- Fixed backward compability issue (for Python prior to 2.2) in
+* Fixed backward compability issue (for Python prior to 2.2) in
   ldap.schema.subentry.SubSchema.listall()
 ----------------------------------------------------------------
 Released 2.0.0pre15 2003-11-11
@@ -40,11 +40,11 @@ Modules/:
 Follow rule "Always include Python.h first"
 
 ldap.schema.subentry:
-- Added new method SubSchema.get_structural_oc()
-- Added new method SubSchema.get_applicable_aux_classes()
-- Methods SubSchema.listall() and SubSchema.tree() have
+* Added new method SubSchema.get_structural_oc()
+* Added new method SubSchema.get_applicable_aux_classes()
+* Methods SubSchema.listall() and SubSchema.tree() have
   new key-word argument schema_element_filters
-- Support for DIT content rules in SubSchema.attribute_types()
+* Support for DIT content rules in SubSchema.attribute_types()
 
 ----------------------------------------------------------------
 Released 2.0.0pre14 2003-10-03
