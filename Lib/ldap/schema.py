@@ -8,7 +8,7 @@ License:
 Public domain. Do anything you want with this module.
 """
 
-__version__ = '0.0.2'
+__version__ = '0.0.3'
 
 
 import ldap,ldap.functions,_ldap
