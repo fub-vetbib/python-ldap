@@ -7,6 +7,9 @@ ldap.ldapobject:
 * Added class attribute LDAPObject.network_timeout mapped to
   set_option(ldap.OPT_NETWORK_TIMEOUT,..)
 
+ldap.schema:
+* More graceful handling of KeyError in SubSchema.attribute_types()
+
 ----------------------------------------------------------------
 Released 2.0.0pre13 2003-06-02
 
