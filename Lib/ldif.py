@@ -296,7 +296,11 @@ class LDIFParser:
       unfolded_line = self._unfoldLDIFLine()
     if not unfolded_line or unfolded_line=='\n' or unfolded_line=='\r\n':
       return None,None
-    attr_type,attr_value = string.split(unfolded_line,' ',1)
+    try:
+      attr_type,attr_value = string.split(unfolded_line,' ',1)
+    except ValueError:
+      # Treat malformed attrType: attrValue lines as non-existent
+      return None,None
     # if needed attribute value is BASE64 decoded
     value_spec = attr_type[-2:]
     attr_type = string.strip(string.split(attr_type,':')[0])
