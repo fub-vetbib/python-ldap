@@ -397,8 +397,8 @@ class LDIFParser:
 
 class LDIFRecordList(LDIFParser):
   """
-  Collect all records of LDIF input into a single dictionary
-  with DN as string keys. It can be a memory hog!
+  Collect all records of LDIF input into a single list.
+  of 2-tuples (dn,entry). It can be a memory hog!
   """
 
   def __init__(
