@@ -373,7 +373,7 @@ class LDAPObject:
     return_result = []
     ldap_result = self._ldap_call(self._l.result,msgid,0,0)
 
-    while all and ldap_result==(None,None):
+    while all:
       while ldap_result==(None,None):
         if (timeout>=0) and (time.time()-start_time>timeout):
           self._ldap_call(self._l.abandon,msgid)
