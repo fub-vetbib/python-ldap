@@ -11,7 +11,7 @@ Python compability note:
 Tested with Python 2.0+.
 """
 
-__version__ = '0.5.1'
+__version__ = '0.5.2'
 
 import string,base64
 
@@ -235,7 +235,7 @@ else:
         del self._oc_value
       # Unhandled tags
       else:
-        raise ValueError,'Unknown tag' % (raw_name)
+        raise ValueError,'Unknown tag %s' % (raw_name)
 
     def characters(self,ch):
       if self.__dict__.has_key('_oc_value'):
