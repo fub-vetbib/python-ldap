@@ -70,6 +70,7 @@ setup(
 			'Modules/message.c',
 			'Modules/template.c',
 			'Modules/version.c',
+			'Modules/options.c',
 		    ],
 		    libraries =		LDAP_CLASS.libs,
 		    include_dirs =	['Modules'] + LDAP_CLASS.include_dirs,

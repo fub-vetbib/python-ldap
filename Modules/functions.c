@@ -10,6 +10,28 @@
 #include "LDAPObject.h"
 #include "errors.h"
 #include "template.h"
+#include "CIDict.h"
+#include "options.h"
+
+static short default_ldap_port(void);
+
+/* Return the port number for LDAP servers */
+static short
+default_ldap_port()
+{
+#ifndef WIN32
+	struct servent *se;
+
+	/* Prefer getting the LDAP port number from /etc/services */
+	Py_BEGIN_ALLOW_THREADS
+	se = getservbyname("ldap", "tcp");
+	Py_END_ALLOW_THREADS
+	if (se != NULL)
+		return ntohs(se->s_port);
+#endif
+	return LDAP_PORT;
+}
+
 
 /* ldap_open */
 
@@ -19,25 +41,13 @@ l_ldap_open(PyObject* unused, PyObject *args)
     char *host;
     int port = 0;
     LDAP *ld;
-    struct servent *se;
 
     if (!PyArg_ParseTuple(args, "s|i", &host, &port))
     	return NULL;
 
     /* Look up the ldap service from /etc/services if not port not given. */
-    if (port == 0) {
-#ifdef WIN32
-	port = LDAP_PORT;
-#else
-        Py_BEGIN_ALLOW_THREADS
-	se = getservbyname("ldap", "tcp");
-        Py_END_ALLOW_THREADS
-	if (se != NULL)
-	    port = ntohs(se->s_port);
-	else
-	    port = LDAP_PORT;
-#endif
-    }
+    if (port == 0) 
+	port = default_ldap_port();
 
     Py_BEGIN_ALLOW_THREADS
     ld = ldap_open(host, port);
@@ -50,8 +60,8 @@ l_ldap_open(PyObject* unused, PyObject *args)
 static char doc_open[] = 
 "open(host [,port=PORT]) -> LDAPObject\n\n"
 "\tOpens a new connection with an LDAP server, and returns an LDAP object\n"
-"\trepresentative of this."
-"\tThis function is depreciated. init() or initialize() should be used instead.";
+"\trepresentative of this.\n"
+"\t(This function is depreciated: use init() or initialize() instead.)";
 
 
 /* ldap_init */
@@ -62,25 +72,13 @@ l_ldap_init(PyObject* unused, PyObject *args)
     char *host;
     int port = 0;
     LDAP *ld;
-    struct servent *se;
 
     if (!PyArg_ParseTuple(args, "s|i", &host, &port))
     	return NULL;
 
     /* Look up the ldap service from /etc/services if not port not given. */
-    if (port == 0) {
-#ifdef WIN32
-	port = LDAP_PORT;
-#else
-        Py_BEGIN_ALLOW_THREADS
-	se = getservbyname("ldap", "tcp");
-        Py_END_ALLOW_THREADS
-	if (se != NULL)
-	    port = ntohs(se->s_port);
-	else
-	    port = LDAP_PORT;
-#endif
-    }
+    if (port == 0)
+	port = default_ldap_port();
 
     Py_BEGIN_ALLOW_THREADS
     ld = ldap_init(host, port);
@@ -93,8 +91,8 @@ l_ldap_init(PyObject* unused, PyObject *args)
 static char doc_init[] = 
 "init(host [,port=PORT]) -> LDAPObject\n\n"
 "\tReturns an LDAP object for new connection to LDAP server.\n"
-"\tThe actual connection open will occur when the first operation is attempted.\n"
-"\trepresentative of this.";
+"\tThe actual connection will be openend when the first operation\n"
+"\tis attempted.\n";
 
 /* ldap_initialize */
 
@@ -102,7 +100,7 @@ static PyObject*
 l_ldap_initialize(PyObject* unused, PyObject *args)
 {
     char *uri;
-    LDAP *ld=NULL;
+    LDAP *ld = NULL;
     int ret;
 
     if (!PyArg_ParseTuple(args, "s", &uri))
@@ -111,8 +109,6 @@ l_ldap_initialize(PyObject* unused, PyObject *args)
     Py_BEGIN_ALLOW_THREADS
     ret = ldap_initialize(&ld, uri);
     Py_END_ALLOW_THREADS
-    if (ld == NULL)
-    	return LDAPerror(ld, "ldap_initialize");
     if (ret != LDAP_SUCCESS)
     	return LDAPerror(ld, "ldap_initialize");
     return (PyObject*)newLDAPObject(ld);
@@ -121,8 +117,8 @@ l_ldap_initialize(PyObject* unused, PyObject *args)
 static char doc_initialize[] = 
 "initialize(uri) -> LDAPObject\n\n"
 "\tReturns an LDAP object for new connection to LDAP server.\n"
-"\tThe actual connection open will occur when the first operation is attempted.\n"
-"\trepresentative of this.";
+"\tThe actual connection open will occur when the first operation\n"
+"\tis attempted.\n";
 
 /* ldap_dn2ufn */
 
@@ -203,17 +199,41 @@ static char doc_is_ldap_url[] =
 "\tThis function returns true if url `looks like' an LDAP URL\n"
 "\t(as opposed to some other kind of URL).";
 
-/* ldap_set_option --- defined in LDAPObject.c */
+/* ldap_set_option (global options) */
+
+static PyObject*
+l_ldap_set_option(PyObject* self, PyObject *args)
+{
+    PyObject *value;
+    int option;
+
+    if (!PyArg_ParseTuple(args, "iO:set_option", &option, &value))
+	return NULL;
+    if (LDAP_set_option(NULL, option, value) == -1)
+	return NULL;
+    Py_INCREF(Py_None);
+	return Py_None;
+}
 
 static char doc_set_option[] = 
-"set_option(name,value)\n\n"
-"\tSets global option of LDAP module.\n";
+"set_option(name, value)\n\n"
+"\tSet the value of an LDAP global option.\n";
 
-/* ldap_get_option --- defined in LDAPObject.c */
+/* ldap_get_option (global options) */
+
+static PyObject*
+l_ldap_get_option(PyObject* self, PyObject *args)
+{
+    int option;
+
+    if (!PyArg_ParseTuple(args, "i:get_option", &option))
+	return NULL;
+    return LDAP_get_option(NULL, option);
+}
 
 static char doc_get_option[] = 
-"get_option(name,value)\n\n"
-"\tGets global option of LDAP module.\n";
+"get_option(name) -> value\n\n"
+"\tGet the value of an LDAP global option.\n";
 
 /* methods */
 

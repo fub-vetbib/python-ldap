@@ -12,6 +12,7 @@
 #include "constants.h"
 #include "LDAPObject.h"
 #include "message.h"
+#include "options.h"
 
 static void free_attrs(char***);
 
@@ -1239,10 +1240,8 @@ l_ldap_result( LDAPObject* self, PyObject *args )
 	/* Polls return (None, None); timeouts raise an exception */
 	if (timeout == 0)
 		return Py_BuildValue("(OO)", Py_None, Py_None);
-	else {
-		PyErr_SetObject(LDAPerrobjects[LDAP_TIMEOUT], Py_None);
-		return NULL;
-	}
+	else
+		return LDAPerr(LDAP_TIMEOUT);
     }
 
     if (res_type == LDAP_RES_SEARCH_ENTRY
@@ -1586,228 +1585,39 @@ static char doc_fileno[] =
 
 /* ldap_set_option */
 
-PyObject*
+static PyObject*
 l_ldap_set_option(PyObject* self, PyObject *args)
 {
-    int res;
-    int option;
-    int intval;
-    char *strval;
-    void *ptr;
     PyObject *value;
-    LDAP *ld;
+    int option;
 
-    if ( self ) ld = ((LDAPObject *)self)->ldap;
-    else ld = NULL;
-
-    if (!PyArg_ParseTuple(args, "iO", &option,&value))
+    if (!PyArg_ParseTuple(args, "iO:set_option", &option, &value))
     	return NULL;
-
-    switch(option){
-	case LDAP_OPT_API_INFO:
-	case LDAP_OPT_DESC:
-	case LDAP_OPT_API_FEATURE_INFO:
-	case LDAP_OPT_X_SASL_SSF:
-		PyErr_SetString( LDAPexception_class, "read-only option" );
-    		return NULL;
-	case LDAP_OPT_REFERRALS:
-	case LDAP_OPT_RESTART:
-		if (!PyArg_Parse( value, "i", &intval )) {
-	    		PyErr_SetString( PyExc_TypeError, "expected integer" );
-	    		return NULL;
-		}
-		if (intval) ptr=LDAP_OPT_ON;
-		else ptr=LDAP_OPT_OFF;
-		break;
-	case LDAP_OPT_DEREF:
-	case LDAP_OPT_SIZELIMIT:
-	case LDAP_OPT_TIMELIMIT:
-	case LDAP_OPT_PROTOCOL_VERSION:
-	case LDAP_OPT_ERROR_NUMBER:
-	case LDAP_OPT_DEBUG_LEVEL:
-	case LDAP_OPT_X_TLS:
-	case LDAP_OPT_X_TLS_REQUIRE_CERT:
-	case LDAP_OPT_X_SASL_SSF_MIN:
-	case LDAP_OPT_X_SASL_SSF_MAX:
-		if (!PyArg_Parse( value, "i", &intval )) {
-	    		PyErr_SetString( PyExc_TypeError, "expected integer" );
-	    		return NULL;
-		}
-		ptr=&intval;
-		break;
-	case LDAP_OPT_HOST_NAME:
-	case LDAP_OPT_URI:
-	case LDAP_OPT_ERROR_STRING:
-	case LDAP_OPT_MATCHED_DN:
-	case LDAP_OPT_X_TLS_CACERTFILE:
-	case LDAP_OPT_X_TLS_CACERTDIR:
-	case LDAP_OPT_X_TLS_CERTFILE:
-	case LDAP_OPT_X_TLS_KEYFILE:
-	case LDAP_OPT_X_TLS_CIPHER_SUITE:
-	case LDAP_OPT_X_TLS_RANDOM_FILE:
-	case LDAP_OPT_X_SASL_SECPROPS:
-		if (!PyArg_Parse( value, "s", &strval )) {
-	    		PyErr_SetString( PyExc_TypeError, "expected string" );
-	    		return NULL;
-		}
-		ptr=strval;
-		break;
-	case LDAP_OPT_SERVER_CONTROLS:
-	case LDAP_OPT_CLIENT_CONTROLS:
-	case LDAP_OPT_TIMEOUT:
-	case LDAP_OPT_NETWORK_TIMEOUT:
-	case LDAP_OPT_X_TLS_CTX:
-		PyErr_SetString( LDAPexception_class, "option not supported by python-ldap" );
-    		return NULL;
-	default:
-		PyErr_SetString( LDAPexception_class, "option not supported" );
-    		return NULL;
-    }
-	
-    if (self) LDAP_BEGIN_ALLOW_THREADS( (LDAPObject *) self );
-    res = ldap_set_option(ld, option, ptr);
-    if (self) LDAP_END_ALLOW_THREADS( (LDAPObject *) self );
-
-    if (res<0){
-	PyErr_SetString( LDAPexception_class, "set_option failed" );
+    if (LDAP_set_option((LDAPObject *)self, option, value) == -1)
 	return NULL;
-    }
-    
     Py_INCREF(Py_None);
     return Py_None;
 }
 
 static char doc_set_option[] = 
-"set_option(option,value)\n\n"
-"\tSets value of LDAP option.\n";
+"set_option(option, value)\n\n"
+"\tSet an LDAP option to the given value.\n";
 
 /* ldap_get_option */
 
-PyObject*
+static PyObject*
 l_ldap_get_option(PyObject* self, PyObject *args)
 {
-    int res;
     int option;
-    int intval;
-    LDAPAPIInfo apiinfo;
-    char *strval;
-    PyObject *value;
-    PyObject *dict;
-    PyObject *list;
-    int i;
-    LDAP *ld;
-    
-    if ( self ) ld = ((LDAPObject *)self)->ldap;
-    else ld = NULL;
 
-    if (!PyArg_ParseTuple(args, "i", &option))
+    if (!PyArg_ParseTuple(args, "i:get_option", &option))
     	return NULL;
-
-    switch(option){
-	case LDAP_OPT_API_INFO:
-		apiinfo.ldapai_info_version = LDAP_API_INFO_VERSION;
-    		if (self) LDAP_BEGIN_ALLOW_THREADS( (LDAPObject *) self );
-		res = ldap_get_option( ld, option, &apiinfo );
-    		if (self) LDAP_END_ALLOW_THREADS( (LDAPObject *) self );
-		if ( res < 0 ){
-			PyErr_SetString( LDAPexception_class, "get_option failed" );
-			return NULL;
-		}
-	
-		dict = PyDict_New();
-		
-		value = PyInt_FromLong( apiinfo.ldapai_info_version );
-		PyDict_SetItemString( dict, "info_version", value );
-		Py_DECREF( value );
-
-		value = PyInt_FromLong( apiinfo.ldapai_api_version );
-		PyDict_SetItemString( dict, "api_version", value );
-		Py_DECREF( value );
-			
-		value = PyInt_FromLong( apiinfo.ldapai_protocol_version );
-		PyDict_SetItemString( dict, "protocol_version", value);
-		Py_DECREF( value );
-			
-		list = PyList_New(0);
-		for( i=0; apiinfo.ldapai_extensions[i]; i++ ){
-			value = Py_BuildValue( "s", apiinfo.ldapai_extensions[i] );
-			PyList_Append( list, value );
-			Py_DECREF( value );
-		}
-		PyDict_SetItemString( dict, "extensions", list );
-		Py_DECREF( list );
-		
-		value = Py_BuildValue( "s", apiinfo.ldapai_vendor_name );
-		PyDict_SetItemString( dict, "vendor_name", value );
-		Py_DECREF( value );
-		
-		value = PyInt_FromLong( apiinfo.ldapai_vendor_version );
-		PyDict_SetItemString( dict, "vendor_version", value );
-		Py_DECREF( value );
-		
-		return dict;
-	case LDAP_OPT_X_SASL_SSF:
-	case LDAP_OPT_REFERRALS:
-	case LDAP_OPT_RESTART:
-	case LDAP_OPT_DESC:
-	case LDAP_OPT_DEREF:
-	case LDAP_OPT_SIZELIMIT:
-	case LDAP_OPT_TIMELIMIT:
-	case LDAP_OPT_PROTOCOL_VERSION:
-	case LDAP_OPT_ERROR_NUMBER:
-	case LDAP_OPT_DEBUG_LEVEL:
-	case LDAP_OPT_X_TLS:
-	case LDAP_OPT_X_TLS_REQUIRE_CERT:
-	case LDAP_OPT_X_SASL_SSF_MIN:
-	case LDAP_OPT_X_SASL_SSF_MAX:
-    		if (self) LDAP_BEGIN_ALLOW_THREADS( (LDAPObject *) self );
-		res = ldap_get_option( ld, option, &intval );
-    		if (self) LDAP_END_ALLOW_THREADS( (LDAPObject *) self );
-		if ( res < 0 ){
-			PyErr_SetString( LDAPexception_class, "get_option failed" );
-			return NULL;
-		}
-		value = PyInt_FromLong( intval );
-		break;
-	case LDAP_OPT_HOST_NAME:
-	case LDAP_OPT_URI:
-	case LDAP_OPT_ERROR_STRING:
-	case LDAP_OPT_MATCHED_DN:
-	case LDAP_OPT_X_TLS_CACERTFILE:
-	case LDAP_OPT_X_TLS_CACERTDIR:
-	case LDAP_OPT_X_TLS_CERTFILE:
-	case LDAP_OPT_X_TLS_KEYFILE:
-	case LDAP_OPT_X_TLS_CIPHER_SUITE:
-	case LDAP_OPT_X_TLS_RANDOM_FILE:
-	case LDAP_OPT_X_SASL_SECPROPS:
-    		if (self) LDAP_BEGIN_ALLOW_THREADS( (LDAPObject *) self );
-		res = ldap_get_option( ld, option, &strval ); 
-    		if (self) LDAP_END_ALLOW_THREADS( (LDAPObject *) self );
-		if ( res < 0 ){
-			PyErr_SetString( LDAPexception_class, "get_option failed" );
-			return NULL;
-		}
-		value = Py_BuildValue( "s",strval );
-		break;
-	case LDAP_OPT_SERVER_CONTROLS:
-	case LDAP_OPT_CLIENT_CONTROLS:
-	case LDAP_OPT_TIMEOUT:
-	case LDAP_OPT_NETWORK_TIMEOUT:
-	case LDAP_OPT_API_FEATURE_INFO:
-	case LDAP_OPT_X_TLS_CTX:
-		PyErr_SetString( LDAPexception_class, "option not supported by python-ldap" );
-    		return NULL;
-	default:
-		PyErr_SetString( LDAPexception_class, "option not supported" );
-    		return NULL;
-    }
-	
-    return value;
+    return LDAP_get_option((LDAPObject *)self, option);
 }
 
 static char doc_get_option[] = 
-"get_option(option)\n\n"
-"\tGets value of LDAP option.\n";
+"get_option(option) -> object\n\n"
+"\tGet the value of an LDAP option.\n";
 
 /* methods */
 
@@ -1953,10 +1763,30 @@ repr( LDAPObject* self )
 /* get attribute */
 
 static PyObject*
-getattr( LDAPObject* self, char* name ) 
+getattr(LDAPObject* self, char* name) 
 {
+	int option;
 
-	return Py_FindMethod( methods, (PyObject*)self, name );
+	option = LDAP_optionval_by_name(name);
+	if (option != -1)
+		return LDAP_get_option(self, option);
+
+	return Py_FindMethod(methods, (PyObject*)self, name);
+}
+
+/* set attribute */
+
+static int
+setattr(LDAPObject* self, char* name, PyObject* value) 
+{
+	int option;
+
+	option = LDAP_optionval_by_name(name);
+	if (option != -1)
+		return LDAP_set_option(self, option, value);
+
+	PyErr_SetString(PyExc_AttributeError, name);
+	return -1;
 }
 
 /* type entry */
@@ -1976,7 +1806,7 @@ PyTypeObject LDAP_Type = {
 	(destructor)dealloc,	/*tp_dealloc*/
 	0,                      /*tp_print*/
 	(getattrfunc)getattr,	/*tp_getattr*/
-	0,			/*tp_setattr*/
+	(setattrfunc)setattr,	/*tp_setattr*/
 	0,                      /*tp_compare*/
 	(reprfunc)repr,         /*tp_repr*/
 	0,                      /*tp_as_number*/
