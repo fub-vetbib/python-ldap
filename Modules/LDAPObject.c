@@ -412,11 +412,13 @@ l_ldap_simple_bind( LDAPObject* self, PyObject* args )
     char *who;
     int msgid;
     int ldaperror;
+    int cred_len;
     PyObject *serverctrls = Py_None;
     PyObject *clientctrls = Py_None;
     struct berval cred;
 
-    if (!PyArg_ParseTuple( args, "ss#|OO", &who, &cred.bv_val, &cred.bv_len, &serverctrls, &clientctrls )) return NULL;
+    if (!PyArg_ParseTuple( args, "ss#|OO", &who, &cred.bv_val, &cred_len, &serverctrls, &clientctrls )) return NULL;
+    cred.bv_len = (ber_len_t) cred_len;
 
     if (not_valid(self)) return NULL;
 
@@ -613,9 +615,12 @@ l_ldap_compare_ext( LDAPObject* self, PyObject *args )
 
     int msgid;
     int ldaperror;
+    int value_len;
     struct berval value;
 
-    if (!PyArg_ParseTuple( args, "sss#|OO", &dn, &attr, &value.bv_val, &value.bv_len, &serverctrls, &clientctrls )) return NULL;
+    if (!PyArg_ParseTuple( args, "sss#|OO", &dn, &attr, &value.bv_val, &value_len, &serverctrls, &clientctrls )) return NULL;
+    value.bv_len = (ber_len_t) value_len;
+
     if (not_valid(self)) return NULL;
 
     LDAP_BEGIN_ALLOW_THREADS( self );
@@ -974,16 +979,24 @@ static PyObject *
 l_ldap_passwd( LDAPObject* self, PyObject *args )
 {
     struct berval user;
+    int user_len;
     struct berval oldpw;
+    int oldpw_len;
     struct berval newpw;
+    int newpw_len;
     PyObject *serverctrls = Py_None;
     PyObject *clientctrls = Py_None;
 
     int msgid;
     int ldaperror;
 
-    if (!PyArg_ParseTuple( args, "s#s#s#|OO", &user.bv_val, &user.bv_len, &oldpw.bv_val, &oldpw.bv_len, &newpw.bv_val, &newpw.bv_len, &serverctrls, &clientctrls ))
+    if (!PyArg_ParseTuple( args, "s#s#s#|OO", &user.bv_val, &user_len, &oldpw.bv_val, &oldpw_len, &newpw.bv_val, &newpw_len, &serverctrls, &clientctrls ))
     	return NULL;
+
+    user.bv_len = (ber_len_t) user_len;
+    oldpw.bv_len = (ber_len_t) oldpw_len;
+    newpw.bv_len = (ber_len_t) newpw_len;
+    
     if (not_valid(self)) return NULL;
 
     LDAP_BEGIN_ALLOW_THREADS( self );
