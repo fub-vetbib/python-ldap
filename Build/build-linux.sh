@@ -25,4 +25,6 @@ mkdir -p destdir/usr
 DESTDIR=`pwd`/destdir make install
 
 # show what files were installed
-(cd destdir && find . -type f -print)
+(cd destdir && find . -type f -print | sort)
+
+echo XXX need to find out how to use rpm -b to build a package
