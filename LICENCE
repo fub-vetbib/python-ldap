@@ -1,8 +1,5 @@
 
-The _ldap C module is in the PUBLIC DOMAIN.
-   The author(s) place this software into the public domain. The author(s)
-   license the use of this software for any purpose to anyone at no
-   charge, subject to the following disclaimer.
+The python-ldap package is distributed under Python-style license.
 
 Standard disclaimer:
    This software is made available by the author(s) to the public for free
@@ -10,6 +7,7 @@ Standard disclaimer:
    responsible for their own choice and use of this software for their
    own purposes.  By using this software, each user agrees that the
    author(s) shall not be liable for damages of any kind in relation to
-   its use or performance.
+   its use or performance. The author(s) do not warrant that this software
+   is fit for any purpose.
 
 $Id$
