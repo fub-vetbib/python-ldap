@@ -25,13 +25,26 @@ NOT_HUMAN_READABLE_LDAP_SYNTAXES = {
 
 
 class SchemaElement:
+  """
+  Base class for all schema element classes. Not used directly!
+  """
+  
+  def __init__(
+    self,schema_element_str=None,
+    token_defaults = {
+      'DESC':[None],
+    }
+  ):
+    l,d = self._parse_tokens(schema_element_str,token_defaults)
+    self.desc = d['DESC'][0]
 
-  def __init__(self, schema_element_str):
+  def _parse_tokens(self,schema_element_str,token_defaults):
     if schema_element_str:
       l = split_tokens(schema_element_str)
-      d = extract_tokens(l,{'DESC':[None]})
       self.oid = l[1]
-      self.desc = d['DESC'][0]
+      return l,extract_tokens(l,token_defaults)
+    else:
+      return [],token_defaults
 
   def key_attr(self,key,value,quoted=0):
     assert value is None or type(value)==type(''),TypeError("value has to be of StringType, was %s" % repr(value))
@@ -56,6 +69,11 @@ class SchemaElement:
     else:
       return ' %s ( %s )' % (key,sep.join(quoted_values))
 
+  def __str__(self):
+    result = [str(self.oid)]
+    result.append(self.key_attr('DESC',self.desc,quoted=1))
+    return '( %s )' % ''.join(result)
+
 
 class ObjectClass(SchemaElement):
   """
@@ -75,47 +93,25 @@ class ObjectClass(SchemaElement):
 
   def __init__(
     self,schema_element_str=None,
-    oid=None,#REQUIRED
-    names=None,#OPTIONAL
-    desc=None,#OPTIONAL
-    obsolete=0,#0=no, 1=yes
-    sup=[],#OPTIONAL
-    kind=1,#0=ABSTRACT
-    must=[],#OPTIONAL
-    may=[],#OPTIONAL
-    ext=None,#OPTIONAL
+    token_defaults = {
+      'NAME':[],'DESC':[None],'OBSOLETE':None,'SUP':[],
+      'STRUCTURAL':None,'AUXILIARY':None,'ABSTRACT':None,
+      'MUST':[],'MAY':[]
+    }
   ):
-    if schema_element_str:
-      l = split_tokens(schema_element_str)
-      d = extract_tokens(
-        l,
-        {'NAME':[],'DESC':[None],'OBSOLETE':None,'SUP':[],
-         'STRUCTURAL':None,'AUXILIARY':None,'ABSTRACT':None,
-         'MUST':[],'MAY':[]}
-      )
-      self.oid = l[1]
-      self.obsolete = d['OBSOLETE']!=None
-      self.names = d['NAME']
-      self.desc = d['DESC'][0]
-      self.sup = [ v for v in d['SUP'] if v!="$"]
-      self.must = [ v for v in d['MUST'] if v!="$" ]
-      self.may = [ v for v in d['MAY'] if v!="$" ]
-      # Default is STRUCTURAL, see RFC2552 or draft-ietf-ldapbis-syntaxes
-      self.kind = 0
-      if d['ABSTRACT']!=None:
-        self.kind = 1
-      elif d['AUXILIARY']!=None:
-        self.kind = 2
-    else:
-      self.oid = oid
-      self.names = names
-      self.desc = desc
-      self.obsolete = obsolete
-      self.sup = sup
-      self.kind = kind
-      self.must = must
-      self.may = may
-      self.ext = ext
+    l,d = self._parse_tokens(schema_element_str,token_defaults)
+    self.obsolete = d['OBSOLETE']!=None
+    self.names = d['NAME']
+    self.desc = d['DESC'][0]
+    self.sup = [ v for v in d['SUP'] if v!="$"]
+    self.must = [ v for v in d['MUST'] if v!="$" ]
+    self.may = [ v for v in d['MAY'] if v!="$" ]
+    # Default is STRUCTURAL, see RFC2552 or draft-ietf-ldapbis-syntaxes
+    self.kind = 0
+    if d['ABSTRACT']!=None:
+      self.kind = 1
+    elif d['AUXILIARY']!=None:
+      self.kind = 2
     assert self.oid!=None,ValueError("%s.oid is None" % (self.__class__.__name__))
     assert type(self.names)==type([])
     assert self.desc is None or type(self.desc)==type('')
@@ -174,58 +170,55 @@ class AttributeType(SchemaElement):
   """
   schema_attribute = 'attributeTypes'
 
-  def __init__(self, schema_element_str):
-    if schema_element_str:
-      l = split_tokens(schema_element_str)
-      d = extract_tokens(
-        l,
-        {
-           'NAME':[],
-           'DESC':[None],
-           'OBSOLETE':None,
-           'SUP':[],
-           'EQUALITY':[None],
-           'ORDERING':[None],
-           'SUBSTR':[None],
-           'SYNTAX':[None],
-           'SINGLE-VALUE':None,
-           'COLLECTIVE':None,
-           'NO-USER-MODIFICATION':None,
-           'USAGE':['userApplications']
-        }
-      )
-      self.oid = l[1]
-      self.names = d['NAME']
-      self.desc = d['DESC'][0]
-      self.obsolete = d['OBSOLETE']!=None
-      self.sup = [ v for v in d['SUP'] if v!="$"]
-      self.equality = d['EQUALITY'][0]
-      self.ordering = d['ORDERING'][0]
-      self.substr = d['SUBSTR'][0]
-      syntax = d['SYNTAX'][0]
-      if syntax is None:
-        self.syntax = None
-        self.syntax_len = None
-      else:
-        try:
-          self.syntax,syntax_len = d['SYNTAX'][0].split("{")
-        except ValueError:
-          self.syntax = d['SYNTAX'][0]
-          self.syntax_len = None
-          for i in l:
-            if i.startswith("{") and i.endswith("}"):
-              self.syntax_len=long(i[1:-1])
-        else:
-          self.syntax_len = long(syntax_len[:-1])
-      self.single_value = d['SINGLE-VALUE']!=None
-      self.collective = d['COLLECTIVE']!=None
-      self.no_user_mod = d['NO-USER-MODIFICATION']!=None
+  def __init__(
+    self,schema_element_str=None,
+    token_defaults = {
+      'NAME':[],
+      'DESC':[None],
+      'OBSOLETE':None,
+      'SUP':[],
+      'EQUALITY':[None],
+      'ORDERING':[None],
+      'SUBSTR':[None],
+      'SYNTAX':[None],
+      'SINGLE-VALUE':None,
+      'COLLECTIVE':None,
+      'NO-USER-MODIFICATION':None,
+      'USAGE':['userApplications']
+    }
+  ):
+    l,d = self._parse_tokens(schema_element_str,token_defaults)
+    self.names = d['NAME']
+    self.desc = d['DESC'][0]
+    self.obsolete = d['OBSOLETE']!=None
+    self.sup = [ v for v in d['SUP'] if v!="$"]
+    self.equality = d['EQUALITY'][0]
+    self.ordering = d['ORDERING'][0]
+    self.substr = d['SUBSTR'][0]
+    syntax = d['SYNTAX'][0]
+    if syntax is None:
+      self.syntax = None
+      self.syntax_len = None
+    else:
       try:
-        self.usage = AttributeUsage[d['USAGE'][0]]
-      except KeyError:
-        print '***',schema_element_str
-        raise
-      self.usage = AttributeUsage.get(d['USAGE'][0],0)
+        self.syntax,syntax_len = d['SYNTAX'][0].split("{")
+      except ValueError:
+        self.syntax = d['SYNTAX'][0]
+        self.syntax_len = None
+        for i in l:
+          if i.startswith("{") and i.endswith("}"):
+            self.syntax_len=long(i[1:-1])
+      else:
+        self.syntax_len = long(syntax_len[:-1])
+    self.single_value = d['SINGLE-VALUE']!=None
+    self.collective = d['COLLECTIVE']!=None
+    self.no_user_mod = d['NO-USER-MODIFICATION']!=None
+    try:
+      self.usage = AttributeUsage[d['USAGE'][0]]
+    except KeyError:
+      print '***',schema_element_str
+      raise
+    self.usage = AttributeUsage.get(d['USAGE'][0],0)
     assert self.oid!=None,ValueError("%s.oid is None" % (self.__class__.__name__))
     assert type(self.names)==type([])
     assert self.desc is None or type(self.desc)==type('')
@@ -269,21 +262,18 @@ class LDAPSyntax(SchemaElement):
   """
   schema_attribute = 'ldapSyntaxes'
 
-  def __init__(self, schema_element_str):
-    if schema_element_str:
-      l = split_tokens(schema_element_str)
-      d = extract_tokens(
-        l,
-        {
-          'DESC':[None],
-          'X-NOT-HUMAN-READABLE':[None],
-        }
-      )
-      self.oid = l[1]
-      self.desc = d['DESC'][0]
-      self.not_human_readable = \
-        NOT_HUMAN_READABLE_LDAP_SYNTAXES.has_key(self.oid) or \
-        d['X-NOT-HUMAN-READABLE'][0]=='TRUE'
+  def __init__(
+    self,schema_element_str=None,
+    token_defaults = {
+      'DESC':[None],
+      'X-NOT-HUMAN-READABLE':[None],
+    }
+  ):
+    l,d = self._parse_tokens(schema_element_str,token_defaults)
+    self.desc = d['DESC'][0]
+    self.not_human_readable = \
+      NOT_HUMAN_READABLE_LDAP_SYNTAXES.has_key(self.oid) or \
+      d['X-NOT-HUMAN-READABLE'][0]=='TRUE'
                                   
   def __str__(self):
     result = [str(self.oid)]
@@ -306,19 +296,17 @@ class MatchingRule(SchemaElement):
   """
   schema_attribute = 'matchingRules'
 
-  def __init__(self, schema_element_str):
-    l = split_tokens(schema_element_str)
-    d = extract_tokens(
-      l,
-      {
-         'NAME':[],
-         'DESC':[None],
-         'OBSOLETE':None,
-         'SYNTAX':[None],
-         'APPLIES':[None],
-      }
-    )
-    self.oid = l[1]
+  def __init__(
+    self,schema_element_str=None,
+    token_defaults = {
+      'NAME':[],
+      'DESC':[None],
+      'OBSOLETE':None,
+      'SYNTAX':[None],
+      'APPLIES':[None],
+    }
+  ):
+    l,d = self._parse_tokens(schema_element_str,token_defaults)
     self.names = d['NAME']
     self.desc = d['DESC'][0]
     self.obsolete = d['OBSOLETE']!=None
@@ -352,18 +340,16 @@ class MatchingRuleUse(SchemaElement):
   """
   schema_attribute = 'matchingRuleUses'
 
-  def __init__(self, schema_element_str):
-    l = split_tokens(schema_element_str)
-    d = extract_tokens(
-      l,
-      {
+  def __init__(
+    self,schema_element_str=None,
+    token_defaults = {
          'NAME':[],
          'DESC':[None],
          'OBSOLETE':None,
          'APPLIES':[],
-      }
-    )
-    self.oid = l[1]
+    }
+  ):
+    l,d = self._parse_tokens(schema_element_str,token_defaults)
     self.names = d['NAME']
     self.desc = d['DESC'][0]
     self.obsolete = d['OBSOLETE']!=None
