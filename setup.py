@@ -10,8 +10,11 @@ version = '2.0.0pre06-%s' % (time.strftime('%Y%m%d',time.gmtime(time.time())))
 
 #-- A class describing the features and requirements of OpenLDAP 2.0
 class OpenLDAP2:
-	library_dirs =	[ ]
-	include_dirs =	[ ]
+	library_dirs =	[]
+	include_dirs =	[]
+        extra_compile_args = []
+        extra_objects = []
+
 	libs =		['ldap', 'lber']
 	defines =	[
                          # DEFINEs for caching feature in OpenLDAP libs
@@ -30,7 +33,7 @@ LDAP_CLASS = OpenLDAP2
 cfg = ConfigParser()
 cfg.read('setup.cfg')
 if cfg.has_section('_ldap'):
-    for name in 'library_dirs', 'include_dirs', 'libs':
+    for name in LDAP_CLASS.__dict__.keys():
 	if cfg.has_option('_ldap', name):
 	    setattr(LDAP_CLASS, name, string.split(cfg.get('_ldap', name)))
 
@@ -60,10 +63,12 @@ setup(
 			'Modules/version.c',
 			'Modules/options.c',
 		    ],
-		    libraries =		LDAP_CLASS.libs,
-		    include_dirs =	['Modules'] + LDAP_CLASS.include_dirs,
-		    library_dirs =	LDAP_CLASS.library_dirs,
-#		    runtime_library_dirs = LDAP_CLASS.library_dirs,
+		    libraries =	LDAP_CLASS.libs,
+		    include_dirs = ['Modules'] + LDAP_CLASS.include_dirs,
+		    library_dirs = LDAP_CLASS.library_dirs,
+                    extra_compile_args = LDAP_CLASS.extra_compile_args,
+                    extra_objects = LDAP_CLASS.extra_objects,
+		    runtime_library_dirs = LDAP_CLASS.library_dirs,                    
 		    define_macros =	LDAP_CLASS.defines + \
               ('ldap_r' in LDAP_CLASS.libs)*[('HAVE_LIBLDAP_R',None)] + \
               ('sasl' in LDAP_CLASS.libs)*[('HAVE_SASL',None)] + \
