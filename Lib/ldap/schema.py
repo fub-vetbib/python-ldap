@@ -621,6 +621,8 @@ class SubSchema:
           except KeyError:
             if raise_keyerror:
               raise
+            else:
+              continue
           r_may[at_obj.oid] = at_obj
         object_class_oids.extend([
           self.name2oid[ObjectClass].get(o,o)
