@@ -173,7 +173,6 @@ LDAPinit_constants( PyObject* d )
 #ifdef LDAP_CACHE_OPT_CACHEALLERRS
 	add_int(d,CACHE_OPT_CACHEALLERRS);
 #endif
-	add_int(d,FILT_MAXSIZ);
 	add_int(d,DEREF_NEVER);
 	add_int(d,DEREF_SEARCHING);
 	add_int(d,DEREF_FINDING);
