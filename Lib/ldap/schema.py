@@ -9,7 +9,7 @@ License:
 Public domain. Do anything you want with this module.
 """
 
-__version__ = '0.0.5'
+__version__ = '0.0.6'
 
 
 import ldap,ldap.cidict,ldap.functions,_ldap
@@ -135,25 +135,6 @@ class objectClass:
         self.may = may
         self.ext = ext
 
-    def all_attrs(self,schema):
-      """
-      Return a 2-tuple of all must and may attributes including
-      all inherited attributes of superior object classes.
-      by walking up classes which the SUP
-      """
-      r_must,r_may = self.must,self.may
-      for sup_item in self.sup:
-        sup_oid = schema.name2oid.get(sup_item,sup_item)
-        sup_all_must,sup_all_may = schema.schema_element[sup_oid].all_attrs(schema)
-        r_must = ldap.cidict.strlist_union(
-          r_must,sup_all_must
-        )
-        r_may = ldap.cidict.strlist_union(
-          r_may,sup_all_may
-        )
-      r_may = ldap.cidict.strlist_minus(r_may,r_must)
-      return r_must,r_may
-
 
 class attributeType:
 
@@ -234,3 +215,42 @@ class subSchema:
               self.name2oid[name] = se.oid
 
         return # subSchema.__init__()        
+
+    def all_attrs(self,object_class_list):
+      """
+      Return a 2-tuple of all must and may attributes including
+      all inherited attributes of superior object classes.
+      by walking up classes along the SUP attribute
+
+      object_class_list
+          list of strings specifying object class names or OIDs
+      """
+      oid_cache = {}
+      object_class_oids = [
+        self.name2oid.get(o,o) for o in object_class_list
+      ]
+      r_must,r_may = {},{}
+      while object_class_oids:
+        object_class_oid = object_class_oids.pop(0)
+        # Check whether the objectClass with this OID
+        # has already been processed
+        if oid_cache.has_key(object_class_oid):
+          continue
+        # Cache this OID as already being processed
+        oid_cache[object_class_oid] = None
+        object_class = self.schema_element[object_class_oid]
+        for a in object_class.must:
+          r_must[a] = None
+        for a in object_class.may:
+          r_may[a] = None
+        object_class_oids.extend([
+          self.name2oid.get(s,s)
+          for s in object_class.sup
+        ])
+      # Removed all mandantory attribute types from
+      # optional attribute type list
+      for a in r_may.keys():
+        if r_must.has_key(a):
+          del r_may[a]
+      return r_must.keys(),r_may.keys()
+
