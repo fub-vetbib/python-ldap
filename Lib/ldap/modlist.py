@@ -10,18 +10,28 @@ with Python 1.5.2 as well.
 """
 
 
-__version__ = '0.0.6'
+__version__ = '0.0.7'
 
 
 import string,ldap
 
 
+def list_dict(l):
+  """
+  return a dictionary with all items of l being the keys of the dictionary
+  """
+  d = {}
+  for i in l:
+    d[i]=None
+  return d
+
+
 def addModlist(entry,ignore_attr_types=[]):
   """Build modify list for call of method LDAPObject.add()"""
-  ignore_attr_types = map(string.lower,ignore_attr_types)
+  ignore_attr_types = list_dict(map(string.lower,ignore_attr_types))
   modlist = []
   for attrtype in entry.keys():
-    if string.lower(attrtype) in ignore_attr_types:
+    if ignore_attr_types.has_key(string.lower(attrtype)):
       # This attribute type is ignored
       continue
     # Eliminate empty attr value strings in list
@@ -50,16 +60,17 @@ def modifyModlist(
       sets attribute value to '' for deleting an attribute.
       In most cases leave zero.
   """
-  ignore_attr_types = map(string.lower,ignore_attr_types)
+  ignore_attr_types = list_dict(map(string.lower,ignore_attr_types))
   modlist = []
   attrtype_lower_map = {}
   for a in old_entry.keys():
     attrtype_lower_map[string.lower(a)]=a
   for attrtype in new_entry.keys():
     attrtype_lower = string.lower(attrtype)
-    if attrtype_lower in ignore_attr_types:
+    if ignore_attr_types.has_key(attrtype_lower):
       # This attribute type is ignored
       continue
+    # Filter away null-strings
     new_value = filter(None,new_entry[attrtype])
     if attrtype_lower_map.has_key(attrtype_lower):
       old_value = old_entry.get(attrtype_lower_map[attrtype_lower],[])
@@ -90,7 +101,7 @@ def modifyModlist(
       if add_values:
         modlist.append((ldap.MOD_ADD,attrtype,add_values))
 
-    elif old_value and not new_value:
+    elif not new_value:
       # Completely delete an existing attribute
       modlist.append((ldap.MOD_DELETE,attrtype,None))
 
@@ -98,12 +109,14 @@ def modifyModlist(
     # Remove all attributes of old_entry which are not present
     # in new_entry at all
     for a in attrtype_lower_map.keys():
-      if a in ignore_attr_types:
+      if ignore_attr_types.has_key(a):
         # This attribute type is ignored
         continue
       attrtype = attrtype_lower_map[a]
       modlist.append((ldap.MOD_DELETE,attrtype,None))
+
   return modlist
+
 
 def test():
   """Test functions"""
@@ -115,11 +128,17 @@ def test():
         'objectClass':['person','pilotPerson'],
         'cn':['Michael Str\303\266der','Michael Stroeder'],
         'sn':['Str\303\266der'],
+        'dummy':[],
+        'dummy':[''],
+        'dummy':['2'],
+        'dummy2':[],
+        'dummy2':[''],
       },
       [
         ('objectClass',['person','pilotPerson']),
         ('cn',['Michael Str\303\266der','Michael Stroeder']),
         ('sn',['Str\303\266der']),
+        ('dummy',['2']),
       ]
     ),
   ]
@@ -153,6 +172,28 @@ def test():
         (ldap.MOD_DELETE,'c',None),
         (ldap.MOD_DELETE,'sn',None),
         (ldap.MOD_ADD,'mail',['michael@stroeder.com']),
+      ]
+    ),
+
+    # Now a weird test-case for catching all possibilities
+    # of removing an attribute with MOD_DELETE,attr_type,None
+    (
+      {
+        'objectClass':['person'],
+        'cn':[],
+        'sn':[''],
+        'c':['DE'],
+      },
+      {
+        'objectClass':[],
+        'cn':[],
+        'sn':[''],
+      },
+      [
+        (ldap.MOD_DELETE,'c',None),
+        (ldap.MOD_DELETE,'cn',None),
+        (ldap.MOD_DELETE,'objectClass',None),
+        (ldap.MOD_DELETE,'sn',None),
       ]
     ),
   ]
