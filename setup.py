@@ -21,14 +21,14 @@ class OpenLDAP2:
 			 ('HAVE_LDAP_DISABLE_CACHE', None),
 			 ('HAVE_LDAP_ENABLE_CACHE', None),
 			 ('HAVE_LDAP_FLUSH_CACHE', None),
-			 ('HAVE_LDAP_INIT_TEMPLATES', None),
 			 ('HAVE_LDAP_MODRDN2', None),
 			 ('HAVE_LDAP_MODRDN2_S', None),
 			 ('HAVE_LDAP_SET_CACHE_OPTIONS', None),
 			 ('HAVE_LDAP_START_TLS_S', None),
 			 ('HAVE_LDAP_UNCACHE_ENTRY', None),
 			 ('HAVE_LDAP_UNCACHE_REQUEST', None),
-			 ('HAVE_DISPTMPL_H', None),
+#			 ('HAVE_LDAP_INIT_TEMPLATES', None),
+#			 ('HAVE_DISPTMPL_H', None),
 			]
 
 #-- Read the [_ldap] section of setup.cfg to find out which class to use
