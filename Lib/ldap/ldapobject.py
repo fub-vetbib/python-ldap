@@ -43,6 +43,7 @@ class LDAPObject:
   def __init__(self,uri,trace_level=0,trace_file=sys.stdout):
     self._trace_level = trace_level
     self._trace_file = trace_file
+    self._uri = uri
     self._l = self._ldap_call(_ldap.initialize,uri)
 
   def _ldap_call(self,func,*args,**kwargs):
@@ -63,7 +64,9 @@ class LDAPObject:
     return result
 
   def __setattr__(self,name,value):
-    if not name in ['_l','_trace_level','_trace_file']:
+    if name in ['_l','_trace_level','_trace_file','_uri']:
+      self.__dict__[name] = value
+    else:
       if __debug__:
         if self._trace_level>=1:
           self._trace_file.write('*** %s:' % (self.__module__),\
@@ -76,11 +79,11 @@ class LDAPObject:
         setattr(self._l,name,value)
       finally:
         ldap._ldap_lock.release()
-    else:
-      self.__dict__[name] = value
 
   def __getattr__(self,name):
-    if not name in ['_l','_trace_level','_trace_file']:
+    if name in ['_l','_trace_level','_trace_file','_uri']:
+      return self.__dict__[name]
+    else:
       ldap._ldap_lock.acquire()
       try:
         value = getattr(self._l,name)
@@ -93,9 +96,55 @@ class LDAPObject:
           )
           if self._trace_level>=2:
             traceback.print_stack(file=sys.stdout)
-    else:
-      value = self.__dict__[name]
     return value
+
+  def supported_ldap_version(self):
+    """
+    supported_ldap_version() -> int
+    Tries to negotiate the highest supported protocol version.
+    First this method binds anonymously with LDAPv3. If
+    that fails with info field 'version not supported' the
+    connection is completely dropped and re-openend like described
+    in RFC2251.
+
+    Mainly this is useful when connecting to a LDAP server without
+    prior knowledge. If you know the highest protocol version
+    supported by your server you won't need this method.
+    Caveat is that it sends an extra BindRequest to the server and
+    it does not work if the server does not allow anonymous bind
+    or mandates SASL bind.
+    
+    The result of this method is an integer containing
+    the negotiated protocol version.
+    """
+    # Try to set protocol version
+    self.set_option(ldap.OPT_PROTOCOL_VERSION,ldap.VERSION3)
+    # first try LDAPv3 bind
+    try:
+      # Try to bind to provoke error reponse at this very time
+      # if protocol version is not supported
+      self.bind_s('','',ldap.AUTH_SIMPLE)
+    except ldap.PROTOCOL_ERROR,e:
+      # Make sure that error just happened because of wrong
+      # protocol version
+      if hasattr(e,'args') and \
+         type(e.args)==type(()) and \
+         type(e.args[0])==type({}) and \
+         e.args[0].get('info','').lower()=='version not supported':
+        # Drop connection completely
+        self.unbind_s() ; del self._l
+        # Reconnect to host
+        self._l = self._ldap_call(_ldap.initialize,self._uri)
+        # Switch to new connection to LDAPv2
+        self.set_option(ldap.OPT_PROTOCOL_VERSION,ldap.VERSION2)
+      else:
+        # Raise any other error exception
+        raise e
+      # Set currently determined protocol version
+      protocol_version = ldap.VERSION2
+    else:
+      protocol_version = ldap.VERSION3
+    return protocol_version
 
   def abandon(self,msgid):
     """
