@@ -463,4 +463,14 @@ class Entry(ldap.cidict.cidict):
       result.append((k,self[k]))
     return result
 
-
+  def attribute_types(
+    self,attr_type_filter=None,strict=1,raise_keyerror=1
+  ):
+    """
+    Convenience wrapper around SubSchema.attribute_types() which
+    passes object classes of this particular entry as argument to
+    SubSchema.attribute_types()
+    """
+    return self._s.attribute_types(
+      self['objectClass'],attr_type_filter,strict,raise_keyerror
+    )
