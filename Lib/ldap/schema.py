@@ -147,7 +147,8 @@ class subSchema:
 
         # Build the schema registry
         for attr_type in SCHEMA_ATTRS:
-          if not sub_schema_sub_entry[attr_type]:
+          if not sub_schema_sub_entry.has_key(attr_type) or \
+             not sub_schema_sub_entry[attr_type]:
             continue
           for attr_value in sub_schema_sub_entry[attr_type]:
             se = SCHEMA_CLASS_MAPPING[attr_type](attr_value,schema_allow)
