@@ -11,9 +11,9 @@ License:
 Public domain. Do anything you want with this module.
 
 Python compability note:
-This module only works with Python 2.0+ since all string parameters
-are assumed to be Unicode objects, string methods are used instead of
-module string and list comprehensions are used.
+This module only works with Python 2.0+ since
+1. string methods are used instead of module string and
+2. list comprehensions are used.
 """
 
 __version__ = '0.5.0'
@@ -34,7 +34,6 @@ from urllib import quote,quote_plus,unquote_plus
 
 # Some widely used types
 StringType = type('')
-UnicodeType = type(u'')
 
 LDAP_SCOPE_BASE = 0
 LDAP_SCOPE_ONELEVEL = 1
@@ -55,34 +54,10 @@ def isLDAPUrl(s):
   """
   Returns 1 if s is a LDAP URL, 0 else
   """
-  if type(s)==UnicodeType:
-    s=s.encode('utf-8')
   return \
     s.startswith('ldap://') or \
     s.startswith('ldaps://') or \
     s.startswith('ldapi://')
-
-
-def decode_dn(dn,charset,relaxed_charset_handling):
-  dn = unquote_plus(dn)
-  try:
-    result_dn = unicode(dn,charset)
-  except UnicodeError:
-    if relaxed_charset_handling:
-      result_dn = None
-      for c in ['utf-8','iso-8859-1']:
-        if c!=charset:
-          try:
-            result_dn = unicode(dn,c)
-          except UnicodeError:
-            pass
-          else:
-            break
-      if result_dn is None:
-        raise ValueError,'Invalid character set used in DN part of LDAP URL.'
-    else:
-      raise ValueError,'Invalid character set used in DN part of LDAP URL.'
-  return result_dn
 
 
 class LDAPUrlExtension:
@@ -161,13 +136,13 @@ class LDAPUrl:
     hostport
         LDAP host (default '')
     dn
-        Unicode string holding distinguished name (default '')
+        String holding distinguished name (default '')
     attrs
         list of attribute types (default None)
     scope
         integer search scope for ldap-module
     filterstr
-        Unicode string representation of LDAP Search Filters
+        String representation of LDAP Search Filters
         (see RFC 2254)
     extensions
         Dictionary used as extensions store
@@ -279,7 +254,7 @@ class LDAPUrl:
     paramlist=rest.split('?')
     paramlist_len = len(paramlist)
     if paramlist_len>=1:
-      self.dn = decode_dn(paramlist[0],self.charset,relaxed_charset_handling)
+      self.dn = unquote_plus(paramlist[0]).strip()
     if (paramlist_len>=2) and (paramlist[1]):
       self.attrs = unquote_plus(paramlist[1].strip()).split(',')
     if paramlist_len>=3:
@@ -291,13 +266,11 @@ class LDAPUrl:
       except KeyError:
         raise ValueError,"Search scope must be either one of base, one or sub. LDAP URL contained %s" % (repr(scope))
     if paramlist_len>=4:
-      filterstr = unquote_plus(paramlist[3].strip())
+      filterstr = paramlist[3].strip()
       if not filterstr:
-        filterstr='(objectclass=*)'
-      try:
-        self.filterstr = unicode(filterstr,self.charset)
-      except:
-        self.filterstr = unicode(filterstr,'iso-8859-1')
+        self.filterstr = None
+      else:
+        self.filterstr = unquote_plus(filterstr)
     if paramlist_len>=5:
       extensions = [
         LDAPUrlExtension(extension)
@@ -311,8 +284,6 @@ class LDAPUrl:
 
   def _urlEncoding(self,s,charset):
     """Returns URL encoding of string s"""
-    if type(s)==UnicodeType:
-      s = s.encode(charset)
     return quote(s).replace(',','%2C').replace('/','%2F')
 
   def initializeUrl(self):
@@ -329,12 +300,6 @@ class LDAPUrl:
   def unparse(self):
     """
     Returns LDAP URL depending on class attributes set.
-    
-    charset
-        Character set used to encode the LDAP URL.
-        If charset is None a Unicode object is returned.
-    urlEncode
-        Integer flag. If 1 the returned LDAP URL will be URL encoded.
     """
     if self.attrs is None:
       attrs_str = ''
