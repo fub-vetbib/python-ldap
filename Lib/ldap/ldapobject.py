@@ -550,7 +550,7 @@ class SimpleLDAPObject:
       )
     except ldap.NO_SUCH_OBJECT:
       r = []
-    except ldap.UNDEFINED_TYPE:
+    except (ldap.UNDEFINED_TYPE,ldap.NO_SUCH_ATTRIBUTE):
       return None
     try:
       if r:
