@@ -5,12 +5,8 @@ from distutils.core import setup, Extension
 from ConfigParser import ConfigParser
 import sys,string
 
-sys.path.insert(0,'Lib/')
-
-import ldap
-
 #-- Release version of Python-ldap
-version = ldap.__version__
+version = '2.0.0pre03'
 
 #-- A class describing the features and requirements of OpenLDAP 2.0
 class OpenLDAP2:
