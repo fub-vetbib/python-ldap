@@ -1,6 +1,6 @@
 """
 ldapthreadlock.py - mimics LDAPObject class in a thread-safe way
-(c) 2001 by Michael Stroeder <michael@stroeder.com>
+written by Michael Stroeder <michael@stroeder.com>
 
 \$Id$
 
@@ -8,6 +8,8 @@ License:
 Public domain. Do anything you want with this module.
 
 Compability:
+- Should work with Python 1.5.x+
+- Needs module threading (build Python with thread support
 - The behaviour of the ldapthreadlock.LDAPObject class should be
   exactly the same like ldap.LDAPObject
 - This module needs your Python installation to be built with

@@ -1,6 +1,11 @@
 """
 ldapurl - handling of LDAP URLs as described in RFC 2255
-(c) by Michael Stroeder <michael@stroeder.com>
+written by Michael Stroeder <michael@stroeder.com>
+
+\$Id$
+
+License:
+Public domain. Do anything you want with this module.
 
 Python compability note:
 This module only works with Python 2.0+ since all string parameters
@@ -9,6 +14,15 @@ string module and list comprehensions are used.
 """
 
 __version__ = '0.3.2'
+
+__all__ = [
+  # constants
+  'SEARCH_SCOPE','SEARCH_SCOPE_STR',
+  # functions
+  'isLDAPUrl',
+  # classes
+  'LDAPUrlExtension','LDAPUrl'
+]
 
 import re,ldap
 

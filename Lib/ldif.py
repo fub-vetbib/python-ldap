@@ -1,10 +1,24 @@
 """
-ldif.py - generate and parse LDIF data
+ldif - generate and parse LDIF data
+written by Michael Stroeder <michael@stroeder.com>
 
 $Id$
+
+License:
+Public domain. Do anything you want with this module.
+
+Python compability note:
+This module should work with Python 1.5.2+.
 """
 
 __version__ = '0.3.0'
+
+__all__ = [
+  # constants
+  'ldif_pattern',
+  # functions
+  'CreateLDIFLine','CreateLDIF','ParseLDIF',
+]
 
 import os,string,base64,re
 
