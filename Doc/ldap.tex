@@ -712,12 +712,25 @@ specific operation.
 If a result is desired from any one of the in-progress operations,
 \var{msgid} should be specified as the constant \constant{RES_ANY}.
 
-The \var{all}
-parameter has meaning only for \method{search()} responses,
-and is used to select 
-whether a single entry of the search response should be returned, or whether
-the \method{result()} method should wait until all the results of the search 
-are available before returning. 
+The \var{all} parameter only has meaning for \method{search()} responses
+and is used to select whether a single entry of the search
+response should be returned, or to wait for all the results
+of the search before returning.
+
+A search response is made up of zero or more search entries
+followed by a search result. If \var{all} is 0, search entries will
+be returned one at a time as they come in, via separate calls
+to \method{result()}. If all is 1, the search response will be returned
+in its entirety, i.e. after all entries and the final search
+result have been received.
+
+For \var{all} set to 0, result tuples
+trickle in (with the same message id), and with the result type
+\constant{'RES_SEARCH_ENTRY'}, until the final result which has a result
+type of \constant{'RES_SEARCH_RESULT'} and a (usually) empty data field.
+When all is set to 1, only one result is returned, with a
+result type of RES_SEARCH_RESULT, and all the result tuples
+listed in the data field.
 
 The \var{timeout} parameter is a limit on the number of seconds that the
 method will wait for a response from the server. 
@@ -732,7 +745,7 @@ The \method{result()} method returns a tuple of the form
 \code{(\textit{result-type}, \textit{result-data})}.
 The first element, \textit{result-type} is a string, being one of:
 \constant{'RES_BIND'}, \constant{'RES_SEARCH_ENTRY'},
-\constant{'RES_SEARCH_RESULT'}, 
+\constant{'RES_SEARCH_REFERENCE'}, \constant{'RES_SEARCH_RESULT'}, 
 \constant{'RES_MODIFY'}, \constant{'RES_ADD'}, \constant{'RES_DELETE'}, 
 \constant{'RES_MODRDN'}, or \constant{'RES_COMPARE'}.
 (The module constants \constant{RES_*} are set to these strings,
@@ -758,6 +771,25 @@ See \method{search()} for a description of the search result's
     \methodline[LDAP]{search_st}{base, scope \optional{,filterstr=\constant{'(objectClass=*)'} \optional{,
     	attrlist=\constant{None} \optional{, attrsonly=\constant{0} 
 	\optional{, timeout=\constant{-1}}}}}}
+    \methodline[LDAP]{search_ext}{
+        base, scope
+        \optional{,filterstr=\constant{'(objectClass=*)'}
+        \optional{, attrlist=\constant{None} 
+        \optional{, attrsonly=\constant{0} 
+        \optional{, serverctrls=\constant{None} 
+        \optional{, clientctrls=\constant{None} 
+	\optional{, timeout=\constant{-1} 
+        \optional{, sizelimit=\constant{0}}}}}}}}}
+		%->int
+    \methodline[LDAP]{search_ext_s}{
+        base, scope
+        \optional{,filterstr=\constant{'(objectClass=*)'}
+        \optional{, attrlist=\constant{None} 
+        \optional{, attrsonly=\constant{0} 
+        \optional{, serverctrls=\constant{None} 
+        \optional{, clientctrls=\constant{None} 
+	\optional{, timeout=\constant{-1} 
+        \optional{, sizelimit=\constant{0}}}}}}}}}
 		%->list|None
 Perform an LDAP search operation, with \var{base} as the DN of the entry
 at which to start the search, \var{scope} being one of 
@@ -773,23 +805,11 @@ the search.
 \seerfc{2254}{The String Representation of LDAP Search Filters}{}
 \end{seealso}
 
-When using the asynchronous form and \method{result()}, the \var{all}
-parameter affects how results come in.
-For \var{all} set to \constant{0}, 
-result tuples trickle in (with the same message id), and with the result
-type \constant{RES_SEARCH_ENTRY}, until the final result which has 
-a result type of \constant{RES_SEARCH_RESULT} and a (usually) empty data field.
-When \var{all} is set to \constant{1}, only one result is returned, with a
-result type of \constant{RES_SEARCH_RESULT}, and all the result tuples listed 
-in the data field.
-
 Each result tuple is of the form \code{(\var{dn},\var{attrs})}, 
-where \var{dn} is a string containing
-the DN (distinguished name) of the entry, and 
-\var{attrs} is a dictionary
-containing the attributes associated with the entry. 
-The keys of \var{attrs} are strings, 
-and the associated values are lists of strings.
+where \var{dn} is a string containing the DN (distinguished name) of the
+entry, and \var{attrs} is a dictionary containing the attributes associated
+with the entry. The keys of \var{attrs} are strings, and the associated
+values are lists of strings.
 
 The DN in \var{dn} is extracted using the underlying \cfunction{ldap_get_dn()}
 function,
@@ -801,10 +821,20 @@ If \var{attrsonly} is non-zero, the values of \var{attrs} will be meaningless
 The retrieved attributes can be limited with the \var{attrlist} parameter.
 If \var{attrlist} is \constant{None}, all the attributes of each entry are returned.
 
-The synchronous form with timeout, \method{search_st()}, will block for at most
-\var{timeout} seconds (or indefinitely if \var{timeout} is negative). A
-\exception{TIMEOUT} exception is raised if no result is received within the
-specified time.
+To do: \var{serverctrls}
+
+To do: \var{clientctrls}
+
+The synchronous form with timeout, \method{search_st()} or \method{search_ext_s()},
+will block for at most \var{timeout} seconds (or indefinitely if \var{timeout}
+is negative). A \exception{TIMEOUT} exception is raised if no result is received
+within the specified time.
+
+The amount of search results retrieved can be limited with the
+\var{sizelimit} parameter when using \method{search_ext()}
+or \method{search_ext_s()} (client-side search limit). If non-zero
+not more than \var{sizelimit} results are returned by the server.
+
 \end{methoddesc}
 
 %%------------------------------------------------------------

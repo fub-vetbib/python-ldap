@@ -24,7 +24,7 @@ The timeout handling is done within the method result() which probably leads
 to less exact timing.
 """
 
-__version__ = '0.3.0'
+__version__ = '0.4.0'
 
 __all__ = [
   'LDAPObject',
@@ -352,11 +352,19 @@ class SimpleLDAPObject:
         in its entirety, i.e. after all entries and the final search
         result have been received.
 
+        For all set to 0, result tuples
+        trickle in (with the same message id), and with the result type
+        RES_SEARCH_ENTRY, until the final result which has a result
+        type of RES_SEARCH_RESULT and a (usually) empty data field.
+        When all is set to 1, only one result is returned, with a
+        result type of RES_SEARCH_RESULT, and all the result tuples
+        listed in the data field.
+
         The method returns a tuple of the form (result_type,
         result_data).  The result_type is a string, being one of:
         'RES_BIND', 'RES_SEARCH_ENTRY', 'RES_SEARCH_RESULT',
-        'RES_MODIFY', 'RES_ADD', 'RES_DELETE', 'RES_MODRDN', or
-        'RES_COMPARE'.
+        'RES_SEARCH_REFERENCE','RES_MODIFY', 'RES_ADD', 'RES_DELETE',
+        'RES_MODRDN', or 'RES_COMPARE'.
 
         The constants RES_* are set to these strings, for convenience.
 
@@ -377,6 +385,8 @@ class SimpleLDAPObject:
     search(base, scope [,filterstr='(objectClass=*)' [,attrlist=None [,attrsonly=0]]) -> int
     search_s(base, scope [,filterstr='(objectClass=*)' [,attrlist=None [,attrsonly=0]])
     search_st(base, scope [,filterstr='(objectClass=*)' [,attrlist=None [,attrsonly=0 [,timeout=-1]]])
+    search_ext(base,scope,[,filterstr='(objectClass=*)' [,attrlist=None [,attrsonly=0 [,serverctrls=None [,clientctrls=None [,timeout=-1 [,sizelimit=0]]]]]]]
+    search_ext_s(base,scope,[,filterstr='(objectClass=*)' [,attrlist=None [,attrsonly=0 [,serverctrls=None [,clientctrls=None [,timeout=-1 [,sizelimit=0]]]]]]]
 
         Perform an LDAP search operation, with base as the DN of
         the entry at which to start the search, scope being one of
@@ -386,15 +396,6 @@ class SimpleLDAPObject:
 
         filter is a string representation of the filter to
         apply in the search (see RFC 2254).
-
-        When using the asynchronous form and result(), the all parameter
-        affects how results come in.  For all set to 0, result tuples
-        trickle in (with the same message id), and with the result type
-        RES_SEARCH_ENTRY, until the final result which has a result
-        type of RES_SEARCH_RESULT and a (usually) empty data field.
-        When all is set to 1, only one result is returned, with a
-        result type of RES_SEARCH_RESULT, and all the result tuples
-        listed in the data field.
 
         Each result tuple is of the form (dn,entry), where dn is a
         string containing the DN (distinguished name) of the entry, and
@@ -412,10 +413,17 @@ class SimpleLDAPObject:
         parameter.  If attrlist is None, all the attributes of each
         entry are returned.
 
-        The synchronous form with timeout, search_st(), will block
-        for at most timeout seconds (or indefinitely if timeout is
-        negative). A TIMEOUT exception is raised if no result is
+        serverctrls=None
+
+        clientctrls=None
+
+        The synchronous form with timeout, search_st() or search_ext_s(),
+        will block for at most timeout seconds (or indefinitely if
+        timeout is negative). A TIMEOUT exception is raised if no result is
         received within the time.
+
+        The amount of search results retrieved can be limited with the
+        sizelimit parameter if non-zero.
     """
     return self._ldap_call(self._l.search_ext,base,scope,filterstr,attrlist,attrsonly,timeout,sizelimit)
 
