@@ -39,20 +39,10 @@ class LDAPObject:
   Drop-in wrapper class around __ldap.LDAPObject
   """
 
-  def __init__(
-    self,
-    use_threadlock=0,trace_level=0,trace_file=sys.stdout,
-    host=None,uri=None,
-  ):
-    self._use_threadlock = use_threadlock
+  def __init__(self,uri,trace_level=0,trace_file=sys.stdout):
     self._trace_level = trace_level
     self._trace_file = trace_file
-    if uri!=None:
-      self._l = self._ldap_call(_ldap.initialize,uri)
-    elif host!=None:
-      self._l = self._ldap_call(_ldap.open,host)
-    else:
-      raise ValueError,"Either host or uri must be set."
+    self._l = self._ldap_call(_ldap.initialize,uri)
 
   def _ldap_call(self,func,*args,**kwargs):
     """Wrapper method mainly for trace logs"""
@@ -72,7 +62,7 @@ class LDAPObject:
     return result
 
   def __setattr__(self,name,value):
-    if not name in ['_l','_use_threadlock','_trace_level','_trace_file']:
+    if not name in ['_l','_trace_level','_trace_file']:
       if __debug__:
         if self._trace_level>=1:
           self._trace_file.write('*** %s:' % (self.__module__),\
@@ -89,7 +79,7 @@ class LDAPObject:
       self.__dict__[name] = value
 
   def __getattr__(self,name):
-    if not name in ['_l','_use_threadlock','_trace_level','_trace_file']:
+    if not name in ['_l','_trace_level','_trace_file']:
       _ldapmodule_lock.acquire()
       try:
         value = getattr(self._l,name)
