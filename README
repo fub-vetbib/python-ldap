@@ -1,6 +1,6 @@
-
-LDAP module for Python
-======================
+------------------------------
+LDAP module package for Python
+------------------------------
 
 This module provides access to the LDAP (C language) library. It is 
 known to compile and work with basic functionality with the following
@@ -44,25 +44,9 @@ Author(s) contact:
    archives and then enquire about any progress.
 
 Notes for Microsoft WIN32:
-   This README is part of a source distribution.  A precompiled ldap.pyd 
-   for WIN32 architectures can also be found at:
-
-   	http://python-ldap.sourceforge.net/
 
    If you have MSVC6.0 or equivalent, and want to build the module yourself,
    you should refer to the README.txt file in the win32/ directory.
-
-Copyright and licensing:
-   Different parts of python-ldap might have different licenses.  See
-   individual directories for their licensing. In brief, these are:
-	ldap:		public domain
-	ldif:		public domain
-	ldapurl:	public domain
-	win32:		unknown <public domain?>
-
-   Although not a condition of the licenses, I strongly urge that any
-   improvements you may make be sent back to us for inclusion into 
-   future versions of this package (under the same free licensing).
 
 Acknowledgements:
 
