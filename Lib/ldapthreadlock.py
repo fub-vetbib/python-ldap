@@ -174,6 +174,13 @@ class LDAPObject:
     msgid = self.modrdn(dn,newrdn,delold)
     return self.result(msgid)
 
+  def rename(self,dn,newrdn,newSuperior,delold=1):
+    return self._ldap_call(self._l.rename,dn,newrdn,newSuperior,delold)
+
+  def rename_s(self,dn,newrdn,newSuperior,delold=1):
+    msgid = self.rename(dn,newrdn,newSuperior,delold)
+    return self.result(msgid)
+
   def result(self,msgid=ldap.RES_ANY,all=1,timeout=-1):
     if timeout==0:
       return self._ldap_call(self._l.result,msgid,all,0)
