@@ -1,5 +1,5 @@
 """
-ldapobject.py - mimics LDAPObject class with some extra features
+ldapobject.py - wraps class _ldap.LDAPObject
 written by Michael Stroeder <michael@stroeder.com>
 
 \$Id$
@@ -8,62 +8,30 @@ License:
 Public domain. Do anything you want with this module.
 
 Compability:
-- Should work with Python 1.5.x+
-- Needs module threading (build Python with thread support
-- The behaviour of the ldapthreadlock.LDAPObject class should be
-  exactly the same like _ldap.LDAPObject
-- This module needs your Python installation to be built with
-  thread support (module threading is imported).
+- Tested with Python 2.0+ but should work with Python 1.5.x
+- LDAPObject class should be exactly the same like _ldap.LDAPObject
 
 Usage:
-You can simply use function open() / initialize() of this module
-instead of function open() / initialize() of module ldap to create
-an instance of LDAPObject class.
+Directly imported by ldap/__init__.py. The symbols of _ldap are
+overridden.
 
+Thread-lock:
 Basically calls into the LDAP lib are serialized by the module-wide
-lock _ldapmodule_lock. To avoid blocking of other threads synchronous
-methods like search_s() etc. and the result() method were rewritten to do
-solely asynchronous LDAP lib calls with zero timeout.
-
+lock _ldapmodule_lock. To avoid long-time blocking of other threads
+synchronous methods like search_s() etc. and the result() method
+were rewritten to do solely asynchronous LDAP lib calls with zero
+timeout.
 The timeout handling is done within the method result() which probably leads
 to less exact timing.
 """
 
-__version__ = '0.0.3'
+__version__ = '0.0.4'
 
-__all__ = ['open','initialize','init','get_option','set_option']
+__all__ = [
+  'LDAPObject',
+]
 
-import sys,time,_ldap
-
-if __debug__:
-  import sys,traceback
-  _module_debug_level = 0
-
-
-try:
-
-  # Check if Python installation has thread support
-  import threading
-
-except ImportError:
-
-  def _ldap_call(func,*args,**kwargs):
-    """Wrapper function if threading module is not available"""
-    return apply(func,args,kwargs)
-
-else:
-
-  # Global lock for serializing all calls into underlying LDAP lib
-  _ldapmodule_lock = threading.Lock()
-
-  def _ldap_call(func,*args,**kwargs):
-    """Wrapper function which locks calls to func with via ldap_module_lock"""
-    _ldapmodule_lock.acquire()
-    try:
-      result = apply(func,args,kwargs)
-    finally:
-      _ldapmodule_lock.release()
-    return result
+import sys,time,_ldap,ldap
 
 
 class LDAPObject:
@@ -97,7 +65,7 @@ class LDAPObject:
         ))
         if self._trace_level>=2:
           traceback.print_stack(file=self._trace_file)
-    result = _ldap_call(func,*args,**kwargs)
+    result = ldap._ldap_call(func,*args,**kwargs)
     if __debug__:
       if self._trace_level>=1 and result!=None and result!=(None,None):
         self._trace_file.write('=> result: %s\n' % (repr(result)))
@@ -557,51 +525,3 @@ class LDAPObject:
 
   def set_option(self,*args,**kwargs):
     self._ldap_call(self._l.set_option,*args,**kwargs)
-
-def open(host,use_threadlock=0,trace_level=0,trace_file=sys.stdout):
-  """
-  Return LDAPObject instance by opening LDAP connection to
-  specified LDAP host
-  
-  Parameters:
-  host
-        LDAP host and port
-  use_threadlock
-        If non-zero a global lock is used to serialize all
-        calls into underlying (not thread-safe) LDAP libs.
-  trace_level
-        If non-zero a trace output of LDAP calls is generated.
-  trace_file
-        File object where to write the trace output to.
-        Default is to use stdout.
-  """
-  return LDAPObject(use_threadlock,trace_level,trace_file,host=host)
-
-def initialize(uri,use_threadlock=0,trace_level=0,trace_file=sys.stdout):
-  """
-  Return LDAPObject instance by opening LDAP connection to
-  specified LDAP host
-  
-  Parameters:
-  uri
-        LDAP URL containing at least connection scheme and hostport.
-  use_threadlock
-        If non-zero a global lock is used to serialize all
-        calls into underlying (not thread-safe) LDAP libs.
-  trace_level
-        If non-zero a trace output of LDAP calls is generated.
-  trace_file
-        File object where to write the trace output to.
-        Default is to use stdout.
-  """
-  return LDAPObject(use_threadlock,trace_level,trace_file,uri=uri)
-
-# init() is just an alias for initialize()
-init = initialize
-
-def get_option(*args,**kwargs):
-  return _ldap_call(_ldap.get_option,*args,**kwargs)
-
-def set_option(*args,**kwargs):
-  _ldap_call(_ldap.set_option,*args,**kwargs)
-
