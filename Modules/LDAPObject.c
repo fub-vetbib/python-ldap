@@ -404,29 +404,36 @@ l_ldap_add_ext( LDAPObject* self, PyObject *args )
     return PyInt_FromLong(msgid);
 }
 
-/* ldap_bind */
+/* ldap_simple_bind */
 
 static PyObject*
-l_ldap_bind( LDAPObject* self, PyObject* args )
+l_ldap_simple_bind( LDAPObject* self, PyObject* args )
 {
-    char *who, *cred;
-    int method;
+    char *who;
     int msgid;
+    int ldaperror;
+    PyObject *serverctrls = Py_None;
+    PyObject *clientctrls = Py_None;
+    struct berval cred;
 
-    if (!PyArg_ParseTuple( args, "ssi", &who, &cred, &method)) return NULL;
+    if (!PyArg_ParseTuple( args, "ss#|OO", &who, &cred.bv_val, &cred.bv_len, &serverctrls, &clientctrls )) return NULL;
+
     if (not_valid(self)) return NULL;
+
     LDAP_BEGIN_ALLOW_THREADS( self );
-    msgid = ldap_bind( self->ldap, who, cred, method );
+    ldaperror = ldap_sasl_bind( self->ldap, who, LDAP_SASL_SIMPLE, &cred, NULL, NULL, &msgid);
     LDAP_END_ALLOW_THREADS( self );
-    if (msgid == -1)
-    	return LDAPerror( self->ldap, "ldap_bind" );
+
+    if ( ldaperror!=LDAP_SUCCESS )
+    	return LDAPerror( self->ldap, "ldap_simple_bind" );
+
     return PyInt_FromLong( msgid );
 }
 
 
 #ifdef HAVE_SASL
 /* The following functions implement SASL binds. A new method
-   sasl_bind_s(bind_dn, sasl_mechanism) has been introduced.
+   sasl_interactive_bind_s(bind_dn, sasl_mechanism) has been introduced.
 
    * The bind_dn argument will be passed to the c library; however,
      normally it is not needed and should be an empty string.
@@ -549,9 +556,14 @@ int py_ldap_sasl_interaction(   LDAP *ld,
 }
 
 static PyObject* 
-l_ldap_sasl_bind_s( LDAPObject* self, PyObject* args )
+l_ldap_sasl_interactive_bind_s( LDAPObject* self, PyObject* args )
 {
-    char *bind_dn, *c_mechanism;
+    char *c_mechanism;
+    char *who, *cred;
+
+    PyObject *serverctrls = Py_None;
+    PyObject *clientctrls = Py_None;
+
     PyObject       *SASLObject = NULL;
     PyObject *mechanism = NULL;
     int msgid, version;
@@ -559,10 +571,7 @@ l_ldap_sasl_bind_s( LDAPObject* self, PyObject* args )
     void *defaults;
     static unsigned sasl_flags = LDAP_SASL_AUTOMATIC;
 
-    if (!PyArg_ParseTuple(args, 
-			  "sO",
-			  &bind_dn,
-			  &SASLObject)) 
+    if (!PyArg_ParseTuple(args, "sOOO", &who, &SASLObject, &serverctrls, &clientctrls ))
       return NULL;
 
     if (not_valid(self)) return NULL;
@@ -580,7 +589,7 @@ l_ldap_sasl_bind_s( LDAPObject* self, PyObject* args )
        static variable would destroy thread safety, IMHO.
      */
     msgid = ldap_sasl_interactive_bind_s(self->ldap, 
-					 bind_dn, 
+					 who, 
 					 c_mechanism, 
 					 NULL, 
 					 NULL,
@@ -588,11 +597,10 @@ l_ldap_sasl_bind_s( LDAPObject* self, PyObject* args )
 					 py_ldap_sasl_interaction, 
 					 SASLObject);
     if (msgid != LDAP_SUCCESS)
-    	return LDAPerror( self->ldap, "ldap_sasl_bind_s" );
+    	return LDAPerror( self->ldap, "ldap_sasl_interactive_bind_s" );
     return PyInt_FromLong( msgid );
 }
 #endif
-
 
 /* ldap_compare_ext */
 
@@ -960,9 +968,9 @@ static PyMethodDef methods[] = {
     {"unbind_ext",	(PyCFunction)l_ldap_unbind_ext,		METH_VARARGS },
     {"abandon_ext",	(PyCFunction)l_ldap_abandon_ext,	METH_VARARGS },
     {"add_ext",		(PyCFunction)l_ldap_add_ext,		METH_VARARGS },
-    {"bind",		(PyCFunction)l_ldap_bind,		METH_VARARGS },
+    {"simple_bind",	(PyCFunction)l_ldap_simple_bind,	METH_VARARGS },
 #ifdef HAVE_SASL
-    {"sasl_bind_s",	(PyCFunction)l_ldap_sasl_bind_s,	METH_VARARGS },
+    {"sasl_interactive_bind_s",	(PyCFunction)l_ldap_sasl_interactive_bind_s,	METH_VARARGS },
 #endif
     {"compare_ext",	(PyCFunction)l_ldap_compare_ext,	METH_VARARGS },
     {"delete_ext",	(PyCFunction)l_ldap_delete_ext,		METH_VARARGS },

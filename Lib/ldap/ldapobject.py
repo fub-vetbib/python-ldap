@@ -162,24 +162,38 @@ class SimpleLDAPObject:
     msgid = self.add(dn,modlist)
     self.result(msgid,all=1,timeout=self.timeout)
 
-  def bind(self,who,cred,method):
+  def simple_bind(self,who='',cred='',serverctrls=None,clientctrls=None):
+    """
+    simple_bind([who='' [,cred='']]) -> int
+    """
+    return self._ldap_call(self._l.simple_bind,who,cred,serverctrls,clientctrls)
+
+  def simple_bind_s(self,who='',cred='',serverctrls=None,clientctrls=None):
+    """
+    simple_bind_s([who='' [,cred='']]) -> None
+    """
+    msgid = self.simple_bind(who,cred,serverctrls,clientctrls)
+    self.result(msgid,all=1,timeout=self.timeout)
+
+  def bind(self,who,cred,method=ldap.AUTH_SIMPLE):
     """
     bind(who, cred, method) -> int
     """
-    return self._ldap_call(self._l.bind,who,cred,method)
+    assert method==ldap.AUTH_SIMPLE,'Only simple bind supported in LDAPObject.bind()'
+    return self.simple_bind(who,cred)
 
-  def bind_s(self,who,cred,method):
+  def bind_s(self,who,cred,method=ldap.AUTH_SIMPLE):
     """
     bind_s(who, cred, method) -> None
     """
     msgid = self.bind(who,cred,method)
-    self.result(msgid,all=1,timeout=self.timeout)
+    return self.result(msgid,all=1,timeout=self.timeout)
 
-  def sasl_bind_s(self,who,auth):
+  def sasl_interactive_bind_s(self,who,auth,cred='',serverctrls=None,clientctrls=None):
     """
-    sasl_bind_s(who, auth) -> None
+    sasl_interactive_bind_s(who, auth) -> None
     """
-    return self._ldap_call(self._l.sasl_bind_s,who,auth)
+    return self._ldap_call(self._l.sasl_interactive_bind_s,who,auth,serverctrls,clientctrls)
 
   def compare_ext(self,dn,attr,value,serverctrls=None,clientctrls=None):
     """
@@ -479,18 +493,6 @@ class SimpleLDAPObject:
     """
     self._ldap_call(self._l.set_rebind_proc,func)
 
-  def simple_bind(self,who='',cred=''):
-    """
-    simple_bind([who='' [,cred='']]) -> int
-    """
-    return self.bind(who,cred,_ldap.AUTH_SIMPLE)
-
-  def simple_bind_s(self,who='',cred=''):
-    """
-    simple_bind_s([who='' [,cred='']]) -> None
-    """
-    self.bind_s(who,cred,_ldap.AUTH_SIMPLE)
-
   def start_tls_s(self):
     """
     start_tls_s() -> None    
@@ -756,12 +758,12 @@ class ReconnectLDAPObject(SimpleLDAPObject):
     self._start_tls = 1
     return res
 
-  def sasl_bind_s(self,who,auth):
+  def sasl_interactive_bind_s(self,who,auth):
     """
-    sasl_bind_s(who, auth) -> None
+    sasl_interactive_bind_s(who, auth) -> None
     """
-    self._last_bind = (self.sasl_bind_s,(who,auth),{})
-    return self._ldap_call(self._l.sasl_bind_s,who,auth)
+    self._last_bind = (self.sasl_interactive_bind_s,(who,auth),{})
+    return self._ldap_call(self._l.sasl_interactive_bind_s,who,auth)
 
   def add_ext_s(self,*args,**kwargs):
     return self._apply_method_s(SimpleLDAPObject.add_s,*args,**kwargs)
