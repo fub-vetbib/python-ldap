@@ -19,7 +19,7 @@ Basically calls into the LDAP lib are serialized by the module-wide
 lock self._ldap_object_lock.
 """
 
-__version__ = '0.5.1'
+__version__ = '0.5.2'
 
 __all__ = [
   'LDAPObject',
@@ -34,7 +34,9 @@ if __debug__:
   # Tracing is only supported in debugging mode
   import traceback
 
-import sys,string,time,_ldap,ldap,ldap.schema
+import sys,time,_ldap,ldap
+
+from ldap.schema import SCHEMA_ATTRS
 
 from ldap import LDAPError
 
@@ -514,7 +516,7 @@ class SimpleLDAPObject:
     Returns the distinguished name of the sub schema sub entry
     for a part of a DIT specified by dn.
 
-    None as result indicates that the sub schema sub entry could
+    None as result indicates that the DN of the sub schema sub entry could
     not be determined.
     """
     try:
@@ -529,21 +531,15 @@ class SimpleLDAPObject:
       if r:
         e = ldap.cidict.cidict(r[0][1])
         search_subschemasubentry_dn = e.get('subschemaSubentry',[None])[0]
-        if search_subschemasubentry_dn!=None:
+        if search_subschemasubentry_dn is None:
+          if dn:
+            # Try to find sub schema sub entry in root DSE
+            return self.search_subschemasubentry_s(dn='')
+          else:
+            # If dn was already root DSE we can return here
+            return None
+        else:
           return search_subschemasubentry_dn
-      if not dn:
-        # If dn was already root DSE we can return here
-        return None
-      # Fall back to directly read attribute subschemaSube
-      # from RootDSE
-      try:
-        r = self.search_s(
-          '',ldap.SCOPE_BASE,'(objectClass=*)',['subschemaSubentry']
-        )
-      except ldap.NO_SUCH_OBJECT:
-        return None
-      e = ldap.cidict.cidict(r[0][1])
-      return e.get('subschemaSubentry',[None])[0]
     except IndexError:
       return None
 
@@ -551,7 +547,7 @@ class SimpleLDAPObject:
     """
     Returns the sub schema sub entry's data
     """
-    attrs = attrs or ldap.schema.SCHEMA_ATTRS
+    attrs = attrs or SCHEMA_ATTRS
     try:
       r = self.search_s(
         subschemasubentry_dn,ldap.SCOPE_BASE,
