@@ -13,6 +13,11 @@ from ldap.schema.tokenizer import split_tokens,extract_tokens
 
 if __debug__:
   from types import TupleType,StringType,IntType
+  try:
+    from types import BooleanType
+  except ImportError:
+    BooleanType = IntType
+
 
 NOT_HUMAN_READABLE_LDAP_SYNTAXES = {
   '1.3.6.1.4.1.1466.115.121.1.4':None,  # Audio
@@ -125,7 +130,7 @@ class ObjectClass(SchemaElement):
       self.kind = 2
     assert type(self.names)==TupleType
     assert self.desc is None or type(self.desc)==StringType
-    assert type(self.obsolete)==IntType and (self.obsolete==0 or self.obsolete==1)
+    assert type(self.obsolete)==BooleanType and (self.obsolete==0 or self.obsolete==1)
     assert type(self.sup)==TupleType
     assert type(self.kind)==IntType
     assert type(self.must)==TupleType
@@ -228,9 +233,9 @@ class AttributeType(SchemaElement):
     assert type(self.names)==TupleType
     assert self.desc is None or type(self.desc)==StringType
     assert type(self.sup)==TupleType,'attribute sup has type %s' % (type(self.sup))
-    assert type(self.obsolete)==IntType and (self.obsolete==0 or self.obsolete==1)
-    assert type(self.single_value)==IntType and (self.single_value==0 or self.single_value==1)
-    assert type(self.no_user_mod)==IntType and (self.no_user_mod==0 or self.no_user_mod==1)
+    assert type(self.obsolete)==BooleanType and (self.obsolete==0 or self.obsolete==1)
+    assert type(self.single_value)==BooleanType and (self.single_value==0 or self.single_value==1)
+    assert type(self.no_user_mod)==BooleanType and (self.no_user_mod==0 or self.no_user_mod==1)
     assert self.syntax is None or type(self.syntax)==StringType
     assert self.syntax_len is None or type(self.syntax_len)==type(0L)
     return # AttributeType.__init__()
@@ -316,7 +321,7 @@ class MatchingRule(SchemaElement):
     self.syntax = d['SYNTAX'][0]
     assert type(self.names)==TupleType
     assert self.desc is None or type(self.desc)==StringType
-    assert type(self.obsolete)==IntType and (self.obsolete==0 or self.obsolete==1)
+    assert type(self.obsolete)==BooleanType and (self.obsolete==0 or self.obsolete==1)
     assert self.syntax is None or type(self.syntax)==StringType
     return # MatchingRule.__init__()
 
@@ -355,7 +360,7 @@ class MatchingRuleUse(SchemaElement):
     self.applies = d['APPLIES']
     assert type(self.names)==TupleType
     assert self.desc is None or type(self.desc)==StringType
-    assert type(self.obsolete)==IntType and (self.obsolete==0 or self.obsolete==1)
+    assert type(self.obsolete)==BooleanType and (self.obsolete==0 or self.obsolete==1)
     assert type(self.applies)==TupleType
     return # MatchingRuleUse._set_attrs()
 
@@ -402,7 +407,7 @@ class DITContentRule(SchemaElement):
     self.nots = d['NOT']
     assert type(self.names)==TupleType
     assert self.desc is None or type(self.desc)==StringType
-    assert type(self.obsolete)==IntType and (self.obsolete==0 or self.obsolete==1)
+    assert type(self.obsolete)==BooleanType and (self.obsolete==0 or self.obsolete==1)
     assert type(self.aux)==TupleType
     assert type(self.must)==TupleType
     assert type(self.may)==TupleType
@@ -456,7 +461,7 @@ class DITStructureRule(SchemaElement):
     self.sup = d['SUP']
     assert type(self.names)==TupleType
     assert self.desc is None or type(self.desc)==StringType
-    assert type(self.obsolete)==IntType and (self.obsolete==0 or self.obsolete==1)
+    assert type(self.obsolete)==BooleanType and (self.obsolete==0 or self.obsolete==1)
     assert type(self.form)==StringType
     assert type(self.sup)==TupleType
     return
@@ -502,7 +507,7 @@ class NameForm(SchemaElement):
     self.may = d['MAY']
     assert type(self.names)==TupleType
     assert self.desc is None or type(self.desc)==StringType
-    assert type(self.obsolete)==IntType and (self.obsolete==0 or self.obsolete==1)
+    assert type(self.obsolete)==BooleanType and (self.obsolete==0 or self.obsolete==1)
     assert type(self.oc)==TupleType
     assert type(self.must)==TupleType
     assert type(self.may)==TupleType
