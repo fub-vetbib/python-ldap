@@ -1,4 +1,12 @@
 ----------------------------------------------------------------
+Released 2.0.1 2004-06-xx
+
+Changes since 2.0.0:
+
+dsml:
+* Fixed wrong exception message format string
+
+----------------------------------------------------------------
 Released 2.0.0 2004-05-18
 
 Changes since 2.0.0pre21:

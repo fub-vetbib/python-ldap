@@ -200,7 +200,7 @@ else:
         self._oc_value = ''
       # Unhandled tags
       else:
-        raise ValueError,'Unknown tag' % (raw_name)
+        raise ValueError,'Unknown tag %s' % (raw_name)
 
     def endElement(self,raw_name):
       assert raw_name.startswith('dsml:'),'Illegal name'
