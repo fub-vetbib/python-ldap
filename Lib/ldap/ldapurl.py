@@ -373,8 +373,6 @@ def test():
     print 72*'#','\nTesting LDAP URL:',ldap_url
     ldapUrl = LDAPUrl(ldapUrl=ldap_url)
     print 'Unparsed LDAP URL',ldapUrl.unparse()
-#    if ldapUrl.bindName()!=None:
-#      print 'Found bindname:',ldapUrl.bindName()
     if (
          ldapUrl.urlscheme,ldapUrl.hostport,ldapUrl.dn,ldapUrl.attrs,
          ldapUrl.scope,ldapUrl.filterstr,map(str,ldapUrl.extensions)
