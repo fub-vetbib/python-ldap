@@ -32,7 +32,7 @@ LDAPconstant( int val ) {
 void
 LDAPinit_constants( PyObject* d ) 
 {
-	PyObject *zero, *author;
+	PyObject *zero, *author,*obj;
 
 	reverse = PyDict_New();
 	forward = PyDict_New();
@@ -177,10 +177,62 @@ LDAPinit_constants( PyObject* d )
 #ifdef LDAP_OPT_DNS
 	add_int(d,OPT_DNS);
 #endif
+
+	add_int(d,OPT_API_INFO);
+	add_int(d,OPT_DEREF);
+	add_int(d,OPT_SIZELIMIT);
+	add_int(d,OPT_TIMELIMIT);
 #ifdef LDAP_OPT_REFERRALS
 	add_int(d,OPT_REFERRALS);
 #endif
 	add_int(d,OPT_RESTART);
+	add_int(d,OPT_PROTOCOL_VERSION);
+	add_int(d,OPT_SERVER_CONTROLS);
+	add_int(d,OPT_CLIENT_CONTROLS);
+	add_int(d,OPT_API_FEATURE_INFO);
+	add_int(d,OPT_HOST_NAME);
+	add_int(d,OPT_ERROR_STRING);
+	add_int(d,OPT_MATCHED_DN);
+	add_int(d,OPT_PRIVATE_EXTENSION_BASE);
+	add_int(d,OPT_DEBUG_LEVEL);
+	add_int(d,OPT_TIMEOUT);
+	add_int(d,OPT_REFHOPLIMIT);
+	add_int(d,OPT_NETWORK_TIMEOUT);
+	add_int(d,OPT_URI);
+	add_int(d,OPT_X_TLS);
+	add_int(d,OPT_X_TLS_CTX);
+	add_int(d,OPT_X_TLS_CACERTFILE);
+	add_int(d,OPT_X_TLS_CACERTDIR);
+	add_int(d,OPT_X_TLS_CERTFILE);
+	add_int(d,OPT_X_TLS_KEYFILE);
+	add_int(d,OPT_X_TLS_REQUIRE_CERT);
+	add_int(d,OPT_X_TLS_CIPHER_SUITE);
+	add_int(d,OPT_X_TLS_RANDOM_FILE);
+	add_int(d,OPT_X_TLS_NEVER);
+	add_int(d,OPT_X_TLS_HARD);
+	add_int(d,OPT_X_TLS_DEMAND);
+	add_int(d,OPT_X_TLS_ALLOW);
+	add_int(d,OPT_X_TLS_TRY);
+	add_int(d,OPT_X_SASL_MECH);
+	add_int(d,OPT_X_SASL_REALM);
+	add_int(d,OPT_X_SASL_AUTHCID);
+	add_int(d,OPT_X_SASL_AUTHZID);
+	add_int(d,OPT_X_SASL_SSF);
+	add_int(d,OPT_X_SASL_SSF_EXTERNAL);
+	add_int(d,OPT_X_SASL_SECPROPS);
+	add_int(d,OPT_X_SASL_SSF_MIN);
+	add_int(d,OPT_X_SASL_SSF_MAX);
+	
+	/*add_int(d,OPT_ON);*/
+	obj = PyInt_FromLong(1);
+	PyDict_SetItemString( d, "LDAP_OPT_ON", obj );
+	Py_DECREF(obj);
+	/*add_int(d,OPT_OFF);*/
+	obj = PyInt_FromLong(0);
+	PyDict_SetItemString( d, "LDAP_OPT_OFF", obj );			
+	Py_DECREF(obj);
+	
+	add_int(d,OPT_SUCCESS);
 
 	/* XXX - these belong in errors.c */
 
