@@ -4,11 +4,11 @@
 AC_INIT(LDAPObject.c)
 AC_CONFIG_HEADER(config.h)
 
-#
-# Options
-#
+dnl
+dnl Options
+dnl
 
-#-- Listen to the user if they know where the LDAP libraries are installed
+dnl-- Listen to the user if they know where the LDAP libraries are installed
 AC_ARG_WITH(ldap, 
         [  --with-ldap=DIR               Where ldap library is installed; or], 
 [
@@ -29,12 +29,12 @@ AC_ARG_WITH(kerberos-lib,
 AC_ARG_ENABLE(cidict,
         [  --enable-cidict               Experimental, case-insensitive dict])
 
-#
-# Programs
-#
+dnl
+dnl Programs
+dnl
 
 AC_PROG_CC
-#-- look for python
+dnl-- look for python
 if test -n "$with_python"; then ac_cv_prog_python="$with_python"; fi
 AC_CACHE_VAL(ac_cv_prog_python, [AC_PATH_PROG(ac_cv_prog_python,python)])
 AC_CACHE_CHECK(python version, ac_cv_ver_python, [
@@ -42,9 +42,9 @@ AC_CACHE_CHECK(python version, ac_cv_ver_python, [
 AC_CACHE_CHECK(python install prefix, ac_cv_path_python, [
  ac_cv_path_python=`$ac_cv_prog_python -c 'import sys;print sys.prefix'`])
 
-#
-# Steal some configuration info from openldap.sh if available
-#
+dnl
+dnl Steal some configuration info from openldap.sh if available
+dnl
 
 LDAP_PFX=/tmp/ldap-pfx
 if test -z "$with_ldap_lib" -a -z "$with_ldap_inc"; then
@@ -74,11 +74,11 @@ if test -z "$with_ldap_lib" -a -z "$with_ldap_inc"; then
     fi
 fi
 
-#
-# Libraries
-#
+dnl
+dnl Libraries
+dnl
 
-#-- check for the networking libraries (derived from PLATFORMLIBS)
+dnl-- check for the networking libraries (derived from PLATFORMLIBS)
 for fn in socket gethostbyname inet_addr inet_ntoa connect; do
     AC_CHECK_FUNCS($fn)
     if eval test \$ac_cv_func_$fn = no; then
@@ -88,7 +88,7 @@ for fn in socket gethostbyname inet_addr inet_ntoa connect; do
     fi
 done
 
-#-- check for some math functions
+dnl-- check for some math functions
 for fn in fmod floor; do
     AC_CHECK_FUNCS($fn)
     if eval test \$ac_cv_func_$fn = no; then
@@ -98,7 +98,7 @@ for fn in fmod floor; do
     fi
 done
 
-#-- check for Kerberos and DES libraries
+dnl-- check for Kerberos and DES libraries
 if test no != "$with_kerberos"; then 
 	CPPFLAGS="$CPPFLAGS -DWITH_KERBEROS"
 	if test -n "$with_kerberos_lib"; then 
@@ -114,7 +114,7 @@ if test no != "$with_kerberos"; then
 	fi
 fi
 
-#-- this function gets called to suggest how to help find an LDAP library
+dnl-- this function gets called to suggest how to help find an LDAP library
 no_ldap () {
   AC_MSG_ERROR([$1
   Please specify the location of the LDAP library using the --with-ldap=PATH, 
@@ -143,14 +143,14 @@ fi
 
 AC_SEARCH_LIBS(ber_free, lber)
 AC_SEARCH_LIBS(ldap_open, ldap)
-AC_CHECK_FUNC(ldap_open,, [no_ldap "Couldn't find ldap_open()"])
+AC_CHECK_FUNC(ldap_open,, [no_ldap "Couldn't find LDAP library"])
 AC_CHECK_HEADER(ldap.h,, [no_ldap "Couldn't find ldap.h"])
 
-#
-# LDAP library specifics
-#
+dnl
+dnl LDAP library specifics
+dnl
 
-#-- how many arguments does ldap_set_rebind_proc() take?
+dnl-- how many arguments does ldap_set_rebind_proc() take?
 AC_CACHE_CHECK([number of arguments to ldap_set_rebind_proc()],
 	ac_cv_ldap_set_rebind_proc,
 	[AC_TRY_COMPILE([#include <lber.h>
@@ -161,7 +161,7 @@ if test "$ac_cv_ldap_set_rebind_proc" = 3; then
 	AC_DEFINE(LDAP_SET_REBIND_PROC_3ARGS)
 fi
 
-#-- is the LDAP structure opaque?
+dnl-- is the LDAP structure opaque?
 AC_CACHE_CHECK([whether the LDAP type is opaque],
 	ac_cv_LDAP_is_opaque,
 	[AC_TRY_COMPILE([#include <lber.h>
@@ -173,21 +173,21 @@ if test $ac_cv_LDAP_is_opaque = yes; then
 	AC_DEFINE(LDAP_TYPE_IS_OPAQUE)
 fi
 
-AC_CHECK_FUNCS(ldap_modrdn2_s ldap_modrdn2)
+AC_CHECK_FUNCS(ldap_modrdn2_s ldap_modrdn2 ldap_init_templates)
 
 
-#-- check for case-insensitive dictionary to be used
-if test no != $enable_cidict; then
+dnl-- check for case-insensitive dictionary to be used
+if test no != "${enable_cidict-no}"; then
 	AC_DEFINE(USE_CIDICT)
 	AC_MSG_WARN([Using experimental CIDict feature! May be non-portable])
 fi
 
-#
-# Makefiles
-#
+dnl
+dnl Makefiles
+dnl
 
-#-- grab the Makefile.pre.in from python's config directory if it is there,
-#   otherwise we have to use the one we copied from 1.4's source.
+dnl-- grab the Makefile.pre.in from python's config directory if it is there,
+dnl   otherwise we have to use the one we copied from 1.4's source.
 AC_MSG_CHECKING(python makefile)
 pymf="$ac_cv_path_python/lib/python$ac_cv_ver_python/config/Makefile.pre.in"
 if test -f "$pymf"; then
@@ -197,7 +197,12 @@ else
 fi
 AC_MSG_RESULT($pymf)
 cp "$pymf" Makefile.pre.in
-AC_OUTPUT_COMMANDS([echo bootstrapping makefile; make -f Makefile.pre.in boot])
+echo "PYTHON=$ac_cv_prog_python"
+AC_OUTPUT_COMMANDS([
+	echo bootstrapping makefile
+	rm -f Setup
+	make -f Makefile.pre.in PYTHON="$PYTHON" boot
+], [PYTHON="$ac_cv_prog_python"])
 
 AC_OUTPUT(Setup.in)
 
