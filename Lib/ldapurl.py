@@ -12,11 +12,11 @@ Public domain. Do anything you want with this module.
 
 Python compability note:
 This module only works with Python 2.0+ since all string parameters
-are assumed to be Unicode objects, string methods instead of
-string module and list comprehensions are used.
+are assumed to be Unicode objects, string methods are used instead of
+module string and list comprehensions are used.
 """
 
-__version__ = '0.3.2'
+__version__ = '0.4.0'
 
 __all__ = [
   # constants
@@ -27,7 +27,7 @@ __all__ = [
   'LDAPUrlExtension','LDAPUrl'
 ]
 
-import re,ldap
+import re
 
 from urllib import quote,quote_plus,unquote_plus
 
@@ -38,27 +38,30 @@ host_regex = re.compile('^%s$' % host_pattern)
 StringType = type('')
 UnicodeType = type(u'')
 
+LDAP_SCOPE_BASE = 0
+LDAP_SCOPE_ONELEVEL = 1
+LDAP_SCOPE_SUBTREE = 2
+
 SEARCH_SCOPE_STR = ['base','one','sub']
 
 SEARCH_SCOPE = {
-  # default for empty search scope string
-  '':ldap.SCOPE_BASE,
   # the search scope strings defined in RFC22xx(?)
-  'base':ldap.SCOPE_BASE,
-  'one':ldap.SCOPE_ONELEVEL,
-  'sub':ldap.SCOPE_SUBTREE
+  'base':LDAP_SCOPE_BASE,
+  'one':LDAP_SCOPE_ONELEVEL,
+  'sub':LDAP_SCOPE_SUBTREE
 }
 
+
 def isLDAPUrl(s):
-  """Fail-safe wrapper function for ldap.isLDAPUrl()"""
+  """
+  Returns 1 if s is a LDAP URL, 0 else
+  """
   if type(s)==UnicodeType:
     s=s.encode('utf-8')
-  try:
-    string_is_ldap_url = ldap.is_ldap_url(s)
-  except TypeError:
-    return 0
-  else:
-    return string_is_ldap_url
+  return \
+    s.startswith('ldap://') or \
+    s.startswith('ldaps://') or \
+    s.startswith('ldapi://')
 
 
 def decode_dn(dn,charset,relaxed_charset_handling):
@@ -140,19 +143,31 @@ class LDAPUrl:
   """
   attr2extype = {'who':'bindname','cred':'X-BINDPW'}
 
-  def __init__(self,ldapUrl=None,**kwargs):
-    self.urlscheme='ldap'
-    self.hostport=''
-    self.dn=None
-    self.attrs=None
-    self.scope=ldap.SCOPE_BASE
-    self.filterstr='(objectclass=*)'
-    self.extensions = {}
-    self.charset = 'utf-8'
-    if ldapUrl is None:
-      for name,value in kwargs.items():
-        setattr(self,name,value)
-    else:
+  def __init__(
+    self,
+    ldapUrl=None,
+    urlscheme='ldap',
+    hostport='',
+    dn=None,
+    attrs=None,
+    scope=LDAP_SCOPE_BASE,
+    filterstr='(objectclass=*)',
+    extensions = {},
+    charset='utf-8',
+    who='',
+    cred='',
+  ):
+    self.urlscheme=urlscheme
+    self.hostport=hostport
+    self.dn=dn
+    self.attrs=attrs
+    self.scope=scope
+    self.filterstr=filterstr
+    self.extensions=extensions
+    self.charset=charset
+    self.who=who
+    self.cred=cred
+    if ldapUrl!=None:
       self._parse(ldapUrl)
 
   def __getattr__(self,name):
@@ -216,10 +231,13 @@ class LDAPUrl:
     if (paramlist_len>=2) and (paramlist[1]):
       self.attrs = unquote_plus(paramlist[1].strip()).split(',')
     if paramlist_len>=3:
+      scope = paramlist[2].strip()
+      if not scope:
+        scope = 'base'
       try:
-        self.scope = SEARCH_SCOPE[paramlist[2].strip()]
+        self.scope = SEARCH_SCOPE[scope]
       except KeyError:
-        raise ValueError, "Search scope must be either one of base, one or sub. LDAP URL contained %s" % repr(paramlist[2])
+        raise ValueError,"Search scope must be either one of base, one or sub. LDAP URL contained %s" % (repr(scope))
     if paramlist_len>=4:
       filterstr = unquote_plus(paramlist[3].strip())
       if not filterstr:
