@@ -62,6 +62,9 @@ LDAPinit_constants( PyObject* d )
 
 	/* simple constants */
 
+	add_int(d,API_VERSION);
+	add_int(d,VENDOR_VERSION);
+
 	add_int(d,PORT);
 	add_int(d,VERSION1);
 	add_int(d,VERSION2);
