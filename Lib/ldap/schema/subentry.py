@@ -198,7 +198,7 @@ class SubSchema:
         try:
           at_obj = self.sed[AttributeType][self.name2oid[AttributeType].get(a,a)]
         except KeyError:
-#          if raise_keyerror:
+          if raise_keyerror:
             raise
         r_must[at_obj.oid] = at_obj
       for a in object_class.may:
