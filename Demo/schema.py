@@ -1,54 +1,22 @@
-import sys,time,ldap,ldap.schema,ldapurl
+import sys,ldap,ldap.schema
 
 schema_allow = ldap.schema.ALLOW_ALL
 schema_ignore_errors = 1
 schema_attrs = ldap.schema.SCHEMA_ATTRS
 
-ldap_url = ldapurl.LDAPUrl(sys.argv[1])
-
 ldap.set_option(ldap.OPT_DEBUG_LEVEL,0)
 
 ldap._trace_level = 0
 
-# Connect and bind as LDAPv3
-l=ldap.initialize(ldap_url.initializeUrl(),trace_level=0)
-l.protocol_version = ldap.VERSION3
-l.simple_bind_s('','')
-
-time_mark0 = time.time()
-
-# Search for DN of sub schema sub entry
-subschemasubentry_dn = l.search_subschemasubentry_s(ldap_url.dn.encode('utf-8'))
-
-time_mark1 = time.time()
-
-print 'Result of search for sub schema sub entry:',repr(subschemasubentry_dn)
-print 'Time elapsed search sub schema sub entry: %0.3f' % (time_mark1-time_mark0)
-
+subschemasubentry_dn,schema = ldap.schema.urlfetch(
+  sys.argv[-1],schema_allow=schema_allow
+)
 
 if subschemasubentry_dn is None:
   print 'No sub schema sub entry found!'
   sys.exit(1)
 
-# Read the sub schema sub entry
-subschemasubentry_entry = l.read_subschemasubentry_s(
-  subschemasubentry_dn,attrs=schema_attrs
-)
-time_mark2 = time.time()
-print 'Time elapsed reading sub schema sub entry: %0.3f' % (time_mark2-time_mark1)
-
 print '*** Schema from',repr(subschemasubentry_dn)
-
-# Parse the schema entry
-schema = ldap.schema.SubSchema(
-  subschemasubentry_entry,
-  schema_allow=schema_allow,
-  ignore_errors=schema_ignore_errors
-)
-
-time_mark3 = time.time()
-
-print 'Time elapsed parsing sub schema sub entry: %0.3f' % (time_mark3-time_mark2)
 
 schema_element_names = schema.name2oid.keys()
 schema_element_names.sort()
@@ -79,4 +47,6 @@ print schema.all_attrs(
 
 schema.ldap_entry()
 
-schema.avail_objectclasses()
+schema.all_available(ldap.schema.ObjectClass)
+
+schema.all_available(ldap.schema.AttributeType)

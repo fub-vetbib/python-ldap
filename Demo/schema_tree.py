@@ -5,11 +5,11 @@ of a given server
 Usage: schema_oc_tree.py [--html] [LDAP URL]
 """
 
-import sys,getopt,ldap,ldap.schema,ldapurl
+import sys,getopt,ldap,ldap.schema
 
 
 schema_allow = ldap.schema.ALLOW_ALL
-schema_ignore_errors = 0
+schema_ignore_errors = 1
 
 
 def PrintSchemaTree(schema,se_tree,se_name,level):
@@ -42,35 +42,17 @@ def HTMLSchemaTree(schema,se_tree,se_name,level):
   print '</dd>'
 
 
-ldap_url = ldapurl.LDAPUrl(sys.argv[-1])
-
 ldap.set_option(ldap.OPT_DEBUG_LEVEL,0)
 
 ldap._trace_level = 0
 
-# Connect and bind as LDAPv3
-l=ldap.initialize(ldap_url.initializeUrl(),trace_level=0)
-l.protocol_version = ldap.VERSION3
-l.simple_bind_s('','')
-
-# Search for DN of sub schema sub entry
-subschemasubentry_dn = l.search_subschemasubentry_s(ldap_url.dn.encode('utf-8'))
+subschemasubentry_dn,schema = ldap.schema.urlfetch(
+  sys.argv[-1],schema_allow=schema_allow
+)
 
 if subschemasubentry_dn is None:
   print 'No sub schema sub entry found!'
   sys.exit(1)
-
-# Read the sub schema sub entry
-subschemasubentry_entry = l.read_subschemasubentry_s(
-  subschemasubentry_dn,attrs=['objectClasses','attributeTypes']
-)
-
-# Parse the schema entry
-schema = ldap.schema.SubSchema(
-  subschemasubentry_entry,
-  schema_allow=schema_allow,
-  ignore_errors=schema_ignore_errors
-)
 
 try:
   options,args=getopt.getopt(sys.argv[1:],'',['html'])
