@@ -587,5 +587,5 @@ def get_option(*args,**kwargs):
   return _ldap_call(_ldap.get_option,*args,**kwargs)
 
 def set_option(*args,**kwargs):
-  return _ldap_call(_ldap.get_option,*args,**kwargs)
+  return _ldap_call(_ldap.set_option,*args,**kwargs)
 
