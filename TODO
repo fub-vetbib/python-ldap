@@ -25,7 +25,7 @@ Modules/
 
 Lib/
 - Caching of search requests for each LDAPObject instance
-- LDIF parser for replication logs
+- LDIF parser for replication logs and change records
 - DSMLv2 support
 
 Tests/
