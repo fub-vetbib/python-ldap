@@ -797,19 +797,18 @@ class SmartLDAPObject(ReconnectLDAPObject):
     # Initialize LDAP connection
     SimpleLDAPObject.__init__(self,uri,trace_level,trace_file)
     # Set protocol version to LDAPv3
-    self.set_option(ldap.OPT_PROTOCOL_VERSION,ldap.VERSION3)
+    self.protocol_version = ldap.VERSION3
     try:
       self.search_s('',ldap.SCOPE_BASE,'(objectClass=*)',['objectClass'])
     except ldap.NO_SUCH_OBJECT,ldap.PROTOCOL_ERROR:
       # Drop connection completely
       self.unbind_s() ; del self._l
       self._l = self._ldap_call(_ldap.initialize,self._uri)
-      self.set_option(ldap.OPT_PROTOCOL_VERSION,ldap.VERSION2)
+      self.protocol_version =ldap.VERSION2
       self.simple_bind_s(who,cred)
-    protocol_version = self.get_option(ldap.OPT_PROTOCOL_VERSION)
     # Try to start TLS if requested
     if start_tls>0 and uri[:5]=='ldap:':
-      if protocol_version>=ldap.VERSION3:
+      if self.protocol_version>=ldap.VERSION3:
         try:
           self.start_tls_s()
         except ldap.PROTOCOL_ERROR:
@@ -820,7 +819,7 @@ class SmartLDAPObject(ReconnectLDAPObject):
       else:
         if start_tls>=2:
           raise ValueError,"StartTLS extended operation only possible on LDAPv3+ server!"
-    if protocol_version==ldap.VERSION2 or (who and cred):
+    if self.protocol_version==ldap.VERSION2 or (who and cred):
       self.simple_bind_s(who,cred)
 
 
