@@ -3,6 +3,9 @@ Released 2.0.0pre12 2003-05-xx
 
 Changes since 2.0.0pre11:
 
+ldif:
+* Abandoned argument all_records of LDIFRecordList.__init__()
+
 ----------------------------------------------------------------
 Released 2.0.0pre11 2003-05-02
 
