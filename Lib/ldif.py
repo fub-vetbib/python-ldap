@@ -79,6 +79,7 @@ def list_dict(l):
     d[i]=None
   return d
 
+
 def CreateAttrTypeandValueLDIF(attr_type,attr_value,base64_attrs=[],cols=76):
   """
   Write a single attribute to one or many folded LDIF line(s).
@@ -190,14 +191,14 @@ class LDIFParser:
 
   def __init__(
     self,
-    inputfile,
+    input_file,
     ignored_attr_types=[],
     max_entries=0,
     process_url_schemes=[],
   ):
     """
     Parameters:
-    inputfile
+    input_file
         File-object to read the LDIF input from
     ignored_attr_types
         Attributes with these attribute type names will be ignored.
@@ -209,7 +210,7 @@ class LDIFParser:
         An empty list turns off all URL processing and the attribute
         is ignored completely.
     """
-    self._inputfile = inputfile
+    self._input_file = input_file
     self._max_entries = max_entries
     self._process_url_schemes = list_dict(map(string.lower,process_url_schemes))
     self._ignored_attr_types = list_dict(map(string.lower,ignored_attr_types))
@@ -226,10 +227,10 @@ class LDIFParser:
     Unfold several folded lines with trailing space into one line
     """
     unfolded_line = self._stripLineSep(self._line)
-    self._line = self._inputfile.readline()
+    self._line = self._input_file.readline()
     while self._line and self._line[0]==' ':
       unfolded_line = unfolded_line+self._stripLineSep(self._line[1:])
-      self._line = self._inputfile.readline()
+      self._line = self._input_file.readline()
     return unfolded_line
 
   def _parseAttrTypeandValue(self):
@@ -264,7 +265,7 @@ class LDIFParser:
     """
     Continously read and parse LDIF records
     """
-    self._line = self._inputfile.readline()
+    self._line = self._input_file.readline()
 
     while self._line and \
           (not self._max_entries or self.records_read<self._max_entries):
@@ -319,7 +320,7 @@ class LDIFRecordList(LDIFParser):
   """
 
   def __init__(
-    self,inputfile,ignored_attr_types=[],max_entries=0,process_url_schemes=[],
+    self,input_file,ignored_attr_types=[],max_entries=0,process_url_schemes=[],
     all_records=[]
   ):
     """
