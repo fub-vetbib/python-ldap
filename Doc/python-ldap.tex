@@ -8,7 +8,7 @@
 	E-mail: \email{python-ldap-dev@lists.sourceforge.net}
 }
 
-\input{version.tex}
+\include{version.tex}
 
 \makeindex                      % tell \index to actually write the
                                 % .idx file
@@ -31,21 +31,21 @@ This document describes the package python-ldap with its various modules
 
 \chapter{python-ldap package}
 
-\input{ldap}
-\input{ldap_async}
-\input{ldap_modlist}
-\input{ldif}
-\input{ldapurl}
+\include{ldap}
+\include{ldap_async}
+\include{ldap_modlist}
+\include{ldif}
+\include{ldapurl}
 
 
 %begin{latexonly}
 \renewcommand{\indexname}{Module Index}
 %end{latexonly}
-\input{modpython-ldap.ind}		% Module Index
+\include{modpython-ldap.ind}		% Module Index
 
 %begin{latexonly}
 \renewcommand{\indexname}{Index}
 %end{latexonly}
-\input{python-ldap.ind}			% Index
+\include{python-ldap.ind}			% Index
 
 \end{document}
