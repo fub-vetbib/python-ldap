@@ -6,7 +6,7 @@ ldap.set_option(ldap.OPT_DEBUG_LEVEL,0)
 
 # Connect and bind as LDAPv3
 l=ldap.initialize(ldap_url.initializeUrl(),trace_level=0)
-l.version = ldap.VERSION3
+l.protocol_version = ldap.VERSION3
 l.simple_bind_s('','')
 
 # Search for DN of sub schema sub entry
@@ -24,7 +24,9 @@ else:
   print '*** Schema from',repr(subschemasubentry_dn)
 
   # Read the schema entry
-  schema = ldap.schema.subSchema(subschemasubentry_entry,schema_allow=31)
+  schema = ldap.schema.subSchema(
+    subschemasubentry_entry,schema_allow=ldap.schema.ALLOW_ALL
+  )
 
   # Display schema
   for attr_type,schema_class in ldap.schema.SCHEMA_CLASS_MAPPING.items():
