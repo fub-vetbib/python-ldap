@@ -24,6 +24,7 @@ LDAPconstant( int val ) {
 	return i;
     }
     Py_DECREF(i);
+    Py_DECREF(s);
     return s;
 }
 
@@ -32,16 +33,13 @@ LDAPconstant( int val ) {
 void
 LDAPinit_constants( PyObject* d ) 
 {
-	PyObject *zero;
+	PyObject *zero, *author;
 
 	reverse = PyDict_New();
 	forward = PyDict_New();
 	
 	PyDict_SetItemString( d, "_reverse", reverse );
-	Py_INCREF( reverse );
-
 	PyDict_SetItemString( d, "_forward", forward );
-	Py_INCREF( forward );
 
 #define add_int_r(d, name)                                              \
 	{                                                               \
@@ -50,14 +48,18 @@ LDAPinit_constants( PyObject* d )
 	    PyObject *s = PyString_FromString( #name );                 \
 	    PyDict_SetItem( d, s, s );                                  \
 	    PyDict_SetItem( reverse, i, s );                            \
-	    Py_INCREF(s);                                               \
 	    PyDict_SetItem( forward, s, i );                            \
-	    Py_INCREF(i);                                               \
+	    Py_DECREF(i);                                               \
+	    Py_DECREF(s);                                               \
 	    /* printf("%s -> %ld\n", #name, v );  */                    \
 	}
 
 #define add_int(d, name)                                                \
-	PyDict_SetItemString( d, #name, PyInt_FromLong(LDAP_##name) )
+	{								\
+		PyObject *i = PyInt_FromLong(LDAP_##name);		\
+		PyDict_SetItemString( d, #name, i );			\
+		Py_DECREF(i);						\
+	}
 
 	/* simple constants */
 
@@ -86,7 +88,6 @@ LDAPinit_constants( PyObject* d )
 
 	zero = PyInt_FromLong( 0 );
 	PyDict_SetItem( reverse, zero, Py_None );
-	Py_INCREF( Py_None );
 	Py_DECREF( zero );
 
 	add_int_r(d,RES_BIND);
@@ -168,8 +169,8 @@ LDAPinit_constants( PyObject* d )
 
 	/* author */
 
-	PyDict_SetItemString( d, "__author__", PyString_FromString(
-		"David Leonard <leonard@it.uq.edu.au>"
-	));
+	author = PyString_FromString("David Leonard <leonard@it.uq.edu.au>");
+	PyDict_SetItemString(d, "__author__", author);
+	Py_DECREF(author);
 
 }

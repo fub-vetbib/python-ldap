@@ -19,6 +19,7 @@ l_ldap_open(PyObject* unused, PyObject *args)
     char *host;
     int port = 0;
     LDAP *ld;
+    struct servent *se;
 
     if (!PyArg_ParseTuple(args, "s|i", &host, &port))
     	return NULL;
@@ -28,7 +29,9 @@ l_ldap_open(PyObject* unused, PyObject *args)
 #ifdef WIN32
 	port = LDAP_PORT;
 #else
-        struct servent *se = getservbyname("ldap", "tcp");
+        Py_BEGIN_ALLOW_THREADS
+	se = getservbyname("ldap", "tcp");
+        Py_END_ALLOW_THREADS
 	if (se != NULL)
 	    port = ntohs(se->s_port);
 	else
@@ -95,8 +98,11 @@ l_ldap_explode_dn( PyObject* unused, PyObject *args )
     	return LDAPerror(NULL,"ldap_explode_dn");
 
     result = PyList_New(0);
-    for(i=0; exploded[i]; i++)
-    	PyList_Append( result, PyString_FromString( exploded[i] ) );
+    for(i = 0; exploded[i]; i++) {
+	PyObject *s = PyString_FromString(exploded[i]);
+    	PySequence_Append(result, s);
+	Py_DECREF(s);
+    }
 
     ldap_value_free(exploded);
     return result;

@@ -78,19 +78,20 @@ LDAPinit_errors( PyObject*d ) {
 
 	/* XXX - backward compatibility with pre-1.8 */
         PyDict_SetItemString( d, "error", LDAPexception_class );
-	Py_INCREF( LDAPexception_class );
+	Py_DECREF( LDAPexception_class );
 
 	/* create each LDAP error object */
 
 #	define seterrobj2(n,o) \
-		PyDict_SetItemString( d, #n, (errobjects[LDAP_##n] = o) ); \
-		Py_INCREF( errobjects[LDAP_##n] )
+		PyDict_SetItemString( d, #n, (errobjects[LDAP_##n] = o) )
 
 
-#	define seterrobj(n) \
-		seterrobj2( n, PyErr_NewException("ldap." #n, \
-                                                  LDAPexception_class, \
-                                                  NULL))
+#	define seterrobj(n) { \
+		PyObject *e = PyErr_NewException("ldap." #n,		\
+				  LDAPexception_class, NULL);		\
+		seterrobj2(n, e);					\
+		Py_DECREF(e);						\
+	}
 
 #	define seterrobjas(n,existing) \
 		seterrobj2( n, existing )

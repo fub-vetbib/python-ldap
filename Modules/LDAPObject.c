@@ -13,6 +13,8 @@
 #include "LDAPObject.h"
 #include "message.h"
 
+static void free_attrs(char***);
+
 /* constructor */
 
 LDAPObject*
@@ -61,23 +63,31 @@ not_valid( LDAPObject* l ) {
     }
 }
   
-/* free the LDAPMod allocated in Tuple_to_LDAPMod() */
+/* free a LDAPMod (complete or partially) allocated in Tuple_to_LDAPMod() */
 
 static void
-free_LDAPMod( LDAPMod* lm ) {
-    struct berval **bv;
+LDAPMod_DEL( LDAPMod* lm )
+{
+    int i;
 
-    for(bv = lm->mod_bvalues; bv && *bv; bv++) {
-      if ((*bv)->bv_val) free( (*bv)->bv_val );
-      free( *bv );
+    if (lm->mod_type)
+	PyMem_DEL(lm->mod_type);
+    if (lm->mod_bvalues) {
+	for (i = 0; lm->mod_bvalues[i]; i++) {
+	    PyMem_DEL(lm->mod_bvalues[i]);
+	}
+	PyMem_DEL(lm->mod_bvalues);
     }
-    if (lm->mod_bvalues) free(lm->mod_bvalues);
-    lm->mod_bvalues = NULL;	/* paranoia */
-    if (lm->mod_type != NULL) free(lm->mod_type);
+    PyMem_DEL(lm);
 }
 
-/* convert a tuple of the form (int,str,[str,...]) 
- * or (str, [str,...]) if no_op, into an LDAPMod 
+/* 
+ * convert a tuple of the form (int,str,[str,...]) 
+ * or (str, [str,...]) if no_op is true, into an LDAPMod structure.
+ * See ldap_modify(3) for details.
+ *
+ * XXX assumes the strings last longer than the LDAPMod structure
+ *     (ie incompatible with ldap_mods_free)
  */
 
 /* XXX - there is no way to pass complex-structured BER objects in here! */
@@ -87,134 +97,93 @@ Tuple_to_LDAPMod( PyObject* tup, int no_op )
 {
     int op;
     char *type;
-    struct berval **bervals;
-    PyObject *list;
-    int listlen;
-    LDAPMod *lm;
+    struct berval *bv;
+    PyObject *list, *item;
+    LDAPMod *lm = NULL;
+    int empty;
+    int i, len, nstrs;
 
     if (no_op) {
-        if (!PyArg_ParseTuple( tup, "sO", &type, &list )) return NULL;
+	if (!PyArg_ParseTuple( tup, "sO", &type, &list ))
+		return NULL;
 	op = 0;
     } else {
-	if (!PyArg_ParseTuple( tup, "isO", &op, &type, &list )) return NULL;
+	if (!PyArg_ParseTuple( tup, "isO", &op, &type, &list ))
+		return NULL;
     }
 
-    lm = malloc( sizeof(LDAPMod) );
-    if (lm == NULL) { PyErr_NoMemory(); return NULL; }
-
-    if (PyNone_Check(list)) {
-
-	/* None... used for delete */
-    	bervals = NULL;
-
-    } else if (PyString_Check( list )) {
-        /* a single string on its own... treat as list of 1 */
-	int length;
-
-	bervals = (struct berval**) malloc( 2 * sizeof(struct berval*) );
-	if (bervals==NULL) { free(lm); PyErr_NoMemory(); return NULL; }
-
-	bervals[1] = NULL;
-	bervals[0] = malloc( sizeof( struct berval ) );
-	if (bervals[0] == NULL) { 
-		free_LDAPMod(lm); 
-		PyErr_NoMemory(); 
-		return NULL; 
-	}
-	length = PyString_Size( list );
-	bervals[0]->bv_val = 
-		(char*)malloc( length * sizeof(char) );
-	if (bervals[0]->bv_val == NULL) {
-		free_LDAPMod(lm); 
-		PyErr_NoMemory(); 
-		return NULL; 
-	}
-	bervals[0]->bv_len = length;
-	memcpy( bervals[0]->bv_val, PyString_AsString(list), length );
-    } else if (!PySequence_Check( list )) {
-    	/* not a list */
-    	PyErr_SetObject( PyExc_TypeError, Py_BuildValue( "sO",
-		"expected sequence of strings", list ));
-	free(lm);
-	return NULL;
-    } else {
-	/* a list, possible of strings */
-	int i;
-
-	listlen = PySequence_Length( list );
-	for(i=0; i<listlen; i++) 
-	   if (!PyString_Check( PySequence_GetItem( list, i ) ) ) {
-		PyErr_SetObject( PyExc_TypeError, Py_BuildValue( "sOi",
-		   "expected sequence of strings", list, i ));
-	   	return NULL;
-	   }
-
-	/* a list, definitely of strings */
-
-	bervals = (struct berval**) malloc( 
-			(listlen+1) * sizeof(struct berval*) );
-	if (bervals==NULL) { 
-	    free(lm); 
-	    PyErr_NoMemory(); 
-	    return NULL; 
-	}
-
-	bervals[listlen] = NULL;
-
-	for(i=0; i<listlen; i++) {
-	   struct berval *bv;
-	   char *val;
-	   int len;
-	   PyObject *str;
-
-	   str = PySequence_GetItem( list, i );
-	   len = PyString_Size( str );
-	   val = (char*) malloc( len * sizeof(char) );
-	   if (val != NULL)
-	       bv = (struct berval*) malloc( sizeof(struct berval) );
-	   else
-	       bv = NULL;
-
-	   bervals[i] = bv;
-	   if (bv==NULL) {
-	      if (val!=NULL) free(val);
-	      free_LDAPMod( lm );
-	      PyErr_NoMemory();
-	      return NULL;
-	   }
-	   memcpy( val, PyString_AsString(str), len * sizeof(char) );
-	   bv->bv_val = val;
-	   bv->bv_len = len;
-	}
-    }
-
-
-    /* bervals is now either NULL or pointer to a completely allocated 
-     * list of pointers to duplicated strings  */
-    
-    lm->mod_bvalues = bervals;
-    lm->mod_type = strdup(type);
-
-    if (lm->mod_type == NULL) { 
-	free_LDAPMod(lm); 
-    	PyErr_NoMemory();
-	return NULL; 
-    }
+    lm = PyMem_NEW(LDAPMod, 1);
+    if (lm == NULL)
+	goto nomem;
 
     lm->mod_op = op | LDAP_MOD_BVALUES;
-    /* lm->mod_next = NULL; */		/* only used in server */
+    lm->mod_bvalues = NULL;
+
+    len = strlen(type);
+    lm->mod_type = PyMem_NEW(char, len + 1);
+    if (lm->mod_type == NULL)
+	goto nomem;
+    memcpy(lm->mod_type, type, len + 1);
+
+    if (list == Py_None) {
+	/* None indicates a NULL mod_bvals */
+    } else if (PyString_Check(list)) {
+	/* Single string is a singleton list */
+	lm->mod_bvalues = PyMem_NEW(struct berval *, 2);
+	if (lm->mod_bvalues == NULL)
+		goto nomem;
+	lm->mod_bvalues[0] = PyMem_NEW(struct berval, 1);
+	if (lm->mod_bvalues[0] == NULL)
+		goto nomem;
+	lm->mod_bvalues[1] = NULL;
+	lm->mod_bvalues[0]->bv_len = PyString_Size(list);
+	lm->mod_bvalues[0]->bv_val = PyString_AsString(list);
+    } else if (PySequence_Check(list)) {
+	nstrs = PySequence_Length(list);
+	lm->mod_bvalues = PyMem_NEW(struct berval *, nstrs + 1);
+	if (lm->mod_bvalues == NULL)
+		goto nomem;
+	for (i = 0; i < nstrs; i++) {
+	   lm->mod_bvalues[i] = PyMem_NEW(struct berval, 1);
+	   if (lm->mod_bvalues[i] == NULL)
+		goto nomem;
+	   lm->mod_bvalues[i+1] = NULL;
+	   item = PySequence_GetItem(list, i);
+	   if (item == NULL)
+		goto error;
+	   if (!PyString_Check(item)) {
+		PyErr_SetObject( PyExc_TypeError, Py_BuildValue( "sO",
+		   "expected a string in the list", item));
+		Py_DECREF(item);
+		goto error;
+	   }
+	   lm->mod_bvalues[i]->bv_len = PyString_Size(item);
+	   lm->mod_bvalues[i]->bv_val = PyString_AsString(item);
+	   Py_DECREF(item);
+	}
+	if (nstrs == 0)
+	    lm->mod_bvalues[0] = NULL;
+    }
 
     return lm;
+
+nomem:
+    PyErr_NoMemory();
+error:
+    if (lm) 
+	LDAPMod_DEL(lm);
+
+    return NULL;
 }
 
 /* free the structure allocated in List_to_LDAPMods() */
 
 static void
-free_LDAPMods( LDAPMod** lms ) {
+LDAPMods_DEL( LDAPMod** lms ) {
     LDAPMod** lmp;
     for ( lmp = lms; *lmp; lmp++ )
-    	free_LDAPMod( *lmp );
-    free( lms );
+    	LDAPMod_DEL( *lmp );
+    PyMem_DEL(lms);
 }
 
 /* convert a list of tuples into a LDAPMod*[] array structure */
@@ -224,6 +193,7 @@ List_to_LDAPMods( PyObject *list, int no_op ) {
 
     int i, len;
     LDAPMod** lms;
+    PyObject *item;
 
     if (!PySequence_Check(list)) {
 	PyErr_SetObject( PyExc_TypeError, Py_BuildValue("sO",
@@ -232,75 +202,97 @@ List_to_LDAPMods( PyObject *list, int no_op ) {
     }
 
     len = PySequence_Length(list);
-    lms = (LDAPMod**) malloc( (len+1) * sizeof( LDAPMod* ) );
-    if (lms==NULL) { PyErr_NoMemory(); return NULL; }
-    lms[len] = NULL;
 
-    for( i=0; i<len; i++ ) {
-       lms[i] = Tuple_to_LDAPMod( PySequence_GetItem( list, i ), no_op );
-       if (lms[i] == NULL) {
-	  free_LDAPMods( lms );
-	  return NULL;
-       }
+    lms = PyMem_NEW(LDAPMod *, len + 1);
+    if (lms == NULL) 
+	goto nomem;
+
+    for (i = 0; i < len; i++) {
+        lms[i] = NULL;
+        item = PySequence_GetItem(list, i);
+        if (item == NULL) 
+		goto error;
+        lms[i] = Tuple_to_LDAPMod(item, no_op);
+        Py_DECREF(item);
+        if (lms[i] == NULL)
+	    goto error;
     }
+    lms[len] = NULL;
     return lms;
+
+nomem:
+    PyErr_NoMemory();
+error:
+    if (lms)
+	LDAPMods_DEL(lms);
+    return NULL;
 }
 
 /*
  * convert a python list of strings into an attr list (char*[]).
  * returns 1 if successful, 0 if not (with exception set)
+ * XXX the strings should live longer than the resulting attrs pointer.
  */
 
 int
 attrs_from_List( PyObject *attrlist, char***attrsp ) {
 
-    char **attrs;
+    char **attrs = NULL;
+    int i, len;
+    PyObject *item;
 
-    if (PyNone_Check( attrlist )) {
-    	attrs = NULL;
-    } else if (PyString_Check( attrlist )) {
+    if (attrlist == Py_None) {
+	/* None means a NULL attrlist */
+    } else if (PyString_Check(attrlist)) {
 	/* caught by John Benninghoff <johnb@netscape.com> */
 	PyErr_SetObject( PyExc_TypeError, Py_BuildValue("sO",
 		  "expected *list* of strings, not a string", attrlist ));
-        return 0;
-    } else if (PySequence_Check( attrlist )) {
-	int len = PySequence_Length( attrlist );
-	int i;
+	goto error;
+    } else if (PySequence_Check(attrlist)) {
+	len = PySequence_Length(attrlist);
+        attrs = PyMem_NEW(char *, len + 1);
+	if (attrs == NULL)
+	    goto nomem;
 
-        attrs = (char**) malloc( (1+len) * sizeof(char*) );
-	if (attrs == NULL) { 
-	    PyErr_NoMemory();
-	    return 0;
-	}
-
-	attrs[len] = NULL;
-	for(i=0; i<len; i++) {
-	    PyObject *s = PySequence_GetItem( attrlist, i );
-	    if (!PyString_Check(s)) {
-		free(attrs);
-		PyErr_SetObject( PyExc_TypeError, Py_BuildValue("sOi",
-			  "expected list of strings or None", attrlist,i ));
-		return 0;
+	for (i = 0; i < len; i++) {
+	    attrs[i] = NULL;
+	    item = PySequence_GetItem(attrlist, i);
+	    if (item == NULL)
+		goto error;
+	    if (!PyString_Check(item)) {
+		PyErr_SetObject(PyExc_TypeError, Py_BuildValue("sO",
+			  "expected string in list", item));
+		Py_DECREF(item);
+		goto error;
 	    }
-	    attrs[i] = PyString_AsString(s);
+	    attrs[i] = PyString_AsString(item);
+	    Py_DECREF(item);
 	}
-
+	attrs[len] = NULL;
     } else {
     	PyErr_SetObject( PyExc_TypeError, Py_BuildValue("sO",
 			  "expected list of strings or None", attrlist ));
-	return 0;
+	goto error;
     }
 
     *attrsp = attrs;
     return 1;
+
+nomem:
+    PyErr_NoMemory();
+error:
+    free_attrs(&attrs);
+    return 0;
 }
 
 /* free memory allocated from above routine */
 
 static void
 free_attrs( char*** attrsp ) {
-    if (*attrsp != NULL) {
-   	free( *attrsp );
+    char **attrs = *attrsp;
+
+    if (attrs != NULL) {
+   	PyMem_DEL(attrs);
 	*attrsp = NULL;
     }
 }
@@ -320,9 +312,14 @@ set_timeval_from_double( struct timeval *tv, double d ) {
 static PyObject*
 l_ldap_unbind( LDAPObject* self, PyObject* args )
 {
+    int ret;
+
     if (!PyArg_ParseTuple( args, "")) return NULL;
     if (not_valid(self)) return NULL;
-    if ( ldap_unbind( self->ldap ) == -1 )
+    LDAP_BEGIN_ALLOW_THREADS( self );
+    ret = ldap_unbind( self->ldap );
+    LDAP_END_ALLOW_THREADS( self );
+    if (ret == -1)
     	return LDAPerror( self->ldap, "ldap_unbind" );
     self->valid = 0;
     Py_INCREF(Py_None);
@@ -347,10 +344,14 @@ static PyObject*
 l_ldap_abandon( LDAPObject* self, PyObject* args )
 {
     int msgid;
+    int ret;
 
     if (!PyArg_ParseTuple( args, "i", &msgid)) return NULL;
     if (not_valid(self)) return NULL;
-    if ( ldap_abandon( self->ldap, msgid ) == -1 )
+    LDAP_BEGIN_ALLOW_THREADS( self );
+    ret = ldap_abandon( self->ldap, msgid );
+    LDAP_END_ALLOW_THREADS( self );
+    if (ret == -1)
     	return LDAPerror( self->ldap, "ldap_abandon" );
     Py_INCREF(Py_None);
     return Py_None;
@@ -378,10 +379,13 @@ l_ldap_add( LDAPObject* self, PyObject *args )
     if (not_valid(self)) return NULL;
 
     mods = List_to_LDAPMods( modlist, 1 );
-    if (mods==NULL) return NULL;
+    if (mods == NULL)
+	return NULL;
 
+    LDAP_BEGIN_ALLOW_THREADS( self );
     msgid = ldap_add( self->ldap, dn, mods );
-    free_LDAPMods( mods );
+    LDAP_END_ALLOW_THREADS( self );
+    LDAPMods_DEL( mods );
 
     if (msgid == -1)
     	return LDAPerror( self->ldap, "ldap_add_s" );
@@ -408,13 +412,14 @@ l_ldap_add_s( LDAPObject* self, PyObject *args )
     if (not_valid(self)) return NULL;
 
     mods = List_to_LDAPMods( modlist, 1 );
-    if (mods==NULL) return NULL;
+    if (mods == NULL)
+	return NULL;
 
     LDAP_BEGIN_ALLOW_THREADS( self );
     ret = ldap_add_s( self->ldap, dn, mods );
     LDAP_END_ALLOW_THREADS( self );
 
-    free_LDAPMods( mods );
+    LDAPMods_DEL( mods );
 
     if (ret != LDAP_SUCCESS) 
     	return LDAPerror( self->ldap, "ldap_add_s" );
@@ -430,10 +435,18 @@ static char doc_bind[] =
 "simple_bind_s(who, passwd) -> None\n"
 #ifdef WITH_KERBEROS
 "kerberos_bind_s(who) -> None\n"
+#ifdef HAVE_LDAP_KERBEROS_BIND1
 "kerberos_bind1(who) -> None\n"
+#endif
+#ifdef HAVE_LDAP_KERBEROS_BIND1_S
 "kerberos_bind1_s(who) -> None\n"
+#endif
+#ifdef HAVE_LDAP_KERBEROS_BIND2
 "kerberos_bind2(who) -> None\n"
+#endif
+#ifdef HAVE_LDAP_KERBEROS_BIND2_S
 "kerberos_bind2_s(who) -> None\n\n"
+#endif
 #endif
 "\tAfter an LDAP object is created, and before any other operations\n"
 "\tcan be attempted over the connection, a bind operation must\n"
@@ -460,7 +473,9 @@ l_ldap_bind( LDAPObject* self, PyObject* args )
 
     if (!PyArg_ParseTuple( args, "ssi", &who, &cred, &method)) return NULL;
     if (not_valid(self)) return NULL;
+    LDAP_BEGIN_ALLOW_THREADS( self );
     msgid = ldap_bind( self->ldap, who, cred, method );
+    LDAP_END_ALLOW_THREADS( self );
     if (msgid == -1)
     	return LDAPerror( self->ldap, "ldap_bind" );
     return PyInt_FromLong( msgid );
@@ -624,7 +639,9 @@ l_ldap_simple_bind( LDAPObject *self, PyObject *args )
 
     if (!PyArg_ParseTuple( args, "zz", &who, &cred )) return NULL;
     if (not_valid(self)) return NULL;
+    LDAP_BEGIN_ALLOW_THREADS( self );
     msgid = ldap_simple_bind( self->ldap, who, cred );
+    LDAP_END_ALLOW_THREADS( self );
     if ( msgid == -1 )
     	return LDAPerror( self->ldap, "ldap_simple_bind" );
     return PyInt_FromLong( msgid );
@@ -670,21 +687,28 @@ l_ldap_kerberos_bind_s( LDAPObject *self, PyObject *args )
     return Py_None;
 }
 
+#ifdef HAVE_LDAP_KERBEROS_BIND1
 /* ldap_kerberos_bind1 */
 
 static PyObject*
 l_ldap_kerberos_bind1( LDAPObject *self, PyObject *args ) 
 {
     char *who;
+    int ret;
 
     if (!PyArg_ParseTuple( args, "s", &who )) return NULL;
     if (not_valid(self)) return NULL;
-    if ( ldap_kerberos_bind1( self->ldap, who ) == -1 )
+    LDAP_BEGIN_ALLOW_THREADS( self );
+    ret = ldap_kerberos_bind1( self->ldap, who );
+    LDAP_END_ALLOW_THREADS( self );
+    if (ret == -1)
     	return LDAPerror( self->ldap, "ldap_kerberos_bind1" );
     Py_INCREF(Py_None);
     return Py_None;
 }
+#endif
 
+#ifdef HAVE_LDAP_KERBEROS_BIND1_S
 /* ldap_kerberos_bind1_s */
 
 static PyObject*
@@ -703,22 +727,30 @@ l_ldap_kerberos_bind1_s( LDAPObject *self, PyObject *args )
     Py_INCREF(Py_None);
     return Py_None;
 }
+#endif
 
+#ifdef HAVE_LDAP_KERBEROS_BIND2
 /* ldap_kerberos_bind2 */
 
 static PyObject*
 l_ldap_kerberos_bind2( LDAPObject *self, PyObject *args ) 
 {
     char *who;
+    int ret;
 
     if (!PyArg_ParseTuple( args, "s", &who )) return NULL;
     if (not_valid(self)) return NULL;
-    if ( ldap_kerberos_bind2( self->ldap, who ) == -1 )
+    LDAP_BEGIN_ALLOW_THREADS( self );
+    ret = ldap_kerberos_bind2( self->ldap, who );
+    LDAP_END_ALLOW_THREADS( self );
+    if (ret == -1)
     	return LDAPerror( self->ldap, "ldap_kerberos_bind2" );
     Py_INCREF(Py_None);
     return Py_None;
 }
+#endif
 
+#ifdef HAVE_LDAP_KERBEROS_BIND2_S
 /* ldap_kerberos_bind2_s */
 
 static PyObject*
@@ -737,10 +769,12 @@ l_ldap_kerberos_bind2_s( LDAPObject *self, PyObject *args )
     Py_INCREF(Py_None);
     return Py_None;
 }
+#endif
 
 #endif /* WITH_KERBEROS */
 
 #ifndef NO_CACHE
+#ifdef HAVE_LDAP_ENABLE_CACHE
 
 /* ldap_enable_cache */
 
@@ -770,7 +804,9 @@ static char doc_enable_cache[] =
 "\n"
 "\tThis and other caching methods are not available if the library\n"
 "\tand the ldap module were compiled with support for it.";
+#endif
 
+#ifdef HAVE_LDAP_DISABLE_CACHE
 /* ldap_disable_cache */
 
 static PyObject *
@@ -788,7 +824,9 @@ static char doc_disable_cache[] =
 "\tTemporarily disables use of the cache. New requests are\n"
 "\tnot cached, and the cache is not checked when returning\n"
 "\tresults. Cache contents are not deleted.";
+#endif
 
+#ifdef HAVE_LDAP_SET_CACHE_OPTIONS
 /* ldap_set_cache_options */
 
 static PyObject *
@@ -811,7 +849,9 @@ static char doc_set_cache_options[] =
 "\t    CACHE_OPT_CACHEALLERRS, which enables caching of all requests.\n"
 "\tThe default behaviour is not to cache requests that result in\n"
 "\terrors, except those that result in a SIZELIMIT_EXCEEDED exception.";
+#endif
 
+#ifdef HAVE_LDAP_DESTROY_CACHE
 /* ldap_destroy_cache */
 
 static PyObject *
@@ -827,7 +867,9 @@ l_ldap_destroy_cache( LDAPObject* self, PyObject *args )
 static char doc_destroy_cache[] =
 "destroy_cache() -> None\n\n"
 "\tTurns off caching and removed it from memory.";
+#endif
 
+#ifdef HAVE_LDAP_FLUSH_CACHE
 /* ldap_flush_cache */
 
 static PyObject *
@@ -843,7 +885,10 @@ l_ldap_flush_cache( LDAPObject* self, PyObject *args )
 static char doc_flush_cache[] =
 "flush_cache() -> None\n\n"
 "\tDeletes the cache's contents, but does not affect it in any other way.";
+#endif
 
+
+#ifdef HAVE_LDAP_UNCACHE_ENTRY
 /* ldap_uncache_entry */
 
 static PyObject *
@@ -862,7 +907,9 @@ static char doc_uncache_entry[] =
 "uncache_entry(dn) -> None\n\n"
 "\tRemoves all cached entries that make reference to dn. This should be\n"
 "\tused, for example, after doing a modify() involving dn.";
+#endif
 
+#ifdef HAVE_LDAP_UNCACHE_REQUEST
 /* ldap_uncache_request */
 
 static PyObject *
@@ -880,6 +927,7 @@ l_ldap_uncache_request( LDAPObject* self, PyObject *args )
 static char doc_uncache_request[] =
 "uncache_request(msgid) -> None\n\n"
 "\tRemove the request indicated by msgid from the cache.";
+#endif
 
 #endif /* !NO_CACHE */
 
@@ -893,7 +941,9 @@ l_ldap_compare( LDAPObject* self, PyObject *args )
 
     if (!PyArg_ParseTuple( args, "sss", &dn, &attr, &value )) return NULL;
     if (not_valid(self)) return NULL;
+    LDAP_BEGIN_ALLOW_THREADS( self );
     msgid = ldap_compare( self->ldap, dn, attr, value );
+    LDAP_END_ALLOW_THREADS( self );
     if (msgid == -1)
     	return LDAPerror( self->ldap, "ldap_compare" );
     return PyInt_FromLong( msgid );
@@ -944,7 +994,9 @@ l_ldap_delete( LDAPObject* self, PyObject *args )
 
     if (!PyArg_ParseTuple( args, "s", &dn )) return NULL;
     if (not_valid(self)) return NULL;
+    LDAP_BEGIN_ALLOW_THREADS( self );
     msgid = ldap_delete( self->ldap, dn );
+    LDAP_END_ALLOW_THREADS( self );
     if (msgid == -1)
     	return LDAPerror( self->ldap, "ldap_delete" );
     return PyInt_FromLong(msgid);
@@ -990,10 +1042,14 @@ l_ldap_modify( LDAPObject* self, PyObject *args )
     if (not_valid(self)) return NULL;
 
     mods = List_to_LDAPMods( modlist, 0 );
-    if (mods==NULL) return NULL;
+    if (mods == NULL)
+	return NULL;
 
+    LDAP_BEGIN_ALLOW_THREADS( self );
     msgid = ldap_modify( self->ldap, dn, mods );
-    free_LDAPMods( mods );
+    LDAP_END_ALLOW_THREADS( self );
+
+    LDAPMods_DEL( mods );
 
     if (msgid == -1)
     	return LDAPerror( self->ldap, "ldap_modify" );
@@ -1021,7 +1077,7 @@ l_ldap_modify_s( LDAPObject* self, PyObject *args )
     result = ldap_modify_s( self->ldap, dn, mods );
     LDAP_END_ALLOW_THREADS( self );
 
-    free_LDAPMods( mods );
+    LDAPMods_DEL( mods );
 
     if (result != LDAP_SUCCESS)
     	return LDAPerror( self->ldap, "ldap_modify_s" );
@@ -1061,11 +1117,13 @@ l_ldap_modrdn( LDAPObject* self, PyObject *args )
     	return NULL;
     if (not_valid(self)) return NULL;
 
+    LDAP_BEGIN_ALLOW_THREADS( self );
 #if defined(HAVE_LDAP_MODRDN2)
     msgid = ldap_modrdn2( self->ldap, dn, newrdn, delold );
 #else
     msgid = ldap_modrdn( self->ldap, dn, newrdn, delold );
 #endif
+    LDAP_END_ALLOW_THREADS( self );
     if (msgid == -1)
     	return LDAPerror( self->ldap, "ldap_modrdn2" );
     return PyInt_FromLong(msgid);
@@ -1124,7 +1182,7 @@ l_ldap_result( LDAPObject* self, PyObject *args )
     struct timeval* tvp;
     int result;
     LDAPMessage *msg = NULL;
-    PyObject *result_str;
+    PyObject *result_str, *retval;
 
     if (!PyArg_ParseTuple( args, "|iid", &msgid, &all, &timeout ))
     	return NULL;
@@ -1147,15 +1205,17 @@ l_ldap_result( LDAPObject* self, PyObject *args )
     result_str = LDAPconstant( result );
 
     if (msg == NULL) {
-    	return Py_BuildValue("(OO)", result_str, Py_None);
+    	retval = Py_BuildValue("(OO)", result_str, Py_None);
     } else {
 	PyObject *pmsg = LDAPmessage_to_python( self->ldap, msg );
-	if (pmsg == NULL)  {
-	    Py_DECREF( result_str );
-	    return NULL;
-	}
-	return Py_BuildValue("(OO)", result_str, pmsg );
+	if (pmsg == NULL) 
+	    retval = NULL;
+	else
+	    retval = Py_BuildValue("(OO)", result_str, pmsg);
+        Py_DECREF(pmsg);
     }
+    Py_DECREF(result_str);
+    return retval;
 }
 
 static char doc_result[] =
@@ -1224,8 +1284,10 @@ l_ldap_search( LDAPObject* self, PyObject* args )
     if (!attrs_from_List( attrlist, &attrs )) 
    	 return NULL;
 
+    LDAP_BEGIN_ALLOW_THREADS( self );
     msgid = ldap_search( self->ldap, base, scope, filter, 
                              attrs, attrsonly );
+    LDAP_END_ALLOW_THREADS( self );
 
     free_attrs( &attrs );
 
@@ -1395,7 +1457,7 @@ l_ldap_ufn_setfilter( LDAPObject* self, PyObject* args )
     if (not_valid(self)) return NULL;
     res = ldap_ufn_setfilter( self->ldap, filter );
 
-    if (res==NULL)
+    if (res == NULL)
 	return LDAPerror(NULL, "ldap_ufn_setfilter");
 
     Py_INCREF( Py_None );
@@ -1501,19 +1563,41 @@ static PyMethodDef methods[] = {
     {"simple_bind_s",	(PyCFunction)l_ldap_simple_bind_s,	METH_VARARGS,	doc_bind},	
 #ifdef WITH_KERBEROS
     {"kerberos_bind_s",	(PyCFunction)l_ldap_kerberos_bind_s,	METH_VARARGS,	doc_bind},	
+#ifdef HAVE_LDAP_KERBEROS_BIND1
     {"kerberos_bind1",	(PyCFunction)l_ldap_kerberos_bind1,	METH_VARARGS,	doc_bind},	
+#endif
+#ifdef HAVE_LDAP_KERBEROS_BIND1_S
     {"kerberos_bind1_s",(PyCFunction)l_ldap_kerberos_bind1_s,	METH_VARARGS,	doc_bind},	
+#endif
+#ifdef HAVE_LDAP_KERBEROS_BIND2
     {"kerberos_bind2",	(PyCFunction)l_ldap_kerberos_bind2,	METH_VARARGS,	doc_bind},	
+#endif
+#ifdef HAVE_LDAP_KERBEROS_BIND2_S
     {"kerberos_bind2_s",(PyCFunction)l_ldap_kerberos_bind2_s,	METH_VARARGS,	doc_bind},	
+#endif
 #endif /* WITH_KERBEROS */
 #ifndef NO_CACHE
+#ifdef HAVE_LDAP_ENABLE_CACHE
     {"enable_cache",	(PyCFunction)l_ldap_enable_cache,	METH_VARARGS,	doc_enable_cache},	
+#endif
+#ifdef HAVE_LDAP_DISABLE_CACHE
     {"disable_cache",	(PyCFunction)l_ldap_disable_cache,	METH_VARARGS,	doc_disable_cache},	
+#endif
+#ifdef HAVE_LDAP_SET_CACHE_OPTIONS
     {"set_cache_options",(PyCFunction)l_ldap_set_cache_options,	METH_VARARGS,	doc_set_cache_options},	
+#endif
+#ifdef HAVE_LDAP_DESTROY_CACHE
     {"destroy_cache",	(PyCFunction)l_ldap_destroy_cache,	METH_VARARGS,	doc_destroy_cache},	
+#endif
+#ifdef HAVE_LDAP_FLUSH_CACHE
     {"flush_cache",	(PyCFunction)l_ldap_flush_cache,	METH_VARARGS,	doc_flush_cache},	
+#endif
+#ifdef HAVE_LDAP_UNCACHE_ENTRY
     {"uncache_entry",	(PyCFunction)l_ldap_uncache_entry,	METH_VARARGS,	doc_uncache_entry},	
+#endif
+#ifdef HAVE_LDAP_UNCACHE_REQUEST
     {"uncache_request",	(PyCFunction)l_ldap_uncache_request,	METH_VARARGS,	doc_uncache_request},	
+#endif
 #endif /* !NO_CACHE */
     {"compare",		(PyCFunction)l_ldap_compare,		METH_VARARGS,	doc_compare},	
     {"compare_s",	(PyCFunction)l_ldap_compare_s,		METH_VARARGS,	doc_compare},	

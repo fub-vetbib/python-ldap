@@ -14,41 +14,48 @@ LDAPmessage_to_python( LDAP*ld, LDAPMessage*m )
 {
     /* we convert an LDAP message into a python structure.
      * It is always a list of dictionaries.
+     * We always free m.
      */
 
      PyObject* result;
      int num_entries;
-     int entry_index;
      LDAPMessage* entry;
 
-     num_entries = ldap_count_entries( ld, m );
-     result = PyList_New( num_entries );
-     for( entry_index=0, entry=ldap_first_entry(ld,m);
-          entry_index<num_entries && entry!=NULL;
-	  entry_index++, entry=ldap_next_entry(ld,entry) )
+     result = PyList_New(0);
+     if (result == NULL) {
+        ldap_msgfree( m );
+	return NULL;
+     }
+
+     for(entry = ldap_first_entry(ld,m);
+         entry != NULL;
+	 entry = ldap_next_entry(ld,entry))
      {
 	 char *dn;
 	 char *attr;
-	 BerElement *ber;
+	 BerElement *ber = NULL;
 	 PyObject* entrytuple; 
 	 PyObject* attrdict; 
 
 	 dn = ldap_get_dn( ld, entry );
-	 if (dn == NULL) 
+	 if (dn == NULL)  {
+	     Py_DECREF(result);
+             ldap_msgfree( m );
 	     return LDAPerror( ld, "ldap_get_dn" );
+	 }
 
-	 entrytuple = PyTuple_New(2);
 #ifdef USE_CIDICT
 	 attrdict = CIDict_New();
 #else /* use standard python dictionary */
 	 attrdict = PyDict_New();
 #endif /* !CIDICT */
+	 if (attrdict == NULL) {
+		Py_DECREF(result);
+		ldap_msgfree( m );
+		return NULL;
+	 }
 
-	 PyTuple_SetItem( entrytuple, 0, PyString_FromString(dn) );
-	 PyTuple_SetItem( entrytuple, 1, attrdict );
-
-	 PyList_SetItem( result, entry_index, entrytuple );
-
+	 /* Fill attrdict with lists */
 	 for( attr = ldap_first_attribute( ld, entry, &ber );
 	      attr != NULL;
 	      attr = ldap_next_attribute( ld, entry, ber )
@@ -57,14 +64,25 @@ LDAPmessage_to_python( LDAP*ld, LDAPMessage*m )
 	     struct berval ** bvals =
 	     	ldap_get_values_len( ld, entry, attr );
 
+	     /* Find which list to append to */
 	     if ( PyMapping_HasKeyString( attrdict, attr ) ) {
 		 valuelist = PyMapping_GetItemString( attrdict, attr );
 	     } else {
 		 valuelist = PyList_New(0);
-		 PyMapping_SetItemString( attrdict, attr, valuelist );
+		 if (valuelist != NULL && PyMapping_SetItemString(attrdict, 
+		     attr, valuelist) == -1) {
+			Py_DECREF(valuelist);
+			valuelist = NULL;	/* catch error later */
+		 }
 	     }
 
-	     Py_INCREF( valuelist );
+	     if (valuelist == NULL) {
+		Py_DECREF(attrdict);
+		Py_DECREF(result);
+		ldap_msgfree( m );
+		return NULL;
+	     }
+
 	     if (bvals != NULL) {
 	        int i;
 		for (i=0; bvals[i]; i++) {
@@ -73,12 +91,24 @@ LDAPmessage_to_python( LDAP*ld, LDAPMessage*m )
 		    valuestr = PyString_FromStringAndSize( 
 			    bvals[i]->bv_val, bvals[i]->bv_len 
 			);
-		    PyList_Append( valuelist, valuestr );
+		    if (PyList_Append( valuelist, valuestr ) == -1) {
+			Py_DECREF(attrdict);
+			Py_DECREF(result);
+			Py_DECREF(valuestr);
+			ldap_msgfree( m );
+			return NULL;
+		    }
+		    Py_DECREF(valuestr);
 	    	}
-	     	ber_bvecfree(bvals);
+		ldap_value_free_len(bvals);
 	     }
 	     Py_DECREF( valuelist );
 	 }
+
+	 entrytuple = Py_BuildValue("(sO)", dn, attrdict);
+	 Py_DECREF(attrdict);
+	 PyList_Append(result, entrytuple);
+	 Py_DECREF(entrytuple);
      }
      ldap_msgfree( m );
      return result;

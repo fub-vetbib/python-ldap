@@ -229,7 +229,7 @@ Templates_oc2template(self, args)
 		return NULL;
 	}
 	len = PySequence_Length(seq);
-	strs = (char **)malloc(sizeof (char *) * (len + 1));
+	strs = PyMem_NEW(char *, len + 1);
 	if (strs == NULL)
 		return PyErr_NoMemory();
 
@@ -238,15 +238,17 @@ Templates_oc2template(self, args)
 		if (!PyString_Check(o)) {
 			PyErr_SetString(PyExc_TypeError, 
 			    "expected list of strings");
-			free(strs);
+			Py_DECREF(o);
+			PyMem_DEL(strs);
 			return NULL;
 		}
 		strs[i] = PyString_AsString(o);
+		Py_DECREF(o);
 	}
 	strs[len] = NULL;
 
 	t = ldap_oc2template(strs, self->disptmpls);
-	free(strs);
+	PyMem_DEL(strs);
 	if (t == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
@@ -489,12 +491,12 @@ TemplateItem_getattr(self, attr)
 	if (streq(attr, "label")) 
 		return makestring(self->item->ti_label);
 	if (streq(attr, "args")) {
-		int i;
+		int i, len;
 		PyObject *tuple;
 
-		for (i = 0; self->item->ti_args[i]; i++)
+		for (len = 0; self->item->ti_args[len]; len++)
 			;
-		tuple = PyTuple_New(i);
+		tuple = PyTuple_New(len);
 		for (i = 0; self->item->ti_args[i]; i++)
 			PyTuple_SetItem(tuple, i, PyString_FromString(
 				self->item->ti_args[i]));
