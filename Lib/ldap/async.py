@@ -94,13 +94,15 @@ class AsyncSearchHandler:
     Do anything you want after receiving and processing results
     """
 
-  def processResults(self,ignoreResultsNumber=0,processResultsCount=0):
+  def processResults(self,ignoreResultsNumber=0,processResultsCount=0,timeout=-1):
     """
     ignoreResultsNumber
         Don't process the first ignoreResultsNumber results.
     processResultsCount
         If non-zero this parameters indicates the number of results
         processed is limited to processResultsCount.
+    timeout
+        See parameter timeout of ldap.LDAPObject.result()
     """
     self.preProcessing()
     result_counter = 0
@@ -113,7 +115,7 @@ class AsyncSearchHandler:
       result_type,result_list = None,None
       while go_ahead:
         while result_type is None and not result_list:
-          result_type,result_list = self._l.result(self._msgId,0,0)
+          result_type,result_list = self._l.result(self._msgId,0,timeout)
         if not result_list:
           break
         if not _searchResultTypes.has_key(result_type):
