@@ -15,7 +15,7 @@ from string import lower
 
 class cidict(UserDict):
   """
-  Case-insensitive bud case-respecting dictionary.
+  Case-insensitive but case-respecting dictionary.
   """
 
   def __init__(self,default=None):
@@ -43,7 +43,7 @@ class cidict(UserDict):
   def has_key(self,key):
     return UserDict.has_key(self,lower(key))
 
-  def get(self,key,failobj):
+  def get(self,key,failobj=None):
     try:
       return self[key]
     except KeyError:
