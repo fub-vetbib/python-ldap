@@ -10,7 +10,7 @@ Python compability note:
 Tested with Python 2.0+, but should work with Python 1.5.2+.
 """
 
-__version__ = '0.5.0'
+__version__ = '0.5.1'
 
 __all__ = [
   # constants
@@ -56,6 +56,8 @@ def is_dn(s):
   """
   returns 1 if s is a LDAP DN
   """
+  if s=='':
+    return 1
   rm = dn_regex.match(s)
   return rm!=None and rm.group(0)==s
 
@@ -307,7 +309,7 @@ class LDIFParser:
     """
     Parse a single attribute type and value pair from one or
     more lines of LDIF data
-    """
+    """ 
     # Reading new attribute line
     unfolded_line = self._unfoldLDIFLine()
     # Ignore comments which can also be folded
@@ -316,23 +318,28 @@ class LDIFParser:
     if not unfolded_line or unfolded_line=='\n' or unfolded_line=='\r\n':
       return None,None
     try:
-      attr_type,attr_value = string.split(unfolded_line,' ',1)
+      colon_pos = string.index(unfolded_line,':')
     except ValueError:
-      # Treat malformed attrType: attrValue lines as non-existent
+      # Treat malformed lines without colon as non-existent
       return None,None
+    attr_type = unfolded_line[0:colon_pos]
     # if needed attribute value is BASE64 decoded
-    value_spec = attr_type[-2:]
-    attr_type = string.strip(string.split(attr_type,':')[0])
+    value_spec = unfolded_line[colon_pos:colon_pos+2]
     if value_spec=='::':
       # attribute value needs base64-decoding
-      attr_value = base64.decodestring(attr_value)
+      attr_value = base64.decodestring(unfolded_line[colon_pos+2:])
     elif value_spec==':<':
       # fetch attribute value from URL
-      url = attr_value; attr_value = None
+      url = string.strip(unfolded_line[colon_pos+2:])
+      attr_value = None
       if self._process_url_schemes:
         u = urlparse.urlparse(url)
         if self._process_url_schemes.has_key(u[0]):
           attr_value = urllib.urlopen(url).read()
+    elif value_spec==':\r\n' or value_spec=='\n':
+      attr_value = ''
+    else:
+      attr_value = string.lstrip(unfolded_line[colon_pos+2:])
     return attr_type,attr_value
 
   def parse(self):
