@@ -998,7 +998,7 @@ l_ldap_result( LDAPObject* self, PyObject *args )
 		e = "ldap_parse_result";
 	    return LDAPerror( self->ldap, e );
 	}
-	pmsg = Py_None;
+	pmsg = LDAPmessage_to_python( self->ldap, msg );
     }
 
     result_str = LDAPconstant( res_type );

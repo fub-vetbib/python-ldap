@@ -25,7 +25,7 @@ The timeout handling is done within the method result() which probably leads
 to less exact timing.
 """
 
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 
 __all__ = ['LDAPObject','SmartLDAPObject']
 
@@ -341,24 +341,7 @@ class LDAPObject:
         If a timeout occurs, a TIMEOUT exception is raised, unless
         polling (timeout = 0), in which case (None, None) is returned.
     """
-    ldap_result = self._ldap_call(self._l.result,msgid,0,0)
-    if not all:
-      return ldap_result
-    start_time = time.time()
-    all_results = []
-    while all:
-      while ldap_result[0] is None:
-        if (timeout>=0) and (time.time()-start_time>timeout):
-          self._ldap_call(self._l.abandon,msgid)
-          raise _ldap.TIMELIMIT_EXCEEDED(
-            "LDAP time limit (%d secs) exceeded." % (timeout)
-          )
-        ldap_result = self._ldap_call(self._l.result,msgid,0,0)
-      if ldap_result[1] is None:
-        break
-      all_results.extend(ldap_result[1])
-      ldap_result = None,None
-    return all_results
+    return self._ldap_call(self._l.result,msgid,all,timeout)
  
   def search(self,base,scope,filterstr='(objectClass=*)',attrlist=None,attrsonly=0):
     """
@@ -412,7 +395,7 @@ class LDAPObject:
 
   def search_st(self,base,scope,filterstr='(objectClass=*)',attrlist=None,attrsonly=0,timeout=-1):
     msgid = self.search(base,scope,filterstr,attrlist,attrsonly)
-    return self.result(msgid,all=1,timeout=timeout)
+    return self.result(msgid,all=1,timeout=timeout)[1]
 
   def set_cache_options(self,*args,**kwargs):
     """

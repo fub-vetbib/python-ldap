@@ -112,9 +112,10 @@ class AsyncSearchHandler:
     try:
       result_type,result_list = None,None
       while go_ahead:
-        while result_type is None and result_list is None:
-          result_type,result_list = self._l.result(self._msgId,0)
-        if result_list is None:
+        while result_type is None and not result_list:
+          result_type,result_list = self._l.result(self._msgId,0,-1)
+          print '!!!',result_type,result_list
+        if not result_list:
           break
         if not _searchResultTypes.has_key(result_type):
           raise WrongResultType(result_type,_searchResultTypes.keys())
