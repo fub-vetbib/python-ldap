@@ -1099,39 +1099,6 @@ l_ldap_start_tls_s( LDAPObject* self, PyObject* args )
 
 #endif
 
-/* ldap_manage_dsa_it */
-
-static PyObject*
-l_ldap_manage_dsa_it( LDAPObject* self, PyObject* args )
-{
-    int result, manageDSAit, critical;
-    LDAPControl c;
-    LDAPControl *ctrls[2];
-    ctrls[0] = &c;
-    ctrls[1] = NULL;
-
-    if (!PyArg_ParseTuple( args, "i|i", &manageDSAit, &critical )) return NULL;
-    if (not_valid(self)) return NULL;
-
-    if ( manageDSAit ) {
-        c.ldctl_oid = LDAP_CONTROL_MANAGEDSAIT;
-        c.ldctl_value.bv_val = NULL;
-        c.ldctl_value.bv_len = 0;
-        c.ldctl_iscritical = critical;
-        result = ldap_set_option( self->ldap, LDAP_OPT_SERVER_CONTROLS, ctrls );
-    } else {
-        result = ldap_set_option( self->ldap, LDAP_OPT_SERVER_CONTROLS, NULL );
-    }
-
-    if ( result != LDAP_SUCCESS ){
-	return LDAPerror( self->ldap, "ldap_manage_dsa_it" );
-    }
-
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
-
 /* ldap_set_option */
 
 static PyObject*
@@ -1241,7 +1208,6 @@ static PyMethodDef methods[] = {
 #if LDAP_VENDOR_VERSION>=20100
     {"passwd",	        (PyCFunction)l_ldap_passwd,	        METH_VARARGS },
 #endif
-    {"manage_dsa_it",	(PyCFunction)l_ldap_manage_dsa_it,	METH_VARARGS },
     {"set_option",	(PyCFunction)l_ldap_set_option,		METH_VARARGS },
     {"get_option",	(PyCFunction)l_ldap_get_option,		METH_VARARGS },
 #if defined(FILENO_SUPPORTED)
