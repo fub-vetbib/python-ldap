@@ -16,6 +16,9 @@ dsml:
 - Added wrapper method DSMLWriter.unparse() which simply
   calls DSMLWriter.writeRecord()
 
+ldap.ldapobject:
+- Simplified LDAPObject.search_subschemasubentry_s()
+
 ldap.async:
 - Added class DSMLWriter
 
