@@ -1,7 +1,9 @@
 ----------------------------------------------------------------
-Released 2.0.0pre11 2003-04-xx
+Released 2.0.0pre11 2003-05-xx
 
 Changes since 2.0.0pre10:
+
+Added new module dsml for parsing and generating DSMLv1.
 
 ldap.modlist:
 * modifyModlist(): Only None is filtered from attribute value lists,
