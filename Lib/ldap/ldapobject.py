@@ -19,7 +19,7 @@ Basically calls into the LDAP lib are serialized by the module-wide
 lock self._ldap_object_lock.
 """
 
-__version__ = '0.4.0'
+__version__ = '0.4.1'
 
 __all__ = [
   'LDAPObject',
@@ -50,9 +50,6 @@ class SimpleLDAPObject:
     "referrals":          ldap.OPT_REFERRALS,
     "timelimit":          ldap.OPT_TIMELIMIT,
     "sizelimit":          ldap.OPT_SIZELIMIT,
-#    "error_number":       ldap.OPT_ERROR_NUMBER,
-#    "error_string":       ldap.OPT_ERROR_STRING,
-    "matched_dn":         ldap.OPT_MATCHED_DN,
   }
 
   def __init__(
@@ -68,6 +65,7 @@ class SimpleLDAPObject:
     else:
       self._ldap_object_lock = ldap._ldap_module_lock
     self._l = ldap._ldap_function_call(_ldap.initialize,uri)
+    self.timeout = -1
 
   def _ldap_call(self,func,*args,**kwargs):
     """
@@ -137,7 +135,7 @@ class SimpleLDAPObject:
 
   def add_s(self,dn,modlist):
     msgid = self.add(dn,modlist)
-    self.result(msgid)
+    self.result(msgid,all=1,timeout=self.timeout)
 
   def bind(self,who,cred,method):
     """
@@ -150,7 +148,7 @@ class SimpleLDAPObject:
     bind_s(who, cred, method) -> None
     """
     msgid = self.bind(who,cred,method)
-    self.result(msgid)
+    self.result(msgid,all=1,timeout=self.timeout)
 
   def sasl_bind_s(self,who,auth):
     """
@@ -179,7 +177,7 @@ class SimpleLDAPObject:
   def compare_s(self,*args,**kwargs):
     msgid = self.compare(*args,**kwargs)
     try:
-      self.result(msgid)
+      self.result(msgid,all=1,timeout=self.timeout)
     except _ldap.COMPARE_TRUE:
       return 1
     except _ldap.COMPARE_FALSE:
@@ -198,7 +196,7 @@ class SimpleLDAPObject:
 
   def delete_s(self,dn):
     msgid = self.delete(dn)
-    self.result(msgid)
+    self.result(msgid,all=1,timeout=self.timeout)
 
   def manage_dsa_it(self,enable,critical=0):
     """
@@ -230,7 +228,7 @@ class SimpleLDAPObject:
 
   def modify_s(self,dn,modlist):
     msgid = self.modify(dn,modlist)
-    self.result(msgid)
+    self.result(msgid,all=1,timeout=self.timeout)
 
   def modrdn(self,dn,newrdn,delold=1):
     """
@@ -270,11 +268,11 @@ class SimpleLDAPObject:
 
   def rename_s(self,dn,newrdn,newsuperior=None,delold=1):
     msgid = self.rename(dn,newrdn,newsuperior,delold)
-    self.result(msgid)
+    self.result(msgid,all=1,timeout=self.timeout)
 
-  def result(self,msgid=_ldap.RES_ANY,all=1,timeout=-1):
+  def result(self,msgid=_ldap.RES_ANY,all=1,timeout=None):
     """
-    result([msgid=RES_ANY [,all=1 [,timeout=-1]]]) -> (result_type, result_data)
+    result([msgid=RES_ANY [,all=1 [,timeout=None]]]) -> (result_type, result_data)
 
         This method is used to wait for and return the result of an
         operation previously initiated by one of the LDAP asynchronous
@@ -322,11 +320,14 @@ class SimpleLDAPObject:
 
         The result() method will block for timeout seconds, or
         indefinitely if timeout is negative.  A timeout of 0 will effect
-        a poll.  The timeout can be expressed as a floating-point value.
+        a poll. The timeout can be expressed as a floating-point value.
+        If timeout is None the default in self.timeout is used.
 
         If a timeout occurs, a TIMEOUT exception is raised, unless
         polling (timeout = 0), in which case (None, None) is returned.
     """
+    if timeout is None:
+      timeout = self.timeout
     return self._ldap_call(self._l.result,msgid,all,timeout)
  
   def search_ext(self,base,scope,filterstr='(objectClass=*)',attrlist=None,attrsonly=0,serverctrls=None,clientctrls=None,timeout=-1,sizelimit=0):
@@ -457,7 +458,7 @@ class SimpleLDAPObject:
   def unbind_s(self):
     msgid = self.unbind()
     if msgid!=None:
-      self.result(msgid)
+      self.result(msgid,all=1,timeout=self.timeout)
 
   def uncache_entry(self,dn):
     """
@@ -486,13 +487,10 @@ class SimpleLDAPObject:
 
   def url_search_st(self,url,attrsonly=0,timeout=-1):
     msgid = self.url_search(url,attrsonly)
-    search_results = []
-    for res_type,res_data in self.result(msgid,all=1,timeout=timeout):
-      search_results.extend(res_data)
-    return search_results
+    return self.result(msgid,all=1,timeout=timeout)[1]
 
   def url_search_s(self,url,attrsonly=0):
-    return self.url_search_st(url,attrsonly,timeout=-1)
+    return self.url_search_st(url,attrsonly,timeout=self.timeout)
 
   def get_option(self,option):
     return self._ldap_call(self._l.get_option,option)
