@@ -11,7 +11,7 @@ GPL (GNU GENERAL PUBLIC LICENSE) Version 2
 
 __version__ = '0.2.8'
 
-import sys,string,binascii,re
+import string,binascii,re
 
 try:
   from cStringIO import StringIO
