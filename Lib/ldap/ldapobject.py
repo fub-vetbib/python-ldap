@@ -54,18 +54,21 @@ class SimpleLDAPObject:
 
   def __init__(
     self,uri,
-    trace_level=0,trace_file=sys.stdout,trace_stack_limit=None
+    trace_level=0,trace_file=None,trace_stack_limit=None
   ):
     self._trace_level = trace_level
-    self._trace_file = trace_file
+    self._trace_file = trace_file or sys.stdout
     self._trace_stack_limit = trace_stack_limit
     self._uri = uri
-    if ldap.LIBLDAP_R:
-      self._ldap_object_lock = ldap.LDAPLock()
-    else:
-      self._ldap_object_lock = ldap._ldap_module_lock
+    self._ldap_object_lock = self._ldap_lock()
     self._l = ldap._ldap_function_call(_ldap.initialize,uri)
     self.timeout = -1
+
+  def _ldap_lock(self):
+    if ldap.LIBLDAP_R:
+      return ldap.LDAPLock()
+    else:
+      return ldap._ldap_module_lock
 
   def _ldap_call(self,func,*args,**kwargs):
     """
@@ -602,6 +605,12 @@ class ReconnectLDAPObject(SimpleLDAPObject):
   application.
   """
 
+  __transient_attrs__ = {
+    '_l':None,
+    '_ldap_object_lock':None,
+    '_trace_file':None,
+  }
+
   def __init__(
     self,uri,
     trace_level=0,trace_file=sys.stdout,trace_stack_limit=None,
@@ -623,13 +632,16 @@ class ReconnectLDAPObject(SimpleLDAPObject):
     """return data representation for pickled object"""
     d = {}
     for k,v in self.__dict__.items():
-      if k!='_l':
+      if not self.__transient_attrs__.has_key(k):
+        print k,v
         d[k] = v
     return d
 
   def __setstate__(self,d):
     """set up the object from pickled data"""
     self.__dict__.update(d)
+    self._ldap_object_lock = self._ldap_lock()
+    self._trace_file = sys.stdout
     self.reconnect(self._uri)
 
   def _apply_last_bind(self):
