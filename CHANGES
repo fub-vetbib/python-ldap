@@ -1,5 +1,5 @@
 ----------------------------------------------------------------
-Released 2.1.0 2005-02-xx
+Released 2.1.0 2005-03-xx
 
 Changes since 2.0.6:
 
@@ -8,13 +8,18 @@ Changes since 2.0.6:
   - Deepak Giridharagopal
   - Ingo Steuwer
 
+Modules:
+* LDAPObject.c: removed l_ldap_manage_dsa_it()
+
 Lib:/
 * New algorithm in ldap.schema.tokenizer.split_tokens()
   contributed by Wido Depping which is more robust
   when parsing very broken schema elements
   (e.g. Oracle's OID).
 * Fixed argument list (position of timeout) when calling
-  LDAPObject.search_ext_s()from search_st() and search_s().
+  LDAPObject.search_ext_s() from search_st() and search_s().
+* LDAPObject.search_ext_s() correctly calls search_ext_s() now.
+* Re-implemented LDAPObject.manage_dsa_it() without calling _ldap.
 
 ----------------------------------------------------------------
 Released 2.0.6 2004-12-03
