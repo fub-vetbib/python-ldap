@@ -1115,33 +1115,6 @@ l_ldap_manage_dsa_it( LDAPObject* self, PyObject* args )
 static char doc_manage_dsa_it[] = "";
 ;
 
-/* ldap_url_search */
-
-static PyObject*
-l_ldap_url_search( LDAPObject* self, PyObject* args )
-{
-    char *url;
-    int attrsonly = 0;
-
-    int msgid;
-
-
-    if (!PyArg_ParseTuple( args, "s|i", &url, &attrsonly )) 
-    	return NULL;
-    if (not_valid(self)) return NULL;
-
-    LDAP_BEGIN_ALLOW_THREADS( self );
-    msgid = ldap_url_search( self->ldap, url, attrsonly );
-    LDAP_END_ALLOW_THREADS( self );
-
-    if (msgid == -1)
-    	return LDAPerror( self->ldap, "ldap_search" );
-
-    return PyInt_FromLong( msgid );
-}
-
-static char doc_url_search[] = "";
-
 #if defined(HAVE_FILENO_LD_SB_SB_SD) /* || defined(...) */
 #define FILENO_SUPPORTED
 #endif
@@ -1243,7 +1216,6 @@ static PyMethodDef methods[] = {
     {"start_tls_s",	(PyCFunction)l_ldap_start_tls_s,	METH_VARARGS,	doc_start_tls},
 #endif
     {"manage_dsa_it",	(PyCFunction)l_ldap_manage_dsa_it,	METH_VARARGS,	doc_manage_dsa_it},
-    {"url_search",	(PyCFunction)l_ldap_url_search,	        METH_VARARGS,	doc_url_search},
     {"set_option",	(PyCFunction)l_ldap_set_option,		METH_VARARGS,	doc_set_option},
     {"get_option",	(PyCFunction)l_ldap_get_option,		METH_VARARGS,	doc_get_option},
 #if defined(FILENO_SUPPORTED)
