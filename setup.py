@@ -14,8 +14,6 @@ class OpenLDAP2:
 	include_dirs =	[ ]
 	libs =		['ldap', 'lber']
 	defines =	[
-#			 ('WITH_KERBEROS', None),
-#			 ('HAVE_DES_SETKEY', None),
                          # DEFINEs for caching feature in OpenLDAP libs
 #			 ('HAVE_LDAP_DESTROY_CACHE', None),
 #			 ('HAVE_LDAP_DISABLE_CACHE', None),
