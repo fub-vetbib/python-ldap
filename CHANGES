@@ -11,7 +11,7 @@ ldap.ldapobject:
   set_option(ldap.OPT_NETWORK_TIMEOUT,..)
 
 ldap.sasl:
-* Added class ldap.sasl.sasl_external for handling
+* Added class ldap.sasl.external for handling
   the SASL mechanism EXTERNAL
 * Dictionary ldap.sasl.saslmech_handler_class built during import
   for all the known SASL mechanisms derived from class definitions

@@ -89,7 +89,7 @@ class gssapi(sasl):
         sasl.__init__(self, {sasl.CB_USER:authorization},self.mechanism)
 
 
-class sasl_external(sasl):
+class external(sasl):
     """This class handles SASL EXTERNAL authentication
     (i.e. X.509 client certificate)"""
 
