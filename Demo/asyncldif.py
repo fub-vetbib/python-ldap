@@ -6,7 +6,7 @@ of LDAP search results
 import sys,ldap,ldap.async
 
 s = ldap.async.LDIFWriter(
-  ldap.initialize('ldap://localhost:1389'),
+  ldap.initialize('ldap://localhost:1389',trace_level=0),
   sys.stdout
 )
 
