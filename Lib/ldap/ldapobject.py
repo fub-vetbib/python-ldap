@@ -374,10 +374,11 @@ class LDAPObject:
         If a timeout occurs, a TIMEOUT exception is raised, unless
         polling (timeout = 0), in which case (None, None) is returned.
     """
-    start_time = time.time()
-    return_result = []
     ldap_result = self._ldap_call(self._l.result,msgid,0,0)
-
+    if not all:
+      return ldap_result
+    start_time = time.time()
+    all_results = []
     while all:
       while ldap_result[0] is None:
         if (timeout>=0) and (time.time()-start_time>timeout):
@@ -388,13 +389,9 @@ class LDAPObject:
         ldap_result = self._ldap_call(self._l.result,msgid,0,0)
       if ldap_result[1] is None:
         break
-      return_result.append(ldap_result)
+      all_results.extend(ldap_result[1])
       ldap_result = None,None
-
-    if all:
-      return return_result
-    else:
-      return ldap_result
+    return all_results
  
   def search(self,base,scope,filterstr,attrlist=None,attrsonly=0):
     """
@@ -448,10 +445,9 @@ class LDAPObject:
 
   def search_st(self,base,scope,filterstr,attrlist=None,attrsonly=0,timeout=-1):
     msgid = self.search(base,scope,filterstr,attrlist,attrsonly)
-    search_results = []
-    for res_type,res_data in self.result(msgid,all=1,timeout=timeout):
-      search_results.extend(res_data)
-    return search_results
+    search_result = self.result(msgid,all=1,timeout=timeout)
+    print '***',search_result
+    return search_result
 
   def set_cache_options(self,*args,**kwargs):
     """
