@@ -10,7 +10,7 @@ Compability:
 - Tested with Python 2.0+
 """
 
-__version__ = '0.0.1'
+__version__ = '0.0.2'
 
 
 def escape_filter_chars(assertion_value):
@@ -25,3 +25,13 @@ def escape_filter_chars(assertion_value):
   s = s.replace('\x00', r'\00')
   return s 
 
+
+def filter_format(filter_template,assertion_values):
+  """
+  filter_template
+        String containing %s as placeholder for assertion values.
+  assertion_values
+        List or tuple of assertion values. Length must match
+        count of %s in filter_template.
+  """
+  return filter_template % (tuple(map(escape_filter_chars,assertion_values)))
