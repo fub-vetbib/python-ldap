@@ -278,7 +278,8 @@ class LDAPObject:
     return self._ldap_call(self._l.modify,dn,modlist)
 
   def modify_s(self,dn,modlist):
-    return self._ldap_call(self._l.modify_s,dn,modlist)
+    msgid = self.modify(dn,modlist)
+    return self.result(msgid)
 
   def modrdn(self,dn,newrdn,delold=1):
     """
@@ -504,10 +505,14 @@ class LDAPObject:
         The unbind and unbind_s methods are identical, and are
         synchronous in nature
     """
-    return self._ldap_call(self._l.unbind,)
+    return self._ldap_call(self._l.unbind)
 
   def unbind_s(self):
-    return self._ldap_call(self._l.unbind_s,)
+    msgid = self.unbind()
+    if msgid is None:
+      return
+    else:
+      return self.result(msgid)
 
   def uncache_entry(self,dn):
     """
@@ -534,7 +539,13 @@ class LDAPObject:
     return self.url_search_st(url,attrsonly,timeout=-1)
 
   def url_search_st(self,url,attrsonly=0,timeout=-1):
-    return self._ldap_call(self._l.url_search_st,url,attrsonly,timeout)
+    msgid = self.url_search(url,attrsonly,timeout)
+    result = []
+    result_type,result_data = self.result(msgid,0,timeout)
+    while result_data:
+      result.extend(result_data)
+      result_type,result_data = self.result(msgid,0,timeout)
+    return result
 
   def get_option(self,*args,**kwargs):
     return self._ldap_call(self._l.get_option,*args,**kwargs)
