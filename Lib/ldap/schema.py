@@ -39,6 +39,13 @@ NOT_HUMAN_READABLE_LDAP_SYNTAXES = {
 
 class SchemaElement:
 
+  def __init__(self, schema_element_str):
+    if schema_element_str:
+      l = self.split_tokens(schema_element_str)
+      d = self.extract_tokens(l,'DESC')
+      self.oid = l[1]
+      self.desc = d['DESC'][0]
+
   def split_tokens(self,s):
     """
     Returns list of syntax elements with quotes and spaces
@@ -146,6 +153,7 @@ class ObjectClass(SchemaElement):
       [ "MAY" oids ]       ; AttributeTypes
   whsp ")"
   """
+  schema_attribute = 'objectClasses'
 
   def __init__(
     self,schema_element_str=None,
@@ -246,6 +254,7 @@ class AttributeType(SchemaElement):
           "distributedOperation" / ; DSA-shared
           "dSAOperation"          ; DSA-specific, value depends on server
   """
+  schema_attribute = 'attributeTypes'
 
   def __init__(self, schema_element_str):
     if schema_element_str:
@@ -335,6 +344,7 @@ class LDAPSyntax(SchemaElement):
           [ "DESC" qdstring ]
           whsp ")"
   """
+  schema_attribute = 'ldapSyntaxes'
 
   def __init__(self, schema_element_str):
     if schema_element_str:
@@ -371,6 +381,7 @@ class MatchingRule(SchemaElement):
           "SYNTAX" numericoid
       whsp ")"
   """
+  schema_attribute = 'matchingRules'
 
   def __init__(self, schema_element_str):
     l = self.split_tokens(schema_element_str)
@@ -416,6 +427,7 @@ class MatchingRuleUse(SchemaElement):
          extensions
          whsp ")" 
   """
+  schema_attribute = 'matchingRuleUses'
 
   def __init__(self, schema_element_str):
     l = self.split_tokens(schema_element_str)
@@ -446,6 +458,42 @@ class MatchingRuleUse(SchemaElement):
     result.append({0:'',1:' OBSOLETE'}[self.obsolete])
     result.append(self.key_attr('SYNTAX',self.syntax))
     return '( %s )' % ''.join(result)
+
+
+class DITStructureRules(SchemaElement):
+  """
+  """
+  schema_attribute = 'dITStructureRules'
+
+
+class DITContentRules(SchemaElement):
+  """
+  """
+  schema_attribute = 'dITContentRules'
+
+
+class NameForms(SchemaElement):
+  """
+  """
+  schema_attribute = 'nameForms'
+
+
+SCHEMA_CLASS_MAPPING = ldap.cidict.cidict()
+
+for _name in dir():
+  o = eval(_name)
+  if hasattr(o,'schema_attribute'):
+    SCHEMA_CLASS_MAPPING[o.schema_attribute] = o
+
+SCHEMA_ATTRS = SCHEMA_CLASS_MAPPING.keys()
+
+print SCHEMA_ATTRS
+print SCHEMA_CLASS_MAPPING
+
+# Create the reverse of SCHEMA_CLASS_MAPPING
+SCHEMA_ATTR_MAPPING = {}
+for k in SCHEMA_ATTRS:
+  SCHEMA_ATTR_MAPPING[SCHEMA_CLASS_MAPPING[k]] = k
 
 
 class Entry(UserDict):
@@ -491,21 +539,6 @@ class Entry(UserDict):
     for k in self._keys.values():
       result.append((k,self[k]))
     return result
-
-
-SCHEMA_CLASS_MAPPING = {
-  'objectClasses':ObjectClass,
-  'attributeTypes':AttributeType,
-  'ldapSyntaxes':LDAPSyntax,
-  'matchingRules':MatchingRule,
-  'matchingRulesUse':MatchingRuleUse,
-}
-SCHEMA_ATTRS = SCHEMA_CLASS_MAPPING.keys()
-
-# Create the reverse of SCHEMA_CLASS_MAPPING
-SCHEMA_ATTR_MAPPING = {}
-for k in SCHEMA_ATTRS:
-  SCHEMA_ATTR_MAPPING[SCHEMA_CLASS_MAPPING[k]] = k
 
 
 class SubSchema(UserDict):
@@ -582,6 +615,10 @@ class SubSchema(UserDict):
       # 2. Pass: Register all sup references
       for se_oid in avail_se:
         se_obj = self[se_oid]
+        assert se_obj.__class__==schema_element_class, \
+          "Schema element referenced by %s must be of class %s but was %s" % (
+            se_oid,schema_element_class.__name__,se_obj.__class__
+          )
         for s in se_obj.sup:
           sup_oid = self.name2oid[schema_element_class].get(s,s)
           tree[sup_oid].append(se_oid)
