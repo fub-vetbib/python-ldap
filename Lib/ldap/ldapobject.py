@@ -25,7 +25,7 @@ The timeout handling is done within the method result() which probably leads
 to less exact timing.
 """
 
-__version__ = '0.1.1'
+__version__ = '0.2.0'
 
 __all__ = [
   'LDAPObject',
@@ -48,7 +48,7 @@ class SimpleLDAPObject:
 
   _direct_class_attrs = ['_l','_trace_level','_trace_file','_uri','_ldap_object_lock']
 
-  def __init__(self,uri,trace_level=0,trace_file=sys.stdout,ldap_r=1):
+  def __init__(self,uri,trace_level=0,trace_file=sys.stdout,ldap_r=0):
     self._trace_level = trace_level
     self._trace_file = trace_file
     self._uri = uri
