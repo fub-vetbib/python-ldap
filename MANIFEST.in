@@ -1,4 +1,6 @@
 include README Makefile
 include Modules/*.c Modules/*.h Modules/LICENSE
 include Doc/lib.tex Doc/libldap.tex Doc/Makefile
+include Lib/*.py
+include Lib/ldap/*.py
 recursive-include Demo
