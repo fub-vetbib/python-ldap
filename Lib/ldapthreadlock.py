@@ -37,7 +37,19 @@ if __debug__:
   import sys,traceback
   _module_debug_level = 0
 
+
+# Global lock for serializing all calls into underlying LDAP lib
 _ldapmodule_lock = threading.Lock()
+
+
+def _ldap_call(self,func,*args,**kwargs):
+  """Wrapper function which locks calls to func with via ldap_module_lock"""
+  _ldapmodule_lock.acquire()
+  try:
+    result = apply(func,args,kwargs)
+  finally:
+    _ldapmodule_lock.release()
+  return result
 
 
 class LDAPObject:
@@ -46,7 +58,7 @@ class LDAPObject:
   """
 
   def _ldap_call(self,func,*args,**kwargs):
-    """Wrapper function which locks calls to func with via ldap_module_lock"""
+    """Wrapper method mainly for trace logs"""
     if __debug__:
       if _module_debug_level>=1 and func.__name__!='result':
         print '*** %s:' % (self.__module__),\
@@ -54,11 +66,7 @@ class LDAPObject:
           repr(args),repr(kwargs)
         if _module_debug_level>=2:
           traceback.print_stack(file=sys.stdout)
-    _ldapmodule_lock.acquire()
-    try:
-      result = apply(func,args,kwargs)
-    finally:
-      _ldapmodule_lock.release()
+    result = _ldap_call(self,func,*args,**kwargs)
     if __debug__:
       if _module_debug_level>=1 and result!=None:
         print '=> result:',result
@@ -240,7 +248,7 @@ class LDAPObject:
     return self._ldap_call(self._l.get_option,*args,**kwargs)
 
   def set_option(self,*args,**kwargs):
-    return self._ldap_call(self._l.get_option,*args,**kwargs)
+    return self._ldap_call(self._l.set_option,*args,**kwargs)
 
 def open(host):
   """Return ldapthreadlock.LDAPObject instance"""
@@ -253,8 +261,8 @@ def initialize(uri):
 init = initialize
 
 def get_option(self,*args,**kwargs):
-  return self._ldap_call(ldap.get_option,*args,**kwargs)
+  return _ldap_call(ldap.get_option,*args,**kwargs)
 
 def set_option(self,*args,**kwargs):
-  return self._ldap_call(ldap.get_option,*args,**kwargs)
+  return _ldap_call(ldap.get_option,*args,**kwargs)
 
