@@ -1,19 +1,28 @@
 ----------------------------------------------------------------
+Released 2.0.0pre14 2003-06-xx
+
+Changes since 2.0.0pre13:
+
+ldap.ldapobject:
+* Added class attribute LDAPObject.network_timeout mapped to
+  set_option(ldap.OPT_NETWORK_TIMEOUT,..)
+
+----------------------------------------------------------------
 Released 2.0.0pre13 2003-06-02
 
 Changes since 2.0.0pre12:
 
 ldap.async:
-- Checking type of argument writer_obj relaxed in
+* Checking type of argument writer_obj relaxed in
   LDIFWriter.__init__() since file-like objects are
   not necessarily an instance of file.
 
 ldap.schema:
-- ldap.schema.subentry.SubSchema.attribute_types() now correctly
+* ldap.schema.subentry.SubSchema.attribute_types() now correctly
   handles attribute types without NAME set
-- If SUP is not defined for a structural object class 'top' is
+* If SUP is not defined for a structural object class 'top' is
   assumed to be the only super-class by default
-- '_' is now the abstract top node in SubSchema.tree() for all
+* '_' is now the abstract top node in SubSchema.tree() for all
   schema element classes since ABSTRACT and AUXILIARY object
   classes are not derived from 'top' by default
 

@@ -886,6 +886,16 @@ These attributes are mutable unless described as read-only.
 \end{memberdesc}
 
 %%------------------------------------------------------------
+%% network_timeout
+
+\begin{memberdesc}[LDAP]{network_timeout} % -> int
+    Limit on waiting for a network response, in seconds. 
+    Defaults to \constant{NO_LIMIT}.
+    This option is mapped to option constant \constant{OPT_NETWORK_TIMEOUT}
+    and used in the underlying OpenLDAP lib.
+\end{memberdesc}
+
+%%------------------------------------------------------------
 %% protocol_version
 
 \begin{memberdesc}[LDAP]{protocol_version} % -> int

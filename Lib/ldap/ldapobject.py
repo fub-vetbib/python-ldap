@@ -50,6 +50,7 @@ class SimpleLDAPObject:
     "referrals":          ldap.OPT_REFERRALS,
     "timelimit":          ldap.OPT_TIMELIMIT,
     "sizelimit":          ldap.OPT_SIZELIMIT,
+    "network_timeout":    ldap.OPT_NETWORK_TIMEOUT,
   }
 
   def __init__(
