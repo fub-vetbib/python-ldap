@@ -517,24 +517,24 @@ call does not indicate success.
 %  memberdesc	- data members, like datadesc, but with an optional
 %		  type name like methoddesc.
 
-\subsection{LDAP Objects \label{ldap-objects}}
+\subsection{LDAPObject class \label{ldap-objects}}
 
 % This label is generally useful for referencing this section, but is
 % also used to give a filename when generating HTML.
 
 %\noindent
-LDAP objects are returned by \function{open()} and \function{initialize()}.
-The connection is automatically unbound and closed 
+Instances of ldap.LDAPObject are returned by \function{open()}
+and \function{initialize()}. The connection is automatically unbound and closed 
 when the LDAP object is deleted.
 
-Most methods on LDAP objects initiate an asynchronous request to the LDAP server 
-and return a message id that can be used later to retrieve the result
-with \method{result()}.
+Most methods on LDAP objects initiate an asynchronous request to the
+LDAP server and return a message id that can be used later to retrieve
+the result with \method{result()}.
 Methods with names ending in `\constant{_s}' are the synchronous form 
 and wait for and return with the server's result, or with
 \constant{None} if no data is expected.
 
-LDAP objects, have the following methods:
+LDAPObject instances, have the following methods:
 
 %%------------------------------------------------------------
 %% abandon
