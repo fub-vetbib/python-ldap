@@ -16,6 +16,12 @@ ldap.ldapobject:
   (this might make code changes necessary in a real LDAPv2
    environment)
 
+ldap.async:
+* LDIFWriter uses ldif.LDIFWriter instead of calling
+  function ldif.CreateLDIF
+* LDIFWriter accepts either file-like object or ldif.LDIFWriter
+  instance as argument for specifying the output
+
 ldif:
 * Abandoned argument all_records of LDIFRecordList.__init__()
 
