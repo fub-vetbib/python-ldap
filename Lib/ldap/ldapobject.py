@@ -60,9 +60,13 @@ class SimpleLDAPObject:
     "matched_dn":         ldap.OPT_MATCHED_DN,
   }
 
-  def __init__(self,uri,trace_level=ldap._trace_level,trace_file=sys.stdout):
+  def __init__(
+    self,uri,
+    trace_level=0,trace_file=sys.stdout,trace_stack_limit=None
+  ):
     self._trace_level = trace_level
     self._trace_file = trace_file
+    self._trace_stack_limit = trace_stack_limit
     self._uri = uri
     if ldap.LIBLDAP_R:
       self._ldap_object_lock = ldap.LDAPLock()
@@ -83,7 +87,7 @@ class SimpleLDAPObject:
           repr(args),repr(kwargs)
         ))
         if self._trace_level>=2:
-          traceback.print_stack(file=self._trace_file)
+          traceback.print_stack(limit=self._trace_stack_limit,file=self._trace_file)
     self._ldap_object_lock.acquire()
     try:
       try:

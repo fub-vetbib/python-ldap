@@ -34,7 +34,7 @@ from ldap import _ldap_function_call
 from ldap.ldapobject import LDAPObject
 
 
-def open(host,port=389,trace_level=0,trace_file=sys.stdout):
+def open(host,port=389,trace_level=0,trace_file=sys.stdout,trace_stack_limit=None):
   """
   Return LDAPObject instance by opening LDAP connection to
   specified LDAP host
@@ -55,7 +55,7 @@ def open(host,port=389,trace_level=0,trace_file=sys.stdout):
 init = open
 
 
-def initialize(uri,trace_level=0,trace_file=sys.stdout):
+def initialize(uri,trace_level=0,trace_file=sys.stdout,trace_stack_limit=None):
   """
   Return LDAPObject instance by opening LDAP connection to
   LDAP host specified by LDAP URL
