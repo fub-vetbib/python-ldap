@@ -1,0 +1,832 @@
+% $Id$
+
+% ==== 1. ====
+% The section prologue.  Give the section a title and provide some
+% meta-information.  References to the module should use
+% \refbimodindex, \refstmodindex, \refexmodindex or \refmodindex, as
+% appropriate.
+
+\section{\module{_ldap} ---
+         LDAP library interface module}
+
+\declaremodule[ldap]{extension}{_ldap}		% not standard, in C
+
+\platform{UNIX}
+
+% Author of the module code;
+\moduleauthor{Python-LDAP developers}{python-ldap-dev@lists.sourceforge.net}
+% Author of the documentation,
+\sectionauthor{David Leonard}{leonard@users.sourceforge.net}
+
+% Leave at least one blank line after this, to simplify ad-hoc tools
+% that are sometimes used to massage these files.
+\modulesynopsis{Access to an underlying LDAP C library.}
+
+
+% ==== 2. ====
+% Give a short overview of what the module does.
+% If it is platform specific, mention this.
+% Mention other important restrictions or general operating principles.
+
+This module provides access to the LDAP
+(Lightweight Directory Access Protocol) \C\ interface. 
+It is similar to the interface described in \rfc{1823},
+with the notable differences that lists are manipulated via Python
+list operations, and errors appear as exceptions.
+
+For far more detailed information on the \C\ interface, 
+please see the documentation that accompanies the underlying
+LDAP \C library, or see \rfc{1823}.
+
+This documentation is current for the Python LDAP module, version
+$1.10$.
+
+% ==== 3. ====
+% List the public functions defined by the module.  Begin with a
+% standard phrase.  You may also list the exceptions and other data
+% items defined in the module, insofar as they are important for the
+% user.
+
+\subsection{Functions}
+
+The \module{_ldap} module defines the following functions:
+
+% ---- 3.1. ----
+% For each function, use a ``funcdesc'' block.  This has exactly two
+% parameters (each parameters is contained in a set of curly braces):
+% the first parameter is the function name (this automatically
+% generates an index entry); the second parameter is the function's
+% argument list.  If there are no arguments, use an empty pair of
+% curly braces.  If there is more than one argument, separate the
+% arguments with backslash-comma.  Optional parts of the parameter
+% list are contained in \optional{...} (this generates a set of square
+% brackets around its parameter).  Arguments are automatically set in
+% italics in the parameter list.  Each argument should be mentioned at
+% least once in the description; each usage (even inside \code{...})
+% should be enclosed in \var{...}.
+
+\begin{funcdesc}{open}{host \optional{, port=\constant{PORT}}} % -> LDAPObject
+  Opens a new connection with an LDAP server, and return an LDAP object
+  used to perform operations on that server.
+  (See section~\ref{ldap-objects} for details.)
+\end{funcdesc}
+
+\begin{funcdesc}{dn2ufn}{dn} % -> string
+  Turns \var{dn} into a more user-friendly form, stripping off type names.
+  \begin{seealso}
+  \seerfc{1781}{Using the Directory to Achieve User Friendly Naming}{
+	for more details on the UFN format.}
+  \end{seealso}
+\end{funcdesc}
+
+\begin{funcdesc}{explode_dn}{dn \optional{, notypes=\constant{0}}} % -> list
+  This function takes \var{dn} and breaks it up into its component parts. 
+  Each part is known as an RDN (Relative Distinguished Name). The
+  \var{notypes} parameter is used to specify that only the RDN values be 
+  returned and not their types.
+  For example, the DN \code{"cn=Bob, c=US"} would be
+  returned as either \code{["cn=Bob", "c=US"]} or \code{["Bob","US"]}
+  depending on whether \var{notypes} was \constant{0} or \constant{1},
+  respectively.
+\end{funcdesc}
+
+\begin{funcdesc}{is_ldap_url}{url} % -> boolean
+  This function returns true if \var{url} `looks like' an LDAP URL 
+  (as opposed to some other kind of URL). 
+\end{funcdesc}
+
+
+% ---- 3.2. ----
+% Data items are described using a ``datadesc'' block.  This has only
+% one parameter: the item's name.
+
+\subsection{Constants}
+
+The module defines the following constants:
+
+\begin{datadesc}{PORT}
+  The assigned TCP port number (389) that LDAP servers listen on.
+\end{datadesc}
+
+% --- 3.3. ---
+% Exceptions are described using a ``excdesc'' block.  This has only
+% one parameter: the exception name.  Exceptions defined as classes in
+% the source code should be documented using this environment, but
+% constructor parameters must be ommitted.
+
+\subsection{Exceptions}
+
+The module defines the following exceptions:
+
+\begin{excdesc}{LDAPError}
+This is the base class of all execeptions raised by the module.
+Unlike the \C\ interface, errors are not returned as result codes, but
+are instead turned into exceptions, raised as soon an the error condition 
+is detected.
+
+The exceptions are accompanied by a dictionary possibly
+containing an string value for the key \constant{'desc'} 
+(giving an English description of the error class)
+and/or a string value for the key \constant{'info'}
+(giving a string containing more information that the server may have sent).
+
+A third possible field of this dictionary is \constant{'matched'} and
+is set to a truncated form of the name provided or alias dereferenced
+for the lowest entry (object or alias) that was matched.
+
+\end{excdesc}
+
+\begin{excdesc}{ALIAS_DEREF_PROBLEM}
+	A  problem was encountered when dereferencing an alias.
+	(Sets the \constant{'matched'} field.)
+\end{excdesc}
+\begin{excdesc}{ALIAS_PROBLEM}
+	An alias in the directory points to a nonexistent entry.
+	(Sets the \constant{'matched'} field.)
+\end{excdesc}
+\begin{excdesc}{ALREADY_EXISTS}
+	The entry already exists.
+\end{excdesc}
+\begin{excdesc}{AUTH_UNKNOWN}
+	The authentication method specified to \method{bind} is not known.
+\end{excdesc}
+\begin{excdesc}{BUSY}
+	The DSA is busy.
+\end{excdesc}
+\begin{excdesc}{COMPARE_FALSE}
+	A compare operation returned false.
+	(This exception should never be seen.)
+\end{excdesc}
+\begin{excdesc}{COMPARE_TRUE}
+	A compare operation returned true.
+	(This exception should never be seen.)
+\end{excdesc}
+\begin{excdesc}{CONSTRAINT_VIOLATION}
+	An attribute value specified  violates
+	some constraint (e.g., a postalAddress
+	has too many lines, or a line that  is
+	too long).
+\end{excdesc}
+\begin{excdesc}{DECODING_ERROR}
+	An  error  was  encountered decoding a
+	result from the LDAP server.
+\end{excdesc}
+\begin{excdesc}{ENCODING_ERROR}
+	An   error  was  encountered  encoding
+	parameters to send to the LDAP server.
+\end{excdesc}
+\begin{excdesc}{FILTER_ERROR}
+	An  invalid  filter  was  supplied  to
+	\method{search} (e.g., unbalanced parentheses).
+\end{excdesc}
+\begin{excdesc}{INAPPROPRIATE_AUTH}
+	Inappropriate authentication was spec-
+	ified   (e.g.,   \constant{LDAP_AUTH_SIMPLE} was
+	specified and the entry does not  have
+	a userPassword attribute).
+\end{excdesc}
+\begin{excdesc}{INAPPROPRIATE_MATCHING}
+	   Filter  type  not  supported  for  the specified attribute.
+\end{excdesc}
+\begin{excdesc}{INSUFFICIENT_ACCESS}
+	   The user has  insufficient  access  to perform the operation.
+\end{excdesc}
+\begin{excdesc}{INVALID_CREDENTIALS}
+	Invalid   credentials  were  presented during \method{bind}.
+	(e.g., the wrong password).
+\end{excdesc}
+\begin{excdesc}{INVALID_DN_SYNTAX}
+	   A syntactically invalid DN was  specified.
+	(Sets the \constant{'matched'} field.)
+\end{excdesc}
+\begin{excdesc}{INVALID_SYNTAX}
+	An  invalid attribute value was specified.
+\end{excdesc}
+\begin{excdesc}{IS_LEAF}
+	The object specified is a leaf of the diretcory tree.
+	Sets the \constant{'matched'} field of the exception dictionary value.
+\end{excdesc}
+\begin{excdesc}{LOCAL_ERROR}
+	Some local error  occurred.
+	This is usually due to failed memory allocation.
+\end{excdesc}
+\begin{excdesc}{LOOP_DETECT}
+	A loop was detected.
+\end{excdesc}
+\begin{excdesc}{NAMING_VIOLATION}
+	A naming violation occurred.
+\end{excdesc}
+\begin{excdesc}{NOT_ALLOWED_ON_NONLEAF}
+	The operation is not allowed on a non-leaf object.
+\end{excdesc}
+\begin{excdesc}{NOT_ALLOWED_ON_RDN}
+	The  operation  is  not  allowed on an RDN.
+\end{excdesc}
+\begin{excdesc}{NO_OBJECT_CLASS_MODS}
+	Object  class  modifications  are  not allowed.
+\end{excdesc}
+\begin{excdesc}{NO_SUCH_ATTRIBUTE}
+	The  attribute type specified does not exist in the entry.
+\end{excdesc}
+\begin{excdesc}{NO_SUCH_OBJECT}
+	The specified object does not exist in the directory.
+	Sets the \constant{'matched'} field of the exception dictionary value.
+\end{excdesc}
+\begin{excdesc}{OBJECT_CLASS_VIOLATION}
+	An  object  class  violation  occurred (e.g.,  
+	a "must" attribute was missing from the entry).
+\end{excdesc}
+\begin{excdesc}{OPERATIONS_ERROR}
+	An operations error occurred.
+\end{excdesc}
+\begin{excdesc}{OTHER}
+	An unclassified error occurred.
+\end{excdesc}
+\begin{excdesc}{PARAM_ERROR}
+	An ldap routine was called with a  bad parameter.
+\end{excdesc}
+\begin{excdesc}{PARTIAL_RESULTS}
+	Partial results only returned. 
+	(This exception should never be seen.)
+\end{excdesc}
+\begin{excdesc}{PROTOCOL_ERROR}
+	A violation of the LDAP protocol was detected.
+\end{excdesc}
+\begin{excdesc}{RESULTS_TOO_LARGE}
+	(Undocumented.)
+\end{excdesc}
+\begin{excdesc}{SERVER_DOWN}
+	The  LDAP  library  can't  contact the LDAP server.
+\end{excdesc}
+\begin{excdesc}{SIZELIMIT_EXCEEDED}
+	An LDAP size limit was exceeded.
+\end{excdesc}
+\begin{excdesc}{STRONG_AUTH_NOT_SUPPORTED}
+	The   LDAP  server  does  not  support strong authentication.
+\end{excdesc}
+\begin{excdesc}{STRONG_AUTH_REQUIRED}
+	Strong authentication is required  for the operation.
+\end{excdesc}
+\begin{excdesc}{TIMELIMIT_EXCEEDED}
+	An LDAP time limit was exceeded.
+\end{excdesc}
+\begin{excdesc}{TIMEOUT}
+	A timelimit was exceeded while waiting for a result from the server.
+\end{excdesc}
+\begin{excdesc}{TYPE_OR_VALUE_EXISTS}
+	An  attribute  type or attribute value specified already 
+	exists in the entry.
+\end{excdesc}
+\begin{excdesc}{UNAVAILABLE}
+	The DSA is unavailable.
+\end{excdesc}
+\begin{excdesc}{UNDEFINED_TYPE}
+	(Undocumented.)
+\end{excdesc}
+\begin{excdesc}{UNWILLING_TO_PERFORM}
+	The  DSA  is  unwilling to perform the operation.
+\end{excdesc}
+\begin{excdesc}{USER_CANCELLED}
+	The operation was cancelled via the \method{abandon} method.
+\end{excdesc}
+
+These exceptions are raised when a result code from an underlying API
+call does not indicate success.
+
+% ---- 3.4. ----
+% Other standard environments:
+%
+%  classdesc	- Python classes; same arguments are funcdesc
+%  methoddesc	- methods, like funcdesc but has an optional parameter 
+%		  to give the type name: \begin{methoddesc}[mytype]{name}{args}
+%		  By default, the type name will be the name of the
+%		  last class defined using classdesc.  The type name
+%		  is required if the type is implemented in C (because 
+%		  there's no classdesc) or if the class isn't directly 
+%		  documented (if it's private).
+%  memberdesc	- data members, like datadesc, but with an optional
+%		  type name like methoddesc.
+
+
+% ==== 4. ====
+% Now is probably a good time for a complete example.  (Alternatively,
+% an example giving the flavor of the module may be given before the
+% detailed list of functions.)
+
+\subsection{Example \label{ldap-example}}
+
+The following example demonstrates how to open an ldap server using the
+\module{_ldap} module.
+
+\begin{verbatim}
+>>> import _ldap
+>>> l = _ldap.open("my_ldap_server.my_domain")
+>>> l.simple_bind_s("","")
+>>> l.search_s("o=My Organisation, c=AU", _ldap.SCOPE_SUBTREE, "objectclass=*")
+\end{verbatim}
+% Note that there is no trailing ">>> " prompt shown.
+
+% ==== 5. ====
+% If your module defines new object types (for a built-in module) or
+% classes (for a module written in Python), you should list the
+% methods and instance variables (if any) of each type or class in a
+% separate subsection.
+
+\subsection{LDAP Objects}
+\label{ldap-objects}
+% This label is generally useful for referencing this section, but is
+% also used to give a filename when generating HTML.
+
+%\noindent
+Spam objects, as returned by \function{open()} above, have the
+following methods:
+LDAP objects are returned by \function{open()} above, when a
+connection to an LDAP server is established.
+The connection is automatically unbound and closed 
+when the LDAP object is deleted.
+
+Most methods initiate an asynchronous request to the LDAP server 
+and return a message id that can be used later to retrieve the result
+with \method{result()}. 
+Methods with names ending in `\constant{_s}' are the synchronous form 
+and wait for and return with the server's result, or with
+\constant{None} if no data is expected.
+See the description of the \method{result()} method
+for a description of the data structure returned from the server.
+
+%%------------------------------------------------------------
+%% fileno
+
+\begin{methoddesc}{fileno}{}
+Return the file descriptor associated with the connection, for use
+with the \module{select} module.
+(This method is available only if the underlying library can supply it.)
+\end{methoddesc}
+
+\subsubsection{LDAP operations}
+
+%%------------------------------------------------------------
+%% abandon
+
+\begin{methoddesc}[LDAP]{abandon}{msgid}
+Abandons or cancels an LDAP operation in progress. The \var{msgid} argument
+should be the message ID of an outstanding LDAP operation as returned by
+the asynchronous methods \method{search()}, \method{modify()} etc. 
+The caller can expect that the result
+of an abandoned operation will not be returned from a future call to 
+\method{result()}.
+\end{methoddesc}
+
+%%------------------------------------------------------------
+%% add
+
+\begin{methoddesc}[LDAP]{add}{dn, modlist} % -> int
+     \methodline{add_s}{dn, modlist}
+This function is similar to \method{modify()}, except that the operation
+integer is omitted from the tuples in \var{modlist}.
+\end{methoddesc}
+
+%%------------------------------------------------------------
+%% bind
+
+\begin{methoddesc}[LDAP]{bind}{who, cred, method} % -> int
+     \methodline[LDAP]{bind_s}{who, cred, method} % -> None
+     \methodline[LDAP]{simple_bind}{who, passwd} % -> None
+     \methodline[LDAP]{simple_bind_s}{who, passwd} % -> None
+     \methodline[LDAP]{kerberos_bind_s}{who} % -> None
+     \methodline[LDAP]{kerberos_bind1}{who} % -> int
+     \methodline[LDAP]{kerberos_bind1_s}{who} % -> None
+     \methodline[LDAP]{kerberos_bind2}{who} % -> int
+     \methodline[LDAP]{kerberos_bind2_s}{who} % -> None
+After an LDAP object is created, and before any other operations can be
+attempted over the connection, a bind operation must be performed.
+
+This method attempts to bind with the LDAP server using 
+either simple authentication, or Kerberos (if available).
+The general method \method{bind()}
+takes a third parameter, \var{method} which can be one of
+\constant{AUTH_SIMPLE}, \constant{AUTH_KRBV41} or \constant{AUTH_KRBV42}.
+The \var{cred} parameter is ignored for Kerberos authentication and
+should be \constant{None}.
+
+Kerberos authentication support is only available if it is 
+available in the underlying library.
+\end{methoddesc}
+
+%%------------------------------------------------------------
+%% compare
+
+\begin{methoddesc}[LDAP]{compare}{dn, attr, value} % -> int
+     \methodline[LDAP]{compare_s}{dn, attr, value} % -> tuple
+Perform an LDAP comparison between the attribute named \var{attr} of 
+entry \var{dn}, and the value \var{value}. The synchronous form
+returns \constant{0} for false, or \constant{1} for true.
+The asynchronous form returns the message ID of the initiates request, 
+and the result of the asynchronous compare can be obtained using 
+\method{result()}.  
+
+Note that this latter technique yields the answer
+by raising the exception objects \constant{COMPARE_TRUE} or
+\constant{COMPARE_FALSE}.
+
+\textbf{Note} A design fault in the LDAP API prevents \var{value} 
+from containing nul characters.
+\end{methoddesc}
+
+%%------------------------------------------------------------
+%% delete
+
+\begin{methoddesc}[LDAP]{delete}{dn} % -> int
+     \methodline[LDAP]{delete_s}{dn} % -> None
+Performs an LDAP delete operation on \var{dn}. The asynchronous form
+returns the message id of the initiated request, and the result can be obtained
+from a subsequent call to \method{result()}.
+\end{methoddesc}
+
+%%------------------------------------------------------------
+%% modify
+
+\begin{methoddesc}[LDAP]{modify}{ dn, modlist } % -> int
+     \methodline[LDAP]{modify_s}{ dn, modlist } % -> None
+Performs an LDAP modify operation on an entry's attributes. 
+The \var{dn} argument is the distinguished name (DN) of the entry to modify,
+and \var{modlist} is a list of modifications to make to that entry.
+
+Each element in the list \var{modlist} should be a tuple of the form 
+\code{(mod_op,mod_type,mod_vals)},
+where \var{mod_op} indicates the operation (one of \constant{MOD_ADD}, 
+\constant{MOD_DELETE}, or \constant{MOD_REPLACE}),
+\var{mod_type} is a string indicating the attribute type name, and 
+\var{mod_vals} is either a string value or a list of string values to add, 
+delete or replace respectively.  For the delete operation, \var{mod_vals}
+may be \constant{None} indicating that all attributes are to be deleted.
+
+The asynchronous method \method{modify()} returns the message ID of the 
+initiated request.
+
+%See the \method{ber_*} methods for decoding Basic Encoded ASN.1 values.
+%(To be implemented.)
+\end{methoddesc}
+
+%%------------------------------------------------------------
+%% modrdn
+
+\begin{methoddesc}[LDAP]{modrdn}{dn, newrdn \optional{, delold=\constant{1}}}
+		%-> int
+     \methodline[LDAP]{modrdn_s}{dn, newrdn \optional{, delold=\constant{1}}}
+		% -> None
+Perform a `modify RDN' operation, (i.e. a renaming operation).
+These routines take \var{dn} (the DN
+of the entry whose RDN is to be changed, and \var{newrdn}, the new RDN to
+give to the entry. The optional parameter \var{delold} is used to specify
+whether the old RDN should be kept as an attribute of the entry or not.
+(Note: This may not actually be supported by the underlying library.)
+The asynchronous version returns the initiated message id.
+
+If they are available, the \emph{modrdn2*} routines in the \C\ library
+are used instead of \emph{modrdn}.
+\end{methoddesc}
+
+%%------------------------------------------------------------
+%% result
+
+\begin{methoddesc}[LDAP]{result}{\optional{ msgid=\constant{RES_ANY} \optional{, all=\constant{1} \optional{, timeout=\constant{-1}}}}} % -> tuple
+This method is used to wait for and return the result of an operation
+previously initiated by one of the LDAP \emph{asynchronous} operations
+(eg \method{search()}, \method{modify()}, etc.) 
+
+The \var{msgid} parameter is the integer identifier returned by that
+method. 
+The identifier is guaranteed to be unique across an LDAP session,
+and tells the \method{result} method to request the result of that
+specific operation.
+If a result is desired from any one of the in-progress operations,
+\var{msgid} should be specified as the constant \constant{RES_ANY}.
+
+The \var{all}
+parameter has meaning only for \method{search()} responses,
+and is used to select 
+whether a single entry of the search response should be returned, or whether
+the \method{result()} method should wait until all the results of the search 
+are available before returning. 
+
+The \var{timeout} parameter is a limit on the number of seconds that the
+method will wait for a response from the server. 
+If \var{timeout} is negative (which is the default),
+the method will wait indefinitely for a response.
+The timeout can be expressed as a floating-point value, and
+a value of \constant{0} effects a poll.
+If a timeout does occur, the tuple \constant{(None,None)} is returned.
+(This should really have been a \exception{TIMEOUT} exception!)
+
+The \method{result} method returns a tuple of the form 
+\code{(\textit{result-type}, \textit{result-data})}.
+The first element, \textit{result-type} is a string, being one of:
+\constant{'RES_BIND'}, \constant{'RES_SEARCH_ENTRY'},
+\constant{'RES_SEARCH_RESULT'}, 
+\constant{'RES_MODIFY'}, \constant{'RES_ADD'}, \constant{'RES_DELETE'}, 
+\constant{'RES_MODRDN'}, or \constant{'RES_COMPARE'}.
+(The module constants \constant{RES_*} are set to these strings,
+for your convenience.)
+
+If \var{all} is \constant{0}, one response at a time is returned on
+each call to \method{result}, with termination indicated by 
+\textit{result-data} being an empty list.
+
+See \method{search()} for a description of the search result's 
+\var{result_data}, otherwise the \var{result_data} is normally meaningless.
+
+\end{methoddesc}
+
+%%------------------------------------------------------------
+%% search
+
+\begin{methoddesc}[LDAP]{search}{base, scope, filter\optional{, 
+	attrlist=\constant{None}\optional{, attrsonly=\constant{0}}}} %->int
+     \methodline[LDAP]{search_s}{base, scope, filter\optional{, 
+     	attrlist=\constant{None}\optional{, attrsonly=\constant{0}}}} 
+		%->list|None
+    \methodline[LDAP]{search_st}{base, scope, filter\optional{,
+    	attrlist=\constant{None}\optional{, attrsonly=\constant{0} 
+	\optional{, timeout=\constant{-1}}}}}
+		%->list|None
+Perform an LDAP search operation, with \var{base} as the DN of the entry
+at which to start the search, \var{scope} being one of 
+\constant{SCOPE_BASE} (to search the object itself), 
+\constant{SCOPE_ONELEVEL} (to search the object's immediate children), or
+\constant{SCOPE_SUBTREE} (to search the object and all its descendants).
+
+\var{filter} is a string representation of the filter to apply in
+the search. Simple filters can be specified as
+\code{"\var{attribute_type}=\var{attribute_value}"}. 
+More complex filters are specified using a prefix notation according to 
+the following BNF:
+\begin{eqnarray*}
+	\var{filter}	&::=& \code{"("} \ \var{filtercomp} \ \code{")"}
+\\	\var{filtercomp}&::=& \var{and} \ |\ \var{or}\ |\ \var{not} 
+			      \ |\ \var{simple}
+\\	\var{and}	&::=& \code{"\&"} \ \var{filterlist}
+\\	\var{or}	&::=& \code{"|"} \ \var{filterlist}
+\\	\var{not}	&::=& \code{"!"} \ \var{filter}
+\\	\var{filterlist}&::=& \var{filter} \ |\ \var{filter} \ \var{filterlist}
+\\	\var{simple}	&::=& \var{attributetype}\ \var{filtertype} 
+			      \ \var{attributevalue}
+\\	\var{filtertype}&::=& \code{"="} \ |\ \code{"\~="}\ |\ \code{"<="}
+		              \ |\ \code{">="}
+\end{eqnarray*}
+
+When using the asynchronous form and \method{result()}, the \var{all}
+parameter affects how results come in.
+For \var{all} set to \constant{0}, 
+result tuples trickle in (with the same message id), and with the result
+type \constant{RES_SEARCH_ENTRY}, until the final result which has 
+a result type of \constant{RES_SEARCH_RESULT} and a (usually) empty data field.
+When \var{all} is set to \constant{1}, only one result is returned, with a
+result type of \constant{RES_SEARCH_RESULT}, and all the result tuples listed 
+in the data field.
+
+Each result tuple is of the form \code{(\var{dn},\var{attrs})}, 
+where \var{dn} is a string containing
+the DN (distinguished name) of the entry, and 
+\var{attrs} is a dictionary
+containing the attributes associated with the entry. 
+The keys of \var{attrs} are strings, 
+and the associated values are lists of strings.
+
+The DN in \var{dn} is extracted using the underlying \cfunction{ldap_get_dn()}
+function,
+which may raise an exception if the DN is malformed.
+
+If \var{attrsonly} is non-zero, the values of \var{attrs} will be meaningless
+(they are not transmitted in the result).
+
+The retrieved attributes can be limited with the \var{attrlist} parameter.
+If \var{attrlist} is \constant{None}, all the attributes of each entry are returned.
+
+The synchronous form with timeout, \method{search_st()}, will block for at most
+\var{timeout} seconds (or indefinitely if \var{timeout} is negative). A
+\exception{TIMEOUT} exception is raised if no result is received within the
+specified time.
+\end{methoddesc}
+
+%%------------------------------------------------------------
+%% set_rebind_proc
+
+\begin{methoddesc}{set_rebind_proc}{func}
+If a referral is returned from the server, automatic
+re-binding can be achieved by providing a function that accepts as an argument
+the newly opened LDAP object and returns the tuple \code{(who, cred, method)}.
+
+Passing a value of \constant{None} for \var{func} will disable
+this facility. 
+
+Because of restrictions in the implementation, only one
+rebinding function is supported at any one time.
+In addition, this method is only
+available if support is available in the underlying library (LDAP_REFERRALS).
+\end{methoddesc}
+
+%%------------------------------------------------------------
+%% ufn_setfilter
+
+\begin{methoddesc}[LDAP]{ufn_setfilter}{filtername}	% -> None
+       \methodline[LDAP]{ufn_setprefix}{prefix}		% -> None
+       \methodline[LDAP]{ufn_search_s}{url\optional{, attrsonly=\constant{0}}}
+		% -> list
+       \methodline[LDAP]{ufn_search_st}{url\optional{, attrsonly=\constant{0} \optional{, timeout=\constant{-1}}}}
+		% -> list
+See the underlying LDAP library manual pages for information on these
+`user-friendly name' functions:
+	\manpage{ldap_ufn_setfilter}{3},
+	\manpage{ldap_ufn_setprefix}{3}, and
+	\manpage{ldap_ufn_search_s}{3}.
+Explanation of LDAP filter files are out 
+of the scope of this document.  
+\end{methoddesc}
+
+%%------------------------------------------------------------
+%% unbind
+
+\begin{methoddesc}[int]{unbind}{}
+       \methodline{unbind_s}{}
+This call is used to unbind from the directory, terminate the current
+association, and free resources. Once called, the connection to the
+LDAP server is closed and the LDAP object is marked invalid.
+Further invocation of methods on the object will yield exceptions.
+
+The \method{unbind()} and \method{unbind_s()} methods are both
+synchronous in nature
+\end{methoddesc}
+
+%%------------------------------------------------------------
+%% url_search
+
+\begin{methoddesc}[LDAP]{url_search_s}{url, \optional{attrsonly=\constant{0}}}
+       \methodline[LDAP]{url_search_s}{url, \optional{attrsonly=\constant{0} \optional{, timeout=\constant{-1}}}}
+These routine works much like the \method{search()} family of methods, 
+except that many of the search parameters are extracted from the \var{url}
+argument.
+
+LDAP URLs are fully described in \rfc{2255}, and look like this: 
+
+\code{"ldap://\var{host}\optional{:\var{port}}/\var{dn}\optional{?\var{attributes}\optional{?\var{scope}\optional{?\var{filter}}}}"}
+
+where \var{scope} is one of \code{base} (default), \code{one} or \code{sub},
+and \var{attributes} is a comma-separated list of attributes to be retrieved.
+
+URLs wrapped in angle-brackets and/or preceded by \code{"URL:"} are 
+tolerated.
+\end{methoddesc}
+
+\subsubsection{Cache control}
+
+The following methods are available only if the underlying library
+supports a local cache and cache control.
+
+%%------------------------------------------------------------
+%% destroy_cache
+
+\begin{methoddesc}[LDAP]{destroy_cache}{}
+Turns off caching and removed it from memory.
+\end{methoddesc}
+
+%%------------------------------------------------------------
+%% disable_cache
+
+\begin{methoddesc}[LDAP]{disable_cache}{}
+Temporarily disables use of the cache. New requests are not cached, and
+the cache is not checked when returning results. Cache contents are not
+deleted.
+\end{methoddesc}
+
+%%------------------------------------------------------------
+%% enable_cache
+
+\begin{methoddesc}[LDAP]{enable_cache}{\optional{timeout=\constant{NO_LIMIT}, 
+                               \optional{maxmem=\constant{NO_LIMIT}}}}
+Using a cache often greatly improves performance. By default the cache
+is disabled. Specifying \var{timeout} in seconds is used to decide how long
+to keep cached requests. The \var{maxmem} value is in bytes, and is used
+to set an upper bound on how much memory the cache will use. A value of
+\constant{NO_LIMIT} for either indicates unlimited. 
+Subsequent calls to
+\method{enable_cache()} can be used to adjust these parameters.
+
+This and other caching methods are not available if the library and the 
+ldap module were compiled with \code{-DNO_CACHE}.
+\end{methoddesc}
+
+%%------------------------------------------------------------
+%% flush_cache
+
+\begin{methoddesc}[LDAP]{flush_cache}{}
+Deletes the cache's contents, but does not affect it in any other way.
+\end{methoddesc}
+
+%%------------------------------------------------------------
+%% set_cache_options
+
+\begin{methoddesc}[LDAP]{set_cache_options}{option}
+Changes the caching behaviour. Currently supported options are
+    \constant{CACHE_OPT_CACHENOERRS}, which suppresses caching of requests
+    	that resulted in an error, and
+    \constant{CACHE_OPT_CACHEALLERRS}, which enables caching of all requests.
+The default behaviour is not to cache requests that result in errors, except 
+those that result in a \exception{SIZELIMIT_EXCEEDED} exception.
+\end{methoddesc}
+
+%%------------------------------------------------------------
+%% uncache_entry
+
+\begin{methoddesc}[LDAP]{uncache_entry}{dn}
+Removes all cached entries that make reference to \var{dn}. This should be
+used, for example, after doing a \method{modify} involving \var{dn}.
+\end{methoddesc}
+
+%%------------------------------------------------------------
+%% uncache_request
+
+\begin{methoddesc}[LDAP]{uncache_request}{msgid}
+Remove the request indicated by \var{msgid} from the cache.
+\end{methoddesc}
+
+%%============================================================
+%% attributes
+
+\subsubsection{Object attributes}
+
+If the underlying library provides enough information,
+each LDAP object will also have the following attributes.
+These attributes are mutable unless described as read-only.
+
+%%------------------------------------------------------------
+%% deref
+
+\begin{memberdesc}[LDAP]{deref} % -> int
+    Controls for when an automatic dereference of a referral occurs.
+    This must be one of
+    \constant{DEREF_NEVER}, \constant{DEREF_SEARCHING}, \constant{DEREF_FINDING},
+    or \constant{DEREF_ALWAYS}.
+\end{memberdesc}
+
+%%------------------------------------------------------------
+%% errno
+
+\begin{memberdesc}[LDAP]{errno} % -> int
+   \memberline[LDAP]{error} % -> string
+   \memberline[LDAP]{matched} % -> string
+    These attributes are set after an exception has been raised, and
+    are also included with the value raised. 
+    (See also section~\ref{subsec:exceptfrommeth}.)
+    (All read-only.)
+\end{memberdesc}
+
+%%------------------------------------------------------------
+%% lberoptions
+
+\begin{memberdesc}[LDAP]{lberoptions} % -> int
+    Options for the BER library.
+\end{memberdesc}
+
+%%------------------------------------------------------------
+%% options
+
+\begin{memberdesc}[LDAP]{options} % -> int
+    General options. This field is the bitiwse OR of the flags
+	\constant{OPT_REFERRALS} (follow referrals), and
+	\constant{OPT_RESTART}   (restart the \var{select} system call
+			      when interrupted).
+\end{memberdesc}
+
+%%------------------------------------------------------------
+%% refhoplimit
+
+\begin{memberdesc}[LDAP]{refhoplimit} % -> int
+    Maximum number of referrals to follow before raising an exception.
+    Defaults to 5.
+\end{memberdesc}
+
+%%------------------------------------------------------------
+%% sizelimit
+
+\begin{memberdesc}[LDAP]{sizelimit} % -> int
+    Limit on size of message to receive from server. 
+    Defaults to \constant{NO_LIMIT}.
+\end{memberdesc}
+
+%%------------------------------------------------------------
+%% timelimit
+
+\begin{memberdesc}[LDAP]{timelimit} % -> int
+    Limit on waiting for any response, in seconds. 
+    Defaults to \constant{NO_LIMIT}.
+\end{memberdesc}
+
+%%------------------------------------------------------------
+%% valid
+
+\begin{memberdesc}[LDAP]{valid} % -> int
+    If zero, the connection has been unbound. See \method{unbind} for
+    more information.
+    (read-only)
+\end{memberdesc}

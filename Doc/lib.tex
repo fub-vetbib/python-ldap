@@ -1,0 +1,44 @@
+\documentclass{manual}
+\title{A low-level LDAP library for Python}
+% $Id$
+
+\author{David Leonard}
+\authoraddress{
+	The University of Queensland, Australia\\
+	E-mail: \email{python-ldap-dev@lists.sourceforge.net}
+}
+
+\date{January 28, 2001}         % XXX update before release!
+\release{1.10}                  % software release, not documentation
+\setshortversion{1.10}          % major.minor only for software
+
+\makeindex
+%\makemodindex
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+This documents a simple Python interface to third-party 
+LDAP client library implemenations (such as OpenLDAP or 
+Netscape's Directory Services) that have an interface compatible
+with that specified in \rfc{1823}.
+\end{abstract}
+
+\tableofcontents
+
+\chapter{The \_ldap module}
+\input{libldap}
+
+%begin{latexonly}
+%\renewcommand{\indexname}{Module Index}
+%end{latexonly}
+%\input{modlib.ind}		% Module Index
+
+%begin{latexonly}
+\renewcommand{\indexname}{Index}
+%end{latexonly}
+\input{lib.ind}			% Index
+
+\end{document}
