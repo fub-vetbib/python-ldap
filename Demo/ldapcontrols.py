@@ -6,9 +6,11 @@ l = ldap.initialize('ldap://localhost:1390',trace_level=2)
 
 print 60*'#'
 
-#pprint.pprint(l.get_option(ldap.OPT_SERVER_CONTROLS))
+pprint.pprint(l.get_option(ldap.OPT_SERVER_CONTROLS))
 l.manage_dsa_it(1,1)
-#pprint.pprint(l.get_option(ldap.OPT_SERVER_CONTROLS))
+pprint.pprint(l.get_option(ldap.OPT_SERVER_CONTROLS))
+print 60*'#'
+
 # Search with ManageDsaIT control (which has no value)
 pprint.pprint(l.search_ext_s(
   'cn=Test-Referral,ou=Testing,dc=stroeder,dc=de',
