@@ -25,12 +25,13 @@ The timeout handling is done within the method result() which probably leads
 to less exact timing.
 """
 
-__version__ = '0.2.0'
+__version__ = '0.3.0'
 
 __all__ = [
   'LDAPObject',
   'SimpleLDAPObject',
   'NonblockingLDAPObject',
+  'ReconnectLDAPObject',
   'SmartLDAPObject'
 ]
 
@@ -111,7 +112,7 @@ class SimpleLDAPObject:
 
   def __getattr__(self,name):
     if self.CLASSATTR_OPTION_MAPPING.has_key(name):
-      self.set_option(self.CLASSATTR_OPTION_MAPPING[name],value)
+      return self.get_option(self.CLASSATTR_OPTION_MAPPING[name])
     elif self.__dict__.has_key(name):
       return self.__dict__[name]
     else:
@@ -154,6 +155,12 @@ class SimpleLDAPObject:
     """
     msgid = self.bind(who,cred,method)
     self.result(msgid)
+
+  def sasl_bind_s(self,who,auth):
+    """
+    sasl_bind_s(who, auth) -> None
+    """
+    return self._ldap_call(self._l.sasl_bind_s,who,auth)
 
   def compare(self,*args,**kwargs):
     """
@@ -537,15 +544,21 @@ class SimpleLDAPObject:
     None as result indicates that the sub schema sub entry could
     not be determined.
     """
-    r = self.search_s(
-      dn,ldap.SCOPE_BASE,'(objectClass=*)',['subschemaSubentry']
-    )
+    try:
+      r = self.search_s(
+        dn,ldap.SCOPE_BASE,'(objectClass=*)',['subschemaSubentry']
+      )
+    except ldap.NO_SUCH_OBJECT:
+      return None
     try:
       if r:
         e = ldap.cidict.cidict(r[0][1])
         search_subschemasubentry_dn = e.get('subschemaSubentry',[None])[0]
         if search_subschemasubentry_dn!=None:
           return search_subschemasubentry_dn
+      if not dn:
+        # If dn was already root DSE we can return here
+        return None
       # Fall back to directly read attribute subschemaSube
       # from RootDSE
       try:
@@ -568,7 +581,6 @@ class SimpleLDAPObject:
       '(objectClass=subschema)',
       attrs
     )[0][1]
-
 
 
 class NonblockingLDAPObject(SimpleLDAPObject):
@@ -605,7 +617,129 @@ class NonblockingLDAPObject(SimpleLDAPObject):
     return self.result(msgid,all=1,timeout=timeout)
 
 
-class SmartLDAPObject(SimpleLDAPObject):
+class ReconnectLDAPObject(SimpleLDAPObject):
+  """
+  In case of server failure (ldap.SERVER_DOWN) the implementations
+  of all synchronous operation methods (search_s() etc.) are doing
+  an automatic reconnect and rebind and will retry the very same
+  operation.
+  
+  This is very handy for broken LDAP server implementations
+  (e.g. in Lotus Domino) which drop connections very often making
+  it impossible to have a long-lasting control flow in the
+  application.
+  """
+
+  def __init__(
+    self,uri,
+    trace_level=0,trace_file=sys.stdout,trace_stack_limit=None,
+    retry_max=1,retry_delay=60.0
+  ):
+    self._uri = uri
+    self._options = {}
+    self._last_bind = None
+    SimpleLDAPObject.__init__(
+      self,uri,
+      trace_level,trace_file,trace_stack_limit
+    )
+    self._retry_max = retry_max
+    self._retry_delay = retry_delay
+    self._start_tls = 0
+
+  def _apply_last_bind(self):
+    if self._last_bind!=None:
+      func,args,kwargs = self._last_bind
+      apply(func,args,kwargs)
+
+  def reconnect(self,uri):
+    # Drop and clean up old connection completely
+    # Reconnect
+    self.unbind_s()
+    del self._l
+    reconnect_counter = self._retry_max
+    while reconnect_counter:
+      if __debug__ and self._trace_level>=1:
+        self._trace_file.write('*** Try %d. reconnect to %s...\n' % (
+          self._retry_max-reconnect_counter+1,uri
+        ))
+      try:
+        # Do the connect
+        self._l = ldap._ldap_function_call(_ldap.initialize,uri)
+        # Restore all recorded options
+        for k,v in self._options.items():
+          SimpleLDAPObject.set_option(self,k,v)
+        # StartTLS extended operation in case this was called before
+        if self._start_tls:
+          self.start_tls_s()
+        # Repeat last simple of SASL bind
+        self._apply_last_bind()
+      except:
+        if __debug__ and self._trace_level>=1:
+          self._trace_file.write('*** %d. reconnect to %s failed\n' % (
+            self._retry_max-reconnect_counter+1,uri
+          ))
+        reconnect_counter = reconnect_counter-1
+        if not reconnect_counter:
+          raise
+        if __debug__ and self._trace_level>=1:
+          self._trace_file.write('=> delay %s...\n' % (self._retry_delay))
+        time.sleep(self._retry_delay)
+      else:
+        if __debug__ and self._trace_level>=1:
+          self._trace_file.write('*** %d. reconnect to %s successful, last operation will be repeated\n' % (
+            self._retry_max-reconnect_counter+1,uri
+          ))
+        reconnect_counter = reconnect_counter-1
+        break
+
+  def _apply_method_s(self,func,*args,**kwargs):
+    try:
+      return apply(func,args,kwargs)
+    except ldap.SERVER_DOWN:
+      # Reconnect
+      self.reconnect(self._uri)
+      # Re-try last operation
+      return apply(func,args,kwargs)
+
+  def set_option(self,option,invalue):
+    self._options[option] = invalue
+    SimpleLDAPObject.set_option(self,option,invalue)
+
+  def bind_s(self,*args,**kwargs):
+    self._last_bind = (self.bind_s,args,kwargs)
+    return SimpleLDAPObject.bind_s(self,*args,**kwargs)
+
+  def start_tls_s(self,*args,**kwargs):
+    return SimpleLDAPObject.start_tls_s(self,*args,**kwargs)
+    self._start_tls = 1
+
+  def sasl_bind_s(self,who,auth):
+    """
+    sasl_bind_s(who, auth) -> None
+    """
+    self._store_last_bind(self.sasl_bind_s,who,auth)
+    return self._ldap_call(self._l.sasl_bind_s,who,auth)
+
+  def add_s(self,*args,**kwargs):
+    return self._apply_method_s(SimpleLDAPObject.add_s,self,*args,**kwargs)
+
+  def compare_s(self,*args,**kwargs):
+    return self._apply_method_s(SimpleLDAPObject.compare_s,self,*args,**kwargs)
+
+  def delete_s(self,*args,**kwargs):
+    return self._apply_method_s(SimpleLDAPObject.delete_s,self,*args,**kwargs)
+
+  def modify_s(self,*args,**kwargs):
+    return self._apply_method_s(SimpleLDAPObject.modify_s,self,*args,**kwargs)
+
+  def rename_s(self,*args,**kwargs):
+    return self._apply_method_s(SimpleLDAPObject.rename_s,self,*args,**kwargs)
+
+  def search_st(self,*args,**kwargs):
+    return self._apply_method_s(SimpleLDAPObject.search_st,self,*args,**kwargs)
+
+
+class SmartLDAPObject(ReconnectLDAPObject):
   """
   Mainly the __init__() method does some smarter things.
   """
@@ -626,13 +760,6 @@ class SmartLDAPObject(SimpleLDAPObject):
     explicitly with the bind DN and credential given as parameter,
     probe the supported LDAP version and trys to use
     StartTLS extended operation if this was specified.
-
-    Because it has a more complex behaviour this function
-    is not suitable for doing fast (re-)connects.
-
-    Compability note:
-    Since the module ldapurl is used this function only works
-    with Python 2.0+.
 
     Parameters:
     uri
@@ -701,4 +828,3 @@ class SmartLDAPObject(SimpleLDAPObject):
 # The class called LDAPObject will be used as default for
 # ldap.open() and ldap.initialize()
 LDAPObject = SimpleLDAPObject
-#LDAPObject = NonblockingLDAPObject
