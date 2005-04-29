@@ -1,12 +1,14 @@
 ----------------------------------------------------------------
-Released 2.1.0 2005-03-xx
+Released 2.0.7 2005-04-29
 
 Changes since 2.0.6:
 
-* Added support for LDAP controls.
+* Added preliminary support for sending LDAP controls
+  with a request.
   Contributors:
   - Deepak Giridharagopal
   - Ingo Steuwer
+  (Receiving controls in LDAP results still not supported.)
 
 Modules:
 * LDAPObject.c: removed l_ldap_manage_dsa_it()
