@@ -12,7 +12,7 @@ This module only works with Python 2.0+ since
 2. list comprehensions are used.
 """
 
-__version__ = '0.5.1'
+__version__ = '0.5.2'
 
 __all__ = [
   # constants
@@ -109,7 +109,7 @@ class LDAPUrlExtension:
   def unparse(self):
     return '%s%s=%s' % (
       '!'*(self.critical>0),
-      self.extype,self.exvalue.replace(',',r'%2C')
+      self.extype,(self.exvalue or '').replace(',',r'%2C')
     )
     
   def __str__(self):
