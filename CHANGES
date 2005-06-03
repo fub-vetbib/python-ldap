@@ -1,4 +1,13 @@
 ----------------------------------------------------------------
+Released 2.0.8 2005-06-xx
+
+Lib:/
+- Added classes in module ldif to ldif.__all__ to fix
+  from ldif import *
+
+Changes since 2.0.7:
+
+----------------------------------------------------------------
 Released 2.0.7 2005-04-29
 
 Changes since 2.0.6:

@@ -10,13 +10,18 @@ Python compability note:
 Tested with Python 2.0+, but should work with Python 1.5.2+.
 """
 
-__version__ = '0.5.2'
+__version__ = '0.5.3'
 
 __all__ = [
   # constants
   'ldif_pattern',
   # functions
   'AttrTypeandValueLDIF','CreateLDIF','ParseLDIF',
+  # classes
+  'LDIFWriter',
+  'LDIFParser',
+  'LDIFRecordList',
+  'LDIFCopy',
 ]
 
 import string,urlparse,urllib,base64,re,types
