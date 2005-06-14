@@ -890,10 +890,10 @@ l_ldap_rename( LDAPObject* self, PyObject *args )
 }
 
 
-/* ldap_result2 */
+/* ldap_result3 */
 
 static PyObject *
-l_ldap_result2( LDAPObject* self, PyObject *args )
+l_ldap_result3( LDAPObject* self, PyObject *args )
 {
     int msgid = LDAP_RES_ANY;
     int all = 1;
@@ -902,7 +902,7 @@ l_ldap_result2( LDAPObject* self, PyObject *args )
     struct timeval* tvp;
     int res_type;
     LDAPMessage *msg = NULL;
-    PyObject *result_str, *retval, *pmsg;
+    PyObject *result_str, *retval, *pmsg, *pyctrls = 0;
     int res_msgid = 0;
 
     if (!PyArg_ParseTuple( args, "|iid", &msgid, &all, &timeout ))
@@ -921,7 +921,7 @@ l_ldap_result2( LDAPObject* self, PyObject *args )
     LDAP_END_ALLOW_THREADS( self );
 
     if (res_type < 0)	/* LDAP or system error */
-    	return LDAPerror( self->ldap, "ldap_result2" );
+    	return LDAPerror( self->ldap, "ldap_result3" );
 
     if (res_type == 0) {
 	/* Polls return (None, None, None); timeouts raise an exception */
@@ -941,8 +941,10 @@ l_ldap_result2( LDAPObject* self, PyObject *args )
     else {
 	int result;
 	char **refs = NULL;
+        LDAPControl **serverctrls = 0;
 	LDAP_BEGIN_ALLOW_THREADS( self );
-	ldap_parse_result( self->ldap, msg, &result, NULL, NULL, &refs, NULL, 0 );
+	ldap_parse_result( self->ldap, msg, &result, NULL, NULL, &refs,
+                           &serverctrls, 0 );
 	LDAP_END_ALLOW_THREADS( self );
 
 	if (result != LDAP_SUCCESS) {		/* result error */
@@ -954,6 +956,14 @@ l_ldap_result2( LDAPObject* self, PyObject *args )
 		e = "ldap_parse_result";
 	    return LDAPerror( self->ldap, e );
 	}
+
+        if (!(pyctrls = LDAPControls_to_List(serverctrls))) {
+            int err = LDAP_NO_MEMORY;
+            ldap_set_option(self->ldap, LDAP_OPT_ERROR_NUMBER, &err);
+            return LDAPerror(self->ldap, "LDAPControls_to_List");
+        }
+        ldap_controls_free(serverctrls);
+
 	pmsg = LDAPmessage_to_python( self->ldap, msg );
     }
 
@@ -962,11 +972,13 @@ l_ldap_result2( LDAPObject* self, PyObject *args )
     if (pmsg == NULL) {
 	    retval = NULL;
     } else {
-	    retval = Py_BuildValue("(OOi)", result_str, pmsg, res_msgid);
+        retval = Py_BuildValue("(OOiO)", result_str, pmsg, res_msgid,
+			       pyctrls ? pyctrls : PyList_New(0));
 	if (pmsg != Py_None) {
         Py_DECREF(pmsg);
     }
     }
+    Py_XDECREF(pyctrls);
     Py_DECREF(result_str);
     return retval;
 }
@@ -1212,7 +1224,7 @@ static PyMethodDef methods[] = {
     {"delete_ext",	(PyCFunction)l_ldap_delete_ext,		METH_VARARGS },
     {"modify_ext",	(PyCFunction)l_ldap_modify_ext,		METH_VARARGS },
     {"rename",	        (PyCFunction)l_ldap_rename,		METH_VARARGS },
-    {"result2",		(PyCFunction)l_ldap_result2,		METH_VARARGS },
+    {"result3",		(PyCFunction)l_ldap_result3,		METH_VARARGS },
     {"search_ext",	(PyCFunction)l_ldap_search_ext,		METH_VARARGS },
 #ifdef HAVE_TLS
     {"start_tls_s",	(PyCFunction)l_ldap_start_tls_s,	METH_VARARGS },

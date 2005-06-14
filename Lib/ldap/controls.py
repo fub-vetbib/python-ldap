@@ -17,12 +17,14 @@ __all__ = [
 ]
 
 
+from types import ClassType
+
+import _ldap,ldap
+
+
 class LDAPControl:
   """
   Base class for all LDAP controls
-
-  In this base class controlValue has to be passed in
-  already BER-encoded!
   """
 
   def __init__(self,controlType,criticality,controlValue):
@@ -36,22 +38,11 @@ class LDAPControl:
   def encodeControlValue(self,value):
     return value
 
-  def decodeControlValue(self,value):
-    return value
-
-  def __setattr__(self,name,value):
-    if name=='controlValue':
-      value = self.encodeControlValue(value)
-    self.__dict__[name] = value
-
-  def __getattr__(self,name):
-    value = self.__dict__[name]
-    if name=='controlValue':
-      value = self.decodeControlValue(value)
-    return value
+  def decodeControlValue(self,encodedValue):
+    return encodedValue
 
   def getEncodedTuple(self):
-    return (self.controlType,self.criticality,self.controlValue)
+    return (self.controlType,self.criticality,self.encodeControlValue(self.controlValue))
 
 
 class BooleanControl(LDAPControl):
@@ -67,8 +58,28 @@ class BooleanControl(LDAPControl):
   def encodeControlValue(self,value):
     return self.boolean2ber[int(value)]
 
-  def decodeControlValue(self,value):
-    return self.ber2boolean[value]
+  def decodeControlValue(self,encodedValue):
+    return self.ber2boolean[encodedValue]
+
+
+class SimplePagedResultsControl(LDAPControl):
+  """
+  LDAP Control Extension for Simple Paged Results Manipulation
+
+  see RFC 2696
+  """
+  controlType = ldap.LDAP_CONTROL_PAGE_OID
+
+  def __init__(self,controlType,criticality,controlValue):
+    LDAPControl.__init__(self,ldap.LDAP_CONTROL_PAGE_OID,criticality,controlValue)
+
+  def encodeControlValue(self,value):
+    size,cookie = value
+    return _ldap.encode_page_control(size,cookie)
+
+  def decodeControlValue(self,encodedValue):
+    size,cookie = _ldap.decode_page_control(encodedValue)
+    return size,cookie
 
 
 def EncodeControlTuples(ldapControls):
@@ -91,7 +102,17 @@ def DecodeControlTuples(ldapControlTuples):
   Return list of readily encoded 3-tuples which can be directly
   passed to C module _ldap
   """
-  return [
-    LDAPControl(t[0],t[1],t[2])
-    for t in ldapControlTuples or []
-  ]
+  r = []
+  for controlType,criticality,controlValue in ldapControlTuples or []:
+    ldapControlClass = knownLDAPControls.get(controlType,LDAPControl)
+    lc = ldapControlClass(controlType,criticality,None)
+    lc.controlValue = lc.decodeControlValue(controlValue)
+    r.append(lc)
+  return r
+
+# Build a dictionary of known LDAPControls
+knownLDAPControls = {}
+for symbol_name in dir():
+  c = eval(symbol_name)
+  if type(c) is ClassType and hasattr(c,'controlType'):
+    knownLDAPControls[c.controlType] = c

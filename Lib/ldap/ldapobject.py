@@ -96,7 +96,7 @@ class SimpleLDAPObject:
         self._ldap_object_lock.release()
     except LDAPError,e:
       if __debug__ and self._trace_level>=2:
-        self._trace_file.write('=> LDAPError: %s\n' % (str(e)))
+        self._trace_file.write('=> LDAPError - %s: %s\n' % (e.__class__.__name__,str(e)))
       raise
     if __debug__ and self._trace_level>=2:
       if result!=None and result!=(None,None):
@@ -405,11 +405,17 @@ class SimpleLDAPObject:
     """
     res_type,res_data,res_msgid = self.result2(msgid,all,timeout)
     return res_type,res_data
- 
+
   def result2(self,msgid=_ldap.RES_ANY,all=1,timeout=None):
+    res_type, res_data, res_msgid, srv_ctrls = self.result3(msgid,all,timeout)
+    return res_type, res_data, res_msgid
+ 
+  def result3(self,msgid=_ldap.RES_ANY,all=1,timeout=None):
     if timeout is None:
       timeout = self.timeout
-    return self._ldap_call(self._l.result2,msgid,all,timeout)
+    rtype, rdata, rmsgid, serverctrls = self._ldap_call(self._l.result3,msgid,all,timeout)
+    decoded_serverctrls = DecodeControlTuples(serverctrls)
+    return rtype, rdata, rmsgid, decoded_serverctrls
  
   def search_ext(self,base,scope,filterstr='(objectClass=*)',attrlist=None,attrsonly=0,serverctrls=None,clientctrls=None,timeout=-1,sizelimit=0):
     """

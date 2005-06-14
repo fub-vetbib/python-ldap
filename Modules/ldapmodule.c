@@ -10,6 +10,7 @@
 #include "errors.h"
 #include "functions.h"
 #include "schema.h"
+#include "ldapcontrol.h"
 
 #include "LDAPObject.h"
 
@@ -43,6 +44,7 @@ init_ldap()
 	LDAPinit_errors(d);
 	LDAPinit_functions(d);
 	LDAPinit_schema(d);
+	LDAPinit_control(d);
 
 	/* Check for errors */
 	if (PyErr_Occurred())

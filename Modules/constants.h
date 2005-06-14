@@ -8,4 +8,8 @@
 extern void LDAPinit_constants( PyObject* d );
 extern PyObject* LDAPconstant( int );
 
+#ifndef LDAP_CONTROL_PAGE_OID
+#define LDAP_CONTROL_PAGE_OID "1.2.840.113556.1.4.319"
+#endif /* !LDAP_CONTROL_PAGE_OID */
+
 #endif /* __h_constants_ */
