@@ -93,7 +93,7 @@ else:
 
   print '*** Object class tree ***\n'
   print
-  PrintSchemaTree(schema,ldap.schema.ObjectClass,oc_tree,'_',0)
+  PrintSchemaTree(schema,ldap.schema.ObjectClass,oc_tree,'2.5.6.0',0)
 
   print '\n*** Attribute types tree ***\n'
   PrintSchemaTree(schema,ldap.schema.AttributeType,at_tree,'_',0)
