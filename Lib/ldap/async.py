@@ -12,7 +12,7 @@ Tested on Python 2.0+ but should run on Python 1.5.x.
 
 import ldap
 
-__version__ = '0.0.3'
+__version__ = '0.1.0'
 
 
 _searchResultTypes={
@@ -65,7 +65,9 @@ class AsyncSearchHandler:
     attrList=None,
     attrsOnly=0,
     timeout=-1,
-    sizelimit=0
+    sizelimit=0,
+    serverctrls=None,
+    clientctrls=None
   ):
     """
     searchRoot
@@ -83,10 +85,14 @@ class AsyncSearchHandler:
     sizeLimit
         Maximum number of entries a server should return
         (request client-side limit)
+    serverctrls
+        list of server-side LDAP controls
+    clientctrls
+        list of client-side LDAP controls
     """
     self._msgId = self._l.search_ext(
       searchRoot,searchScope,filterStr,
-      attrList,attrsOnly,None,None,timeout,sizelimit
+      attrList,attrsOnly,serverctrls,clientctrls,timeout,sizelimit
     )
     return # startSearch()
 
@@ -122,7 +128,7 @@ class AsyncSearchHandler:
       result_type,result_list = None,None
       while go_ahead:
         while result_type is None and not result_list:
-          result_type,result_list = self._l.result(self._msgId,0,timeout)
+          result_type,result_list,result_msgid,result_serverctrls = self._l.result3(self._msgId,0,timeout)
         if not result_list:
           break
         if not _searchResultTypes.has_key(result_type):

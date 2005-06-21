@@ -1,9 +1,9 @@
 ----------------------------------------------------------------
-Released 2.0.8 2005-06-22
+Released 2.0.8 2005-06-22 at Linuxtag 2005, Karlsruhe, Germany
 
 Changes since 2.0.7:
 
-* Added preliminary support for receiving LDAP controls
+* Preliminary support for receiving LDAP controls added.
   Contributor:
   - Andreas Ames
 

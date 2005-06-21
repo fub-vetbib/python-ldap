@@ -27,10 +27,10 @@ class LDAPControl:
   Base class for all LDAP controls
   """
 
-  def __init__(self,controlType,criticality,controlValue):
+  def __init__(self,controlType,criticality,controlValue=None,encodedControlValue=None):
     self.controlType = controlType
     self.criticality = criticality
-    self.controlValue = controlValue
+    self.controlValue = controlValue or self.decodeControlValue(encodedControlValue)
 
   def __repr__(self):
     return '%s(%s,%s,%s)' % (self.__class__.__name__,self.controlType,self.criticality,self.controlValue)
@@ -70,8 +70,8 @@ class SimplePagedResultsControl(LDAPControl):
   """
   controlType = ldap.LDAP_CONTROL_PAGE_OID
 
-  def __init__(self,controlType,criticality,controlValue):
-    LDAPControl.__init__(self,ldap.LDAP_CONTROL_PAGE_OID,criticality,controlValue)
+  def __init__(self,controlType,criticality,controlValue=None,encodedControlValue=None):
+    LDAPControl.__init__(self,ldap.LDAP_CONTROL_PAGE_OID,criticality,controlValue,encodedControlValue)
 
   def encodeControlValue(self,value):
     size,cookie = value
@@ -102,13 +102,11 @@ def DecodeControlTuples(ldapControlTuples):
   Return list of readily encoded 3-tuples which can be directly
   passed to C module _ldap
   """
-  r = []
-  for controlType,criticality,controlValue in ldapControlTuples or []:
-    ldapControlClass = knownLDAPControls.get(controlType,LDAPControl)
-    lc = ldapControlClass(controlType,criticality,None)
-    lc.controlValue = lc.decodeControlValue(controlValue)
-    r.append(lc)
-  return r
+  return [
+    knownLDAPControls.get(controlType,LDAPControl)
+      (controlType,criticality,encodedControlValue=encodedControlValue)
+    for controlType,criticality,encodedControlValue in ldapControlTuples or []
+  ]
 
 # Build a dictionary of known LDAPControls
 knownLDAPControls = {}

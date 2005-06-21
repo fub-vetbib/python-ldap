@@ -29,8 +29,6 @@ while True:
     print '%d results' % len(rdata)
     pctrls = [c for c in serverctrls if c.controlType == ldap.LDAP_CONTROL_PAGE_OID]
     if pctrls:
-        # l.result3 returns raw tuples, no LDAPControl instances
-        # this is just a matter of taste and can be easily changed
         est, cookie = pctrls[0].controlValue
         if cookie:
             lc.controlValue = (page_size, cookie)

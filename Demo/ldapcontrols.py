@@ -17,8 +17,7 @@ pprint.pprint(l.search_ext_s(
   ldap.SCOPE_BASE,
   '(objectClass=*)',
   ['*','+'],
-#  serverctrls = [ LDAPControl('2.16.840.1.113730.3.4.2',1,None) ],
-  serverctrls = None,
+  serverctrls = [ LDAPControl('2.16.840.1.113730.3.4.2',1,None) ],
 ))
 print 60*'#'
 
