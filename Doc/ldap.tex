@@ -995,14 +995,19 @@ the first request.
 
 \subsection{Example \label{ldap-example}}
 
-The following example demonstrates how to open an LDAP server using the
-\module{ldap} module.
+The following example demonstrates how to open a connection to an
+LDAP server using the \module{ldap} module and invoke a synchronous
+subtree search.
 
 \begin{verbatim}
 >>> import ldap
->>> l = ldap.initialize("ldap://my-ldap-server.my-domain:389")
->>> l.simple_bind_s("","")
->>> l.search_s("o=My Organisation, c=AU", ldap.SCOPE_SUBTREE, "objectclass=*")
+>>> l = ldap.initialize('ldap://localhost:1390')
+>>> l.search_s('ou=Testing,dc=stroeder,dc=de',ldap.SCOPE_SUBTREE,('cn=fred*'),['cn','mail'])
+[('cn=Fred Feuerstein,ou=Testing,dc=stroeder,dc=de', {'cn': ['Fred Feuerstein']})]
+>>> r = l.search_s('ou=Testing,dc=stroeder,dc=de',ldap.SCOPE_SUBTREE,('objectClass=*'),['cn','mail'])
+>>> for dn,entry in r:
+>>>   print 'Processing',repr(dn)
+>>>   handle_ldap_entry(entry)
 \end{verbatim}
 
 % ==== 5. ====
