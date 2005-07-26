@@ -3,6 +3,10 @@ Released 2.0.9 2005-07-26
 
 Changes since 2.0.8:
 
+Modules/
+* Removed __doc__ strings from ldapcontrol.c to "fix"
+  build problems with Python versions 2.2 and earlier.
+
 ----------------------------------------------------------------
 Released 2.0.8 2005-06-22 at Linuxtag 2005, Karlsruhe, Germany
 

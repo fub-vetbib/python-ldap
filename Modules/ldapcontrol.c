@@ -200,13 +200,6 @@ LDAPControls_to_List(LDAPControl **ldcs)
 
 /* --------------- en-/decoders ------------- */
 
-PyDoc_STRVAR(encode_rfc2696__doc__,
-             "encode_page_control(page_size, cookie) -> control_value\n"
-             "\n"
-             "The returned control_value is a string that contains the\n"
-             " (BER-)encoded ASN.1 sequence 'realSearchControlValue'\n"
-             " as defined by RFC 2696.");
-
 static PyObject*
 encode_rfc2696(PyObject *self, PyObject *args)
 {
@@ -261,12 +254,6 @@ encode_rfc2696(PyObject *self, PyObject *args)
 }
 
 
-PyDoc_STRVAR(decode_rfc2696__doc__,
-             "decode_page_control(control_value) -> (size, cookie)\n"
-             "\n"
-             "The parameter control_value is encoded as the result\n"
-             " value of encode_page_control.");
-
 static PyObject*
 decode_rfc2696(PyObject *self, PyObject *args)
 {
@@ -303,9 +290,9 @@ decode_rfc2696(PyObject *self, PyObject *args)
 
 
 static PyMethodDef methods[] = {
-    {"encode_page_control", encode_rfc2696, METH_VARARGS, encode_rfc2696__doc__},
-    {"decode_page_control", decode_rfc2696, METH_VARARGS, decode_rfc2696__doc__},
-    {0}
+    {"encode_page_control", encode_rfc2696, METH_VARARGS },
+    {"decode_page_control", decode_rfc2696, METH_VARARGS },
+    { NULL, NULL }
 };
 
 void
