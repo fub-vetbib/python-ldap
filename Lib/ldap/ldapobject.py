@@ -578,7 +578,7 @@ class SimpleLDAPObject:
       r = self.search_s(
         dn,ldap.SCOPE_BASE,'(objectClass=*)',['subschemaSubentry']
       )
-    except (ldap.NO_SUCH_OBJECT,ldap.NO_SUCH_ATTRIBUTE):
+    except (ldap.NO_SUCH_OBJECT,ldap.NO_SUCH_ATTRIBUTE,ldap.INSUFFICIENT_ACCESS):
       r = []
     except ldap.UNDEFINED_TYPE:
       return None
