@@ -82,7 +82,7 @@ class AsyncSearchHandler:
         See parameter attrsonly of method LDAPObject.search()
     timeout
         Maximum time the server shall use for search operation
-    sizeLimit
+    sizelimit
         Maximum number of entries a server should return
         (request client-side limit)
     serverctrls
