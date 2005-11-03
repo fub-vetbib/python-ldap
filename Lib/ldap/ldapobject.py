@@ -19,7 +19,7 @@ Basically calls into the LDAP lib are serialized by the module-wide
 lock self._ldap_object_lock.
 """
 
-__version__ = '0.6.0'
+__version__ = '0.7.0'
 
 __all__ = [
   'LDAPObject',
@@ -146,7 +146,7 @@ class SimpleLDAPObject:
 
   def add_ext_s(self,dn,modlist,serverctrls=None,clientctrls=None):
     msgid = self.add_ext(dn,modlist,serverctrls,clientctrls)
-    self.result(msgid,all=1,timeout=self.timeout)
+    return self.result(msgid,all=1,timeout=self.timeout)
 
   def add(self,dn,modlist):
     """
@@ -160,7 +160,7 @@ class SimpleLDAPObject:
 
   def add_s(self,dn,modlist):
     msgid = self.add(dn,modlist)
-    self.result(msgid,all=1,timeout=self.timeout)
+    return self.result(msgid,all=1,timeout=self.timeout)
 
   def simple_bind(self,who='',cred='',serverctrls=None,clientctrls=None):
     """
@@ -173,7 +173,7 @@ class SimpleLDAPObject:
     simple_bind_s([who='' [,cred='']]) -> None
     """
     msgid = self.simple_bind(who,cred,serverctrls,clientctrls)
-    self.result(msgid,all=1,timeout=self.timeout)
+    return self.result(msgid,all=1,timeout=self.timeout)
 
   def bind(self,who,cred,method=ldap.AUTH_SIMPLE):
     """
@@ -245,14 +245,13 @@ class SimpleLDAPObject:
 
   def delete_ext_s(self,dn,serverctrls=None,clientctrls=None):
     msgid = self.delete_ext(dn,serverctrls,clientctrls)
-    self.result(msgid,all=1,timeout=self.timeout)
+    return self.result(msgid,all=1,timeout=self.timeout)
 
   def delete(self,dn):
     return self.delete_ext(dn,None,None)
 
   def delete_s(self,dn):
-    msgid = self.delete(dn)
-    self.result(msgid,all=1,timeout=self.timeout)
+    return self.delete_ext_s(dn,None,None)
 
   def manage_dsa_it(self,enable,critical=0):
     """
@@ -276,7 +275,7 @@ class SimpleLDAPObject:
 
   def modify_ext_s(self,dn,modlist,serverctrls=None,clientctrls=None):
     msgid = self.modify_ext(dn,modlist,serverctrls,clientctrls)
-    self.result(msgid,all=1,timeout=self.timeout)
+    return self.result(msgid,all=1,timeout=self.timeout)
 
   def modify(self,dn,modlist):
     """
@@ -322,7 +321,7 @@ class SimpleLDAPObject:
     return self.rename(dn,newrdn,None,delold)
 
   def modrdn_s(self,dn,newrdn,delold=1):
-    self.rename_s(dn,newrdn,None,delold)
+    return self.rename_s(dn,newrdn,None,delold)
 
   def passwd(self,user,oldpw,newpw,serverctrls=None,clientctrls=None):
     return self._ldap_call(self._l.passwd,user,oldpw,newpw,EncodeControlTuples(serverctrls),EncodeControlTuples(clientctrls))
@@ -350,7 +349,7 @@ class SimpleLDAPObject:
 
   def rename_s(self,dn,newrdn,newsuperior=None,delold=1):
     msgid = self.rename(dn,newrdn,newsuperior,delold)
-    self.result(msgid,all=1,timeout=self.timeout)
+    return self.result(msgid,all=1,timeout=self.timeout)
 
   def result(self,msgid=ldap.RES_ANY,all=1,timeout=None):
     """
@@ -496,23 +495,6 @@ class SimpleLDAPObject:
     """
     return self._ldap_call(self._l.set_cache_options,*args,**kwargs)
 
-  def set_rebind_proc(self,func):
-    """
-    set_rebind_proc(func) -> None    
-        If a referral is returned from the server, automatic re-binding
-        can be achieved by providing a function that accepts as an
-        argument the newly opened LDAP object and returns the tuple
-        (who, cred, method).
-
-        Passing a value of None for func will disable this facility.
-
-        Because of restrictions in the implementation, only one
-        rebinding function is supported at any one time. This method
-        is only available if the module and library were compiled with
-        support for it.
-    """
-    self._ldap_call(self._l.set_rebind_proc,func)
-
   def start_tls_s(self):
     """
     start_tls_s() -> None    
@@ -520,7 +502,7 @@ class SimpleLDAPObject:
     set to VERSION3 before calling start_tls_s.
     If TLS could not be started an exception will be raised.
     """
-    self._ldap_call(self._l.start_tls_s)
+    return self._ldap_call(self._l.start_tls_s)
   
   def unbind_ext(self,serverctrls=None,clientctrls=None):
     """
@@ -542,15 +524,13 @@ class SimpleLDAPObject:
   def unbind_ext_s(self,serverctrls=None,clientctrls=None):
     msgid = self.unbind_ext(serverctrls,clientctrls)
     if msgid!=None:
-      self.result(msgid,all=1,timeout=self.timeout)
+      return self.result(msgid,all=1,timeout=self.timeout)
 
   def unbind(self):
     return self.unbind_ext(None,None)
 
   def unbind_s(self):
-    msgid = self.unbind()
-    if msgid!=None:
-      self.result(msgid,all=1,timeout=self.timeout)
+    return self.unbind_ext_s(None,None)
 
   def whoami_s(self,serverctrls=None,clientctrls=None):
     return self._ldap_call(self._l.whoami_s,serverctrls,clientctrls)
@@ -564,7 +544,7 @@ class SimpleLDAPObject:
   def set_option(self,option,invalue):
     if option==ldap.OPT_SERVER_CONTROLS or option==ldap.OPT_CLIENT_CONTROLS:
       invalue = EncodeControlTuples(invalue)
-    self._ldap_call(self._l.set_option,option,invalue)
+    return self._ldap_call(self._l.set_option,option,invalue)
 
   def search_subschemasubentry_s(self,dn=''):
     """
@@ -791,16 +771,16 @@ class ReconnectLDAPObject(SimpleLDAPObject):
     return SimpleLDAPObject.sasl_interactive_bind_s(self,*args,**kwargs)
 
   def add_ext_s(self,*args,**kwargs):
-    return self._apply_method_s(SimpleLDAPObject.add_s,*args,**kwargs)
+    return self._apply_method_s(SimpleLDAPObject.add_ext_s,*args,**kwargs)
 
   def compare_s(self,*args,**kwargs):
     return self._apply_method_s(SimpleLDAPObject.compare_s,*args,**kwargs)
 
   def delete_ext_s(self,*args,**kwargs):
-    return self._apply_method_s(SimpleLDAPObject.delete_s,*args,**kwargs)
+    return self._apply_method_s(SimpleLDAPObject.delete_ext_s,*args,**kwargs)
 
   def modify_ext_s(self,*args,**kwargs):
-    return self._apply_method_s(SimpleLDAPObject.modify_s,*args,**kwargs)
+    return self._apply_method_s(SimpleLDAPObject.modify_ext_s,*args,**kwargs)
 
   def rename_s(self,*args,**kwargs):
     return self._apply_method_s(SimpleLDAPObject.rename_s,*args,**kwargs)
