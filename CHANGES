@@ -3,6 +3,12 @@ Released 2.0.11 2005-11-xx
 
 Changes since 2.0.10:
 
+Lib/
+* ldap.ldapobject.LDAPObject:
+  Each method returns a result now
+* ldap.ldapobject.ReconnectLDAPObject:
+  Some methods called the wrong methods of LDAPObject. Fixed.
+
 ----------------------------------------------------------------
 Released 2.0.10 2005-09-23
 
