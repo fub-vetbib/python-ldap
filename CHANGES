@@ -9,6 +9,7 @@ Lib/
 * Class ldap.ldapobject.ReconnectLDAPObject:
   Some methods called the wrong methods of LDAPObject. Fixed.
 * Added new class ldap.async.Dict
+* Slightly cleaned up ldap.schema.subentry.attribute_types()
 * New sub-module ldap.resiter which simply provides a mix-in
   class for ldap.ldapobject.LDAPObject with a generator method
   allresults().
