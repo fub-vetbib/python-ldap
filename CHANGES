@@ -4,10 +4,11 @@ Released 2.0.11 2005-11-07
 Changes since 2.0.10:
 
 Lib/
-* ldap.ldapobject.LDAPObject:
+* Class ldap.ldapobject.LDAPObject:
   Each method returns a result now
-* ldap.ldapobject.ReconnectLDAPObject:
+* Class ldap.ldapobject.ReconnectLDAPObject:
   Some methods called the wrong methods of LDAPObject. Fixed.
+* Added new class ldap.async.Dict
 * New sub-module ldap.resiter which simply provides a mix-in
   class for ldap.ldapobject.LDAPObject with a generator method
   allresults().
