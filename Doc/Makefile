@@ -1,6 +1,6 @@
 # $Id$
 
-PYTHONSRC=	/home/michael/src/Python-2.4.1
+PYTHONSRC=	/home/michael/src/Python-2.4.2
 DOCTOOLSDIR=	$(PYTHONSRC)/Doc/tools
 PAPER=		a4
 DVIPS=		dvips -N0 -t $(PAPER)
