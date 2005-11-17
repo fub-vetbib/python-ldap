@@ -3,6 +3,10 @@ Released 2.0.12 2005-11-xx
 
 Changes since 2.0.11:
 
+Lib/
+* Fixed ldap.schema.models.DITStructureRule.__str__() to
+  separate SUP rule-ids with a single space instead of ' $ '
+
 ----------------------------------------------------------------
 Released 2.0.11 2005-11-07
 

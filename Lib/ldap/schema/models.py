@@ -475,7 +475,7 @@ class DITStructureRule(SchemaElement):
     result.append(self.key_attr('DESC',self.desc,quoted=1))
     result.append({0:'',1:' OBSOLETE'}[self.obsolete])
     result.append(self.key_attr('FORM',self.form,quoted=0))
-    result.append(self.key_list('SUP',self.sup,sep=' $ '))
+    result.append(self.key_list('SUP',self.sup,sep=' '))
     return '( %s )' % ''.join(result)
 
 
