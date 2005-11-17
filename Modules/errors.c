@@ -17,17 +17,9 @@ LDAPexception_class;
 
 /* list of error objects */
 
-
-#if LDAP_VENDOR_VERSION>=20200
-  /* OpenLDAP 2.2+ defines negative error constants */
-  #define LDAP_ERROR_MIN          LDAP_REFERRAL_LIMIT_EXCEEDED
-  #define LDAP_ERROR_MAX          LDAP_OTHER
-  #define LDAP_ERROR_OFFSET       -LDAP_ERROR_MIN
-#else
-  #define LDAP_ERROR_MIN          0
-  #define LDAP_ERROR_MAX          LDAP_REFERRAL_LIMIT_EXCEEDED
-  #define LDAP_ERROR_OFFSET       0
-#endif
+#define LDAP_ERROR_MIN          LDAP_REFERRAL_LIMIT_EXCEEDED
+#define LDAP_ERROR_MAX          LDAP_OTHER
+#define LDAP_ERROR_OFFSET       -LDAP_ERROR_MIN
 
 static PyObject* errobjects[ LDAP_ERROR_MAX-LDAP_ERROR_MIN+1 ];
 

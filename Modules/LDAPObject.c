@@ -565,7 +565,7 @@ static int interaction ( unsigned flags,
 			 sasl_interact_t *interact,
 			 PyObject* SASLObject )
 {
-  const char *dflt = interact->defresult;
+/*  const char *dflt = interact->defresult; */
   PyObject *result;
   char *c_result;
   result = PyObject_CallMethod(SASLObject,
@@ -632,7 +632,7 @@ static PyObject*
 l_ldap_sasl_interactive_bind_s( LDAPObject* self, PyObject* args )
 {
     char *c_mechanism;
-    char *who, *cred;
+    char *who;
 
     PyObject *serverctrls = Py_None;
     PyObject *clientctrls = Py_None;
@@ -641,9 +641,8 @@ l_ldap_sasl_interactive_bind_s( LDAPObject* self, PyObject* args )
 
     PyObject       *SASLObject = NULL;
     PyObject *mechanism = NULL;
-    int msgid, version;
+    int msgid;
 
-    void *defaults;
     static unsigned sasl_flags = LDAP_SASL_QUIET;
 
     /* 
@@ -1053,7 +1052,6 @@ l_ldap_search_ext( LDAPObject* self, PyObject* args )
 }	
 
 
-#if LDAP_VENDOR_VERSION>=20113
 /* ldap_whoami_s (available since OpenLDAP 2.1.13) */
 
 static PyObject*
@@ -1098,7 +1096,6 @@ l_ldap_whoami_s( LDAPObject* self, PyObject* args )
 
     return result;
 }
-#endif
 
 #ifdef HAVE_TLS
 /* ldap_start_tls_s */
@@ -1155,8 +1152,6 @@ l_ldap_get_option(PyObject* self, PyObject *args)
 
 /* ldap_passwd */
 
-#if LDAP_VENDOR_VERSION>=20100
-
 static PyObject *
 l_ldap_passwd( LDAPObject* self, PyObject *args )
 {
@@ -1208,8 +1203,6 @@ l_ldap_passwd( LDAPObject* self, PyObject *args )
     return PyInt_FromLong( msgid );
 }
 
-#endif
-
 /* methods */
 
 static PyMethodDef methods[] = {
@@ -1229,12 +1222,8 @@ static PyMethodDef methods[] = {
 #ifdef HAVE_TLS
     {"start_tls_s",	(PyCFunction)l_ldap_start_tls_s,	METH_VARARGS },
 #endif
-#if LDAP_VENDOR_VERSION>=20113
     {"whoami_s",	(PyCFunction)l_ldap_whoami_s,	        METH_VARARGS },
-#endif
-#if LDAP_VENDOR_VERSION>=20100
     {"passwd",	        (PyCFunction)l_ldap_passwd,	        METH_VARARGS },
-#endif
     {"set_option",	(PyCFunction)l_ldap_set_option,		METH_VARARGS },
     {"get_option",	(PyCFunction)l_ldap_get_option,		METH_VARARGS },
 #if defined(FILENO_SUPPORTED)
