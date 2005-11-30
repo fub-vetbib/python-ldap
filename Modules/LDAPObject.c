@@ -923,9 +923,9 @@ l_ldap_result3( LDAPObject* self, PyObject *args )
     	return LDAPerror( self->ldap, "ldap_result3" );
 
     if (res_type == 0) {
-	/* Polls return (None, None, None); timeouts raise an exception */
+	/* Polls return (None, None, None, None); timeouts raise an exception */
 	if (timeout == 0)
-		return Py_BuildValue("(OOO)", Py_None, Py_None, Py_None);
+		return Py_BuildValue("(OOOO)", Py_None, Py_None, Py_None);
 	else
 		return LDAPerr(LDAP_TIMEOUT);
     }
