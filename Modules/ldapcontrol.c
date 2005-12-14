@@ -205,7 +205,7 @@ encode_rfc2696(PyObject *self, PyObject *args)
 {
     PyObject *res = 0;
     BerElement *ber = 0;
-    struct berval cookie, ctrl_val;
+    struct berval cookie, *ctrl_val;
     unsigned long size;
     ber_tag_t tag;
 
@@ -240,12 +240,12 @@ encode_rfc2696(PyObject *self, PyObject *args)
         goto endlbl;
     }
 
-    if (-1 == ber_flatten2(ber, &ctrl_val, 0)) {
+    if (-1 == ber_flatten(ber, &ctrl_val)) {
         LDAPerr(LDAP_NO_MEMORY);
         goto endlbl;
     }
 
-    res = Py_BuildValue("s#", ctrl_val.bv_val, ctrl_val.bv_len);
+    res = Py_BuildValue("s#", ctrl_val->bv_val, ctrl_val->bv_len);
 
  endlbl:
     if (ber)
