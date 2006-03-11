@@ -180,7 +180,7 @@ LDAP_get_option(LDAPObject *self, int option)
 		    PyString_FromString(apiinfo.ldapai_extensions[i]));
 
 	    /* return api info as a dictionary */
-	    v = Py_BuildValue("{s:i, s:i, s:i, s:s, s:s, s:O}",
+	    v = Py_BuildValue("{s:i, s:i, s:i, s:s, s:i, s:O}",
 		    "info_version",     apiinfo.ldapai_info_version,
 		    "api_version",      apiinfo.ldapai_api_version,
 		    "protocol_version", apiinfo.ldapai_protocol_version,

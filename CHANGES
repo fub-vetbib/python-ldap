@@ -1,5 +1,5 @@
 ----------------------------------------------------------------
-Released 2.0.12 2005-11-xx
+Released 2.2.0 2006-03-xx
 
 Changes since 2.0.11:
 
@@ -8,6 +8,8 @@ Changes since 2.0.11:
 Modules/
 * Dropped all occurences of '#ifdef #LDAP_VENDOR_VERSION'.
 * Fixed wrong tuple size in l_ldap_result3() (see SF#1368108)
+* Fixed get_option(ldap.OPT_API_INFO) (see SF#1440165)
+
 
 Lib/
 * Fixed ldap.schema.models.DITStructureRule.__str__() to
