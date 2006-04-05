@@ -1,5 +1,5 @@
 ----------------------------------------------------------------
-Released 2.2.0 2006-03-xx
+Released 2.2.0 2006-04-xx
 
 Changes since 2.0.11:
 
@@ -11,6 +11,8 @@ Modules/
 * Fixed get_option(ldap.OPT_API_INFO) (see SF#1440165)
 * Fixed memory leak in l_ldap_result3() when all=0
   (see SF#1457325)
+* Fixed memory leak in l_ldap_result3() in error cases
+  (see SF#1464085)
 
 Lib/
 * Fixed ldap.schema.models.DITStructureRule.__str__() to
