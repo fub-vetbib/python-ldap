@@ -19,7 +19,8 @@ Lib/
   separate SUP rule-ids with a single space instead of ' $ '
 * Fixed ldap.async.Dict
 * Added ldap.async.IndexedDict
-
+* ldap.schema.subentry.SubSchema.attribute_types() has new
+  key-word argument ignore_dit_content_rule
 ----------------------------------------------------------------
 Released 2.0.11 2005-11-07
 
