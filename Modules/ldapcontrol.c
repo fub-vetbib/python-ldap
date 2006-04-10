@@ -4,6 +4,7 @@
 
 /*
  * ldapcontrol.c - wrapper around libldap LDAPControl structs.
+ * $Id$
  */
 
 #include "common.h"
