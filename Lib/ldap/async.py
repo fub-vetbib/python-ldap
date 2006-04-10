@@ -193,8 +193,33 @@ class Dict(AsyncSearchHandler):
   def _processSingleResult(self,resultType,resultItem):
     if _entryResultTypes.has_key(resultType):
       # Search continuations are ignored
-      dn,entry = resultItem    
+      dn,entry = resultItem
       self.allEntries[dn] = entry
+
+
+class IndexedDict(Dict):
+  """
+  Class for collecting all search results into a dictionary {dn:entry}
+  and maintain case-sensitive equality indexes to entries
+  """
+
+  def __init__(self,l,indexed_attrs=None):
+    Dict.__init__(self,l)
+    self.indexed_attrs = indexed_attrs or tuple()
+    self.index = {}.fromkeys(self.indexed_attrs,{})
+
+  def _processSingleResult(self,resultType,resultItem):
+    if _entryResultTypes.has_key(resultType):
+      # Search continuations are ignored
+      dn,entry = resultItem
+      self.allEntries[dn] = entry
+      for a in self.indexed_attrs:
+	if entry.has_key(a):
+	  for v in entry[a]:
+	    try:
+    	      self.index[a][v].append(dn)
+	    except KeyError:
+    	      self.index[a][v] = [ dn ]
 
 
 class FileWriter(AsyncSearchHandler):

@@ -17,6 +17,8 @@ Modules/
 Lib/
 * Fixed ldap.schema.models.DITStructureRule.__str__() to
   separate SUP rule-ids with a single space instead of ' $ '
+* Fixed ldap.async.Dict
+* Added ldap.async.IndexedDict
 
 ----------------------------------------------------------------
 Released 2.0.11 2005-11-07
