@@ -1179,7 +1179,7 @@ l_ldap_passwd( LDAPObject* self, PyObject *args )
     int msgid;
     int ldaperror;
 
-    if (!PyArg_ParseTuple( args, "s#s#s#|OO", &user.bv_val, &user_len, &oldpw.bv_val, &oldpw_len, &newpw.bv_val, &newpw_len, &serverctrls, &clientctrls ))
+    if (!PyArg_ParseTuple( args, "z#z#z#|OO", &user.bv_val, &user_len, &oldpw.bv_val, &oldpw_len, &newpw.bv_val, &newpw_len, &serverctrls, &clientctrls ))
     	return NULL;
 
     user.bv_len = (ber_len_t) user_len;
@@ -1201,7 +1201,13 @@ l_ldap_passwd( LDAPObject* self, PyObject *args )
     }
 
     LDAP_BEGIN_ALLOW_THREADS( self );
-    ldaperror = ldap_passwd( self->ldap, &user, &oldpw, &newpw, server_ldcs, client_ldcs, &msgid );
+    ldaperror = ldap_passwd( self->ldap,
+            user.bv_val != NULL ? &user : NULL,
+            oldpw.bv_val != NULL ? &oldpw : NULL,
+            newpw.bv_val != NULL ? &newpw : NULL,
+            server_ldcs,
+            client_ldcs,
+            &msgid );
     LDAP_END_ALLOW_THREADS( self );
     
     LDAPControl_List_DEL( server_ldcs );
