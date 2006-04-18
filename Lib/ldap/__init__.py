@@ -9,7 +9,7 @@ $Id$
 
 # This is also the overall release version number
 
-__version__ = '2.2.0'
+__version__ = '2.2.1'
 
 import sys
 
