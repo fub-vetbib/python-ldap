@@ -5,6 +5,10 @@ Modules/
 * passwd() accepts None for arguments user, oldpw, newpw
   (see SF#1440151)
 
+Lib/
+* ldif.LDIFWriter.unparse() now accepts instances of
+  derived dict and list classes (see SF#1489898)
+
 ----------------------------------------------------------------
 Released 2.2.0 2006-04-10
 

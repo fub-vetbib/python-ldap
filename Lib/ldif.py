@@ -202,9 +202,9 @@ class LDIFWriter:
     # Start with line containing the distinguished name
     self._unparseAttrTypeandValue('dn',dn)
     # Dispatch to record type specific writers
-    if type(record)==types.DictType:
+    if isinstance(record,types.DictType):
       self._unparseEntryRecord(record)
-    elif type(record)==types.ListType:
+    elif isinstance(record,types.ListType):
       self._unparseChangeRecord(record)
     else:
       raise ValueError, "Argument record must be dictionary or list"
