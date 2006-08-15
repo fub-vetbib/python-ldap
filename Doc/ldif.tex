@@ -38,13 +38,6 @@ the rest of the python-ldap package.
 
 \subsection{Example \label{ldif-example}}
 
-The following example demonstrates how to parse an LDIF file
-with \module{ldif} module.
-
-\begin{verbatim}
-To do...
-\end{verbatim}
-
 The following example demonstrates how to write LDIF output
 of an LDAP entry with \module{ldif} module.
 
@@ -62,3 +55,29 @@ sn: Stroeder
 
 >>> 
 \end{verbatim}
+
+The following example demonstrates how to parse an LDIF file
+with \module{ldif} module, skip some entries and write the result
+to stdout.
+
+\begin{verbatim}
+import sys
+from ldif import LDIFParser, LDIFWriter
+
+skip_dn = ["uid=foo,ou=People,dc=example,dc=com", 
+    "uid=bar,ou=People,dc=example,dc=com"]
+
+class MyLDIF(LDIFParser):
+    def __init__(self, input, output):
+        LDIFParser.__init__(self, input)
+        self.writer = LDIFWriter(output)
+
+    def handle(self, dn, entry):
+        for i in skip_dn:
+            if i == dn: return
+	self.writer.unparse(dn, entry)
+
+parser = MyLDIF(open("input.ldif", 'r'), sys.stdout)
+parser.parse()
+\end{verbatim}
+
