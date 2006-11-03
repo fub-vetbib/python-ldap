@@ -63,6 +63,19 @@ modifyModlist_tests = [
     ]
   ),
 
+  (
+    {
+      'c':['DE'],
+    },
+    {
+      'c':['FR'],
+    },
+    [
+      (ldap.MOD_DELETE,'c',None),
+      (ldap.MOD_ADD,'c',['FR']),
+    ]
+  ),
+
   # Now a weird test-case for catching all possibilities
   # of removing an attribute with MOD_DELETE,attr_type,None
   (
@@ -88,6 +101,7 @@ for old_entry,new_entry,test_modlist in modifyModlist_tests:
   test_modlist.sort()
   result_modlist = modifyModlist(old_entry,new_entry)
   result_modlist.sort()
+
   if test_modlist!=result_modlist:
     print 'modifyModlist(%s,%s) returns\n%s\ninstead of\n%s.' % (
       repr(old_entry),
