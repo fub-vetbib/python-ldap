@@ -52,7 +52,7 @@ dealloc( LDAPObject* self )
 	}
 	self->ldap = NULL;
     }
-    PyMem_DEL(self);
+    PyObject_DEL(self);
 }
 
 /*------------------------------------------------------------
