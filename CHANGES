@@ -1,7 +1,10 @@
 ----------------------------------------------------------------
-Released 2.2.1 2006-05-xx
+Released 2.2.1 2006-11-15
+
+Changes since 2.2.0:
 
 Modules/
+* Fix for Python 2.5 free(): invalid pointer (see SF#1575329)
 * passwd() accepts None for arguments user, oldpw, newpw
   (see SF#1440151)
 
