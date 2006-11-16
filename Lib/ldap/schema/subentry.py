@@ -397,7 +397,7 @@ def urlfetch(uri,trace_level=0):
     ldap_url = ldapurl.LDAPUrl(uri)
     l=ldap.initialize(ldap_url.initializeUrl(),trace_level)
     l.protocol_version = ldap.VERSION3
-    l.simple_bind_s('','')
+    l.simple_bind_s(ldap_url.who or '', ldap_url.cred or '')
     subschemasubentry_dn = l.search_subschemasubentry_s(ldap_url.dn)
     if subschemasubentry_dn is None:
       subschemasubentry_entry = None
