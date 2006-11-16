@@ -144,6 +144,7 @@ LDAPinit_constants( PyObject* d )
 #ifdef LDAP_OPT_REFERRALS
 	add_int(d,OPT_REFERRALS);
 #endif
+	add_int(d,OPT_ERROR_NUMBER);
 	add_int(d,OPT_RESTART);
 	add_int(d,OPT_PROTOCOL_VERSION);
 	add_int(d,OPT_SERVER_CONTROLS);
