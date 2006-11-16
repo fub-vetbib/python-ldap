@@ -15,33 +15,6 @@ set_timeval_from_double( struct timeval *tv, double d ) {
 	tv->tv_sec = (long) floor(d);
 }
 
-/* List of attributes that that are visible through attributes */
-static struct {
-	const char *attrname;
-	int	option;
-} option_attributes[] = {
-	{ "protocol_version",	LDAP_OPT_PROTOCOL_VERSION },
-	{ "deref",		LDAP_OPT_DEREF },
-	{ "referrals",		LDAP_OPT_REFERRALS },
-	{ "timelimit",		LDAP_OPT_TIMELIMIT },
-	{ "sizelimit",		LDAP_OPT_SIZELIMIT },
-	{ "error_number",	LDAP_OPT_ERROR_NUMBER },
-	{ "error_string",	LDAP_OPT_ERROR_STRING },
-	{ "matched_dn",		LDAP_OPT_MATCHED_DN },
-};
-
-#define lengthof(a) (sizeof (a) / sizeof (a)[0])
-
-int
-LDAP_optionval_by_name(const char *name)
-{
-	int i;
-
-	for (i = 0; i < lengthof(option_attributes); i++)
-	    if (strcmp(option_attributes[i].attrname, name) == 0)
-		return option_attributes[i].option;
-	return -1;
-}
 
 int
 LDAP_set_option(LDAPObject *self, int option, PyObject *value)
@@ -156,7 +129,7 @@ LDAP_get_option(LDAPObject *self, int option)
     LDAPControl *lc;
     char *strval;
     PyObject *extensions, *v, *tup;
-    int i, num_extensions, num_controls;
+    Py_ssize_t i, num_extensions, num_controls;
     LDAP *ld;
 
     ld = self ? self->ldap : NULL;

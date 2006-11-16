@@ -210,7 +210,7 @@ LDAPMods_DEL( LDAPMod** lms ) {
 static LDAPMod**
 List_to_LDAPMods( PyObject *list, int no_op ) {
 
-    int i, len;
+    Py_ssize_t i, len;
     LDAPMod** lms;
     PyObject *item;
 
@@ -263,7 +263,7 @@ int
 attrs_from_List( PyObject *attrlist, char***attrsp ) {
 
     char **attrs = NULL;
-    int i, len;
+    Py_ssize_t i, len;
     PyObject *item;
 
     if (attrlist == Py_None) {
@@ -701,6 +701,53 @@ l_ldap_sasl_interactive_bind_s( LDAPObject* self, PyObject* args )
     	return LDAPerror( self->ldap, "ldap_sasl_interactive_bind_s" );
     return PyInt_FromLong( msgid );
 }
+#endif
+
+
+#ifdef LDAP_API_FEATURE_CANCEL
+
+/* ldap_cancel */
+
+static PyObject*
+l_ldap_cancel( LDAPObject* self, PyObject* args )
+{
+    int msgid;
+    int cancelid;
+    PyObject *serverctrls = Py_None;
+    PyObject *clientctrls = Py_None;
+    LDAPControl** server_ldcs = NULL;
+    LDAPControl** client_ldcs = NULL;
+
+    int ldaperror;
+
+    if (!PyArg_ParseTuple( args, "i|OO", &cancelid, &serverctrls, &clientctrls)) return NULL;
+    if (not_valid(self)) return NULL;
+
+    if (!PyNone_Check(serverctrls)) {
+        server_ldcs = List_to_LDAPControls(serverctrls);
+        if (server_ldcs == NULL)
+            return NULL;
+    }
+
+    if (!PyNone_Check(clientctrls)) {
+        client_ldcs = List_to_LDAPControls(clientctrls);
+        if (client_ldcs == NULL)
+            return NULL;
+    }
+
+    LDAP_BEGIN_ALLOW_THREADS( self );
+    ldaperror = ldap_cancel( self->ldap, cancelid, server_ldcs, client_ldcs, &msgid );
+    LDAP_END_ALLOW_THREADS( self );
+
+    LDAPControl_List_DEL( server_ldcs );
+    LDAPControl_List_DEL( client_ldcs );
+
+    if ( ldaperror!=LDAP_SUCCESS )
+    	return LDAPerror( self->ldap, "ldap_cancel" );
+
+    return PyInt_FromLong( msgid );
+}
+
 #endif
 
 /* ldap_compare_ext */
@@ -1245,6 +1292,9 @@ static PyMethodDef methods[] = {
 #if defined(FILENO_SUPPORTED)
     {"fileno",		(PyCFunction)l_ldap_fileno,		METH_VARARGS },
 #endif
+#ifdef LDAP_API_FEATURE_CANCEL
+    {"cancel",		(PyCFunction)l_ldap_cancel,		METH_VARARGS },
+#endif
     { NULL, NULL }
 };
 
@@ -1253,12 +1303,6 @@ static PyMethodDef methods[] = {
 static PyObject*
 getattr(LDAPObject* self, char* name) 
 {
-	int option;
-
-	option = LDAP_optionval_by_name(name);
-	if (option != -1)
-		return LDAP_get_option(self, option);
-
 	return Py_FindMethod(methods, (PyObject*)self, name);
 }
 
@@ -1267,12 +1311,6 @@ getattr(LDAPObject* self, char* name)
 static int
 setattr(LDAPObject* self, char* name, PyObject* value) 
 {
-	int option;
-
-	option = LDAP_optionval_by_name(name);
-	if (option != -1)
-		return LDAP_set_option(self, option, value);
-
 	PyErr_SetString(PyExc_AttributeError, name);
 	return -1;
 }

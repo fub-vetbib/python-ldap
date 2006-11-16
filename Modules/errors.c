@@ -18,7 +18,13 @@ LDAPexception_class;
 /* list of error objects */
 
 #define LDAP_ERROR_MIN          LDAP_REFERRAL_LIMIT_EXCEEDED
+
+#ifdef LDAP_ASSERTION_FAILED
+#define LDAP_ERROR_MAX          LDAP_ASSERTION_FAILED
+#elif
 #define LDAP_ERROR_MAX          LDAP_OTHER
+#endif
+
 #define LDAP_ERROR_OFFSET       -LDAP_ERROR_MIN
 
 static PyObject* errobjects[ LDAP_ERROR_MAX-LDAP_ERROR_MIN+1 ];
@@ -189,4 +195,12 @@ LDAPinit_errors( PyObject*d ) {
 	seterrobj(UNDEFINED_TYPE);
 	seterrobj(UNWILLING_TO_PERFORM);
 	seterrobj(USER_CANCELLED);
+
+#ifdef LDAP_API_FEATURE_CANCEL
+	seterrobj(CANCELLED);
+	seterrobj(NO_SUCH_OPERATION);
+	seterrobj(TOO_LATE);
+	seterrobj(CANNOT_CANCEL);
+#endif
+
 }

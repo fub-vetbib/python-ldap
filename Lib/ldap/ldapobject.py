@@ -46,13 +46,15 @@ class SimpleLDAPObject:
   """
 
   CLASSATTR_OPTION_MAPPING = {
-    # taken from Modules/options.h
     "protocol_version":   ldap.OPT_PROTOCOL_VERSION,
     "deref":              ldap.OPT_DEREF,
     "referrals":          ldap.OPT_REFERRALS,
     "timelimit":          ldap.OPT_TIMELIMIT,
     "sizelimit":          ldap.OPT_SIZELIMIT,
     "network_timeout":    ldap.OPT_NETWORK_TIMEOUT,
+    "error_number":ldap.OPT_ERROR_NUMBER,
+    "error_string":ldap.OPT_ERROR_STRING,
+    "matched_dn":ldap.OPT_MATCHED_DN,
   }
 
   def __init__(
@@ -133,6 +135,26 @@ class SimpleLDAPObject:
 
   def abandon(self,msgid):
     return self.abandon_ext(msgid,None,None)
+
+  def cancel(self,cancelid,serverctrls=None,clientctrls=None):
+    """
+    cancel(cancelid[,serverctrls=None[,clientctrls=None]]) -> int
+        Send cancels extended operation for an LDAP operation specified by cancelid.
+	The cancelid should be the message id of an outstanding LDAP operation as returned
+        by the asynchronous methods search(), modify() etc.  The caller
+        can expect that the result of an abandoned operation will not be
+        returned from a future call to result().
+	In opposite to abandon() this extended operation gets an result from
+	the server and thus should be preferred if the server supports it.
+    """
+    return self._ldap_call(self._l.cancel,cancelid,EncodeControlTuples(serverctrls),EncodeControlTuples(clientctrls))
+
+  def cancel_s(self,cancelid,serverctrls=None,clientctrls=None):
+    msgid = self.cancel(cancelid,serverctrls,clientctrls)
+    try:
+      res = self.result(msgid,all=1,timeout=self.timeout)
+    except (ldap.CANCELLED,ldap.SUCCESS):
+      pass
 
   def add_ext(self,dn,modlist,serverctrls=None,clientctrls=None):
     """
