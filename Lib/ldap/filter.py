@@ -10,19 +10,39 @@ Compability:
 - Tested with Python 2.0+
 """
 
-__version__ = '0.0.2'
+__version__ = '0.0.3'
 
 
-def escape_filter_chars(assertion_value):
+def escape_filter_chars(assertion_value,escape_mode=0):
   """
   Replace all special characters found in assertion_value
-  by quoted notation  
+  by quoted notation.
+  
+  escape_mode
+  	If 0 only special chars mentioned in RFC 2254
+	are escaped.
+  	If 1 all NON-ASCII chars are escaped.
+  	If 2 all chars are escaped.
   """
-  s = assertion_value.replace('\\', r'\5c')
-  s = s.replace(r'*', r'\2a')
-  s = s.replace(r'(', r'\28')
-  s = s.replace(r')', r'\29')
-  s = s.replace('\x00', r'\00')
+  if escape_mode:
+    r = []
+    if escape_mode==1:
+      for c in assertion_value:
+	if c < '0' or c > 'z' or c in "\\*()":
+          c = "\\%02x" % ord(c)
+	r.append(c)
+    elif escape_mode==2:
+      for c in assertion_value:
+	r.append("\\%02x" % ord(c))
+    else:
+      raise ValueError('escape_mode must be 0, 1 or 2.')
+    s = ''.join(r)
+  else:
+    s = assertion_value.replace('\\', r'\5c')
+    s = s.replace(r'*', r'\2a')
+    s = s.replace(r'(', r'\28')
+    s = s.replace(r')', r'\29')
+    s = s.replace('\x00', r'\00')
   return s 
 
 
