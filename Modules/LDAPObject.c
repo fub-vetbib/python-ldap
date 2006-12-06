@@ -5,12 +5,11 @@
  * $Id$
  */
 
-#include "Python.h"
+#include "common.h"
 #include "patchlevel.h"
 
 #include <math.h>
 #include <limits.h>
-#include "common.h"
 #include "errors.h"
 #include "constants.h"
 #include "LDAPObject.h"
@@ -79,7 +78,7 @@ not_valid( LDAPObject* l ) {
 static void
 LDAPMod_DEL( LDAPMod* lm )
 {
-    int i;
+    Py_ssize_t i;
 
     if (lm->mod_type)
 	PyMem_DEL(lm->mod_type);
@@ -111,7 +110,7 @@ Tuple_to_LDAPMod( PyObject* tup, int no_op )
     char *type;
     PyObject *list, *item;
     LDAPMod *lm = NULL;
-    int i, len, nstrs;
+    Py_ssize_t i, len, nstrs;
 
     if (!PyTuple_Check(tup)) {
 	PyErr_SetObject(PyExc_TypeError, Py_BuildValue("sO",
@@ -466,7 +465,7 @@ l_ldap_simple_bind( LDAPObject* self, PyObject* args )
     char *who;
     int msgid;
     int ldaperror;
-    int cred_len;
+    Py_ssize_t cred_len;
     PyObject *serverctrls = Py_None;
     PyObject *clientctrls = Py_None;
     LDAPControl** server_ldcs = NULL;
@@ -763,7 +762,7 @@ l_ldap_compare_ext( LDAPObject* self, PyObject *args )
 
     int msgid;
     int ldaperror;
-    int value_len;
+    Py_ssize_t value_len;
     struct berval value;
 
     if (!PyArg_ParseTuple( args, "sss#|OO", &dn, &attr, &value.bv_val, &value_len, &serverctrls, &clientctrls )) return NULL;
@@ -1213,11 +1212,11 @@ static PyObject *
 l_ldap_passwd( LDAPObject* self, PyObject *args )
 {
     struct berval user;
-    int user_len;
+    Py_ssize_t user_len;
     struct berval oldpw;
-    int oldpw_len;
+    Py_ssize_t oldpw_len;
     struct berval newpw;
-    int newpw_len;
+    Py_ssize_t newpw_len;
     PyObject *serverctrls = Py_None;
     PyObject *clientctrls = Py_None;
     LDAPControl** server_ldcs = NULL;

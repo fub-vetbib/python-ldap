@@ -4,7 +4,7 @@
 
 /* $Id$ */
 
-#include "Python.h"
+#include "common.h"
 extern void LDAPinit_version( PyObject* d );
 
 #endif /* __h_version_ */

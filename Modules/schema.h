@@ -10,7 +10,6 @@
 
 
 
-#include "Python.h"
 #include "common.h"
 extern void LDAPinit_schema( PyObject* );
 

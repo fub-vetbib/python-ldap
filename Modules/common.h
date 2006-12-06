@@ -5,10 +5,12 @@
  * $Id$ 
  */
 
-#include "Python.h"
-
 #ifndef __h_common 
 #define __h_common 
+
+#define PY_SSIZE_T_CLEAN
+
+#include "Python.h"
 
 #if defined(HAVE_CONFIG_H)
 #include "config.h"

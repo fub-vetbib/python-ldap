@@ -4,7 +4,7 @@
 #ifndef __h_errors_
 #define __h_errors_
 
-#include "Python.h"
+#include "common.h"
 #include "lber.h"
 #include "ldap.h"
 

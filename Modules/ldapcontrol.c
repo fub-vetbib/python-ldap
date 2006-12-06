@@ -75,7 +75,7 @@ Tuple_to_LDAPControl( PyObject* tup )
     struct berval berbytes;
     PyObject *bytes;
     LDAPControl *lc = NULL;
-    int len;
+    Py_ssize_t len;
 
     if (!PyTuple_Check(tup)) {
 	PyErr_SetObject(PyExc_TypeError, Py_BuildValue("sO",

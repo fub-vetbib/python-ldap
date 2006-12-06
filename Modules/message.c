@@ -83,7 +83,7 @@ LDAPmessage_to_python( LDAP*ld, LDAPMessage*m )
 	     }
 
 	     if (bvals != NULL) {
-	        int i;
+	        Py_ssize_t i;
 		for (i=0; bvals[i]; i++) {
 		    PyObject *valuestr;
 
@@ -137,7 +137,7 @@ LDAPmessage_to_python( LDAP*ld, LDAPMessage*m )
 	     return LDAPerror( ld, "ldap_parse_reference" );
 	 }
 	 if (refs) {
-	     int i;
+	     Py_ssize_t i;
 	     for (i=0; refs[i] != NULL; i++) {
 		 PyObject *refstr = PyString_FromString(refs[i]);
 		 PyList_Append(reflist, refstr);

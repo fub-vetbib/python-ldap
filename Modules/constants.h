@@ -4,7 +4,7 @@
 
 /* $Id$ */
 
-#include "Python.h"
+#include "common.h"
 extern void LDAPinit_constants( PyObject* d );
 extern PyObject* LDAPconstant( int );
 

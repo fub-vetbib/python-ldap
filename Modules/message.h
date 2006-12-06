@@ -4,7 +4,7 @@
 
 /* $Id$ */
 
-#include "Python.h"
+#include "common.h"
 #include "lber.h"
 #include "ldap.h"
 

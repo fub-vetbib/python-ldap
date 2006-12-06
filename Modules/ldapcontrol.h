@@ -5,7 +5,7 @@
 #ifndef __h_ldapcontrol
 #define __h_ldapcontrol
 
-#include "Python.h"
+#include "common.h"
 #include "ldap.h"
 
 void LDAPinit_control(PyObject *d);

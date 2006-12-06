@@ -4,7 +4,7 @@
 
 /* $Id$ */
 
-#include "Python.h"
+#include "common.h"
 extern void LDAPinit_functions( PyObject* );
 
 #endif /* __h_functions_ */
