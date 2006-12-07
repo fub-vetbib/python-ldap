@@ -1,4 +1,28 @@
 ----------------------------------------------------------------
+Released 2.3.0 2006-12-xx
+
+Changes since 2.2.1:
+
+* OpenLDAP 2.3+ required now to build.
+* Added support for Cancel operation ext. op. if supported
+in OpenLDAP API of the libs used for the build.
+
+Modules/
+* Removed deprecated code for setting options by name
+* Added l_ldap_cancel()
+* Some modifications related to PEP 353 for
+  Python 2.5 on 64-bit platforms (see SF#1467529)
+
+Lib/
+* Added method ldapobject.LDAPObject.cancel()
+* ldap.schema.subentry.urlfetch() now can do non-anonymous
+  simple bind if the LDAP URL provided contains extensions
+  'bindname' and 'X-BINDPW'. (see SF#1589206)
+* ldap.filter.escape_filter_chars() has new a key-word argument
+  escape_mode now which defines which chars to be escaped
+  (see SF#1193271).
+
+----------------------------------------------------------------
 Released 2.2.1 2006-11-15
 
 Changes since 2.2.0:
