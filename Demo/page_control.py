@@ -3,7 +3,7 @@ base = "dc=stroeder,dc=de"
 search_flt = r'(objectClass=*)'
 page_size = 10
 
-import _ldap,ldap
+import ldap
 from ldap.controls import SimplePagedResultsControl
 
 ldap.set_option(ldap.OPT_REFERRALS, 0)
