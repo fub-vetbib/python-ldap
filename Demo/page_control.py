@@ -11,7 +11,9 @@ l = ldap.initialize(url)
 l.protocol_version = 3
 l.simple_bind_s("", "")
 
-lc = SimplePagedResultsControl(ldap.LDAP_CONTROL_PAGE_OID,True,(page_size,''))
+lc = SimplePagedResultsControl(
+  ldap.LDAP_CONTROL_PAGE_OID,True,(page_size,'')
+)
 
 # Send search request
 msgid = l.search_ext(
@@ -27,7 +29,11 @@ while True:
     print "Getting page %d" % (pages,)
     rtype, rdata, rmsgid, serverctrls = l.result3(msgid)
     print '%d results' % len(rdata)
-    pctrls = [c for c in serverctrls if c.controlType == ldap.LDAP_CONTROL_PAGE_OID]
+    pctrls = [
+      c
+      for c in serverctrls
+      if c.controlType == ldap.LDAP_CONTROL_PAGE_OID
+    ]
     if pctrls:
         est, cookie = pctrls[0].controlValue
         if cookie:
