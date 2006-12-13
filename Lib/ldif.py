@@ -10,7 +10,7 @@ Python compability note:
 Tested with Python 2.0+, but should work with Python 1.5.2+.
 """
 
-__version__ = '0.5.3'
+__version__ = '0.5.4'
 
 __all__ = [
   # constants
@@ -24,7 +24,7 @@ __all__ = [
   'LDIFCopy',
 ]
 
-import string,urlparse,urllib,base64,re,types
+import urlparse,urllib,base64,re,types
 
 try:
   from cStringIO import StringIO
@@ -77,10 +77,7 @@ def list_dict(l):
   """
   return a dictionary with all items of l being the keys of the dictionary
   """
-  d = {}
-  for i in l:
-    d[i]=None
-  return d
+  return dict([(i,None) for i in l])
 
 
 class LDIFWriter:
@@ -103,7 +100,7 @@ class LDIFWriter:
         String used as line separator
     """
     self._output_file = output_file
-    self._base64_attrs = list_dict(map(string.lower,(base64_attrs or [])))
+    self._base64_attrs = list_dict(a.lower() for a in (base64_attrs or []))
     self._cols = cols
     self._line_sep = line_sep
     self.records_written = 0
@@ -138,16 +135,12 @@ class LDIFWriter:
     attr_value
           attribute value
     """
-    if self._base64_attrs.has_key(string.lower(attr_type)) or \
+    if self._base64_attrs.has_key(attr_type.lower()) or \
        needs_base64(attr_value):
       # Encode with base64
-      self._unfoldLDIFLine(string.join(
-        [attr_type,string.replace(base64.encodestring(attr_value),'\n','')],':: '
-      ))
+      self._unfoldLDIFLine(':: '.join([attr_type,base64.encodestring(attr_value).replace('\n','')]))
     else:
-      self._unfoldLDIFLine(string.join(
-        [attr_type,attr_value],': '
-      ))
+      self._unfoldLDIFLine(': '.join([attr_type,attr_value]))
     return # _unparseAttrTypeandValue()
 
   def _unparseEntryRecord(self,entry):
@@ -253,9 +246,7 @@ class LDIFParser:
     """
     Strip trailing line separators from s, but no other whitespaces
     """
-    if not s:
-      return s
-    elif s[-2:]=='\r\n':
+    if s[-2:]=='\r\n':
       return s[:-2]
     elif s[-1]=='\n':
       return s[:-1]
@@ -288,8 +279,8 @@ class LDIFParser:
     """
     self._input_file = input_file
     self._max_entries = max_entries
-    self._process_url_schemes = list_dict(map(string.lower,(process_url_schemes or [])))
-    self._ignored_attr_types = list_dict(map(string.lower,(ignored_attr_types or [])))
+    self._process_url_schemes = list_dict([s.lower() for s in (process_url_schemes or [])])
+    self._ignored_attr_types = list_dict([a.lower() for a in (ignored_attr_types or []))
     self._line_sep = line_sep
     self.records_read = 0
 
@@ -303,12 +294,12 @@ class LDIFParser:
     """
     Unfold several folded lines with trailing space into one line
     """
-    unfolded_line = self._stripLineSep(self._line)
+    unfolded_lines = [ self._stripLineSep(self._line) ]
     self._line = self._input_file.readline()
     while self._line and self._line[0]==' ':
-      unfolded_line = unfolded_line+self._stripLineSep(self._line[1:])
+      unfolded_lines = unfolded_lines.append(self._stripLineSep(self._line[1:]))
       self._line = self._input_file.readline()
-    return unfolded_line
+    return unfolded_lines.join('')
 
   def _parseAttrTypeandValue(self):
     """
@@ -323,7 +314,7 @@ class LDIFParser:
     if not unfolded_line or unfolded_line=='\n' or unfolded_line=='\r\n':
       return None,None
     try:
-      colon_pos = string.index(unfolded_line,':')
+      colon_pos = unfolded_line.index(':')
     except ValueError:
       # Treat malformed lines without colon as non-existent
       return None,None
@@ -335,7 +326,7 @@ class LDIFParser:
       attr_value = base64.decodestring(unfolded_line[colon_pos+2:])
     elif value_spec==':<':
       # fetch attribute value from URL
-      url = string.strip(unfolded_line[colon_pos+2:])
+      url = unfolded_line[colon_pos+2:].strip()
       attr_value = None
       if self._process_url_schemes:
         u = urlparse.urlparse(url)
@@ -344,7 +335,7 @@ class LDIFParser:
     elif value_spec==':\r\n' or value_spec=='\n':
       attr_value = ''
     else:
-      attr_value = string.lstrip(unfolded_line[colon_pos+2:])
+      attr_value = unfolded_line[colon_pos+2:].lstrip()
     return attr_type,attr_value
 
   def parse(self):
@@ -381,7 +372,7 @@ class LDIFParser:
 	    raise ValueError, 'changetype value %s is invalid.' % (repr(attr_value))
           dn = attr_value
         elif attr_value!=None and \
-             not self._ignored_attr_types.has_key(string.lower(attr_type)):
+             not self._ignored_attr_types.has_key(attr_type.lower()):
           # Add the attribute to the entry if not ignored attribute
           if entry.has_key(attr_type):
             entry[attr_type].append(attr_value)
