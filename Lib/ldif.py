@@ -248,7 +248,7 @@ class LDIFParser:
     """
     if s[-2:]=='\r\n':
       return s[:-2]
-    elif s[-1]=='\n':
+    elif s[-1:]=='\n':
       return s[:-1]
     else:
       return s
