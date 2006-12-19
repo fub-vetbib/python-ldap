@@ -280,7 +280,7 @@ class LDIFParser:
     self._input_file = input_file
     self._max_entries = max_entries
     self._process_url_schemes = list_dict([s.lower() for s in (process_url_schemes or [])])
-    self._ignored_attr_types = list_dict([a.lower() for a in (ignored_attr_types or []))
+    self._ignored_attr_types = list_dict([a.lower() for a in (ignored_attr_types or [])])
     self._line_sep = line_sep
     self.records_read = 0
 
