@@ -810,6 +810,9 @@ class ReconnectLDAPObject(SimpleLDAPObject):
   def search_ext_s(self,*args,**kwargs):
     return self._apply_method_s(SimpleLDAPObject.search_ext_s,*args,**kwargs)
 
+  def whoami_s(self,*args,**kwargs):
+    return self._apply_method_s(SimpleLDAPObject.whoami_s,*args,**kwargs)
+
 
 class SmartLDAPObject(ReconnectLDAPObject):
   """
