@@ -21,6 +21,7 @@ Lib/
 * ldap.filter.escape_filter_chars() has new a key-word argument
   escape_mode now which defines which chars to be escaped
   (see SF#1193271).
+* Various important fixes to ldapobject.ReconnectLDAPObject
 
 ----------------------------------------------------------------
 Released 2.2.1 2006-11-15
