@@ -40,6 +40,8 @@ def escape_dn_chars(s):
 
 
 def str2dn(dn,flags=0):
+  if not dn:
+    return []
   return ldap.functions._ldap_function_call(_ldap.str2dn,dn,flags)
 
 
