@@ -45,5 +45,6 @@ else:
 # into underlying LDAP lib
 _ldap_module_lock = LDAPLock()
 
-from functions import open,initialize,init,explode_dn,explode_rdn,get_option,set_option
+from functions import open,initialize,init,get_option,set_option
 
+from ldap.dn import explode_dn,explode_rdn
