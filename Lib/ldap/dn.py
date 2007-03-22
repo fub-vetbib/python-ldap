@@ -40,10 +40,26 @@ def escape_dn_chars(s):
 
 
 def str2dn(dn,flags=0):
+  """
+  This function takes a DN as string as parameter and returns
+  a decomposed DN. It's the inverse to dn2str().
+  """
   if not dn:
     return []
   return ldap.functions._ldap_function_call(_ldap.str2dn,dn,flags)
 
+
+def dn2str(dn):
+  """
+  This function takes a decomposed DN as parameter and returns
+  a single string. It's the inverse to str2dn().
+  """
+  return ','.join([
+    '+'.join([
+      '='.join((atype,escape_dn_chars(avalue or '')))
+      for atype,avalue,dummy in rdn])
+    for rdn in dn
+  ])
 
 def explode_dn(dn,notypes=0):
   """
@@ -59,9 +75,15 @@ def explode_dn(dn,notypes=0):
   rdn_list = []
   for rdn in dn_decomp:
     if notypes:
-      rdn_list.append('+'.join([escape_dn_chars(avalue or '') for atype,avalue,dummy in rdn]))
+      rdn_list.append('+'.join([
+        escape_dn_chars(avalue or '')
+	for atype,avalue,dummy in rdn
+      ]))
     else:
-      rdn_list.append('+'.join(['='.join((atype,escape_dn_chars(avalue or ''))) for atype,avalue,dummy in rdn]))
+      rdn_list.append('+'.join([
+        '='.join((atype,escape_dn_chars(avalue or '')))
+	for atype,avalue,dummy in rdn
+      ]))
   return rdn_list
 
 
