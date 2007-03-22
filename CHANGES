@@ -28,6 +28,7 @@ Lib/
   import them in ldap.functions for backward compability
 * ldap.dn.explode_dn() and ldap.dn.explode_rdn() use the new
   wrapper function ldap.dn.str2dn() (related to SF#1657848)
+* changetype issue partially fixed (see SF#1683746)
 
 ----------------------------------------------------------------
 Released 2.2.1 2006-11-15

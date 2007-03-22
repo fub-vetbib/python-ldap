@@ -370,7 +370,7 @@ class LDIFParser:
 	    raise ValueError, 'Two lines starting with changetype: in one record.'
           if not valid_changetype_dict.has_key(attr_value):
 	    raise ValueError, 'changetype value %s is invalid.' % (repr(attr_value))
-          dn = attr_value
+          changetype = attr_value
         elif attr_value!=None and \
              not self._ignored_attr_types.has_key(attr_type.lower()):
           # Add the attribute to the entry if not ignored attribute
