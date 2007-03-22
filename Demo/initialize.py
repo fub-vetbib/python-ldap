@@ -25,7 +25,7 @@ print """##################################################################
 """
 
 # Create LDAPObject instance
-l = ldap.initialize('ldap://localhost:1389',trace_level=ldapmodule_trace_level,trace_file=ldapmodule_trace_file)
+l = ldap.initialize('ldap://localhost:1390',trace_level=ldapmodule_trace_level,trace_file=ldapmodule_trace_file)
 # Set LDAP protocol version used
 l.protocol_version=ldap.VERSION3
 l.set_option(ldap.OPT_X_TLS,ldap.OPT_X_TLS_DEMAND)
