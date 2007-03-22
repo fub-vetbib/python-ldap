@@ -19,7 +19,7 @@ Basically calls into the LDAP lib are serialized by the module-wide
 lock _ldapmodule_lock.
 """
 
-__version__ = '0.1.1'
+__version__ = '0.1.2'
 
 __all__ = [
   'open','initialize','init',
