@@ -24,12 +24,14 @@ __version__ = '0.1.1'
 __all__ = [
   'open','initialize','init',
   'explode_dn','explode_rdn',
-  'get_option','set_option'
+  'get_option','set_option',
 ]
 
 import sys,_ldap
 
 from ldap import _ldap_module_lock,LDAPError
+
+from ldap.dn import explode_dn,explode_rdn
 
 from ldap.ldapobject import LDAPObject
 
@@ -104,29 +106,6 @@ def open(host,port=389,trace_level=0,trace_file=sys.stdout,trace_stack_limit=Non
   return initialize('ldap://%s:%d' % (host,port),trace_level,trace_file,trace_stack_limit)
 
 init = open
-
-
-def explode_dn(dn,notypes=0):
-  """
-  explode_dn(dn [, notypes=0]) -> list
-  
-  This function takes a DN and breaks it up into its component parts.
-  The notypes parameter is used to specify that only the component's
-  attribute values be returned and not the attribute types.
-  """
-  return _ldap_function_call(_ldap.explode_dn,dn,notypes)
-
-
-def explode_rdn(rdn,notypes=0):
-  """
-  explode_rdn(rdn [, notypes=0]) -> list
-  
-  This function takes a RDN and breaks it up into its component parts
-  if it is a multi-valued RDN.
-  The notypes parameter is used to specify that only the component's
-  attribute values be returned and not the attribute types.
-  """
-  return _ldap_function_call(_ldap.explode_rdn,rdn,notypes)
 
 
 def get_option(option):

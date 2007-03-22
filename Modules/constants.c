@@ -189,6 +189,25 @@ LDAPinit_constants( PyObject* d )
 	add_int(d,OPT_X_SASL_SECPROPS);
 	add_int(d,OPT_X_SASL_SSF_MIN);
 	add_int(d,OPT_X_SASL_SSF_MAX);
+
+	add_int(d,DN_FORMAT_LDAP);
+	add_int(d,DN_FORMAT_LDAPV3);
+	add_int(d,DN_FORMAT_LDAPV2);
+	add_int(d,DN_FORMAT_DCE);
+	add_int(d,DN_FORMAT_UFN);
+	add_int(d,DN_FORMAT_AD_CANONICAL);
+	/* add_int(d,DN_FORMAT_LBER); */    /* "for testing only" */
+	add_int(d,DN_FORMAT_MASK);
+	add_int(d,DN_PRETTY);
+	add_int(d,DN_SKIP);
+	add_int(d,DN_P_NOLEADTRAILSPACES);
+	add_int(d,DN_P_NOSPACEAFTERRDN);
+	add_int(d,DN_PEDANTIC);
+
+	add_int(d,AVA_NULL);
+	add_int(d,AVA_STRING);
+	add_int(d,AVA_BINARY);
+	add_int(d,AVA_NONPRINTABLE);
 	
 	/*add_int(d,OPT_ON);*/
 	obj = PyInt_FromLong(1);
@@ -208,7 +227,7 @@ LDAPinit_constants( PyObject* d )
 
 	/* author */
 
-	author = PyString_FromString("David Leonard <leonard@it.uq.edu.au>");
+	author = PyString_FromString("python-ldap-dev@lists.sf.net");
 	PyDict_SetItemString(d, "__author__", author);
 	Py_DECREF(author);
 

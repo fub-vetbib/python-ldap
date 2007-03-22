@@ -31,61 +31,79 @@ l_ldap_initialize(PyObject* unused, PyObject *args)
     return (PyObject*)newLDAPObject(ld);
 }
 
-/* ldap_explode_dn */
+
+/* ldap_str2dn */
 
 static PyObject*
-l_ldap_explode_dn( PyObject* unused, PyObject *args )
+l_ldap_str2dn( PyObject* unused, PyObject *args )
 {
-    char *dn;
-    int notypes = 0;
-    char **exploded;
-    PyObject *result;
-    int i;
+    struct berval str;
+    LDAPDN dn;
+    int flags = 0;
+    PyObject *result = NULL, *tmp;
+    int res, i, j;
 
-    if (!PyArg_ParseTuple( args, "s|i", &dn, &notypes )) return NULL;
+    /*
+     * From a DN string such as "a=b,c=d;e=f", build
+     * a list-equivalent of AVA structures; namely:
+     * ((('a','b',1),('c','d',1)),(('e','f',1),))
+     * The integers are a bit combination of the AVA_* flags
+     */
+    if (!PyArg_ParseTuple( args, "z#|i:str2dn", 
+	    &str.bv_val, &str.bv_len, &flags )) 
+	return NULL;
 
-    exploded = ldap_explode_dn(dn, notypes);
+    res = ldap_bv2dn(&str, &dn, flags);
+    if (res != LDAP_SUCCESS)
+	return LDAPerr(res);
 
-    if (exploded == NULL) 
-    	return PyErr_SetFromErrno(LDAPexception_class);
+    tmp = PyList_New(0);
+    if (!tmp)
+	goto failed;
 
-    result = PyList_New(0);
-    for(i = 0; exploded[i]; i++) {
-	PyObject *s = PyString_FromString(exploded[i]);
-    	PyList_Append(result, s);
-	Py_DECREF(s);
+    for (i = 0; dn[i]; i++) {
+	LDAPRDN rdn;
+	PyObject *rdnlist;
+
+	rdn = dn[i];
+	rdnlist = PyList_New(0);
+	if (!rdnlist)
+	    goto failed;
+	if (PyList_Append(tmp, rdnlist) == -1) {
+	    Py_DECREF(rdnlist);
+	    goto failed;
+	}
+
+	for (j = 0; rdn[j]; j++) {
+	    LDAPAVA *ava = rdn[j];
+	    PyObject *tuple;
+
+	    tuple = Py_BuildValue("(s#s#i)", 
+		ava->la_attr.bv_val,
+		ava->la_attr.bv_len,
+		ava->la_value.bv_val,
+		ava->la_value.bv_len,
+		ava->la_flags & ~(LDAP_AVA_FREE_ATTR|LDAP_AVA_FREE_VALUE));
+	    if (!tuple) {
+		Py_DECREF(rdnlist);
+		goto failed;
+	    }
+
+	    if (PyList_Append(rdnlist, tuple) == -1) {
+		Py_DECREF(tuple);
+		goto failed;
+	    }
+	    Py_DECREF(tuple);
+	}
+	Py_DECREF(rdnlist);
     }
 
-    ldap_value_free(exploded);
-    return result;
-}
+    result = tmp;
+    tmp = NULL;
 
-/* ldap_explode_rdn */
-
-static PyObject*
-l_ldap_explode_rdn( PyObject* unused, PyObject *args )
-{
-    char *rdn;
-    int notypes = 0;
-    char **exploded;
-    PyObject *result;
-    int i;
-
-    if (!PyArg_ParseTuple( args, "s|i", &rdn, &notypes )) return NULL;
-
-    exploded = ldap_explode_rdn(rdn, notypes);
-
-    if (exploded == NULL) 
-    	return PyErr_SetFromErrno(LDAPexception_class);
-
-    result = PyList_New(0);
-    for(i = 0; exploded[i]; i++) {
-	PyObject *s = PyString_FromString(exploded[i]);
-    	PyList_Append(result, s);
-	Py_DECREF(s);
-    }
-
-    ldap_value_free(exploded);
+failed:
+    Py_XDECREF(tmp);
+    ldap_dnfree(dn);
     return result;
 }
 
@@ -122,8 +140,8 @@ l_ldap_get_option(PyObject* self, PyObject *args)
 
 static PyMethodDef methods[] = {
     { "initialize",	(PyCFunction)l_ldap_initialize,		METH_VARARGS },
-    { "explode_dn",	(PyCFunction)l_ldap_explode_dn,		METH_VARARGS },
-    { "explode_rdn",	(PyCFunction)l_ldap_explode_rdn,	METH_VARARGS },
+    { "dn2str",	    (PyCFunction)l_ldap_dn2str,			METH_VARARGS },
+    { "str2dn",	    (PyCFunction)l_ldap_str2dn,			METH_VARARGS },
     { "set_option", (PyCFunction)l_ldap_set_option,		METH_VARARGS },
     { "get_option", (PyCFunction)l_ldap_get_option,		METH_VARARGS },
     { NULL, NULL }

@@ -12,6 +12,8 @@ Modules/
 * Added l_ldap_cancel()
 * Some modifications related to PEP 353 for
   Python 2.5 on 64-bit platforms (see SF#1467529)
+* Added new function l_ldap_str2dn(), removed functions
+  l_ldap_explode_dn() and l_ldap_explode_rdn() (see SF#1657848)
 
 Lib/
 * Added method ldapobject.LDAPObject.cancel()
@@ -22,6 +24,10 @@ Lib/
   escape_mode now which defines which chars to be escaped
   (see SF#1193271).
 * Various important fixes to ldapobject.ReconnectLDAPObject
+* Moved all DN-related functions to sub-module ldap.dn,
+  import them in ldap.functions for backward compability
+* ldap.dn.explode_dn() and ldap.dn.explode_rdn() use the new
+  wrapper function ldap.dn.str2dn() (related to SF#1657848)
 
 ----------------------------------------------------------------
 Released 2.2.1 2006-11-15
