@@ -140,7 +140,6 @@ l_ldap_get_option(PyObject* self, PyObject *args)
 
 static PyMethodDef methods[] = {
     { "initialize",	(PyCFunction)l_ldap_initialize,		METH_VARARGS },
-    { "dn2str",	    (PyCFunction)l_ldap_dn2str,			METH_VARARGS },
     { "str2dn",	    (PyCFunction)l_ldap_str2dn,			METH_VARARGS },
     { "set_option", (PyCFunction)l_ldap_set_option,		METH_VARARGS },
     { "get_option", (PyCFunction)l_ldap_get_option,		METH_VARARGS },
