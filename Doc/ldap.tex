@@ -10,7 +10,7 @@
 
 \declaremodule{extension}{ldap}		% not standard, in C
 
-\platform{UNIX}
+\platform{UNIX,Windows}
 
 % Author of the module code;
 \moduleauthor{Michael Str\"oder}{python-ldap-dev@lists.sourceforge.net}
@@ -27,8 +27,8 @@
 % Mention other important restrictions or general operating principles.
 
 This module provides access to the LDAP
-(Lightweight Directory Access Protocol) \C\ API implented
-in OpenLDAP 2.
+(Lightweight Directory Access Protocol) \C\ API implemented
+in OpenLDAP 2.3 or newer.
 It is similar to the C API, with the notable differences
 that lists are manipulated via Python
 list operations and errors appear as exceptions.
@@ -571,6 +571,22 @@ be \constant{AUTH_SIMPLE}.
 \begin{methoddesc}[None]{sasl_interactive_bind_s}{who, auth} % -> None
 This call is used to bind to the directory with a SASL bind request.
 \end{methoddesc}
+
+%%------------------------------------------------------------
+%% 
+\begin{methoddesc}[LDAPObject]{cancel}{
+        cancelid,
+        \optional{, serverctrls=\constant{None} 
+        \optional{, clientctrls=\constant{None}}}}
+  Send cancels extended operation for an LDAP operation specified by \var{cancelid}.
+  The \var{cancelid} should be the message id of an outstanding LDAP operation as returned
+  by the asynchronous methods search(), modify() etc.  The caller
+  can expect that the result of an abandoned operation will not be
+  returned from a future call to result().
+  In opposite to abandon() this extended operation gets an result from
+  the server and thus should be preferred if the server supports it.
+\end{methoddesc}
+
 
 %%------------------------------------------------------------
 %% compare
