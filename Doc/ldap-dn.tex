@@ -12,16 +12,39 @@
 
 \modulesynopsis{LDAP Distinguished Name handling.}
 
-The \module{ldap.dn} module defines the following functions:
-
-\begin{funcdesc}{escape_dn_chars}{s} % -> string
-
-This function escapes characters in string \var{s} which
-are special in LDAP distinguished names. You should use this function when
-building LDAP DN strings from arbitrary input.
-
 \begin{seealso}
 \seerfc{4514}{Lightweight Directory Access Protocol (LDAP): String Representation of Distinguished Names.}{}
 \end{seealso}
 
+The \module{ldap.dn} module defines the following functions:
+
+\begin{funcdesc}{escape_dn_chars}{s} % -> string
+  This function escapes characters in string \var{s} which
+  are special in LDAP distinguished names. You should use this function when
+  building LDAP DN strings from arbitrary input.
 \end{funcdesc}
+
+\begin{funcdesc}{str2dn}{s} % -> list
+  This function takes \var{dn} and breaks it up into its component parts
+  down to AVA level.
+\end{funcdesc}
+
+
+\begin{funcdesc}{explode_dn}{dn \optional{, notypes=\constant{0}}} % -> list
+  This function takes \var{dn} and breaks it up into its component parts. 
+  Each part is known as an RDN (Relative Distinguished Name). The
+  \var{notypes} parameter is used to specify that only the RDN values be 
+  returned and not their types.
+  For example, the DN \code{"cn=Bob, c=US"} would be
+  returned as either \code{["cn=Bob", "c=US"]} or \code{["Bob","US"]}
+  depending on whether \var{notypes} was \constant{0} or \constant{1},
+  respectively.
+\end{funcdesc}
+
+\begin{funcdesc}{explode_rdn}{rdn \optional{, notypes=\constant{0}}} % -> list
+  This function takes a (multi-valued) \var{rdn} and breaks it up
+  into a list of characteristic attributes. The
+  \var{notypes} parameter is used to specify that only the RDN values be 
+  returned and not their types.
+\end{funcdesc}
+

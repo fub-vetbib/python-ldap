@@ -83,27 +83,6 @@ The \module{ldap} module defines the following functions:
   Note: Using this function is deprecated.
 \end{funcdesc}
 
-\begin{funcdesc}{explode_dn}{dn \optional{, notypes=\constant{0}}} % -> list
-  This function takes \var{dn} and breaks it up into its component parts. 
-  Each part is known as an RDN (Relative Distinguished Name). The
-  \var{notypes} parameter is used to specify that only the RDN values be 
-  returned and not their types.
-  For example, the DN \code{"cn=Bob, c=US"} would be
-  returned as either \code{["cn=Bob", "c=US"]} or \code{["Bob","US"]}
-  depending on whether \var{notypes} was \constant{0} or \constant{1},
-  respectively.
-  \begin{seealso}
-  \seerfc{4514}{Lightweight Directory Access Protocol (LDAP): String Representation of Distinguished Names}{}
-  \end{seealso}
-\end{funcdesc}
-
-\begin{funcdesc}{explode_rdn}{rdn \optional{, notypes=\constant{0}}} % -> list
-  This function takes a (multi-valued) \var{rdn} and breaks it up
-  into a list of characteristic attributes. The
-  \var{notypes} parameter is used to specify that only the RDN values be 
-  returned and not their types.
-\end{funcdesc}
-
 \begin{funcdesc}{get_option}{option} % -> None
   This function returns the value of the global option
   specified by \var{option}.
