@@ -1,5 +1,5 @@
 ----------------------------------------------------------------
-Released 2.3.0 2007-03-xx
+Released 2.3.0 2007-03-27
 
 Changes since 2.2.1:
 
@@ -11,9 +11,10 @@ Modules/
 * Removed deprecated code for setting options by name
 * Added l_ldap_cancel()
 * Some modifications related to PEP 353 for
-  Python 2.5 on 64-bit platforms (see SF#1467529)
+  Python 2.5 on 64-bit platforms (see SF#1467529, thanks to Matej)
 * Added new function l_ldap_str2dn(), removed functions
-  l_ldap_explode_dn() and l_ldap_explode_rdn() (see SF#1657848)
+  l_ldap_explode_dn() and l_ldap_explode_rdn()
+  (see SF#1657848, thanks to David)
 
 Lib/
 * Added method ldapobject.LDAPObject.cancel()
