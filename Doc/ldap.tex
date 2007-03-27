@@ -70,7 +70,7 @@ The \module{ldap} module defines the following functions:
   (see \ref{ldap-objects}) used to perform operations on that server.
   Parameter \var{uri} has to be a valid LDAP URL.
   \begin{seealso}
-  \seerfc{2255}{The LDAP URL Format}{}
+  \seerfc{4516}{Lightweight Directory Access Protocol (LDAP): Uniform Resource Locator}{}
   \end{seealso}
 \end{funcdesc}
 
@@ -93,8 +93,7 @@ The \module{ldap} module defines the following functions:
   depending on whether \var{notypes} was \constant{0} or \constant{1},
   respectively.
   \begin{seealso}
-  \seerfc{2253}{Lightweight Directory Access Protocol (v3):
-           UTF-8 String Representation of Distinguished Names}{}
+  \seerfc{4514}{Lightweight Directory Access Protocol (LDAP): String Representation of Distinguished Names}{}
   \end{seealso}
 \end{funcdesc}
 
@@ -823,7 +822,7 @@ The
 the search.
 
 \begin{seealso}
-\seerfc{2254}{The String Representation of LDAP Search Filters}{}
+\seerfc{4515}{Lightweight Directory Access Protocol (LDAP): String Representation of Search Filters.}{}
 \end{seealso}
 
 Each result tuple is of the form \code{(\var{dn},\var{attrs})}, 
