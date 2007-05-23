@@ -10,7 +10,7 @@ Python compability note:
 Tested with Python 2.0+, but should work with Python 1.5.2+.
 """
 
-__version__ = '0.5.4'
+__version__ = '0.5.5'
 
 __all__ = [
   # constants
