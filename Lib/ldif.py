@@ -100,7 +100,7 @@ class LDIFWriter:
         String used as line separator
     """
     self._output_file = output_file
-    self._base64_attrs = list_dict(a.lower() for a in (base64_attrs or []))
+    self._base64_attrs = list_dict([a.lower() for a in (base64_attrs or [])])
     self._cols = cols
     self._line_sep = line_sep
     self.records_written = 0
