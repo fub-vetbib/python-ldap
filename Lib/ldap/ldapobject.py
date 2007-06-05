@@ -310,13 +310,13 @@ class SimpleLDAPObject:
         dn is the DN of the entry to modify, and modlist is the list
         of modifications to make to the entry.
 
-        Each element of the list modlist should be a tuple of the form
-        (mod_op,mod_type,mod_vals), where mod_op is the operation (one
-        of MOD_ADD, MOD_DELETE, or MOD_REPLACE), mod_type is a string
-        indicating the attribute type name, and mod_vals is either
-        a string value or a list of string values to add, delete or
-        replace respectively.  For the delete operation, mod_vals may
-        be None indicating that all attributes are to be deleted.
+	Each element of the list modlist should be a tuple of the form
+	(mod_op,mod_type,mod_vals), where mod_op is the operation (one of
+	MOD_ADD, MOD_DELETE, MOD_INCREMENT or MOD_REPLACE), mod_type is a
+	string indicating the attribute type name, and mod_vals is either a
+	string value or a list of string values to add, delete, increment by or
+	replace respectively.  For the delete operation, mod_vals may be None
+	indicating that all attributes are to be deleted.
 
         The asynchronous modify() returns the message id of the
         initiated request.

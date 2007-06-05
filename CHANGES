@@ -6,6 +6,9 @@ Changes since 2.3.0:
 Lib/
 * Fixed ldif (see SF#1709111, thanks to Dmitry)
 
+Modules/
+* Added constant MOD_INCREMENT to support
+  modify+increment extension (see RFC 4525, thanks to Andreas)
 ----------------------------------------------------------------
 Released 2.3.0 2007-03-27
 

@@ -123,6 +123,7 @@ LDAPinit_constants( PyObject* d )
 	add_int(d,MOD_ADD);
 	add_int(d,MOD_DELETE);
 	add_int(d,MOD_REPLACE);
+	add_int(d,MOD_INCREMENT);
 	add_int(d,MOD_BVALUES);
 
 	add_int(d,MSG_ONE);
