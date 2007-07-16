@@ -15,11 +15,6 @@ Modules/
 - Support LDAP Extended Operations by wrapping
   ldap_extended_operation() and ldap_parse_extended_result()
   - Set Password ext. op.
-- Wrap ldap_bv2dn, ldap_str2dn ldap_dn2bv, ldap_dn2str, 
-  ldap_bv2rdn, ldap_str2rdn, ldap_rdn2bv, ldap_rdn2str,
-  ldap_dn_normalize and implement explode_dn() and
-  explode_rdn() in ldap.functions module with these
-  functions.
 - Add l_ldap_sasl_bind() and abandon l_ldap_bind().
   l_ldap_sasl_bind_s() should be replaced by a wrapper
   method in ldap.ldapobject.LDAPObject.
