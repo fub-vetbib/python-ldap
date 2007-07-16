@@ -82,6 +82,23 @@ class SimplePagedResultsControl(LDAPControl):
     return size,cookie
 
 
+class MatchedValuesControl(LDAPControl):
+  """
+  LDAP Matched Values control, as defined in RFC 3876
+
+  from ldap.controls import MatchedValuesControl
+  control = MatchedValuesControl(criticality, filter)
+  """
+  
+  controlType = ldap.LDAP_CONTROL_VALUESRETURNFILTER
+  
+  def __init__(self, criticality, controlValue=None):
+    LDAPControl.__init__(self, self.controlType, criticality, controlValue, None) 
+
+  def encodeControlValue(self, value):
+    return _ldap.encode_valuesreturnfilter_control(value)
+
+
 def EncodeControlTuples(ldapControls):
   """
   Return list of readily encoded 3-tuples which can be directly

@@ -201,6 +201,46 @@ LDAPControls_to_List(LDAPControl **ldcs)
 
 /* --------------- en-/decoders ------------- */
 
+/* Matched Values, aka, Values Return Filter */
+static PyObject*
+encode_rfc3876(PyObject *self, PyObject *args)
+{
+	PyObject *res = 0;
+	int err;
+	BerElement *vrber = 0;
+	char *vrFilter;
+	struct berval *ctrl_val;
+
+	if (!PyArg_ParseTuple(args, "s:encode_valuesreturnfilter_control", &vrFilter)) {
+		goto endlbl;
+	}
+
+	if (!(vrber = ber_alloc_t(LBER_USE_DER))) {
+		LDAPerr(LDAP_NO_MEMORY);
+		goto endlbl;
+	}
+
+	err = ldap_put_vrFilter(vrber, vrFilter);
+	if (err == -1) {
+		LDAPerr(LDAP_FILTER_ERROR);
+		goto endlbl;
+	}
+
+	err = ber_flatten(vrber, &ctrl_val);
+	if (err == -1) {
+		LDAPerr(LDAP_NO_MEMORY);
+		goto endlbl;
+	}
+
+	res = Py_BuildValue("s#", ctrl_val->bv_val, ctrl_val->bv_len);
+
+endlbl:
+	if (vrber)
+		ber_free(vrber, 1);
+
+	return res;
+}
+
 static PyObject*
 encode_rfc2696(PyObject *self, PyObject *args)
 {
@@ -293,6 +333,7 @@ decode_rfc2696(PyObject *self, PyObject *args)
 static PyMethodDef methods[] = {
     {"encode_page_control", encode_rfc2696, METH_VARARGS },
     {"decode_page_control", decode_rfc2696, METH_VARARGS },
+    {"encode_valuesreturnfilter_control", encode_rfc3876, METH_VARARGS },
     { NULL, NULL }
 };
 
