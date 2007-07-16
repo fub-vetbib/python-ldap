@@ -1,7 +1,9 @@
 ----------------------------------------------------------------
-Released 2.3.1 2007-05-30
+Released 2.3.1 2007-07-xx
 
 Changes since 2.3.0:
+
+* Support for setuptools (building .egg, thanks to Torsten)
 
 Lib/
 * Fixed ldif (see SF#1709111, thanks to Dmitry)

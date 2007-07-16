@@ -6,7 +6,13 @@ See http://python-ldap.sourceforge.net for details.
 $Id$
 """
 
-from distutils.core import setup, Extension
+has_setuptools = False
+try:
+	from setuptools import setup, Extension
+	has_setuptools = True
+except ImportError:
+	from distutils.core import setup, Extension
+
 from ConfigParser import ConfigParser
 import sys,os,string,time
 
@@ -55,10 +61,24 @@ for i in range(len(LDAP_CLASS.extra_files)):
 	origfileslist = string.split(origfiles, ',')
 	LDAP_CLASS.extra_files[i]=(destdir, origfileslist)
 
-#-- Let distutils do the rest
+#-- Let distutils/setuptools do the rest
+name = 'python-ldap'
+
+# Python 2.3.6+ and setuptools are needed to build eggs, so
+# let's handle setuptools' additional  keyword arguments to
+# setup() in a fashion that doesn't break compatibility  to
+# distutils. This still allows 'normal' builds where either
+# Python > 2.3.5 or setuptools (or both ;o) are not available.
+kwargs = dict()
+if has_setuptools:
+	kwargs = dict(
+			include_package_data = True,
+			install_requires = ['setuptools'],
+			zip_safe = False)
+
 setup(
 	#-- Package description
-	name = 'python-ldap',
+	name = name,
 	version = version,
 	description = 'Various LDAP-related Python modules',
 	author = 'David Leonard, Michael Stroeder, et al.',
@@ -95,8 +115,6 @@ setup(
 			[('LDAPMODULE_VERSION', version)]
 		),
 	],
-	#-- Python packages (doesn't work with Python prior 2.3)
-#	packages = ['ldap', 'ldap.schema'],
 	#-- Python "stand alone" modules 
 	py_modules = [
 		'ldapurl',
@@ -118,5 +136,6 @@ setup(
   		'ldap.schema.tokenizer',
 	],
 	package_dir = {'': 'Lib',},
-	data_files = LDAP_CLASS.extra_files
+	data_files = LDAP_CLASS.extra_files,
+	**kwargs
 )
