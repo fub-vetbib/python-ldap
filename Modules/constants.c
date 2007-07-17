@@ -263,4 +263,8 @@ LDAPinit_constants( PyObject* d )
 	PyDict_SetItemString( d, "LDAP_CONTROL_PAGE_OID", obj );
 	Py_DECREF(obj);
 
+	obj = PyString_FromString(LDAP_CONTROL_VALUESRETURNFILTER);
+	PyDict_SetItemString( d, "LDAP_CONTROL_VALUESRETURNFILTER", obj );
+	Py_DECREF(obj);
+
 }
