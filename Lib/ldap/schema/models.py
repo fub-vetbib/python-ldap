@@ -144,7 +144,7 @@ class ObjectClass(SchemaElement):
     result = [str(self.oid)]
     result.append(self.key_list('NAME',self.names,quoted=1))
     result.append(self.key_attr('DESC',self.desc,quoted=1))
-    result.append(self.key_list('SUP',self.sup,sep=' $ ')))
+    result.append(self.key_list('SUP',self.sup,sep=' $ '))
     result.append({0:'',1:' OBSOLETE'}[self.obsolete])
     result.append({0:' STRUCTURAL',1:' ABSTRACT',2:' AUXILIARY'}[self.kind])
     result.append(self.key_list('MUST',self.must,sep=' $ '))
@@ -247,7 +247,7 @@ class AttributeType(SchemaElement):
     result = [str(self.oid)]
     result.append(self.key_list('NAME',self.names,quoted=1))
     result.append(self.key_attr('DESC',self.desc,quoted=1))
-    result.append(self.key_list('SUP',self.sup,sep=' $ ')))
+    result.append(self.key_list('SUP',self.sup,sep=' $ '))
     result.append({0:'',1:' OBSOLETE'}[self.obsolete])
     result.append(self.key_attr('EQUALITY',self.equality))
     result.append(self.key_attr('ORDERING',self.ordering))
