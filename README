@@ -76,7 +76,10 @@ Acknowledgements:
        Wido Depping <wido.depping at gmail.com>
        Deepak Giridharagopal <deepak at arlut.utexas.edu>
        Ingo Steuwer <steuwer at univention.de>
-       
+       Andreas Hasenack <ahasenack at terra.com.br>
+       Torsten Kurbad <torsten at tk-webart.de>
+       Matej Vela <vela at debian.org>
+
    Thanks to all the guys on the python-ldap-dev mailing list for
    their contributions and input into this package.
 
