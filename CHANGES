@@ -4,6 +4,9 @@ Released 2.3.2 2007-10-xx
 Changes since 2.3.1:
 
 Lib/
+* ldap.dn.escape_dn_chars() now really adheres to
+  RFC 4514 section 2.4 by escaping null characters and a
+  space occurring at the beginning of the string
 
 ----------------------------------------------------------------
 Released 2.3.1 2007-07-25

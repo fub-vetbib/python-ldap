@@ -10,7 +10,7 @@ Compability:
 - Tested with Python 2.0+
 """
 
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 
 
 import _ldap
@@ -21,7 +21,7 @@ import ldap.functions
 def escape_dn_chars(s):
   """
   Escape all DN special characters found in s
-  with a back-slash
+  with a back-slash (see RFC 4514, section 2.4)
   """
   if s:
     s = s.replace('\\','\\\\')
@@ -32,7 +32,8 @@ def escape_dn_chars(s):
     s = s.replace('>' ,'\\>')
     s = s.replace(';' ,'\\;')
     s = s.replace('=' ,'\\=')
-    if s[0]=='#':
+    s = s.replace('\000' ,'\\\000')    
+    if s[0]=='#' or s[0]==' ':
       s = ''.join(('\\',s))
     if s[-1]==' ':
       s = ''.join((s[:-1],'\\ '))
