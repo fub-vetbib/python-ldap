@@ -83,11 +83,15 @@ The \module{ldap} module defines the following functions:
   Note: Using this function is deprecated.
 \end{funcdesc}
 
+%%------------------------------------------------------------
+%% get_option
 \begin{funcdesc}{get_option}{option} % -> None
   This function returns the value of the global option
   specified by \var{option}.
 \end{funcdesc}
 
+%%------------------------------------------------------------
+%% set_option
 \begin{funcdesc}{set_option}{option, invalue} % -> None
   This function sets the value of the global option
   specified by \var{option} to \var{invalue}.
@@ -120,6 +124,10 @@ The module defines various constants.
 
 \subsubsection{Options}
 
+\begin{seealso}
+  \manpage{ldap.conf}{5} and \manpage{ldap_get_options}{3}
+\end{seealso}
+
 For use with functions and method set_option() and get_option() the
 following option identifiers are defined as constants:
 
@@ -136,6 +144,8 @@ following option identifiers are defined as constants:
 \end{datadesc}
 
 \begin{datadesc}{OPT_DEREF}
+  Specifies how alias derefencing is done within
+  the underlying LDAP C lib.
 \end{datadesc}
 
 \begin{datadesc}{OPT_ERROR_STRING}
@@ -154,6 +164,8 @@ following option identifiers are defined as constants:
 \end{datadesc}
 
 \begin{datadesc}{OPT_REFERRALS}
+  int specifying whether referrals should be automatically within
+  the underlying LDAP C lib.
 \end{datadesc}
 
 \begin{datadesc}{OPT_REFHOPLIMIT}
@@ -519,30 +531,40 @@ Methods with names ending in `\constant{_s}' are the synchronous form
 and wait for and return with the server's result, or with
 \constant{None} if no data is expected.
 
-LDAPObject instances, have the following methods:
+The \refmodule{ldap.controls} module can be used for constructing and
+decoding LDAPv3 controls.
+
+LDAPObject instances have the following methods:
 
 %%------------------------------------------------------------
 %% abandon
 
 \begin{methoddesc}[LDAPObject]{abandon}{msgid}
-Abandons or cancels an LDAP operation in progress. The \var{msgid} argument
-should be the message ID of an outstanding LDAP operation as returned by
-the asynchronous methods \method{search()}, \method{modify()}, etc. 
-The caller can expect that the result
-of an abandoned operation will not be returned from a future call to 
-\method{result()}.
+     \methodline[LDAPObject]{abandon_ext}{msgid \optional{, serverctrls=\constant{None} \optional{, clientctrls=\constant{None}}}}
+Abandons an LDAP operation in progress without waiting for a LDAP response.
+The \var{msgid} argument should be the message ID of an outstanding LDAP
+operation as returned by the asynchronous methods
+\method{search()}, \method{modify()}, etc. 
+The caller can expect that the result of an abandoned operation will not be
+returned from a future call to \method{result()}.
 \end{methoddesc}
 
 %%------------------------------------------------------------
 %% add
 
 \begin{methoddesc}[LDAPObject]{add}{dn, modlist} % -> int
-     \methodline{add_s}{dn, modlist}
+     \methodline{add_s}{dn, modlist} % -> None
+     \methodline{add_ext}{dn, modlist \optional{, serverctrls=\constant{None} \optional{, clientctrls=\constant{None}}}} % -> int
+     \methodline{add_ext_s}{dn, modlist \optional{, serverctrls=\constant{None} \optional{, clientctrls=\constant{None}}}} % -> None
+
 Performs an LDAP add operation. The \var{dn} argument is the distinguished
 name (DN) of the entry to add, and \var{modlist} is a list of attributes to be
 added. The modlist is similar the one passed to \method{modify()}, except that the
 operation integer is omitted from the tuples in modlist. You might want to
-look into sub-module l\refmodule{ldap.modlist} for generating the modlist.
+look into sub-module \refmodule{ldap.modlist} for generating the modlist.
+
+The asynchronous methods \method{add()} and \method{add_ext()}
+return the message ID of the initiated request.
 \end{methoddesc}
 
 %%------------------------------------------------------------
@@ -590,10 +612,18 @@ This call is used to bind to the directory with a SASL bind request.
 
 \begin{methoddesc}[LDAPObject]{compare}{dn, attr, value} % -> int
      \methodline[LDAPObject]{compare_s}{dn, attr, value} % -> tuple
+     \methodline[LDAPObject]{compare_ext}{
+          dn, attr, value
+          \optional{, serverctrls=\constant{None}
+          \optional{, clientctrls=\constant{None}}}} % -> int
+     \methodline[LDAPObject]{compare_ext_s}{
+          dn, attr, value
+          \optional{, serverctrls=\constant{None}
+          \optional{, clientctrls=\constant{None}}}} % -> tuple
 Perform an LDAP comparison between the attribute named \var{attr} of 
-entry \var{dn}, and the value \var{value}. The synchronous form
+entry \var{dn}, and the value \var{value}. The synchronous forms
 returns \constant{0} for false, or \constant{1} for true.
-The asynchronous form returns the message ID of the initiated request, 
+The asynchronous forms returns the message ID of the initiated request, 
 and the result of the asynchronous compare can be obtained using 
 \method{result()}.  
 
@@ -610,6 +640,8 @@ from containing nul characters.
 
 \begin{methoddesc}[LDAPObject]{delete}{dn} % -> int
      \methodline[LDAPObject]{delete_s}{dn} % -> None
+     \methodline[LDAPObject]{delete_ext}{dn \optional{, serverctrls=\constant{None} \optional{, clientctrls=\constant{None}}}} % -> int
+     \methodline[LDAPObject]{delete_ext_s}{dn \optional{, serverctrls=\constant{None} \optional{, clientctrls=\constant{None}}}} % -> None
 Performs an LDAP delete operation on \var{dn}. The asynchronous form
 returns the message id of the initiated request, and the result can be obtained
 from a subsequent call to \method{result()}.
@@ -620,6 +652,8 @@ from a subsequent call to \method{result()}.
 
 \begin{methoddesc}[LDAPObject]{modify}{ dn, modlist } % -> int
      \methodline[LDAPObject]{modify_s}{ dn, modlist } % -> None
+     \methodline{modify_ext}{ dn, modlist \optional{, serverctrls=\constant{None} \optional{, clientctrls=\constant{None}}}} % -> int
+     \methodline{modify_ext_s}{ dn, modlist \optional{, serverctrls=\constant{None} \optional{, clientctrls=\constant{None}}}} % -> None
 Performs an LDAP modify operation on an entry's attributes. 
 The \var{dn} argument is the distinguished name (DN) of the entry to modify,
 and \var{modlist} is a list of modifications to make to that entry.
@@ -633,8 +667,8 @@ where \var{mod_op} indicates the operation (one of \constant{MOD_ADD},
 delete or replace respectively.  For the delete operation, \var{mod_vals}
 may be \constant{None} indicating that all attributes are to be deleted.
 
-The asynchronous method \method{modify()} returns the message ID of the 
-initiated request.
+The asynchronous methods \method{modify()} and \method{modify_ext()}
+return the message ID of the initiated request.
 
 You might want to look into sub-module \refmodule{ldap.modlist} for
 generating \var{modlist}.
@@ -767,6 +801,9 @@ See \method{search()} for a description of the search result's
 
 \end{methoddesc}
 
+%%------------------------------------------------------------
+%% result2
+
 \begin{methoddesc}[LDAPObject]{result2}{\optional{ msgid=\constant{RES_ANY} \optional{, all=\constant{1} \optional{, timeout=\constant{-1}}}}} % -> 3-tuple
 This method behaves almost exactly like \method{result()}. But
 it returns a 3-tuple also containing the message id of the
@@ -775,6 +812,16 @@ to. This is especially handy if one needs to dispatch results
 obtained with \var{msgid=\constant{RES_ANY}} to several consumer
 threads which invoked a particular LDAP operation.
 \end{methoddesc}
+
+
+%%------------------------------------------------------------
+%% result3
+
+\begin{methoddesc}[LDAPObject]{result3}{\optional{ msgid=\constant{RES_ANY} \optional{, all=\constant{1} \optional{, timeout=\constant{-1}}}}} % -> 4-tuple
+This method behaves almost exactly like \method{result2()}. But it
+returns an extra item in the tuple, the decoded server controls.
+\end{methoddesc}
+
 
 %%------------------------------------------------------------
 %% search
@@ -853,18 +900,33 @@ not more than \var{sizelimit} results are returned by the server.
 
 \end{methoddesc}
 
+
+%%------------------------------------------------------------
+%% start_tls_s
+
+\begin{methoddesc}[LDAPObject]{start_tls_s}{} % -> None    
+    Negotiate TLS with server. The `version' attribute must have been
+    set to \constant{VERSION3} (which it is by default) before calling this method.
+    If TLS could not be started an exception will be raised.
+  \begin{seealso}
+  \seerfc{2830}{Lightweight Directory Access Protocol (v3): Extension for Transport Layer Security}{}
+  \end{seealso}
+\end{methoddesc}
+
+
 %%------------------------------------------------------------
 %% unbind
 
 \begin{methoddesc}[LDAPObject]{unbind}{} % -> int
        \methodline{unbind_s}{} % -> None
-This call is used to unbind from the directory, terminate the current
-association, and free resources. Once called, the connection to the
+       \methodline{unbind_ext}{\optional{, serverctrls=\constant{None} \optional{, clientctrls=\constant{None}}}} % -> int
+       \methodline{unbind_ext_s}{\optional{, serverctrls=\constant{None} \optional{, clientctrls=\constant{None}}}} % -> None
+This call is used to unbind from the directory, terminate the
+current association, and free resources. Once called, the connection to the
 LDAP server is closed and the LDAP object is marked invalid.
 Further invocation of methods on the object will yield exceptions.
 
-The \method{unbind()} and \method{unbind_s()} methods are both
-synchronous in nature
+These methodsare all synchronous in nature.
 \end{methoddesc}
 
 %%------------------------------------------------------------
@@ -881,11 +943,15 @@ is assumed by the LDAP server after a SASL bind.
 
 \subsubsection{LDAP options}
 
+%%------------------------------------------------------------
+%% get_option
 \begin{methoddesc}[LDAPObject]{get_option}{option} % -> None
   This function returns the value of the LDAPObject option
   specified by \var{option}.
 \end{methoddesc}
 
+%%------------------------------------------------------------
+%% set_option
 \begin{methoddesc}[LDAPObject]{set_option}{option, invalue} % -> None
   This function sets the value of the LDAPObject option
   specified by \var{option} to \var{invalue}.
