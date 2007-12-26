@@ -43,6 +43,9 @@ class cidict(UserDict):
   def has_key(self,key):
     return UserDict.has_key(self,lower(key))
 
+  def __contains__(self,key):
+    return self.has_key(self,key)
+
   def get(self,key,failobj=None):
     try:
       return self[key]
