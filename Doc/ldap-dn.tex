@@ -39,6 +39,9 @@ The \module{ldap.dn} module defines the following functions:
   returned as either \code{["cn=Bob", "c=US"]} or \code{["Bob","US"]}
   depending on whether \var{notypes} was \constant{0} or \constant{1},
   respectively.
+
+  This function is emulated by function \function{str2dn()}
+  since the function ldap_explode_dn() in the C library is deprecated.
 \end{funcdesc}
 
 \begin{funcdesc}{explode_rdn}{rdn \optional{, notypes=\constant{0}}} % -> list
@@ -46,5 +49,8 @@ The \module{ldap.dn} module defines the following functions:
   into a list of characteristic attributes. The
   \var{notypes} parameter is used to specify that only the RDN values be 
   returned and not their types.
+
+  This function is emulated by function \function{str2dn()}
+  since the function ldap_explode_rdn() in the C library is deprecated.
 \end{funcdesc}
 
