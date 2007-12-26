@@ -154,7 +154,6 @@ LDAPinit_constants( PyObject* d )
 	add_int(d,OPT_HOST_NAME);
 	add_int(d,OPT_ERROR_STRING);
 	add_int(d,OPT_MATCHED_DN);
-	add_int(d,OPT_PRIVATE_EXTENSION_BASE);
 	add_int(d,OPT_DEBUG_LEVEL);
 	add_int(d,OPT_TIMEOUT);
 	add_int(d,OPT_REFHOPLIMIT);

@@ -150,9 +150,6 @@ following option identifiers are defined as constants:
 \begin{datadesc}{OPT_NETWORK_TIMEOUT}
 \end{datadesc}
 
-\begin{datadesc}{OPT_PRIVATE_EXTENSION_BASE}
-\end{datadesc}
-
 \begin{datadesc}{OPT_PROTOCOL_VERSION}
 \end{datadesc}
 
@@ -664,9 +661,13 @@ since the modrdn2* routines in the C library are deprecated.
 %%------------------------------------------------------------
 %% passwd
 
-\begin{methoddesc}[LDAPObject]{passwd}{user,oldpw,newpw}
+\begin{methoddesc}[LDAPObject]{passwd}{user,oldpw,newpw
+        \optional{, serverctrls=\constant{None} 
+        \optional{, clientctrls=\constant{None}}}}
 		%-> int
-     \methodline[LDAPObject]{passwd_s}{user,oldpw,newpw}
+     \methodline[LDAPObject]{passwd_s}{user,oldpw,newpw
+        \optional{, serverctrls=\constant{None} 
+        \optional{, clientctrls=\constant{None}}}}
 		% -> None
 Perform a `LDAP Password Modify Extended Operation' operation
 on the entry specified by \var{user}.
