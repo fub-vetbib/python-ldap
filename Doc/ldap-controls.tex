@@ -12,16 +12,57 @@
 
 \modulesynopsis{High-level access to LDAP controls.}
 
+The \module{ldap.controls} module defines the following classes:
+
+\begin{classdesc}{LDAPControl}{controlType, criticality \optional{, controlValue=\constant{None} \optional{, encodedControlValue=\constant{None}}}}
+Base class for all LDAP controls. This class should not be used directly,
+instead one of the following subclasses should be used as appropriate.
+
+\begin{methoddesc}[LDAPControl]{encodeControlValue}{value}
+Dummy method to be overridden by subclasses.
+\end{methoddesc}
+
+\begin{methoddesc}[LDAPControl]{decodeControlValue}{value}
+Dummy method to be overridden by subclasses.
+\end{methoddesc}
+
+\begin{methoddesc}[LDAPControl]{getEncodedTuple}{}
+Return a readily encoded 3-tuple which can be directly
+passed to C module _ldap. This method is called by
+function \function{ldap.EncodeControlTuples}.
+\end{methoddesc}
+\end{classdesc}
+
+\begin{classdesc}{BooleanControl}{controlType, criticality \optional{, controlValue=\constant{None} \optional{, encodedControlValue=\constant{None}}}}
+Base class for simple controls with booelan control value.
+
+In this base class \var{controlValue} has to be passed as
+boolean type (\constant{True}/\constant{False} or \constant{1}/\constant{0}).
+\end{classdesc}
+\begin{classdesc}{SimplePagedResultsControl}{controlType, criticality \optional{, controlValue=\constant{None} \optional{, encodedControlValue=\constant{None}}}}
+The class provides the LDAP Control Extension for Simple Paged Results Manipulation. \var{controlType} is ignored
+in favor of \constant{ldap.LDAP_CONTROL_PAGE_OID}.
+\begin{seealso}
+\seerfc{2696}{LDAP Control Extension for Simple Paged Results Manipulation}{}
+\end{seealso}
+\end{classdesc}
+
+\begin{classdesc}{MatchedValuesControl}{criticality \optional{, controlValue=\constant{None}}}
+This class provides the LDAP Matched Values control. \var{controlValue} is an LDAP filter.
+\begin{seealso}
+\seerfc{3876}{Returning Matched Values with the Lightweight Directory Access Protocol version 3 (LDAPv3)}{}
+\end{seealso}
+\end{classdesc}
+
 The \module{ldap.controls} module defines the following functions:
 
 \begin{funcdesc}{EncodeControlTuples}{ldapControls} % -> list
-
-
+  Returns list of readily encoded 3-tuples which can be directly
+  passed to C module _ldap.
 \end{funcdesc}
 
 
 \begin{funcdesc}{DecodeControlTuples}{ldapControlTuples} % -> list
-
-
+  Decodes a list of readily encoded 3-tuples as returned by the C module _ldap.
 \end{funcdesc}
 

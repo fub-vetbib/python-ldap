@@ -20,13 +20,21 @@ The \module{ldap.dn} module defines the following functions:
 
 \begin{funcdesc}{escape_dn_chars}{s} % -> string
   This function escapes characters in string \var{s} which
-  are special in LDAP distinguished names. You should use this function when
-  building LDAP DN strings from arbitrary input.
+  are special in LDAP distinguished names. You should use
+  this function when building LDAP DN strings from arbitrary input.
 \end{funcdesc}
 
 \begin{funcdesc}{str2dn}{s} % -> list
-  This function takes \var{dn} and breaks it up into its component parts
+  This function takes \var{s} and breaks it up into its component parts
   down to AVA level.
+\end{funcdesc}
+
+
+\begin{funcdesc}{dn2str}{dn} % -> string
+  This function takes a decomposed DN in \var{dn} and returns
+  a single string. It's the inverse to \function{str2dn()}.
+  Special characters are escaped with the help of
+  function \function{escape_dn_chars()}.
 \end{funcdesc}
 
 
