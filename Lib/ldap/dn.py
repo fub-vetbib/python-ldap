@@ -10,7 +10,7 @@ Compability:
 - Tested with Python 2.0+
 """
 
-__version__ = '0.1.1'
+__version__ = '0.2.0'
 
 
 import _ldap
@@ -44,6 +44,10 @@ def str2dn(dn,flags=0):
   """
   This function takes a DN as string as parameter and returns
   a decomposed DN. It's the inverse to dn2str().
+  
+  flags describes the format of the dn
+
+  See also the OpenLDAP man-page ldap_str2dn(3)
   """
   if not dn:
     return []
@@ -53,7 +57,8 @@ def str2dn(dn,flags=0):
 def dn2str(dn):
   """
   This function takes a decomposed DN as parameter and returns
-  a single string. It's the inverse to str2dn().
+  a single string. It's the inverse to str2dn() but will always
+  return a DN in LDAPv3 format compliant to RFC 4514.
   """
   return ','.join([
     '+'.join([
@@ -62,7 +67,7 @@ def dn2str(dn):
     for rdn in dn
   ])
 
-def explode_dn(dn,notypes=0):
+def explode_dn(dn,notypes=0,flags=0):
   """
   explode_dn(dn [, notypes=0]) -> list
   
@@ -72,7 +77,7 @@ def explode_dn(dn,notypes=0):
   """
   if not dn:
     return []
-  dn_decomp = str2dn(dn)
+  dn_decomp = str2dn(dn,flags)
   rdn_list = []
   for rdn in dn_decomp:
     if notypes:
@@ -88,7 +93,7 @@ def explode_dn(dn,notypes=0):
   return rdn_list
 
 
-def explode_rdn(rdn,notypes=0):
+def explode_rdn(rdn,notypes=0,flags=0):
   """
   explode_rdn(rdn [, notypes=0]) -> list
   
@@ -99,7 +104,7 @@ def explode_rdn(rdn,notypes=0):
   """
   if not rdn:
     return []
-  rdn_decomp = str2dn(rdn)[0]
+  rdn_decomp = str2dn(rdn,flags)[0]
   if notypes:
     return [avalue or '' for atype,avalue,dummy in rdn_decomp]
   else:
