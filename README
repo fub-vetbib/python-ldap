@@ -50,9 +50,6 @@ Acknowledgements:
    and Steffen Ries <steffen.ries at sympatico.ca> for working
    on support for OpenLDAP 2.0.x features.
 
-   Thanks to Federico Di Gregorio <fog at mixadlive.com> for the 
-   ldaplib and perldap migration module.
-
    Thanks to Michael Stroeder <michael at stroeder.com> for the 
    modules ldif, ldapurl, ldap/schema/*.py, ldap/*.py.
 
@@ -64,6 +61,7 @@ Acknowledgements:
 
    These very kind people have supplied patches or suggested changes:
 
+       Federico Di Gregorio <fog at mixadlive.com>
        John Benninghoff <johnb at netscape.com>
        Donn Cave <donn at u.washington.edu>
        Jason Gunthorpe <jgg at debian.org>
