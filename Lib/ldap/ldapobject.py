@@ -435,8 +435,12 @@ class SimpleLDAPObject:
   def result3(self,msgid=_ldap.RES_ANY,all=1,timeout=None):
     if timeout is None:
       timeout = self.timeout
-    rtype, rdata, rmsgid, serverctrls = self._ldap_call(self._l.result3,msgid,all,timeout)
-    decoded_serverctrls = DecodeControlTuples(serverctrls)
+    ldap_result = self._ldap_call(self._l.result3,msgid,all,timeout)
+    if ldap_result is None:
+      rtype, rdata, rmsgid, decoded_serverctrls = (None,None,None,None)
+    else:
+      rtype, rdata, rmsgid, serverctrls = ldap_result
+      decoded_serverctrls = DecodeControlTuples(serverctrls)
     return rtype, rdata, rmsgid, decoded_serverctrls
  
   def search_ext(self,base,scope,filterstr='(objectClass=*)',attrlist=None,attrsonly=0,serverctrls=None,clientctrls=None,timeout=-1,sizelimit=0):
