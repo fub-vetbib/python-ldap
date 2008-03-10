@@ -1,6 +1,5 @@
 """
 ldap.schema.subentry -  subschema subentry handling
-written by Michael Stroeder <michael@stroeder.com>
 
 See http://python-ldap.sourceforge.net for details.
 

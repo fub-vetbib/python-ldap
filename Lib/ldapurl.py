@@ -1,6 +1,5 @@
 """
 ldapurl - handling of LDAP URLs as described in RFC 2255
-written by Michael Stroeder <michael@stroeder.com>
 
 See http://python-ldap.sourceforge.net for details.
 

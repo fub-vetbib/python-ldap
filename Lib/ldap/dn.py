@@ -1,6 +1,5 @@
 """
 dn.py - misc stuff for handling distinguished names (see RFC 4514)
-written by Michael Stroeder <michael@stroeder.com>
 
 See http://python-ldap.sourceforge.net for details.
 

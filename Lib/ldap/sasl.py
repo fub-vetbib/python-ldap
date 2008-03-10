@@ -1,6 +1,5 @@
 """
 sasl.py - support for SASL mechanism
-written by Hans Aschauer <Hans.Aschauer@Physik.uni-muenchen.de>
 
 See http://python-ldap.sourceforge.net for details.
 

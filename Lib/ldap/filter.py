@@ -1,6 +1,5 @@
 """
 filters.py - misc stuff for handling LDAP filter strings (see RFC2254)
-written by Michael Stroeder <michael@stroeder.com>
 
 See http://python-ldap.sourceforge.net for details.
 

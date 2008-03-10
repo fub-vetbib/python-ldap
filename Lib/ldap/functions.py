@@ -1,6 +1,5 @@
 """
 functions.py - wraps functions of module _ldap
-written by Michael Stroeder <michael@stroeder.com>
 
 See http://python-ldap.sourceforge.net for details.
 
