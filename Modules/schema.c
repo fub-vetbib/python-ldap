@@ -1,9 +1,5 @@
-/* Hans Aschauer <Hans.Aschauer@epost.de>, 2002. Public domain. */
-
-/* 
- * 
- * $Id$
- */
+/* See http://python-ldap.sourceforge.net for details.
+ * $Id$ */
 
 #include "common.h"
 

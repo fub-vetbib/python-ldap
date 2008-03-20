@@ -1,5 +1,5 @@
-/* David Leonard <david.leonard@csee.uq.edu.au>, 1999. Public domain. */
-/* $Id$ */
+/* See http://python-ldap.sourceforge.net for details.
+ * $Id$ */
 
 #ifndef __h_errors_
 #define __h_errors_

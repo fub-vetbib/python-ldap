@@ -1,6 +1,5 @@
-/* Deepak Giridharagopal <deepak@arlut.utexas.edu>, 2004.
- * Applied Research Laboratories, University of Texas at Austin
- */
+/* See http://python-ldap.sourceforge.net for details.
+ * $Id$ */
 
 #ifndef __h_ldapcontrol
 #define __h_ldapcontrol

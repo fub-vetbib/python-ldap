@@ -1,8 +1,8 @@
-/* David Leonard <david.leonard@csee.uq.edu.au>, 1999. Public domain. */
+/* See http://python-ldap.sourceforge.net for details.
+ * $Id$ */
+
 #ifndef __h_message 
 #define __h_message 
-
-/* $Id$ */
 
 #include "common.h"
 #include "lber.h"

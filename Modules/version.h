@@ -1,8 +1,10 @@
-/* David Leonard <david.leonard@csee.uq.edu.au>, 1999. Public domain. */
+/* Set release version
+ * See http://python-ldap.sourceforge.net for details.
+ * $Id$ */
+
 #ifndef __h_version_
 #define __h_version_
 
-/* $Id$ */
 
 #include "common.h"
 extern void LDAPinit_version( PyObject* d );

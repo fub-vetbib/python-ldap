@@ -1,4 +1,5 @@
-/* $Id$ */
+/* See http://python-ldap.sourceforge.net for details.
+ * $Id$ */
 
 int	LDAP_optionval_by_name(const char *name);
 int	LDAP_set_option(LDAPObject *self, int option, PyObject *value);

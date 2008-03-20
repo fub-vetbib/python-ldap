@@ -1,8 +1,8 @@
-/* David Leonard <david.leonard@csee.uq.edu.au>, 1999. Public domain. */
+/* See http://python-ldap.sourceforge.net for details.
+ * $Id$ */
+
 #ifndef __h_constants_
 #define __h_constants_
-
-/* $Id$ */
 
 #include "common.h"
 extern void LDAPinit_constants( PyObject* d );
