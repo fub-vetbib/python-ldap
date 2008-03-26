@@ -336,14 +336,11 @@ and/or a string value for the key \constant{'info'}
 A third possible field of this dictionary is \constant{'matched'} and
 is set to a truncated form of the name provided or alias dereferenced
 for the lowest entry (object or alias) that was matched.
-
 \end{excdesc}
 
 \begin{excdesc}{ADMINLIMIT_EXCEEDED}
-
 \end{excdesc}
 \begin{excdesc}{AFFECTS_MULTIPLE_DSAS}
-
 \end{excdesc}
 \begin{excdesc}{ALIAS_DEREF_PROBLEM}
 A problem was encountered when dereferencing an alias.
@@ -357,9 +354,6 @@ An alias in the directory points to a nonexistent entry.
 The entry already exists. E.g. the \var{dn} specified with \method{add()}
 already exists in the DIT.
 \end{excdesc}
-\begin{excdesc}{}
-
-\end{excdesc}
 \begin{excdesc}{AUTH_UNKNOWN}
 The authentication method specified to \method{bind()} is not known.
 \end{excdesc}
@@ -367,7 +361,6 @@ The authentication method specified to \method{bind()} is not known.
 The DSA is busy.
 \end{excdesc}
 \begin{excdesc}{CLIENT_LOOP}
-
 \end{excdesc}
 \begin{excdesc}{COMPARE_FALSE}
 A compare operation returned false.
@@ -385,7 +378,6 @@ as Transport Layer Security (TLS), which provides session
 confidentiality.
 \end{excdesc}
 \begin{excdesc}{CONNECT_ERROR}
-
 \end{excdesc}
 \begin{excdesc}{CONSTRAINT_VIOLATION}
 An attribute value specified or an operation started violates some
@@ -394,7 +386,6 @@ server-side constraint
 or a password is expired).
 \end{excdesc}
 \begin{excdesc}{CONTROL_NOT_FOUND}
-
 \end{excdesc}
 \begin{excdesc}{DECODING_ERROR}
 An error was encountered decoding a result from the LDAP server.
@@ -439,7 +430,6 @@ Some local error occurred. This is usually due to failed memory allocation.
 A loop was detected.
 \end{excdesc}
 \begin{excdesc}{MORE_RESULTS_TO_RETURN}
-
 \end{excdesc}
 \begin{excdesc}{NAMING_VIOLATION}
 A naming violation occurred. This is raised e.g. if the LDAP server
@@ -456,16 +446,13 @@ The operation is not allowed on a non-leaf object.
 The operation is not allowed on an RDN.
 \end{excdesc}
 \begin{excdesc}{NOT_SUPPORTED}
-
 \end{excdesc}
 \begin{excdesc}{NO_MEMORY}
-
 \end{excdesc}
 \begin{excdesc}{NO_OBJECT_CLASS_MODS}
 Object class modifications are not allowed.
 \end{excdesc}
 \begin{excdesc}{NO_RESULTS_RETURNED}
-
 \end{excdesc}
 \begin{excdesc}{NO_SUCH_ATTRIBUTE}
 The attribute type specified does not exist in the entry.
@@ -501,7 +488,6 @@ The result does not fit into a UDP packet. This happens only when using
 UDP-based CLDAP (connection-less LDAP) which is not supported anyway.
 \end{excdesc}
 \begin{excdesc}{SASL_BIND_IN_PROGRESS}
-
 \end{excdesc}
 \begin{excdesc}{SERVER_DOWN}
 The  LDAP  library  can't  contact the LDAP server.
@@ -539,7 +525,7 @@ for the operation type.
 An attribute type used is not defined in the server-side schema.
 \end{excdesc}
 \begin{excdesc}{UNWILLING_TO_PERFORM}
-The  DSA  is  unwilling to perform the operation.
+The  DSA is  unwilling to perform the operation.
 \end{excdesc}
 \begin{excdesc}{USER_CANCELLED}
 The operation was cancelled via the \method{abandon()} method.
