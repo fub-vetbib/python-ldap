@@ -11,7 +11,10 @@
 \modulesynopsis{LDAP Distinguished Name handling.}
 
 \begin{seealso}
-\seerfc{4514}{Lightweight Directory Access Protocol (LDAP): String Representation of Distinguished Names.}{}
+For LDAPv3 DN syntax see:
+\seerfc{4514}{Lightweight Directory Access Protocol (LDAP): String Representation of Distinguished Names}{}
+For LDAPv2 DN syntax (obsoleted by LDAPv3) see:
+\seerfc{1779}{A String Representation of Distinguished Names}{}
 \end{seealso}
 
 The \module{ldap.dn} module defines the following functions:
@@ -24,11 +27,8 @@ The \module{ldap.dn} module defines the following functions:
 
 \begin{funcdesc}{str2dn}{s \optional{, flags=\constant{0}}} % -> list
   This function takes \var{s} and breaks it up into its component parts
-  down to AVA level.
-  The optional parameter \var{flags} describes the DN format of s.
-  \begin{seealso}
-  \manpage{ldap_str2dn}{3}
-  \end{seealso}
+  down to AVA level. The optional parameter \var{flags} describes the DN format of s
+  (see \ref{ldap-dn-flags}).
 \end{funcdesc}
 
 
@@ -42,13 +42,10 @@ The \module{ldap.dn} module defines the following functions:
 
 \begin{funcdesc}{explode_dn}{dn \optional{, notypes=\constant{0} \optional{, flags=\constant{0}}}} % -> list
   This function takes \var{dn} and breaks it up into its component parts. 
-  Each part is known as an RDN (Relative Distinguished Name). The
+  Each part is known as an RDN (Relative Distinguished Name). The optional
   \var{notypes} parameter is used to specify that only the RDN values be 
-  returned and not their types.
-  For example, the DN \code{"cn=Bob, c=US"} would be
-  returned as either \code{["cn=Bob", "c=US"]} or \code{["Bob","US"]}
-  depending on whether \var{notypes} was \constant{0} or \constant{1},
-  respectively.
+  returned and not their types. The optional parameter \var{flags}
+  describes the DN format of s (see \ref{ldap-dn-flags}).
 
   This function is emulated by function \function{str2dn()}
   since the function ldap_explode_dn() in the C library is deprecated.
@@ -56,11 +53,36 @@ The \module{ldap.dn} module defines the following functions:
 
 \begin{funcdesc}{explode_rdn}{rdn \optional{, notypes=\constant{0} \optional{, flags=\constant{0}}}} % -> list
   This function takes a (multi-valued) \var{rdn} and breaks it up
-  into a list of characteristic attributes. The
+  into a list of characteristic attributes. The optional
   \var{notypes} parameter is used to specify that only the RDN values be 
-  returned and not their types.
+  returned and not their types. The optional \var{flags} parameter
+  describes the DN format of s (see \ref{ldap-dn-flags}).
 
   This function is emulated by function \function{str2dn()}
   since the function ldap_explode_rdn() in the C library is deprecated.
 \end{funcdesc}
 
+
+\subsection{Examples \label{ldap-dn-example}}
+
+Splitting a LDAPv3 DN to AVA level:
+\begin{verbatim}
+>>> ldap.dn.str2dn('cn=Michael Str\xc3\xb6der,dc=stroeder,dc=com',flags=ldap.DN_FORMAT_LDAPV3)
+[[('cn', 'Michael Str\xc3\xb6der', 4)], [('dc', 'stroeder', 1)], [('dc', 'com', 1)]]
+\end{verbatim}
+
+Splitting a LDAPv2 DN into RDN parts:
+\begin{verbatim}
+>>> ldap.dn.explode_dn('cn=Michael Stroeder;dc=stroeder;dc=com',flags=ldap.DN_FORMAT_LDAPV2)
+['cn=Michael Stroeder', 'dc=stroeder', 'dc=com']
+\end{verbatim}
+
+Splitting a multi-valued RDN:
+>>> ldap.dn.explode_rdn('cn=Michael Stroeder+mail=michael@stroeder.com',flags=ldap.DN_FORMAT_LDAPV2)
+['cn=Michael Stroeder', 'mail=michael@stroeder.com']
+
+Splitting a LDAPv3 DN with a multi-valued RDN into its AVA parts:
+\begin{verbatim}
+>>> ldap.dn.str2dn('cn=Michael Stroeder+mail=michael@stroeder.com,dc=stroeder,dc=com')
+[[('cn', 'Michael Stroeder', 1), ('mail', 'michael@stroeder.com', 1)], [('dc', 'stroeder', 1)], [('dc', 'com', 1)]]
+\end{verbatim}
