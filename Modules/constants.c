@@ -149,7 +149,10 @@ LDAPinit_constants( PyObject* d )
 	add_int(d,OPT_CLIENT_CONTROLS);
 	add_int(d,OPT_API_FEATURE_INFO);
 	add_int(d,OPT_HOST_NAME);
-	add_int(d,OPT_DIAGNOSTIC_MESSAGE);
+
+	/* For backward-compability with OpenLDAP 2.3 libs this is defined in ldap/__init__.py */
+	/* add_int(d,OPT_DIAGNOSTIC_MESSAGE); */
+
 	add_int(d,OPT_ERROR_STRING);
 	add_int(d,OPT_MATCHED_DN);
 	add_int(d,OPT_DEBUG_LEVEL);

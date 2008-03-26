@@ -1,4 +1,11 @@
 ----------------------------------------------------------------
+Released 2.3.3 2008-03-26
+
+Changes since 2.3.2:
+
+Fixed backward-compability when building with OpenLDAP 2.3.x libs.
+
+----------------------------------------------------------------
 Released 2.3.2 2008-03-26
 
 Changes since 2.3.1:
