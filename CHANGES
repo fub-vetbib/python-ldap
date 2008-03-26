@@ -1,5 +1,5 @@
 ----------------------------------------------------------------
-Released 2.3.2 2008-01-20
+Released 2.3.2 2008-03-26
 
 Changes since 2.3.1:
 
@@ -16,7 +16,7 @@ Modules/
 * Removed unused OPT_PRIVATE_EXTENSION_BASE from constants.c
 
 Doc/
-* Various updates...thanks to James for contributing.
+* Various additions, updates, polishing (thanks to James).
 
 ----------------------------------------------------------------
 Released 2.3.1 2007-07-25
