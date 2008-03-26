@@ -22,9 +22,13 @@ The \module{ldap.dn} module defines the following functions:
   this function when building LDAP DN strings from arbitrary input.
 \end{funcdesc}
 
-\begin{funcdesc}{str2dn}{s} % -> list
+\begin{funcdesc}{str2dn}{s \optional{, flags=\constant{0}}} % -> list
   This function takes \var{s} and breaks it up into its component parts
   down to AVA level.
+  The optional parameter \var{flags} describes the DN format of s.
+  \begin{seealso}
+  \manpage{ldap_str2dn}{3}
+  \end{seealso}
 \end{funcdesc}
 
 
@@ -36,7 +40,7 @@ The \module{ldap.dn} module defines the following functions:
 \end{funcdesc}
 
 
-\begin{funcdesc}{explode_dn}{dn \optional{, notypes=\constant{0}}} % -> list
+\begin{funcdesc}{explode_dn}{dn \optional{, notypes=\constant{0} \optional{, flags=\constant{0}}}} % -> list
   This function takes \var{dn} and breaks it up into its component parts. 
   Each part is known as an RDN (Relative Distinguished Name). The
   \var{notypes} parameter is used to specify that only the RDN values be 
@@ -50,7 +54,7 @@ The \module{ldap.dn} module defines the following functions:
   since the function ldap_explode_dn() in the C library is deprecated.
 \end{funcdesc}
 
-\begin{funcdesc}{explode_rdn}{rdn \optional{, notypes=\constant{0}}} % -> list
+\begin{funcdesc}{explode_rdn}{rdn \optional{, notypes=\constant{0} \optional{, flags=\constant{0}}}} % -> list
   This function takes a (multi-valued) \var{rdn} and breaks it up
   into a list of characteristic attributes. The
   \var{notypes} parameter is used to specify that only the RDN values be 
