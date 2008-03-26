@@ -59,6 +59,9 @@ Acknowledgements:
    Thanks to Mauro Cicognini <mcicogni at siosistemi.it> for the 
    WIN32/MSVC6 bits, and the pre-built WIN32 ldap.pyd.
 
+   Thanks to James Andrewartha <jamesa at daa.com.au> for
+   significant contribution to Doc/*.tex.
+   
    These very kind people have supplied patches or suggested changes:
 
        Federico Di Gregorio <fog at mixadlive.com>
