@@ -100,7 +100,7 @@ The \module{ldap} module defines the following functions:
 % Data items are described using a ``datadesc'' block.  This has only
 % one parameter: the item's name.
 
-\subsection{Constants}
+\subsection{Constants \label{ldap-constants}}
 
 The module defines various constants.
 
@@ -120,7 +120,7 @@ The module defines various constants.
   with support for SSL/TLS (OpenSSL).
 \end{datadesc}
 
-\subsubsection{Options}
+\subsubsection{Options \label{ldap-options}}
 
 \begin{seealso}
   \manpage{ldap.conf}{5} and \manpage{ldap_get_options}{3}
@@ -263,7 +263,10 @@ following option identifiers are defined as constants:
 \end{datadesc}
 
 
-\subsubsection{DN format flags}
+\subsubsection{DN format flags \label{ldap-dn-flags}}
+
+This constants are used for DN-parsing functions found in
+sub-module \refmodule{ldap.dn}.
 
 \begin{seealso}
   \manpage{ldap_str2dn}{3}
