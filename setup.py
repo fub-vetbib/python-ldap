@@ -24,7 +24,7 @@ package_init_file_name = reduce(os.path.join,[exec_startdir,'Lib','ldap','__init
 f = open(package_init_file_name,'r')
 s = f.readline()
 while s:
-	s = string.strip(f.readline())
+	s = string.strip(s)
 	if s[0:11]=='__version__':
 		version = eval(string.split(s,'=')[1])
 		break
