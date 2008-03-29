@@ -3,7 +3,9 @@ Released 2.3.4 2008-xx-xx
 
 Changes since 2.3.3:
 
-Lib/
+Modules/
+* Fixed seg fault when calling LDAPObject.get_option()
+  (see SF#1926507, thanks to Matej)
 
 ----------------------------------------------------------------
 Released 2.3.3 2008-03-26

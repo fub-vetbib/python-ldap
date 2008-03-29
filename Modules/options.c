@@ -121,7 +121,7 @@ LDAP_get_option(LDAPObject *self, int option)
     int res;
     int intval;
     double doubleval;
-    struct timeval tv;
+    struct timeval *tv;
     LDAPAPIInfo apiinfo;
     LDAPControl **lcs;
     LDAPControl *lc;
@@ -158,7 +158,14 @@ LDAP_get_option(LDAPObject *self, int option)
 		    "vendor_name",      apiinfo.ldapai_vendor_name,
 		    "vendor_version",   apiinfo.ldapai_vendor_version,
 		    "extensions",       extensions);
+
+	    if (apiinfo.ldapai_vendor_name)
+		ldap_memfree(apiinfo.ldapai_vendor_name);
+	    for (i = 0; i < num_extensions; i++)
+		ldap_memfree(apiinfo.ldapai_extensions[i]);
+	    ldap_memfree(apiinfo.ldapai_extensions);
 	    Py_DECREF(extensions);
+
 	    return v;
 
 #ifdef HAVE_SASL
@@ -205,7 +212,13 @@ LDAP_get_option(LDAPObject *self, int option)
 	    if (self) LDAP_END_ALLOW_THREADS(self);
 	    if (res != LDAP_OPT_SUCCESS)
 		return LDAPerr(res);
-	    return PyString_FromString(strval);
+	    if (strval == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	    }
+	    v = PyString_FromString(strval);
+	    ldap_memfree(strval);
+	    return v;
 
     case LDAP_OPT_TIMEOUT:
     case LDAP_OPT_NETWORK_TIMEOUT:
@@ -215,9 +228,15 @@ LDAP_get_option(LDAPObject *self, int option)
 	    if (self) LDAP_END_ALLOW_THREADS(self);
 	    if (res != LDAP_OPT_SUCCESS)
 		return LDAPerr(res);
-	    return PyFloat_FromDouble(
-              (double) tv.tv_sec + ( (double) tv.tv_usec / 1000000.0 )
+	    if (tv == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	    }
+	    v = PyFloat_FromDouble(
+              (double) tv->tv_sec + ( (double) tv->tv_usec / 1000000.0 )
             );
+	    ldap_memfree(tv);
+	    return v;
 
     case LDAP_OPT_SERVER_CONTROLS:
     case LDAP_OPT_CLIENT_CONTROLS:
@@ -247,6 +266,8 @@ LDAP_get_option(LDAPObject *self, int option)
                 PyList_SET_ITEM(v, i, tup);
             }
             
+            ldap_controls_free(lcs);
+
             return v;
             
     default:
