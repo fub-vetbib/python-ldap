@@ -1,5 +1,5 @@
 """
-ldapurl - handling of LDAP URLs as described in RFC 2255
+ldapurl - handling of LDAP URLs as described in RFC 4516
 
 See http://python-ldap.sourceforge.net for details.
 
@@ -65,24 +65,15 @@ def ldapUrlEscape(s):
 class LDAPUrlExtension:
   """
   Class for parsing and unparsing LDAP URL extensions
-  as described in RFC 2255.
-
-  BNF definition of LDAP URL extensions:
-
-       extensions = extension *("," extension)
-       extension  = ["!"] extype ["=" exvalue]
-       extype     = token / xtoken
-       exvalue    = LDAPString from section 4.1.2 of [2]
-       token      = oid from section 4.1 of [3]
-       xtoken     = ("X-" / "x-") token
+  as described in RFC 4516.
 
   Usable class attributes:
-  critical
-        Boolean integer marking the extension as critical
-  extype    
-        Type of extension
-  exvalue
-        Value of extension
+    critical
+          Boolean integer marking the extension as critical
+    extype    
+          Type of extension
+    exvalue
+          Value of extension
   """
 
   def __init__(self,extensionStr=None,critical=0,extype=None,exvalue=None):
@@ -188,18 +179,7 @@ class LDAPUrlExtensions(UserDict.UserDict):
 class LDAPUrl:
   """
   Class for parsing and unparsing LDAP URLs
-  as described in RFC 2255.
-
-  BNF definition of LDAP URL:
-
-    hostport     host:port
-    dn           distinguished name
-    attributes   list with attributes
-    scope        search scope string
-    filter       LDAP search filter
-    ldapurl    = scheme "://" [hostport] ["/"
-                     [dn ["?" [attrs] ["?" [scope]
-                     ["?" [filter] ["?" extensions]]]]]]
+  as described in RFC 4516.
 
   Usable class attributes:
     urlscheme
