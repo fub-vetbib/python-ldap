@@ -1,37 +1,69 @@
-# $Id$
+# Makefile for Sphinx documentation
+#
 
-PYTHONSRC=	/home/michael/src/Python-2.5
-DOCTOOLSDIR=	$(PYTHONSRC)/Doc/tools
-PAPER=		a4
-DVIPS=		dvips -N0 -t $(PAPER)
-PYTHON=		python
-MKHOWTO=	$(DOCTOOLSDIR)/mkhowto
-MKDVI=		$(MKHOWTO) --dvi
-MKPDF=		$(MKHOWTO) --pdf
-TEXINPUTS=	$(PYTHONSRC)/Doc/texinputs::
-ENV=		/usr/bin/env TEXINPUTS=$(TEXINPUTS)
+# You can set these variables from the command line.
+PYTHON	      = python
+SPHINXOPTS    =
+SPHINXBUILD   = /home/michael/src/Python-2.6a2/Doc/tools/sphinx-build.py
+PAPER         =
 
-SRCS=python-ldap.tex ldap.tex version.tex ldif.tex ldapurl.tex \
-     ldap-async.tex ldap-modlist.tex ldap-schema.tex
+# Internal variables.
+PAPEROPT_a4     = -D latex_paper_size=a4
+PAPEROPT_letter = -D latex_paper_size=letter
+ALLSPHINXOPTS   = -d .build/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
 
-all: python-ldap.dvi python-ldap.ps python-ldap.pdf python-ldap/index.html
+.PHONY: help clean html web htmlhelp latex changes linkcheck
 
-python-ldap/index.html: $(SRCS)
-	$(ENV) $(MKHOWTO) --html python-ldap.tex
-python-ldap.ps: python-ldap.dvi
-	$(ENV) $(DVIPS) -o python-ldap.ps python-ldap.dvi
-python-ldap.dvi: $(SRCS)
-	$(ENV) $(MKDVI) python-ldap.tex
-python-ldap.pdf: $(SRCS)
-	$(ENV) $(MKPDF) python-ldap.tex
-version.tex:
-	v=`${PYTHON} ../setup.py --version`; \
-	d=`date +"%B %e, %Y"`; \
-	echo "%release{$$v}%setshortversion{$$v}%date{$$d}" | tr % "\\\\" >$@
+help:
+	@echo "Please use \`make <target>' where <target> is one of"
+	@echo "  html      to make standalone HTML files"
+	@echo "  web       to make files usable by Sphinx.web"
+	@echo "  htmlhelp  to make HTML files and a HTML help project"
+	@echo "  latex     to make LaTeX files, you can set PAPER=a4 or PAPER=letter"
+	@echo "  changes   to make an overview over all changed/added/deprecated items"
+	@echo "  linkcheck to check all external links for integrity"
+
 clean:
-	rm -f *~ *.bck *.aux *.idx *.ilg *.ind *.log *.toc 
-	rm -f *.bkm *.syn *.pla *.l2h *.how
-	rm -f python-ldap.dvi python-ldap.ps python-ldap.pdf
-	rm -f version.tex
-	rm -rf python-ldap
+	-rm -rf .build/*
 
+html:
+	mkdir -p .build/html .build/doctrees
+	$(PYTHON) $(SPHINXBUILD) -b html $(ALLSPHINXOPTS) .build/html
+	@echo
+	@echo "Build finished. The HTML pages are in .build/html."
+
+web:
+	mkdir -p .build/web .build/doctrees
+	$(PYTHON) $(SPHINXBUILD) -b web $(ALLSPHINXOPTS) .build/web
+	@echo
+	@echo "Build finished; now you can run"
+	@echo "  python -m sphinx.web .build/web"
+	@echo "to start the server."
+
+htmlhelp:
+	mkdir -p .build/htmlhelp .build/doctrees
+	$(PYTHON) $(SPHINXBUILD) -b htmlhelp $(ALLSPHINXOPTS) .build/htmlhelp
+	@echo
+	@echo "Build finished; now you can run HTML Help Workshop with the" \
+	      ".hhp project file in .build/htmlhelp."
+
+latex:
+	mkdir -p .build/latex .build/doctrees
+	$(PYTHON) $(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) .build/latex
+	@echo
+	@echo "Build finished; the LaTeX files are in .build/latex."
+	@echo "Run \`make all-pdf' or \`make all-ps' in that directory to" \
+	      "run these through (pdf)latex."
+
+changes:
+	mkdir -p .build/changes .build/doctrees
+	$(PYTHON) $(SPHINXBUILD) -b changes $(ALLSPHINXOPTS) .build/changes
+	@echo
+	@echo "The overview file is in .build/changes."
+
+linkcheck:
+	mkdir -p .build/linkcheck .build/doctrees
+	$(PYTHON) $(SPHINXBUILD) -b linkcheck $(ALLSPHINXOPTS) .build/linkcheck
+	@echo
+	@echo "Link check complete; look for any errors in the above output " \
+	      "or in .build/linkcheck/output.txt."
