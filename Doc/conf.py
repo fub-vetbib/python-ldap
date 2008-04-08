@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # python-ldap documentation build configuration file, created by
-# sphinx-quickstart on Wed Mar 26 20:14:19 2008.
+# sphinx-quickstart on Sat Mar 29 15:08:17 2008.
 #
 # This file is execfile()d with the current directory set to its containing dir.
 #
@@ -34,15 +34,15 @@ master_doc = 'index'
 
 # General substitutions.
 project = 'python-ldap'
-copyright = '2008, Michael Str”der'
+copyright = '2008, python-ldap project team'
 
 # The default replacements for |version| and |release|, also used in various
 # other places throughout the built documents.
 #
 # The short X.Y version.
-version = '2.3.2'
+version = '2.3.4'
 # The full version, including alpha/beta/rc tags.
-release = '2.3.2'
+release = '2.3.4'
 
 # There are two options for replacing |today|: either, you set today to some
 # non-false value, then it is used:
@@ -100,7 +100,7 @@ html_last_updated_fmt = '%b %d, %Y'
 #html_additional_pages = {}
 
 # If false, no module index is generated.
-#html_use_modindex = True
+html_use_modindex = True
 
 # If true, the reST sources are included in the HTML build as _sources/<name>.
 #html_copy_source = True
@@ -120,7 +120,8 @@ htmlhelp_basename = 'python-ldapdoc'
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, document class [howto/manual]).
-#latex_documents = []
+latex_documents = [('index', 'python-ldap.tex', 'python-ldap Documentation',
+                    'python-ldap project', 'manual')]
 
 # Additional stuff for the LaTeX preamble.
 #latex_preamble = ''
