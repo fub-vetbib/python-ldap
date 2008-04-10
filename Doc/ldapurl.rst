@@ -17,8 +17,14 @@
 This module parses and generates LDAP URLs.    It is implemented in pure Python
 and does not rely on any  non-standard modules. Therefore it can be used stand-
 alone without  the rest of the python-ldap package.    Compability note: This
-module has been solely tested on Python 2.x and above.    The :mod:`ldapurl`
-module exports the following constants:
+module has been solely tested on Python 2.x and above.
+
+.. seealso::
+
+   :rfc:`4516` - The LDAP URL Format
+
+
+The :mod:`ldapurl` module exports the following constants:
 
 .. % Author of the module code;
 .. % Leave at least one blank line after this, to simplify ad-hoc tools
@@ -50,10 +56,6 @@ module exports the following constants:
 
 .. data:: LDAP_SCOPE_SUBTREE
 
-
-.. seealso::
-
-   :rfc:`4516` - The LDAP URL Format
 
 
 .. _ldapurl-ldapurl:
