@@ -1,21 +1,27 @@
-.. python-ldap documentation master file, created by sphinx-quickstart on Wed Mar 26 20:14:19 2008.
+.. python-ldap documentation master file, created by sphinx-quickstart on Sat Mar 29 15:08:17 2008.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-LDAP programming with Python  
-=============================
+*****************************
+  python-ldap Documentation  
+*****************************
 
-This document describes the package python-ldap with its various modules
+.. % $Id$
 
-This manual assumes basic knowledge about the Python language and the
-LDAP standard.
+.. topic:: Abstract
+
+   This document describes the package python-ldap with its various modules.  This
+   manual assumes basic knowledge about the Python language and the LDAP standard.
 
 
-Contents:
+Contents
+==========
+
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 2 
 
+   installing.rst
    ldap.rst
    ldap-async.rst
    ldap-controls.rst
