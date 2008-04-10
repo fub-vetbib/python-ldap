@@ -2,9 +2,8 @@
 #
 
 # You can set these variables from the command line.
-PYTHON	      = python
 SPHINXOPTS    =
-SPHINXBUILD   = /home/michael/src/Python-2.6a2/Doc/tools/sphinx-build.py
+SPHINXBUILD   = sphinx-build
 PAPER         =
 
 # Internal variables.
@@ -28,13 +27,13 @@ clean:
 
 html:
 	mkdir -p .build/html .build/doctrees
-	$(PYTHON) $(SPHINXBUILD) -b html $(ALLSPHINXOPTS) .build/html
+	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) .build/html
 	@echo
 	@echo "Build finished. The HTML pages are in .build/html."
 
 web:
 	mkdir -p .build/web .build/doctrees
-	$(PYTHON) $(SPHINXBUILD) -b web $(ALLSPHINXOPTS) .build/web
+	$(SPHINXBUILD) -b web $(ALLSPHINXOPTS) .build/web
 	@echo
 	@echo "Build finished; now you can run"
 	@echo "  python -m sphinx.web .build/web"
@@ -42,14 +41,14 @@ web:
 
 htmlhelp:
 	mkdir -p .build/htmlhelp .build/doctrees
-	$(PYTHON) $(SPHINXBUILD) -b htmlhelp $(ALLSPHINXOPTS) .build/htmlhelp
+	$(SPHINXBUILD) -b htmlhelp $(ALLSPHINXOPTS) .build/htmlhelp
 	@echo
 	@echo "Build finished; now you can run HTML Help Workshop with the" \
 	      ".hhp project file in .build/htmlhelp."
 
 latex:
 	mkdir -p .build/latex .build/doctrees
-	$(PYTHON) $(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) .build/latex
+	$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) .build/latex
 	@echo
 	@echo "Build finished; the LaTeX files are in .build/latex."
 	@echo "Run \`make all-pdf' or \`make all-ps' in that directory to" \
@@ -57,13 +56,13 @@ latex:
 
 changes:
 	mkdir -p .build/changes .build/doctrees
-	$(PYTHON) $(SPHINXBUILD) -b changes $(ALLSPHINXOPTS) .build/changes
+	$(SPHINXBUILD) -b changes $(ALLSPHINXOPTS) .build/changes
 	@echo
 	@echo "The overview file is in .build/changes."
 
 linkcheck:
 	mkdir -p .build/linkcheck .build/doctrees
-	$(PYTHON) $(SPHINXBUILD) -b linkcheck $(ALLSPHINXOPTS) .build/linkcheck
+	$(SPHINXBUILD) -b linkcheck $(ALLSPHINXOPTS) .build/linkcheck
 	@echo
 	@echo "Link check complete; look for any errors in the above output " \
 	      "or in .build/linkcheck/output.txt."
