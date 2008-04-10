@@ -9,9 +9,10 @@ Prerequisites
 The following software packages are required to be installed
 on the local system when building python-ldap:
 
+- Python including its development files: http://www.python.org/
 - OpenLDAP client libs: http://www.openldap.org/
 - OpenSSL (optional): http://www.openssl.org/
-- cyrus-sasl (optional)
+- cyrus-sasl (optional): http://asg.web.cmu.edu/sasl/sasl-library.html
 - Kerberos libs, MIT or heimdal (optional)
 
 Definitions in setup.cfg
