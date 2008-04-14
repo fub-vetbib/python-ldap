@@ -15,10 +15,28 @@ on the local system when building python-ldap:
 - cyrus-sasl (optional): http://asg.web.cmu.edu/sasl/sasl-library.html
 - Kerberos libs, MIT or heimdal (optional)
 
-Definitions in setup.cfg
-------------------------
+Section [_ldap] of setup.cfg
+----------------------------
 
 The file setup.cfg allows to set some build and installation
 parameters for reflecting the local installation of required
-software packages.
+software packages:
+
+.. data:: library_dirs
+
+   Specifies in which directories to search for required libraries.
+
+.. data:: include_dirs
+
+   Specifies in which directories to search for include files of required libraries.
+
+.. data:: libs
+
+   A space-separated list of library names to link to.
+
+.. data:: extra_compile_args
+
+   Compiler options.
+
+.. data:: extra_objects
 
