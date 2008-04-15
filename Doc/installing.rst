@@ -11,6 +11,7 @@ on the local system when building python-ldap:
 
 - Python including its development files: http://www.python.org/
 - OpenLDAP client libs version 2.3 or later: http://www.openldap.org/
+  It is not possible and not supported to build with prior versions.
 - OpenSSL (optional): http://www.openssl.org/
 - cyrus-sasl (optional): http://asg.web.cmu.edu/sasl/sasl-library.html
 - Kerberos libs, MIT or heimdal (optional)
