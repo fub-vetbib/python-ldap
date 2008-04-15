@@ -15,7 +15,7 @@ Prerequisites:
 
   Optional:
 
-    - Cyrus SASL 2.1.x or newer (see )
+    - Cyrus SASL 2.1.x or newer (see http://asg.web.cmu.edu/sasl/sasl-library.html)
 
     - OpenSSL 0.9.6 or newer (see http://www.openssl.org)
 
