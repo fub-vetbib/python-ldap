@@ -1,10 +1,11 @@
 .. % $Id: ldap-dn.tex,v 1.8 2008/03/26 12:10:12 stroeder Exp 
 
+***********************
 Building and installing
-=========================
+***********************
 
 Prerequisites
--------------
+=============
 
 The following software packages are required to be installed
 on the local system when building python-ldap:
@@ -17,7 +18,7 @@ on the local system when building python-ldap:
 - Kerberos libs, MIT or heimdal (optional)
 
 Section [_ldap] of setup.cfg
-----------------------------
+============================
 
 The file setup.cfg allows to set some build and installation
 parameters for reflecting the local installation of required
@@ -33,11 +34,39 @@ software packages:
 
 .. data:: libs
 
-   A space-separated list of library names to link to.
+   A space-separated list of library names to link to (see :ref:`libs-used-label`).
 
 .. data:: extra_compile_args
 
    Compiler options.
 
 .. data:: extra_objects
+
+.. _libs-used-label:
+
+Libs used
+---------
+
+.. data:: ldap
+
+   The LDAP protocol library of OpenLDAP.
+
+.. data:: ldap
+
+   The BER encoder/decoder library of OpenLDAP.
+
+.. data:: sasl2
+
+   The Cyrus-SASL library if needed and present during build
+
+.. data:: ssl
+
+   The SSL/TLS library of OpenSSL if needed and present during build
+
+.. data:: crypto
+
+   The basic cryptographic library of OpenSSL if needed and present during build
+
+Examples
+^^^^^^^^^
 

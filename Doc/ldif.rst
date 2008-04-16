@@ -5,9 +5,9 @@
 .. % \refbimodindex, \refstmodindex, \refexmodindex or \refmodindex, as
 .. % appropriate.
 
-
+#####################################
 :mod:`ldif` LDIF parser and generator
-==========================================
+#####################################
 
 .. module:: ldif
    :synopsis: Parses and generates LDIF files

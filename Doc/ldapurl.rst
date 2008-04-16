@@ -6,8 +6,9 @@
 .. % appropriate.
 
 
+################################
 :mod:`ldapurl` LDAP URL handling
-=====================================
+################################
 
 .. module:: ldapurl
    :synopsis: Parses and generates LDAP URLs
