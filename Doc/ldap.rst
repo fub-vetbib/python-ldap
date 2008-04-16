@@ -1054,8 +1054,8 @@ LDAPObject instances have the following methods:
    is assumed by the LDAP server after a SASL bind.
 
 
-LDAP options
-^^^^^^^^^^^^^
+Accessing LDAP options
+^^^^^^^^^^^^^^^^^^^^^^
 
 .. %%------------------------------------------------------------
 .. %% get_option
@@ -1063,8 +1063,8 @@ LDAP options
 
    .. % -> None
 
-  This function returns the value of the LDAPObject option
-  specified by *option*.
+   This method returns the value of the LDAPObject option
+   specified by *option*.
 
 
 .. %%------------------------------------------------------------
@@ -1073,8 +1073,8 @@ LDAP options
 
    .. % -> None
 
-     This function sets the value of the LDAPObject option
-     specified by *option* to *invalue*.
+   This method sets the value of the LDAPObject option
+   specified by *option* to *invalue*.
 
 
 .. %%------------------------------------------------------------
