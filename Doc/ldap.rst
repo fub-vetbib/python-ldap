@@ -1083,10 +1083,15 @@ LDAP options
 
    .. %-> None
 
-   Enables or disables manageDSAit mode (see draft-zeilenga-ldap-namedref)
+   Enables or disables manageDSAit mode
    according to the specified integer flag *enable*. The
    integer flag *critical* specifies if the use of this extended
    control is marked critical.
+
+   .. seealso::
+
+      :rfc:`3296` - Named Subordinate References in
+                    Lightweight Directory Access Protocol (LDAP) Directories
 
    .. note::
 
