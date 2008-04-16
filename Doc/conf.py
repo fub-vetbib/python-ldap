@@ -106,7 +106,7 @@ html_use_modindex = True
 #html_copy_source = True
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'python-ldapdoc'
+htmlhelp_basename = 'python-ldap-doc'
 
 
 # Options for LaTeX output
@@ -130,4 +130,4 @@ latex_documents = [('index', 'python-ldap.tex', 'python-ldap Documentation',
 #latex_appendices = []
 
 # If false, no module index is generated.
-#latex_use_modindex = True
+latex_use_modindex = True
