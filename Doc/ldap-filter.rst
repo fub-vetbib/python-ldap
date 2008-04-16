@@ -19,7 +19,7 @@
 The :mod:`ldap.filter` module defines the following functions:
 
 
-.. function:: escape_filter_chars(assertion_value[, escape_mode=:const:`0`])
+.. function:: escape_filter_chars(assertion_value[, escape_mode=0])
 
    This function escapes characters in *assertion_value* which  are special in LDAP
    filters. You should use this function when  building LDAP filter strings from
