@@ -1109,7 +1109,7 @@ These attributes are mutable unless described as read-only.
 
 .. %%------------------------------------------------------------
 .. %% deref
-.. attribute:: LDAP.deref
+.. attribute:: LDAPObject.deref
 
    .. % -> int
 
@@ -1122,7 +1122,7 @@ These attributes are mutable unless described as read-only.
 
 .. %%------------------------------------------------------------
 .. %% network_timeout
-.. attribute:: LDAP.network_timeout
+.. attribute:: LDAPObject.network_timeout
 
    .. % -> int
 
@@ -1134,7 +1134,7 @@ These attributes are mutable unless described as read-only.
 
 .. %%------------------------------------------------------------
 .. %% protocol_version
-.. attribute:: LDAP.protocol_version
+.. attribute:: LDAPObject.protocol_version
 
    .. % -> int
 
@@ -1152,7 +1152,7 @@ These attributes are mutable unless described as read-only.
 
 .. %%------------------------------------------------------------
 .. %% sizelimit
-.. attribute:: LDAP.sizelimit
+.. attribute:: LDAPObject.sizelimit
 
    .. % -> int
 
@@ -1165,7 +1165,7 @@ These attributes are mutable unless described as read-only.
 
 .. %%------------------------------------------------------------
 .. %% timelimit
-.. attribute:: LDAP.timelimit
+.. attribute:: LDAPObject.timelimit
 
    .. % -> int
 
@@ -1178,7 +1178,7 @@ These attributes are mutable unless described as read-only.
 
 .. %%------------------------------------------------------------
 .. %% timeout
-.. attribute:: LDAP.timeout
+.. attribute:: LDAPObject.timeout
 
    .. % -> int
 
