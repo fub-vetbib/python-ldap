@@ -44,7 +44,7 @@ class cidict(UserDict):
     return UserDict.has_key(self,lower(key))
 
   def __contains__(self,key):
-    return self.has_key(self,key)
+    return self.has_key(key)
 
   def get(self,key,failobj=None):
     try:

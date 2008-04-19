@@ -564,7 +564,7 @@ class Entry(UserDict.UserDict):
       self[key] = dict[key]
 
   def __contains__(self,key):
-    return self.has_key(self,key)
+    return self.has_key(key)
 
   def __getitem__(self,nameoroid):
     return self.data[self._at2key(nameoroid)]
