@@ -17,12 +17,14 @@ on the local system when building python-ldap:
 - cyrus-sasl (optional): http://asg.web.cmu.edu/sasl/sasl-library.html
 - Kerberos libs, MIT or heimdal (optional)
 
-Section [_ldap] of setup.cfg
-============================
+setup.cfg
+=========
 
 The file setup.cfg allows to set some build and installation
 parameters for reflecting the local installation of required
-software packages:
+software packages. Only section [_ldap] is described here.
+More information about other sections can be found in the
+documentation of Python's DistUtils.
 
 .. data:: library_dirs
 
@@ -69,6 +71,20 @@ Libs used
 
    The basic cryptographic library of OpenSSL if needed and present during build
 
-Examples
-^^^^^^^^^
+Example
+=============
+
+The following example is for a full-featured build (including SSL and SASL support)
+of python-ldap with OpenLDAP installed in a different prefix directory
+(here /opt/openldap-2.3) and SASL header files found in /usr/include/sasl.
+Debugging symbols are preserved with compile option -g. ::
+
+  [_ldap]
+  library_dirs = /opt/openldap-2.3/lib
+  include_dirs = /opt/openldap-2.3/include /usr/include/sasl
+
+  extra_compile_args = -g
+  extra_objects =
+
+  libs = ldap_r lber sasl2 ssl crypto
 
