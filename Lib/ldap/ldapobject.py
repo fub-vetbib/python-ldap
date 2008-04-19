@@ -100,8 +100,8 @@ class SimpleLDAPObject:
       if __debug__ and self._trace_level>=2:
         self._trace_file.write('=> LDAPError - %s: %s\n' % (e.__class__.__name__,str(e)))
       raise
-    if __debug__ and self._trace_level>=2:
-      if result!=None and result!=(None,None):
+    if __debug__ and self._trace_level>=1:
+      if self._trace_level>=2 and result!=None and result!=(None,None):
         self._trace_file.write('=> result: %s\n' % (repr(result)))
     return result
 
@@ -154,7 +154,8 @@ class SimpleLDAPObject:
     try:
       res = self.result(msgid,all=1,timeout=self.timeout)
     except (ldap.CANCELLED,ldap.SUCCESS):
-      pass
+      res = None
+    return res
 
   def add_ext(self,dn,modlist,serverctrls=None,clientctrls=None):
     """
