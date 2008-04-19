@@ -47,11 +47,12 @@ software packages:
 Libs used
 ---------
 
-.. data:: ldap
+.. data:: ldap or ldap_r
 
-   The LDAP protocol library of OpenLDAP.
+   The LDAP protocol library of OpenLDAP. ldap_r is the reentrant version
+   and should be preferred.
 
-.. data:: ldap
+.. data:: lber
 
    The BER encoder/decoder library of OpenLDAP.
 
