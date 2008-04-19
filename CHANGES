@@ -1,4 +1,13 @@
 ----------------------------------------------------------------
+Released 2.3.5 2008-04-xx
+
+Changes since 2.3.4:
+
+Lib/
+* Fixed methods ldap.cidict.__contains__() and
+  ldap.schema.models.Entry.__contains__()
+
+----------------------------------------------------------------
 Released 2.3.4 2008-03-29
 
 Changes since 2.3.3:
