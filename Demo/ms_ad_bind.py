@@ -2,7 +2,7 @@
 
 import ldap,ldap.sasl
 
-ldap_uri = "ldap://172.16.15.10"
+ldap_uri = "ldap://dc1.example.com"
 dn = "CN=Anna Blume,CN=Users,DC=addomain,DC=example,DC=com"
 sAMAccountName = "ABlume"
 userPrincipalName = "ablume@addomain.example.com"
