@@ -59,18 +59,26 @@ The :mod:`ldap` module defines the following functions:
 .. % should be enclosed in \var{...}.
 
 
-.. function:: initialize(uri)
+.. function:: initialize(uri [, trace_level=0 [, trace_file=sys.stdout [, trace_stack_limit=None]]])
 
    Opens a new connection with an LDAP server, and return an LDAP object
    (see :ref:`ldap-objects`) used to perform operations on that server.  Parameter
    *uri* has to be a valid LDAP URL.
-
-   .. % -> LDAPObject
-
+   The optional arguments are for generating debug log information:
+   *trace_level* specifies the amount of information being logged,
+   *trace_file* specifies a file-like object as target of the debug log and
+   *trace_stack_limit* specifies the stack limit of tracebacks in debug log.
+   Possible values for *trace_level* are
+   :const:`0` for no logging,
+   :const:`1` for only logging the method calls with arguments,
+   :const:`2` for logging the method calls with arguments and the complete results and 
+   :const:`3` for also logging the traceback of method calls.
 
    .. seealso::
 
       :rfc:`4516` - Lightweight Directory Access Protocol (LDAP): Uniform Resource Locator
+
+   .. % -> LDAPObject
 
 .. function:: open(host [, port=PORT])
 
