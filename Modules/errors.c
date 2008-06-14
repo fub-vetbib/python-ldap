@@ -200,4 +200,8 @@ LDAPinit_errors( PyObject*d ) {
 	seterrobj(CANNOT_CANCEL);
 #endif
 
+#ifdef LDAP_ASSERTION_FAILED
+	seterrobj(ASSERTION_FAILED);
+#endif
+
 }
