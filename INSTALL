@@ -6,7 +6,7 @@ Prerequisites:
 
   Required:
 
-    - Python 2.0 or newer (see http://www.python.org)
+    - Python 2.3 or newer (see http://www.python.org)
 
     - OpenLDAP libs (see http://www.openldap.org)
       You need OpenLDAP 2.3.x client libs or newer for full
@@ -17,7 +17,7 @@ Prerequisites:
 
     - Cyrus SASL 2.1.x or newer (see http://asg.web.cmu.edu/sasl/sasl-library.html)
 
-    - OpenSSL 0.9.6 or newer (see http://www.openssl.org)
+    - OpenSSL 0.9.7 or newer (see http://www.openssl.org)
 
 Quick build instructions:
     edit setup.cfg (see Build/ for platform-specific examples)
