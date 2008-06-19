@@ -58,6 +58,12 @@ Acknowledgements:
 
    Thanks to Mauro Cicognini <mcicogni at siosistemi.it> for the 
    WIN32/MSVC6 bits, and the pre-built WIN32 ldap.pyd.
+   
+   Thanks to Waldemar Osuch <waldemar.osuch at gmail.com> for contributing
+   the new-style docs based on reStructuredText.
+
+   Thanks to Torsten Kurbad <torsten at tk-webart.de> for the
+   easy_install support.
 
    Thanks to James Andrewartha <jamesa at daa.com.au> for
    significant contribution to Doc/*.tex.
@@ -77,8 +83,7 @@ Acknowledgements:
        Wido Depping <wido.depping at gmail.com>
        Deepak Giridharagopal <deepak at arlut.utexas.edu>
        Ingo Steuwer <steuwer at univention.de>
-       Andreas Hasenack <ahasenack at terra.com.br>
-       Torsten Kurbad <torsten at tk-webart.de>
+       Andreas Hasenack <ahasenack at terra.com.br>       
        Matej Vela <vela at debian.org>
 
    Thanks to all the guys on the python-ldap-dev mailing list for
