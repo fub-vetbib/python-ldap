@@ -510,7 +510,7 @@ class NameForm(SchemaElement):
     assert type(self.names)==TupleType
     assert self.desc is None or type(self.desc)==StringType
     assert type(self.obsolete)==BooleanType and (self.obsolete==0 or self.obsolete==1)
-    assert type(self.oc)==TupleType
+    assert type(self.oc)==StringType
     assert type(self.must)==TupleType
     assert type(self.may)==TupleType
     return
@@ -520,7 +520,7 @@ class NameForm(SchemaElement):
     result.append(self.key_list('NAME',self.names,quoted=1))
     result.append(self.key_attr('DESC',self.desc,quoted=1))
     result.append({0:'',1:' OBSOLETE'}[self.obsolete])
-    result.append(self.key_list('OC',self.oc,sep=' $ '))
+    result.append(self.key_attr('OC',self.oc))
     result.append(self.key_list('MUST',self.must,sep=' $ '))
     result.append(self.key_list('MAY',self.may,sep=' $ '))
     return '( %s )' % ''.join(result)
