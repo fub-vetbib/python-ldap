@@ -495,7 +495,7 @@ class NameForm(SchemaElement):
     'NAME':(()),
     'DESC':(None,),
     'OBSOLETE':None,
-    'OC':(()),
+    'OC':(None,),
     'MUST':(()),
     'MAY':(()),
   }
@@ -504,7 +504,7 @@ class NameForm(SchemaElement):
     self.names = d['NAME']
     self.desc = d['DESC'][0]
     self.obsolete = d['OBSOLETE']!=None
-    self.oc = d['OC']
+    self.oc = d['OC'][0]
     self.must = d['MUST']
     self.may = d['MAY']
     assert type(self.names)==TupleType

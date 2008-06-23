@@ -7,7 +7,8 @@ Lib/
 * Fixed methods ldap.cidict.__contains__() and
   ldap.schema.models.Entry.__contains__()
 * FWIW method LDAPObject.cancel_s() returns a result now
-
+* Fixed ldap.schema.models.NameForm: Class attribute oc is now
+  of type string, not tuple to be compliant with RFC 4512
 ----------------------------------------------------------------
 Released 2.3.4 2008-03-29
 
