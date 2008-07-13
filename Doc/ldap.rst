@@ -689,6 +689,7 @@ LDAPObject instances have the following methods:
    In opposite to :meth:`abandon()` this extended operation gets an result from
    the server and thus should be preferred if the server supports it.
 
+   :rfc:`3909` - Lightweight Directory Access Protocol (LDAP): Cancel Operation
 
 
 .. %%------------------------------------------------------------
