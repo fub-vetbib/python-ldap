@@ -205,6 +205,10 @@ LDAP_get_option(LDAPObject *self, int option)
     case LDAP_OPT_X_TLS_RANDOM_FILE:
 #ifdef HAVE_SASL
     case LDAP_OPT_X_SASL_SECPROPS:
+    case LDAP_OPT_X_SASL_MECH:
+    case LDAP_OPT_X_SASL_REALM:
+    case LDAP_OPT_X_SASL_AUTHCID:
+    case LDAP_OPT_X_SASL_AUTHZID:
 #endif
 	    /* String-valued options */
 	    if (self) LDAP_BEGIN_ALLOW_THREADS(self);
