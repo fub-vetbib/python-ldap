@@ -683,8 +683,8 @@ l_ldap_sasl_interactive_bind_s( LDAPObject* self, PyObject* args )
     msgid = ldap_sasl_interactive_bind_s(self->ldap, 
 					 who, 
 					 c_mechanism, 
-					 server_ldcs, 
-					 client_ldcs,
+					 (LDAPControl**) server_ldcs, 
+					 (LDAPControl**) client_ldcs,
 					 sasl_flags, 
 					 py_ldap_sasl_interaction, 
 					 SASLObject);

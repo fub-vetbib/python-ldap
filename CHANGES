@@ -7,6 +7,8 @@ Modules/
 * get_option(): Added support for reading more SASL options.
   (OPT_X_SASL_MECH, OPT_X_SASL_REALM, OPT_X_SASL_AUTHCID and
   OPT_X_SASL_AUTHZID)
+* Added some explicit type casts to fix issues while building
+  with SunStudio
 
 ----------------------------------------------------------------
 Released 2.3.5 2008-07-06
