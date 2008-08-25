@@ -611,8 +611,8 @@ int py_ldap_sasl_interaction(   LDAP *ld,
 				void *in )
 {
   /* These are just typecasts */
-  sasl_interact_t *interact = in;
-  PyObject *SASLObject = defaults;
+  sasl_interact_t *interact = (sasl_interact_t *) in;
+  PyObject *SASLObject = (PyObject *) defaults;
   /* Loop over the array of sasl_interact_t structs */
   while( interact->id != SASL_CB_LIST_END ) {
     int rc = 0;
