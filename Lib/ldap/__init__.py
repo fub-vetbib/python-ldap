@@ -46,10 +46,11 @@ _ldap_module_lock = LDAPLock()
 
 from functions import open,initialize,init,get_option,set_option
 
-from ldap.dn import explode_dn,explode_rdn
+from ldap.dn import explode_dn,explode_rdn,str2dn,dn2str
+del str2dn
+del dn2str
 
 # More constants
 
 # For compability of 2.3 and 2.4 OpenLDAP API
 OPT_DIAGNOSTIC_MESSAGE = OPT_ERROR_STRING
-
