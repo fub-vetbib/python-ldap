@@ -72,6 +72,6 @@ with :mod:`ldif` module, skip some entries and write the result to stdout. ::
             if i == dn: return
          self.writer.unparse(dn, entry)
 
-   parser = MyLDIF(open("input.ldif", 'r'), sys.stdout)
+   parser = MyLDIF(open("input.ldif", 'rb'), sys.stdout)
    parser.parse()
 
