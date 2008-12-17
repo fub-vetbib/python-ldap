@@ -10,7 +10,7 @@ Python compability note:
 Tested with Python 2.0+.
 """
 
-__version__ = '0.5.2'
+__version__ = '0.5.3'
 
 import string,base64
 
@@ -265,7 +265,7 @@ else:
       """
       Parameters:
       input_file
-          File-object to read the LDIF input from
+          File-object to read the DSMLv1 input from
       ignored_attr_types
           Attributes with these attribute type names will be ignored.
       max_entries
@@ -286,8 +286,8 @@ else:
 
     def handle(self,*args,**kwargs):
       """
-      Process a single content LDIF record. This method should be
-      implemented by applications using LDIFParser.
+      Process a single content DSMLv1 record. This method should be
+      implemented by applications using DSMLParser.
       """
       import pprint
       pprint.pprint(args)
