@@ -1063,6 +1063,10 @@ LDAPObject instances have the following methods:
    It is useful for finding out to find out which identity
    is assumed by the LDAP server after a SASL bind.
 
+   .. seealso::
+
+      :rfc:`4532` - Lightweight Directory Access Protocol (LDAP) "Who am I?" Operation
+
 
 Connection-specific LDAP options
 --------------------------------
