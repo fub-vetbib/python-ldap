@@ -18,7 +18,7 @@ LDAPexception_class;
 
 #ifdef LDAP_ASSERTION_FAILED
 #define LDAP_ERROR_MAX          LDAP_ASSERTION_FAILED
-#elif
+#else
 #define LDAP_ERROR_MAX          LDAP_OTHER
 #endif
 
