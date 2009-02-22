@@ -132,11 +132,13 @@ General
 
 .. data:: SASL_AVAIL
 
-   Boolean flag indicating whether python-ldap was built with support for SASL (Cyrus-SASL).
+   Integer where a non-zero value indicates that python-ldap was built with
+   support for SASL (Cyrus-SASL).
 
 .. data:: TLS_AVAIL
 
-   Boolean flag indicating whether python-ldap was built with support for SSL/TLS (OpenSSL).
+   Integer where a non-zero value indicates that python-ldap was built with
+   support for SSL/TLS (OpenSSL or similar libs).
 
 
 .. _ldap-options:
@@ -560,16 +562,16 @@ call does not indicate success.
 .. % ---- 3.4. ----
 .. % Other standard environments:
 .. %
-.. %  classdesc	- Python classes; same arguments are funcdesc
-.. %  methoddesc	- methods, like funcdesc but has an optional parameter 
-.. %		  to give the type name: \begin{methoddesc}[mytype]{name}{args
-.. %		  By default, the type name will be the name of the
-.. %		  last class defined using classdesc.  The type name
-.. %		  is required if the type is implemented in C (because 
-.. %		  there's no classdesc) or if the class isn't directly 
-.. %		  documented (if it's private).
-.. %  memberdesc	- data members, like datadesc, but with an optional
-.. %		  type name like methoddesc.
+.. %  classdesc       - Python classes; same arguments are funcdesc
+.. %  methoddesc      - methods, like funcdesc but has an optional parameter 
+.. %            to give the type name: \begin{methoddesc}[mytype]{name}{args
+.. %            By default, the type name will be the name of the
+.. %            last class defined using classdesc.  The type name
+.. %            is required if the type is implemented in C (because 
+.. %            there's no classdesc) or if the class isn't directly 
+.. %            documented (if it's private).
+.. %  memberdesc      - data members, like datadesc, but with an optional
+.. %            type name like methoddesc.
 
 
 .. _ldap-objects:
@@ -791,12 +793,12 @@ LDAPObject instances have the following methods:
 .. %% modrdn
 .. method:: LDAPObject.modrdn(dn, newrdn [, delold=1])
 
-   ..	%-> int
+   .. %-> int
 
 
 .. method::  LDAPObject.modrdn_s(dn, newrdn [, delold=1)
 
-   ..	% -> None
+   .. % -> None
 
    Perform a ``modify RDN`` operation, (i.e. a renaming operation).
    These routines take *dn* (the DN of the entry whose RDN is to be changed,
@@ -983,9 +985,9 @@ LDAPObject instances have the following methods:
    with the entry. The keys of *attrs* are strings, and the associated
    values are lists of strings.
 
-   The DN in *dn* is extracted using the underlying :cfunc:`ldap_get_dn()`
-   function,
-   which may raise an exception if the DN is malformed.
+   The DN in *dn* is automatically extracted using the underlying libldap
+   function :cfunc:`ldap_get_dn()`, which may raise an exception if the
+   DN is malformed.
 
    If *attrsonly* is non-zero, the values of *attrs* will be meaningless
    (they are not transmitted in the result).

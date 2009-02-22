@@ -15,6 +15,12 @@ Modules/
   with SunStudio
 * Fixed compiling issue with GCC 4.4
   (see SF#2555793, thanks to Matej and Martin)
+
+Doc/
+* Clarified not to use ldap_get_dn() directly
+* Fixed description of ldap.SASL_AVAIL and ldap.TLS_AVAIL
+  (see SF#2555804, thanks to Matej and Martin)
+
 ----------------------------------------------------------------
 Released 2.3.5 2008-07-06
 
