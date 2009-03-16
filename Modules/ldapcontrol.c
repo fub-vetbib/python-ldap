@@ -241,13 +241,15 @@ encode_rfc2696(PyObject *self, PyObject *args)
     PyObject *res = 0;
     BerElement *ber = 0;
     struct berval cookie, *ctrl_val;
+    Py_ssize_t cookie_len;
     unsigned long size;
     ber_tag_t tag;
 
     if (!PyArg_ParseTuple(args, "is#:encode_page_control", &size,
-                          &cookie.bv_val, &cookie.bv_len)) {
+                          &cookie.bv_val, &cookie_len)) {
         goto endlbl;
     }
+    cookie.bv_len = (ber_len_t) cookie_len;
 
     if (!(ber = ber_alloc_t(LBER_USE_DER))) {
         LDAPerr(LDAP_NO_MEMORY);
