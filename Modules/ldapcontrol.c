@@ -303,7 +303,7 @@ decode_rfc2696(PyObject *self, PyObject *args)
     Py_ssize_t ldctl_value_len;
 
     if (!PyArg_ParseTuple(args, "s#:decode_page_control",
-                          &ldctl_value.bv_val, &ldctl_value.bv_len)) {
+                          &ldctl_value.bv_val, &ldctl_value_len)) {
         goto endlbl;
     }
     ldctl_value.bv_len = (ber_len_t) ldctl_value_len;
