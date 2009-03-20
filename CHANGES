@@ -6,6 +6,13 @@ Changes since 2.3.6:
 Modules/
 * Fixed ldapcontrol.c not to raise ldap.ENCODING_ERROR in
   function encode_rfc2696() on 64-bit systems
+* Fixed seg fault if error code in a LDAP response was outside
+  the known error codes and could not be mapped to a specific
+  exception class (thanks to Sean)
+* errors.c: LDAP_ERROR_MAX set to LDAP_PROXIED_AUTHORIZATION_DENIED
+  if available in OpenLDAP header
+* new exception class ldap.PROXIED_AUTHORIZATION_DENIED
+  if available in OpenLDAP header
 
 ----------------------------------------------------------------
 Released 2.3.6 2009-02-22
