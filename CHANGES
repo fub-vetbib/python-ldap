@@ -3,6 +3,10 @@ Released 2.3.7 2009-03-xx
 
 Changes since 2.3.6:
 
+Lib/
+* urllib.quote() is now used in LDAPUrlExtension.unparse() to quote
+  all special URL characters in extension values
+
 Modules/
 * Fixed ldapcontrol.c not to raise ldap.ENCODING_ERROR in
   function encode_rfc2696() on 64-bit systems

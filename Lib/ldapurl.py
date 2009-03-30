@@ -99,7 +99,7 @@ class LDAPUrlExtension:
   def unparse(self):
     return '%s%s=%s' % (
       '!'*(self.critical>0),
-      self.extype,(self.exvalue or '').replace(',',r'%2C')
+      self.extype,quote(self.exvalue or '')
     )
     
   def __str__(self):
