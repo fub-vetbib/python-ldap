@@ -38,6 +38,7 @@ l_ldap_str2dn( PyObject* unused, PyObject *args )
     int flags = 0;
     PyObject *result = NULL, *tmp;
     int res, i, j;
+    Py_ssize_t str_len;
 
     /*
      * From a DN string such as "a=b,c=d;e=f", build
@@ -46,8 +47,9 @@ l_ldap_str2dn( PyObject* unused, PyObject *args )
      * The integers are a bit combination of the AVA_* flags
      */
     if (!PyArg_ParseTuple( args, "z#|i:str2dn", 
-	    &str.bv_val, &str.bv_len, &flags )) 
+	    &str.bv_val, &str_len, &flags )) 
 	return NULL;
+    str.bv_len = (ber_len_t) str_len;
 
     res = ldap_bv2dn(&str, &dn, flags);
     if (res != LDAP_SUCCESS)
