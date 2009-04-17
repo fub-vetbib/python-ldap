@@ -1,7 +1,7 @@
 """
 controls.py - support classes for LDAP controls
 
-See http://python-ldap.sourceforge.net for details.
+See http://www.python-ldap.org/ for details.
 
 \$Id$
 

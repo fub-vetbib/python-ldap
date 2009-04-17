@@ -2,7 +2,7 @@
 dsml - generate and parse DSMLv1 data
 (see http://www.oasis-open.org/committees/dsml/)
 
-See http://python-ldap.sourceforge.net for details.
+See http://www.python-ldap.org/ for details.
 
 $Id$
 

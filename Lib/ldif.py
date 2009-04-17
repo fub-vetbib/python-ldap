@@ -1,7 +1,7 @@
 """
 ldif - generate and parse LDIF data (see RFC 2849)
 
-See http://python-ldap.sourceforge.net for details.
+See http://www.python-ldap.org/ for details.
 
 $Id$
 

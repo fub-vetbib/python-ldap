@@ -1,7 +1,7 @@
 """
 functions.py - wraps functions of module _ldap
 
-See http://python-ldap.sourceforge.net for details.
+See http://www.python-ldap.org/ for details.
 
 \$Id$
 

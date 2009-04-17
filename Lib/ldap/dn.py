@@ -1,7 +1,7 @@
 """
 dn.py - misc stuff for handling distinguished names (see RFC 4514)
 
-See http://python-ldap.sourceforge.net for details.
+See http://www.python-ldap.org/ for details.
 
 \$Id$
 

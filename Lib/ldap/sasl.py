@@ -1,7 +1,7 @@
 """
 sasl.py - support for SASL mechanism
 
-See http://python-ldap.sourceforge.net for details.
+See http://www.python-ldap.org/ for details.
 
 \$Id$
 

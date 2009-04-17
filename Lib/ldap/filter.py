@@ -1,7 +1,7 @@
 """
 filters.py - misc stuff for handling LDAP filter strings (see RFC2254)
 
-See http://python-ldap.sourceforge.net for details.
+See http://www.python-ldap.org/ for details.
 
 \$Id$
 

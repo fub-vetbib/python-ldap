@@ -1,7 +1,7 @@
 """
 ldap.async - handle async LDAP operations
 
-See http://python-ldap.sourceforge.net for details.
+See http://www.python-ldap.org/ for details.
 
 \$Id$
 

@@ -1,7 +1,7 @@
 """
 ldap - base module
 
-See http://python-ldap.sourceforge.net for details.
+See http://www.python-ldap.org/ for details.
 
 $Id$
 """
