@@ -4,7 +4,8 @@ Released 2.3.8 2009-04-xx
 Changes since 2.3.7:
 
 Lib/
-* 
+* ldap.schema.models: More fault-tolerant parsing of SYNTAX in
+  AttributeTypeDescription
 
 Modules/
 * 

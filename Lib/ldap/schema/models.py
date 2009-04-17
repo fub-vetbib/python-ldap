@@ -1,7 +1,7 @@
 """
 schema.py - support for subSchemaSubEntry information
 
-See http://python-ldap.sourceforge.net for details.
+See http://www.python-ldap.org/ for details.
 
 \$Id$
 """
@@ -209,21 +209,26 @@ class AttributeType(SchemaElement):
     self.equality = d['EQUALITY'][0]
     self.ordering = d['ORDERING'][0]
     self.substr = d['SUBSTR'][0]
-    syntax = d['SYNTAX'][0]
-    if syntax is None:
+    try:
+      syntax = d['SYNTAX'][0]
+    except IndexError:
       self.syntax = None
       self.syntax_len = None
     else:
-      try:
-        self.syntax,syntax_len = d['SYNTAX'][0].split("{")
-      except ValueError:
-        self.syntax = d['SYNTAX'][0]
-        self.syntax_len = None
-        for i in l:
-          if i.startswith("{") and i.endswith("}"):
-            self.syntax_len=long(i[1:-1])
+      if syntax is None:
+	self.syntax = None
+	self.syntax_len = None
       else:
-        self.syntax_len = long(syntax_len[:-1])
+	try:
+          self.syntax,syntax_len = d['SYNTAX'][0].split("{")
+	except ValueError:
+          self.syntax = d['SYNTAX'][0]
+          self.syntax_len = None
+          for i in l:
+            if i.startswith("{") and i.endswith("}"):
+              self.syntax_len=long(i[1:-1])
+	else:
+          self.syntax_len = long(syntax_len[:-1])
     self.single_value = d['SINGLE-VALUE']!=None
     self.collective = d['COLLECTIVE']!=None
     self.no_user_mod = d['NO-USER-MODIFICATION']!=None
