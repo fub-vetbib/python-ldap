@@ -13,7 +13,7 @@
 .. module:: ldap
    :platform: UNIX,Windows
    :synopsis: Access to an underlying LDAP C library.
-.. moduleauthor:: python-ldap project <python-ldap-dev@lists.sourceforge.net>
+.. moduleauthor:: python-ldap project (see http://www.python-ldap.org/)
 
 
 This module provides access to the LDAP  (Lightweight Directory Access Protocol)
@@ -22,7 +22,7 @@ the notable differences  that lists are manipulated via Python  list operations
 and errors appear as exceptions.    For far more detailed information on the C
 interface,   please see the (expired) draft-ietf-ldapext-ldap-c-api-04.    This
 documentation is current for the Python LDAP module, version  |release|.  Source
-and binaries are available from  http://python-ldap.sourceforge.net/.
+and binaries are available from http://www.python-ldap.org/.
 
 .. % not standard, in C
 .. % Author of the module code;

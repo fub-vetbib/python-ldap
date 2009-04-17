@@ -12,7 +12,7 @@
 
 .. module:: ldapurl
    :synopsis: Parses and generates LDAP URLs
-.. moduleauthor:: python-ldap project <python-ldap-dev@lists.sourceforge.net>
+.. moduleauthor:: python-ldap project (see http://www.python-ldap.org/)
 
 
 This module parses and generates LDAP URLs.    It is implemented in pure Python

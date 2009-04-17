@@ -6,7 +6,7 @@
 
 .. module:: ldap.async
    :synopsis: Framework for stream-processing of large search results.
-.. moduleauthor:: python-ldap project <python-ldap-dev@lists.sourceforge.net>
+.. moduleauthor:: python-ldap project (see http://www.python-ldap.org/)
 
 
 .. % Author of the module code;

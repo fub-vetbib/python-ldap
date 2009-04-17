@@ -1,4 +1,4 @@
-/* See http://python-ldap.sourceforge.net for details.
+/* See http://www.python-ldap.org/ for details.
  * $Id$ */
 
 #include "common.h"
@@ -327,11 +327,40 @@ decode_rfc2696(PyObject *self, PyObject *args)
     return res;
 }
 
+#ifdef LIBLDAP_HAS_ASSERTION_CONTROL_FUNC
+static PyObject*
+encode_assertion_control(PyObject *self, PyObject *args)
+{
+    int err;
+    PyObject *res = 0;
+    char *assertion_filterstr;
+    struct berval ctrl_val;
+    BerElement *ber = 0;
+
+    if (!PyArg_ParseTuple(args, "s:encode_assertion_control",
+                          &assertion_filterstr)) {
+        goto endlbl;
+    }
+
+    err = ldap_create_assertion_control_value(NULL,assertion_filterstr,&ctrl_val);
+
+    res = Py_BuildValue("s#", ctrl_val.bv_val, ctrl_val.bv_len);
+
+    endlbl:
+       if (ber)
+           ber_free(ber, 1);
+
+    return res;
+}
+#endif
 
 static PyMethodDef methods[] = {
     {"encode_page_control", encode_rfc2696, METH_VARARGS },
     {"decode_page_control", decode_rfc2696, METH_VARARGS },
     {"encode_valuesreturnfilter_control", encode_rfc3876, METH_VARARGS },
+#ifdef LIBLDAP_HAS_ASSERTION_CONTROL_FUNC
+    {"encode_assertion_control", encode_assertion_control, METH_VARARGS },
+#endif
     { NULL, NULL }
 };
 

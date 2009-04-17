@@ -1,5 +1,5 @@
 /* Set release version
- * See http://python-ldap.sourceforge.net for details.
+ * See http://www.python-ldap.org/ for details.
  * $Id$ */
 
 #include "common.h"

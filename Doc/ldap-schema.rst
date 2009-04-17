@@ -6,7 +6,7 @@
 
 .. module:: ldap.schema
    :synopsis: Processing LDAPv3 sub schema sub entry
-.. moduleauthor:: python-ldap project <python-ldap-dev@lists.sourceforge.net>
+.. moduleauthor:: python-ldap project (see http://www.python-ldap.org/)
 
 
 .. % Author of the module code;

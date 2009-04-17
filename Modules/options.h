@@ -1,4 +1,4 @@
-/* See http://python-ldap.sourceforge.net for details.
+/* See http://www.python-ldap.org/ for details.
  * $Id$ */
 
 int	LDAP_optionval_by_name(const char *name);

@@ -11,7 +11,7 @@
 
 .. module:: ldif
    :synopsis: Parses and generates LDIF files
-.. moduleauthor:: python-ldap project <python-ldap-dev@lists.sourceforge.net>
+.. moduleauthor:: python-ldap project (see http://www.python-ldap.org/)
 
 
 This module parses and generates LDAP data in the format LDIF.    It is

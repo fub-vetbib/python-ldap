@@ -6,7 +6,7 @@
 
 .. module:: ldap.modlist
    :synopsis: Generate modify lists.
-.. moduleauthor:: python-ldap project <python-ldap-dev@lists.sourceforge.net>
+.. moduleauthor:: python-ldap project (see http://www.python-ldap.org/)
 
 
 The :mod:`ldap.modlist` module defines the following functions:

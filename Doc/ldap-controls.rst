@@ -6,7 +6,7 @@
 
 .. module:: ldap.controls
    :synopsis: High-level access to LDAP controls.
-.. moduleauthor:: python-ldap project <python-ldap-dev@lists.sourceforge.net>
+.. moduleauthor:: python-ldap project (see http://www.python-ldap.org/)
 
 
 The :mod:`ldap.controls` module defines the following classes:

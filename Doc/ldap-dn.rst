@@ -6,7 +6,7 @@
 
 .. module:: ldap.dn
    :synopsis: LDAP Distinguished Name handling.
-.. moduleauthor:: python-ldap project <python-ldap-dev@lists.sourceforge.net>
+.. moduleauthor:: python-ldap project (see http://www.python-ldap.org/)
 
 
 .. % Author of the module code;
