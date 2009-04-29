@@ -25,10 +25,11 @@ def split_tokens(s,keywordDict):
         result_append(s[i])
         i +=1 # Consume parentheses
         start = i
-      elif s[i]==" ":
+      elif s[i]==" " or s[i]=="$":
         if i>start:
           result_append(s[start:i])
-        # Consume space chars
+        i +=1
+        # Consume more space chars
         while i<s_len and s[i]==" ":
           i +=1
         start = i

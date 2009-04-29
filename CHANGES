@@ -6,6 +6,10 @@ Changes since 2.3.7:
 Lib/
 * ldap.schema.models: More fault-tolerant parsing of SYNTAX in
   AttributeTypeDescription
+* ldap.schema.tokenizer.split_tokens():
+  More tolerant parsing of items separated only with a DOLLAR without
+  surrounding white-spaces (because WSP is declared as zero or more spaces
+  in RFC 4512)
 
 Modules/
 * 

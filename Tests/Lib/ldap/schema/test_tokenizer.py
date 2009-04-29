@@ -11,6 +11,11 @@ testcases_split_tokens = (
   ("BLUBBER ( DI)",["BLUBBER","(","DI",")"]),
   ("BLUBBER ''",["BLUBBER",""]),
   ("( BLUBBER (DI 'BLUBB'))",["(","BLUBBER","(","DI","BLUBB",")",")"]),
+  ("BLUBB (DA$BLAH)",['BLUBB',"(","DA","BLAH",")"]),
+  ("BLUBB ( DA $  BLAH )",['BLUBB',"(","DA","BLAH",")"]),
+  ("BLUBB (DA$ BLAH)",['BLUBB',"(","DA","BLAH",")"]),
+  ("BLUBB (DA $BLAH)",['BLUBB',"(","DA","BLAH",")"]),
+  ("BLUBB 'DA$BLAH'",['BLUBB',"DA$BLAH"]),
   ("BLUBB DI 'BLU B B ER' DA 'BLAH' ",['BLUBB','DI','BLU B B ER','DA','BLAH']),
   ("BLUBB DI 'BLU B B ER' DA 'BLAH' LABER",['BLUBB','DI','BLU B B ER','DA','BLAH','LABER']),
   ("BLUBBER DI 'BLU'BB ER' DA 'BLAH' ", ["BLUBBER", "DI", "BLU'BB ER", "DA", "BLAH"]), # for Oracle
