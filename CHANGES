@@ -1,5 +1,5 @@
 ----------------------------------------------------------------
-Released 2.3.8 2009-04-xx
+Released 2.3.8 2009-04-30
 
 Changes since 2.3.7:
 
@@ -10,9 +10,6 @@ Lib/
   More tolerant parsing of items separated only with a DOLLAR without
   surrounding white-spaces (because WSP is declared as zero or more spaces
   in RFC 4512)
-
-Modules/
-* 
 
 ----------------------------------------------------------------
 Released 2.3.7 2009-04-09
