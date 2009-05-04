@@ -7,7 +7,8 @@ Lib/
 * 
 
 Modules/
-* 
+* New LDAP option constant ldap.OPT_X_SASL_NOCANON supported
+  in LDAPObject.get/set_option()
 
 ----------------------------------------------------------------
 Released 2.3.8 2009-04-30

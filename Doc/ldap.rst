@@ -205,6 +205,10 @@ following option identifiers are defined as constants:
 
 .. data:: OPT_X_SASL_MECH
 
+.. data:: OPT_X_SASL_NOCANON
+
+   If set to zero SASL host name canonicalization is disabled.
+
 .. data:: OPT_X_SASL_REALM
 
 .. data:: OPT_X_SASL_SECPROPS

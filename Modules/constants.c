@@ -190,6 +190,9 @@ LDAPinit_constants( PyObject* d )
 	add_int(d,OPT_X_SASL_SECPROPS);
 	add_int(d,OPT_X_SASL_SSF_MIN);
 	add_int(d,OPT_X_SASL_SSF_MAX);
+#ifdef LDAP_OPT_X_SASL_NOCANON
+	add_int(d,OPT_X_SASL_NOCANON);
+#endif
 
 	add_int(d,DN_FORMAT_LDAP);
 	add_int(d,DN_FORMAT_LDAPV3);

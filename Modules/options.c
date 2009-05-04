@@ -38,6 +38,9 @@ LDAP_set_option(LDAPObject *self, int option, PyObject *value)
 	    return -1;
     case LDAP_OPT_REFERRALS:
     case LDAP_OPT_RESTART:
+#ifdef LDAP_OPT_X_SASL_NOCANON
+    case LDAP_OPT_X_SASL_NOCANON:
+#endif
 	    /* Truth-value options */
 	    ptr = PyObject_IsTrue(value) ? LDAP_OPT_ON : LDAP_OPT_OFF;
 	    break;
@@ -184,6 +187,9 @@ LDAP_get_option(LDAPObject *self, int option)
 #ifdef HAVE_SASL
     case LDAP_OPT_X_SASL_SSF_MIN:
     case LDAP_OPT_X_SASL_SSF_MAX:
+#endif
+#ifdef LDAP_OPT_X_SASL_NOCANON
+    case LDAP_OPT_X_SASL_NOCANON:
 #endif
 	    /* Integer-valued options */
 	    if (self) LDAP_BEGIN_ALLOW_THREADS(self);
