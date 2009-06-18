@@ -9,7 +9,7 @@ Python compability note:
 Tested with Python 2.0+, but should work with Python 1.5.2+.
 """
 
-__version__ = '0.5.5'
+__version__ = '0.6.0'
 
 __all__ = [
   # constants
@@ -52,9 +52,6 @@ for c in CHANGE_TYPES:
   valid_changetype_dict[c]=None
 
 
-SAFE_STRING_PATTERN = '(^(\000|\n|\r| |:|<)|[\000\n\r\200-\377]+|[ ]+$)'
-safe_string_re = re.compile(SAFE_STRING_PATTERN)
-
 def is_dn(s):
   """
   returns 1 if s is a LDAP DN
@@ -65,12 +62,8 @@ def is_dn(s):
   return rm!=None and rm.group(0)==s
 
 
-def needs_base64(s):
-  """
-  returns 1 if s has to be base-64 encoded because of special chars
-  """
-  return not safe_string_re.search(s) is None
-
+SAFE_STRING_PATTERN = '(^(\000|\n|\r| |:|<)|[\000\n\r\200-\377]+|[ ]+$)'
+safe_string_re = re.compile(SAFE_STRING_PATTERN)
 
 def list_dict(l):
   """
@@ -125,6 +118,14 @@ class LDIFWriter:
         pos = pos+self._cols-1
     return # _unfoldLDIFLine()
 
+  def _needs_base64(self,attr_type,attr_value):
+    """
+    returns 1 if attr_value has to be base-64 encoded because
+    of special chars or because attr_type is in self._base64_attrs
+    """
+    return self._base64_attrs.has_key(attr_type.lower()) or \
+           not safe_string_re.search(attr_value) is None
+
   def _unparseAttrTypeandValue(self,attr_type,attr_value):
     """
     Write a single attribute type/value pair
@@ -134,8 +135,7 @@ class LDIFWriter:
     attr_value
           attribute value
     """
-    if self._base64_attrs.has_key(attr_type.lower()) or \
-       needs_base64(attr_value):
+    if self._needs_base64(attr_type,attr_value):
       # Encode with base64
       self._unfoldLDIFLine(':: '.join([attr_type,base64.encodestring(attr_value).replace('\n','')]))
     else:
