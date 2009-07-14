@@ -6,9 +6,10 @@ Changes since 2.3.8:
 Lib/
 * All modules (ldap, ldif, dsml and ldapurl) have common version number now
 * Non-exported function ldif.needs_base64() was abandoned and is now
-  implemented as method LDIFWriter._needs_base64(). This allows sub-classes
-  of LDIFWriter to implement determining whether attribute values have
-  to be base64-encoded in a different manner.
+  implemented as method LDIFWriter._needs_base64_encoding().
+  This allows sub-classes of LDIFWriter to implement determining whether
+  attribute values have to be base64-encoded in a different manner and is
+  the same approach like in class dsml.DSMLWriter.
 
 Modules/
 * New LDAP option constant ldap.OPT_X_SASL_NOCANON supported
