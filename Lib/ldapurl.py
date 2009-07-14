@@ -92,9 +92,14 @@ class LDAPUrlExtension:
     self.critical = extension[0]=='!'
     if extension[0]=='!':
       extension = extension[1:].strip()
-    self.extype,self.exvalue = extension.split('=',1)
+    try:
+      self.extype,self.exvalue = extension.split('=',1)
+    except ValueError:
+      # No value, just the extype
+      self.extype,self.exvalue = extension,None
+    else:
+      self.exvalue = unquote(self.exvalue.strip())
     self.extype = self.extype.strip()
-    self.exvalue = unquote(self.exvalue.strip())
 
   def unparse(self):
     return '%s%s=%s' % (
