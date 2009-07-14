@@ -10,7 +10,7 @@ Python compability note:
 Tested with Python 2.0+.
 """
 
-__version__ = '0.5.3'
+__version__ = '2.3.9'
 
 import string,base64
 

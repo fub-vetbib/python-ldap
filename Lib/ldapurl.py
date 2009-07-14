@@ -11,7 +11,7 @@ This module only works with Python 2.0+ since
 2. list comprehensions are used.
 """
 
-__version__ = '0.5.2'
+__version__ = '2.3.9'
 
 __all__ = [
   # constants

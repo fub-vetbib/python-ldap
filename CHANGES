@@ -4,6 +4,7 @@ Released 2.3.9 2009-xx-xx
 Changes since 2.3.8:
 
 Lib/
+* All modules (ldap, ldif, dsml and ldapurl) have common version number now
 * Non-exported function ldif.needs_base64() was abandoned and is now
   implemented as method LDIFWriter._needs_base64(). This allows sub-classes
   of LDIFWriter to implement determining whether attribute values have
