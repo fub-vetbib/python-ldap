@@ -1,7 +1,7 @@
 """
 setup.py - Setup package with the help Python's DistUtils
 
-See http://python-ldap.sourceforge.net for details.
+See http://www.python-ldap.org/ for details.
 
 $Id$
 """
@@ -83,7 +83,7 @@ setup(
 	description = 'Various LDAP-related Python modules',
 	author = 'David Leonard, Michael Stroeder, et al.',
 	author_email = 'python-ldap-dev@lists.sourceforge.net',
-	url = 'http://python-ldap.sourceforge.net/',
+	url = 'http://www.python-ldap.org/',
 	#-- C extension modules
 	ext_modules = [
 		Extension(
