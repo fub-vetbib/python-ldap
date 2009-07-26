@@ -19,7 +19,7 @@ See TODO for planned features. Contributors welcome.
 
 For module documentation, see:
 
-	http://python-ldap.sourceforge.net/
+	http://www.python-ldap.org/
 
 Quick usage example:
     import ldap
@@ -31,8 +31,7 @@ See directory Demo/ of source distribution package for more
 example code.
 
 Author(s) contact:
-   http://python-ldap.sourceforge.net/
-   python-ldap-dev@lists.sourceforge.net
+   http://www.python-ldap.org/
 
    If you are looking for help, please try the mailing list archives
    first, then send a question to the mailing list.
