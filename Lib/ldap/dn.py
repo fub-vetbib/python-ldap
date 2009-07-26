@@ -9,7 +9,7 @@ Compability:
 - Tested with Python 2.0+
 """
 
-__version__ = '0.2.0'
+from ldap import __version__
 
 
 import _ldap

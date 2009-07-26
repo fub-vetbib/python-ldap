@@ -18,7 +18,7 @@ Basically calls into the LDAP lib are serialized by the module-wide
 lock self._ldap_object_lock.
 """
 
-__version__ = '0.7.0'
+from ldap import __version__
 
 __all__ = [
   'LDAPObject',

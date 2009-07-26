@@ -10,8 +10,7 @@ This module is known to work with Python 2.0+ but should work
 with Python 1.5.2 as well.
 """
 
-__version__ = '0.1.1'
-
+from ldap import __version__
 
 import string,ldap
 

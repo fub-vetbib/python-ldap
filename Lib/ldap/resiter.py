@@ -11,7 +11,7 @@ Requires Python 2.3+
 
 import ldap
 
-__version__ = '0.0.1'
+from ldap import __version__
 
 
 class ResultProcessor:

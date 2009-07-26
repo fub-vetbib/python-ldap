@@ -9,7 +9,7 @@ Compability:
 - Tested with Python 2.0+
 """
 
-__version__ = '0.0.3'
+from ldap import __version__
 
 
 def escape_filter_chars(assertion_value,escape_mode=0):

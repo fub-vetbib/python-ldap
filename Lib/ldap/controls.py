@@ -10,7 +10,7 @@ The ldap.controls module provides LDAPControl classes.
 Each class provides support for a certain control.
 """
 
-__version__ = '0.0.1'
+from ldap import __version__
 
 __all__ = [
   'LDAPControl',

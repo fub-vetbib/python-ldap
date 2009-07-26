@@ -17,7 +17,7 @@ Compability:
 - Tested with Python 2.0+ but should work with Python 1.5.x
 """
 
-__version__ = '0.0.3'
+from ldap import __version__
 
 if __debug__:
   # Tracing is only supported in debugging mode

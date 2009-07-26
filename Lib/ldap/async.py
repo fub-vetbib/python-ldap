@@ -11,7 +11,7 @@ Tested on Python 2.0+ but should run on Python 1.5.x.
 
 import ldap
 
-__version__ = '0.1.0'
+from ldap import __version__
 
 
 _searchResultTypes={
