@@ -1,6 +1,6 @@
 import ldap,ldap.async
 
-class DeleteLeafs(ldap.async.SearchHandler):
+class DeleteLeafs(ldap.async.AsyncSearchHandler):
   """
   Class for deleting entries which are results of a search.
   
@@ -9,7 +9,7 @@ class DeleteLeafs(ldap.async.SearchHandler):
   _entryResultTypes = ldap.async._entryResultTypes
 
   def __init__(self,l):
-    ldap.async.SearchHandler.__init__(self,l)
+    ldap.async.AsyncSearchHandler.__init__(self,l)
     self.nonLeafEntries = []
     self.deletedEntries = 0
 
@@ -18,7 +18,7 @@ class DeleteLeafs(ldap.async.SearchHandler):
       raise ValueError, "Parameter searchScope must be either ldap.SCOPE_ONELEVEL or ldap.SCOPE_SUBTREE."
     self.nonLeafEntries = []
     self.deletedEntries = 0
-    ldap.async.SearchHandler.startSearch(
+    ldap.async.AsyncSearchHandler.startSearch(
       self,
       searchRoot,
       searchScope,
@@ -74,8 +74,7 @@ def DelTree(l,dn,scope=ldap.SCOPE_ONELEVEL):
 l = ldap.initialize('ldap://localhost:1390')
 
 # Try a bind to provoke failure if protocol version is not supported
-l.bind_s('cn=Directory Manager,dc=IMC,dc=org','controller',ldap.AUTH_SIMPLE)
+l.simple_bind_s('cn=Directory Manager,dc=IMC,dc=org','controller')
 
-DelTree(
-  l,'dc=Delete,dc=IMC,dc=org',ldap.SCOPE_ONELEVEL
-)
+# Delete all entries *below* the entry dc=Delete,dc=IMC,dc=org
+DelTree(l,'dc=Delete,dc=IMC,dc=org',ldap.SCOPE_ONELEVEL)
