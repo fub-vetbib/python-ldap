@@ -9,7 +9,7 @@
 
 void LDAPinit_control(PyObject *d);
 void LDAPControl_List_DEL( LDAPControl** );
-LDAPControl** List_to_LDAPControls( PyObject* );
+int  LDAPControls_from_object(PyObject *, LDAPControl ***);
 PyObject* LDAPControls_to_List(LDAPControl **ldcs);
 
 #endif /* __h_ldapcontrol */

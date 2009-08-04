@@ -7,7 +7,7 @@ Lib/
 * 
 
 Modules/
-* 
+* Changed internal API List_to_LDAPControls() to LDAPControls_from_object()
 
 ----------------------------------------------------------------
 Released 2.3.9 2009-07-26

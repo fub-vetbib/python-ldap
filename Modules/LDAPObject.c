@@ -337,14 +337,12 @@ l_ldap_unbind_ext( LDAPObject* self, PyObject* args )
     if (not_valid(self)) return NULL;
 
     if (!PyNone_Check(serverctrls)) {
-        server_ldcs = List_to_LDAPControls(serverctrls);
-        if (server_ldcs == NULL)
+        if (!LDAPControls_from_object(serverctrls, &server_ldcs))
             return NULL;
     }
 
     if (!PyNone_Check(clientctrls)) {
-        client_ldcs = List_to_LDAPControls(clientctrls);
-        if (client_ldcs == NULL)
+        if (!LDAPControls_from_object(clientctrls, &client_ldcs))
             return NULL;
     }
 
@@ -380,14 +378,12 @@ l_ldap_abandon_ext( LDAPObject* self, PyObject* args )
     if (not_valid(self)) return NULL;
 
     if (!PyNone_Check(serverctrls)) {
-        server_ldcs = List_to_LDAPControls(serverctrls);
-        if (server_ldcs == NULL)
+        if (!LDAPControls_from_object(serverctrls, &server_ldcs))
             return NULL;
     }
 
     if (!PyNone_Check(clientctrls)) {
-        client_ldcs = List_to_LDAPControls(clientctrls);
-        if (client_ldcs == NULL)
+        if (!LDAPControls_from_object(clientctrls, &client_ldcs))
             return NULL;
     }
 
@@ -429,14 +425,12 @@ l_ldap_add_ext( LDAPObject* self, PyObject *args )
 	return NULL;
 
     if (!PyNone_Check(serverctrls)) {
-        server_ldcs = List_to_LDAPControls(serverctrls);
-        if (server_ldcs == NULL)
+        if (!LDAPControls_from_object(serverctrls, &server_ldcs))
             return NULL;
     }
 
     if (!PyNone_Check(clientctrls)) {
-        client_ldcs = List_to_LDAPControls(clientctrls);
-        if (client_ldcs == NULL)
+        if (!LDAPControls_from_object(clientctrls, &client_ldcs))
             return NULL;
     }
 
@@ -474,14 +468,12 @@ l_ldap_simple_bind( LDAPObject* self, PyObject* args )
     if (not_valid(self)) return NULL;
 
     if (!PyNone_Check(serverctrls)) {
-        server_ldcs = List_to_LDAPControls(serverctrls);
-        if (server_ldcs == NULL)
+        if (!LDAPControls_from_object(serverctrls, &server_ldcs))
             return NULL;
     }
 
     if (!PyNone_Check(clientctrls)) {
-        client_ldcs = List_to_LDAPControls(clientctrls);
-        if (client_ldcs == NULL)
+        if (!LDAPControls_from_object(clientctrls, &client_ldcs))
             return NULL;
     }
 
@@ -657,14 +649,12 @@ l_ldap_sasl_interactive_bind_s( LDAPObject* self, PyObject* args )
     if (not_valid(self)) return NULL;
 
     if (!PyNone_Check(serverctrls)) {
-        server_ldcs = List_to_LDAPControls(serverctrls);
-        if (server_ldcs == NULL)
+        if (!LDAPControls_from_object(serverctrls, &server_ldcs))
             return NULL;
     }
 
     if (!PyNone_Check(clientctrls)) {
-        client_ldcs = List_to_LDAPControls(clientctrls);
-        if (client_ldcs == NULL)
+        if (!LDAPControls_from_object(clientctrls, &client_ldcs))
             return NULL;
     }
 
@@ -719,14 +709,12 @@ l_ldap_cancel( LDAPObject* self, PyObject* args )
     if (not_valid(self)) return NULL;
 
     if (!PyNone_Check(serverctrls)) {
-        server_ldcs = List_to_LDAPControls(serverctrls);
-        if (server_ldcs == NULL)
+        if (!LDAPControls_from_object(serverctrls, &server_ldcs))
             return NULL;
     }
 
     if (!PyNone_Check(clientctrls)) {
-        client_ldcs = List_to_LDAPControls(clientctrls);
-        if (client_ldcs == NULL)
+        if (!LDAPControls_from_object(clientctrls, &client_ldcs))
             return NULL;
     }
 
@@ -767,14 +755,12 @@ l_ldap_compare_ext( LDAPObject* self, PyObject *args )
     if (not_valid(self)) return NULL;
 
     if (!PyNone_Check(serverctrls)) {
-        server_ldcs = List_to_LDAPControls(serverctrls);
-        if (server_ldcs == NULL)
+        if (!LDAPControls_from_object(serverctrls, &server_ldcs))
             return NULL;
     }
 
     if (!PyNone_Check(clientctrls)) {
-        client_ldcs = List_to_LDAPControls(clientctrls);
-        if (client_ldcs == NULL)
+        if (!LDAPControls_from_object(clientctrls, &client_ldcs))
             return NULL;
     }
 
@@ -810,14 +796,12 @@ l_ldap_delete_ext( LDAPObject* self, PyObject *args )
     if (not_valid(self)) return NULL;
 
     if (!PyNone_Check(serverctrls)) {
-        server_ldcs = List_to_LDAPControls(serverctrls);
-        if (server_ldcs == NULL)
+        if (!LDAPControls_from_object(serverctrls, &server_ldcs))
             return NULL;
     }
 
     if (!PyNone_Check(clientctrls)) {
-        client_ldcs = List_to_LDAPControls(clientctrls);
-        if (client_ldcs == NULL)
+        if (!LDAPControls_from_object(clientctrls, &client_ldcs))
             return NULL;
     }
 
@@ -859,14 +843,12 @@ l_ldap_modify_ext( LDAPObject* self, PyObject *args )
 	return NULL;
 
     if (!PyNone_Check(serverctrls)) {
-        server_ldcs = List_to_LDAPControls(serverctrls);
-        if (server_ldcs == NULL)
+        if (!LDAPControls_from_object(serverctrls, &server_ldcs))
             return NULL;
     }
 
     if (!PyNone_Check(clientctrls)) {
-        client_ldcs = List_to_LDAPControls(clientctrls);
-        if (client_ldcs == NULL)
+        if (!LDAPControls_from_object(clientctrls, &client_ldcs))
             return NULL;
     }
 
@@ -906,14 +888,12 @@ l_ldap_rename( LDAPObject* self, PyObject *args )
     if (not_valid(self)) return NULL;
 
     if (!PyNone_Check(serverctrls)) {
-        server_ldcs = List_to_LDAPControls(serverctrls);
-        if (server_ldcs == NULL)
+        if (!LDAPControls_from_object(serverctrls, &server_ldcs))
             return NULL;
     }
 
     if (!PyNone_Check(clientctrls)) {
-        client_ldcs = List_to_LDAPControls(clientctrls);
-        if (client_ldcs == NULL)
+        if (!LDAPControls_from_object(clientctrls, &client_ldcs))
             return NULL;
     }
 
@@ -1077,14 +1057,12 @@ l_ldap_search_ext( LDAPObject* self, PyObject* args )
     }
 
     if (!PyNone_Check(serverctrls)) {
-        server_ldcs = List_to_LDAPControls(serverctrls);
-        if (server_ldcs == NULL)
+        if (!LDAPControls_from_object(serverctrls, &server_ldcs))
             return NULL;
     }
 
     if (!PyNone_Check(clientctrls)) {
-        client_ldcs = List_to_LDAPControls(clientctrls);
-        if (client_ldcs == NULL)
+        if (!LDAPControls_from_object(clientctrls, &client_ldcs))
             return NULL;
     }
 
@@ -1123,14 +1101,12 @@ l_ldap_whoami_s( LDAPObject* self, PyObject* args )
     if (!PyArg_ParseTuple( args, "|OO", &serverctrls, &clientctrls)) return NULL;
 
     if (!PyNone_Check(serverctrls)) {
-        server_ldcs = List_to_LDAPControls(serverctrls);
-        if (server_ldcs == NULL)
+        if (!LDAPControls_from_object(serverctrls, &server_ldcs))
             return NULL;
     }
 
     if (!PyNone_Check(clientctrls)) {
-        client_ldcs = List_to_LDAPControls(clientctrls);
-        if (client_ldcs == NULL)
+        if (!LDAPControls_from_object(clientctrls, &client_ldcs))
             return NULL;
     }
 
@@ -1231,14 +1207,12 @@ l_ldap_passwd( LDAPObject* self, PyObject *args )
     if (not_valid(self)) return NULL;
 
     if (!PyNone_Check(serverctrls)) {
-        server_ldcs = List_to_LDAPControls(serverctrls);
-        if (server_ldcs == NULL)
+        if (!LDAPControls_from_object(serverctrls, &server_ldcs))
             return NULL;
     }
 
     if (!PyNone_Check(clientctrls)) {
-        client_ldcs = List_to_LDAPControls(clientctrls);
-        if (client_ldcs == NULL)
+        if (!LDAPControls_from_object(clientctrls, &client_ldcs))
             return NULL;
     }
 

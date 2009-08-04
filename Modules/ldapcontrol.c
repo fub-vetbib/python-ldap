@@ -39,7 +39,7 @@ LDAPControl_DEL( LDAPControl* lc )
     PyMem_DEL(lc);
 }
 
-/* Free an array of LDAPControl objects created by List_to_LDAPControls */
+/* Free an array of LDAPControl objects created by LDAPControls_from_object */
 
 void
 LDAPControl_List_DEL( LDAPControl** lcs )
@@ -121,8 +121,8 @@ Tuple_to_LDAPControl( PyObject* tup )
 /* Convert a list of tuples (of a format acceptable to the Tuple_to_LDAPControl
  * function) into an array of LDAPControl objects. */
 
-LDAPControl**
-List_to_LDAPControls( PyObject* list )
+int
+LDAPControls_from_object(PyObject* list, LDAPControl ***controls_ret)
 {
     Py_ssize_t len, i;
     LDAPControl** ldcs;
@@ -132,34 +132,35 @@ List_to_LDAPControls( PyObject* list )
     if (!PySequence_Check(list)) {
 	PyErr_SetObject(PyExc_TypeError, Py_BuildValue("sO",
 	   "expected a list", list));
-	return NULL;
+	return 0;
     }
 
     len = PySequence_Length(list);
     ldcs = PyMem_NEW(LDAPControl*, len + 1);
     if (ldcs == NULL) {
         PyErr_NoMemory();
-        return NULL;
+        return 0;
     }
 
     for (i = 0; i < len; i++) {
       item = PySequence_GetItem(list, i);
       if (item == NULL) {
           PyMem_DEL(ldcs);
-          return NULL;
+          return 0;
       }
 
       ldc = Tuple_to_LDAPControl(item);
       if (ldc == NULL) {
           PyMem_DEL(ldcs);
-          return NULL;
+          return 0;
       }
 
       ldcs[i] = ldc;
     }
 
     ldcs[len] = NULL;
-    return ldcs;
+    *controls_ret = ldcs;
+    return 1;
 }
 
 PyObject*
