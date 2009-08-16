@@ -378,7 +378,8 @@ class LDAPUrl:
   def __getattr__(self,name):
     if self.attr2extype.has_key(name):
       extype = self.attr2extype[name]
-      if self.extensions.has_key(extype):
+      if self.extensions.has_key(extype) and \
+         not self.extensions[extype].exvalue is None:
         result = unquote(self.extensions[extype].exvalue)
       else:
         return None
