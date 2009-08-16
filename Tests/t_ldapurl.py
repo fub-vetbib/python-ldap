@@ -65,7 +65,7 @@ class TestLDAPUrl(unittest.TestCase):
 
     def test_parse_default_filter(self):
         u = LDAPUrl("ldap://")
-        self.assertEquals(u.filterstr, "(objectClass=*)") # RFC4516 s3
+        self.assertNone(u.filterstr) # RFC4516 s3
 
     def test_parse_default_extensions(self):
         u = LDAPUrl("ldap://")
