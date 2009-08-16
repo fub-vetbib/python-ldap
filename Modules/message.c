@@ -3,16 +3,20 @@
 
 #include "common.h"
 #include "message.h"
+#include "berval.h"
 #include "errors.h"
 
-PyObject*
-LDAPmessage_to_python( LDAP*ld, LDAPMessage*m )
+/*
+ * Converts an LDAP message into a Python structure.
+ *
+ * On success, returns a list of dictionaries.
+ * On failure, returns NULL, and sets an error.
+ *
+ * The message m is always freed, regardless of return value.
+ */
+PyObject *
+LDAPmessage_to_python(LDAP *ld, LDAPMessage *m)
 {
-    /* we convert an LDAP message into a python structure.
-     * It is always a list of dictionaries.
-     * We always free m.
-     */
-
      PyObject* result;
      LDAPMessage* entry;
 
@@ -84,9 +88,7 @@ LDAPmessage_to_python( LDAP*ld, LDAPMessage*m )
 		for (i=0; bvals[i]; i++) {
 		    PyObject *valuestr;
 
-		    valuestr = PyString_FromStringAndSize( 
-			    bvals[i]->bv_val, bvals[i]->bv_len 
-			);
+		    valuestr = LDAPberval_to_object(bvals[i]);
 		    if (PyList_Append( valuelist, valuestr ) == -1) {
 			Py_DECREF(attrdict);
 			Py_DECREF(result);
