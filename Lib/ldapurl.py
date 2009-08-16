@@ -276,7 +276,7 @@ class LDAPUrl:
         rest = rest[qemark_pos:]
       else:
         raise ValueError,'Something completely weird happened!'
-    paramlist=rest.split('?')
+    paramlist=rest.split('?',4)
     paramlist_len = len(paramlist)
     if paramlist_len>=1:
       self.dn = unquote(paramlist[0]).strip()

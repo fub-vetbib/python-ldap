@@ -8,6 +8,7 @@ Lib/
   output also for successful operations.
 * Fixed handling of LDAP URL extensions with implicit value None which are
   mapped to class attributes of LDAPUrl.
+* Fixed handling of LDAP URLs with ? being part of extensions.
 
 Modules/
 * Changed internal API List_to_LDAPControls() to LDAPControls_from_object()
