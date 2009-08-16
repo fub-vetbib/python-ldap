@@ -11,7 +11,7 @@ This module only works with Python 2.0+ since
 2. list comprehensions are used.
 """
 
-__version__ = '2.3.9'
+__version__ = '2.3.10'
 
 __all__ = [
   # constants
@@ -174,8 +174,9 @@ class LDAPUrlExtensions(UserDict.UserDict):
     
   def parse(self,extListStr):
     for extension_str in extListStr.strip().split(','):
-      e = LDAPUrlExtension(extension_str)
-      self[e.extype] = e
+      if extension_str:
+        e = LDAPUrlExtension(extension_str)
+        self[e.extype] = e
 
   def unparse(self):
     return ','.join([ v.unparse() for v in self.values() ])
@@ -295,8 +296,11 @@ class LDAPUrl:
       else:
         self.filterstr = unquote(filterstr)
     if paramlist_len>=5:
-      self.extensions = LDAPUrlExtensions()
-      self.extensions.parse(paramlist[4])
+      if paramlist[4]:
+        self.extensions = LDAPUrlExtensions()
+        self.extensions.parse(paramlist[4])
+      else:
+        self.extensions = None
     return
 
   def applyDefaults(self,defaults):
