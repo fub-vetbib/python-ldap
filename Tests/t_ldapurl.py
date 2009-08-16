@@ -137,9 +137,9 @@ class TestLDAPUrl(unittest.TestCase):
 
     def test_parse_scope_default(self):
         u = LDAPUrl("ldap:///??")
-        self.assertEquals(u.scope, ldap.SCOPE_BASE) # RFC4516 s3
+        self.assertNone(u.scope) # on opposite to RFC4516 s3 for referral chasing
         u = LDAPUrl("ldap:///???")
-        self.assertEquals(u.scope, ldap.SCOPE_BASE) # RFC4516 s3
+        self.assertNone(u.scope) # on opposite to RFC4516 s3 for referral chasing
 
     def test_parse_scope(self):
         u = LDAPUrl("ldap:///??sub")
