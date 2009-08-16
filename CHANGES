@@ -4,7 +4,8 @@ Released 2.3.10 2009-08-xx
 Changes since 2.3.9:
 
 Lib/
-* 
+* The diagnosticMessage returned by a server is written to the trace
+  output also for successful operations.
 
 Modules/
 * Changed internal API List_to_LDAPControls() to LDAPControls_from_object()
