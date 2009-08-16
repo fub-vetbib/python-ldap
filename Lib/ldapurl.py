@@ -102,10 +102,13 @@ class LDAPUrlExtension:
     self.extype = self.extype.strip()
 
   def unparse(self):
-    return '%s%s=%s' % (
-      '!'*(self.critical>0),
-      self.extype,quote(self.exvalue or '')
-    )
+    if self.exvalue is None:
+      return '%s%s' % ('!'*(self.critical>0),self.extype)
+    else:
+      return '%s%s=%s' % (
+        '!'*(self.critical>0),
+        self.extype,quote(self.exvalue or '')
+      )
     
   def __str__(self):
     return self.unparse()
