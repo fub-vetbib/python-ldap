@@ -544,6 +544,12 @@ class TestLdapCExtension(unittest.TestCase):
     def test_options(self):
         oldval = _ldap.get_option(_ldap.OPT_PROTOCOL_VERSION)
         try:
+
+            try:
+                _ldap.set_option(_ldap.OPT_PROTOCOL_VERSION, "3")
+                self.fail("expected string value to raise a type error")
+            except TypeError: pass
+
             _ldap.set_option(_ldap.OPT_PROTOCOL_VERSION, _ldap.VERSION2)
             v = _ldap.get_option(_ldap.OPT_PROTOCOL_VERSION)
             self.assertEquals(v, _ldap.VERSION2)
