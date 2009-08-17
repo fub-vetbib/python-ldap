@@ -131,8 +131,12 @@ class Slapd:
         Also re-initializes any backing storage.
         Feel free to subclass and override this method.
         """
-        cfg.append("include " + quote(self.PATH_SCHEMA_CORE))
 
+        # Global
+        cfg.append("include " + quote(self.PATH_SCHEMA_CORE))
+        cfg.append("allow bind_v2")
+
+        # Database
         ldif_dir = mkdirs(os.path.join(self.get_tmpdir(), "ldif-data"))
         delete_directory_content(ldif_dir) # clear it out
         cfg.append("database ldif")

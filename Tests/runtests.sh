@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# This script runs all the t-*.py tests in the current directory,
+# This script runs all the t_*.py tests in the current directory,
 # preparing PYTHONPATH to use the most recent local build
 #
 # Run with -v option for verbose
@@ -18,7 +18,8 @@ for test in t_*.py;  do
 done
 
 if test -n "$failed"; then
-   echo "Tests that failed:$failed" >&2; exit 1
+   echo "Tests that failed:$failed" >&2
+   exit 1
 else
    exit 0
 fi
