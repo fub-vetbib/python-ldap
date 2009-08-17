@@ -4,7 +4,6 @@
 #include "common.h"
 #include "functions.h"
 #include "LDAPObject.h"
-#include "berval.h"
 #include "errors.h"
 #include "options.h"
 
@@ -77,9 +76,11 @@ l_ldap_str2dn( PyObject* unused, PyObject *args )
 	    LDAPAVA *ava = rdn[j];
 	    PyObject *tuple;
 
-	    tuple = Py_BuildValue("(O&O&i)", 
-		LDAPberval_to_object, &ava->la_attr,
-		LDAPberval_to_object, &ava->la_value,
+	    tuple = Py_BuildValue("(s#s#i)", 
+		ava->la_attr.bv_val,
+		ava->la_attr.bv_len,
+		ava->la_value.bv_val,
+		ava->la_value.bv_len,
 		ava->la_flags & ~(LDAP_AVA_FREE_ATTR|LDAP_AVA_FREE_VALUE));
 	    if (!tuple) {
 		Py_DECREF(rdnlist);
