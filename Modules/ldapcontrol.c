@@ -4,6 +4,7 @@
 #include "common.h"
 #include "LDAPObject.h"
 #include "ldapcontrol.h"
+#include "berval.h"
 #include "errors.h"
 
 #include "lber.h"
@@ -177,10 +178,10 @@ LDAPControls_to_List(LDAPControl **ldcs)
         goto endlbl;
 
     for (i = 0; i < num_ctrls; i++) {
-        if (!(pyctrl = Py_BuildValue("sbs#", ldcs[i]->ldctl_oid,
+        if (!(pyctrl = Py_BuildValue("sbO&", ldcs[i]->ldctl_oid,
                                      ldcs[i]->ldctl_iscritical,
-                                     ldcs[i]->ldctl_value.bv_val,
-                                     ldcs[i]->ldctl_value.bv_len))) {
+                                     LDAPberval_to_object,
+                                     &ldcs[i]->ldctl_value))) {
             goto endlbl;
         }
         PyList_SET_ITEM(res, i, pyctrl);
@@ -227,7 +228,7 @@ encode_rfc3876(PyObject *self, PyObject *args)
 		goto endlbl;
 	}
 
-	res = Py_BuildValue("s#", ctrl_val->bv_val, ctrl_val->bv_len);
+	res = LDAPberval_to_object(ctrl_val);
 
 endlbl:
 	if (vrber)
@@ -283,7 +284,7 @@ encode_rfc2696(PyObject *self, PyObject *args)
         goto endlbl;
     }
 
-    res = Py_BuildValue("s#", ctrl_val->bv_val, ctrl_val->bv_len);
+    res = LDAPberval_to_object(ctrl_val);
 
  endlbl:
     if (ber)
@@ -320,7 +321,7 @@ decode_rfc2696(PyObject *self, PyObject *args)
         goto endlbl;
     }
 
-    res = Py_BuildValue("(ls#)", count, cookiep->bv_val, cookiep->bv_len);
+    res = Py_BuildValue("(lO&)", count, LDAPberval_to_object, cookiep);
 
  endlbl:
     if (ber)
@@ -345,7 +346,7 @@ encode_assertion_control(PyObject *self, PyObject *args)
 
     err = ldap_create_assertion_control_value(NULL,assertion_filterstr,&ctrl_val);
 
-    res = Py_BuildValue("s#", ctrl_val.bv_val, ctrl_val.bv_len);
+    res = LDAPberval_to_object(&ctrl_val);
 
     endlbl:
        if (ber)

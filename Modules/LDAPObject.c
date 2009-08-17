@@ -11,6 +11,7 @@
 #include "LDAPObject.h"
 #include "ldapcontrol.h"
 #include "message.h"
+#include "berval.h"
 #include "options.h"
 
 #ifdef HAVE_SASL
@@ -1120,7 +1121,7 @@ l_ldap_whoami_s( LDAPObject* self, PyObject* args )
     if ( ldaperror!=LDAP_SUCCESS )
     	return LDAPerror( self->ldap, "ldap_whoami_s" );
 
-    result = PyString_FromStringAndSize(bvalue->bv_val, bvalue->bv_len);
+    result = LDAPberval_to_object(bvalue);
 
     return result;
 }

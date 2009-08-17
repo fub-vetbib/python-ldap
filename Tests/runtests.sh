@@ -21,5 +21,6 @@ if test -n "$failed"; then
    echo "Tests that failed:$failed" >&2
    exit 1
 else
+   echo "All tests passed. Yay."
    exit 0
 fi

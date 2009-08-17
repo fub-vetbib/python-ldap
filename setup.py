@@ -100,6 +100,7 @@ setup(
 			'Modules/message.c',
 			'Modules/version.c',
 			'Modules/options.c',
+			'Modules/berval.c',
 		],
 		libraries = LDAP_CLASS.libs,
 		include_dirs = ['Modules'] + LDAP_CLASS.include_dirs,
