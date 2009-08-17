@@ -565,6 +565,13 @@ class TestLdapCExtension(unittest.TestCase):
         v = l.get_option(_ldap.OPT_PROTOCOL_VERSION)
         self.assertEquals(v, _ldap.VERSION3)
 
+        # Try setting options that will yield a known error.
+        try:
+            _ldap.get_option(_ldap.OPT_MATCHED_DN)
+            self.fail("expected ValueError")
+        except ValueError:
+            pass
+
     def _require_attr(self, obj, attrname):
         """Returns true if the attribute exists on the object.
            This is to allow some tests to be optional, because
