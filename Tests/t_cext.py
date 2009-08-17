@@ -3,24 +3,26 @@ import unittest, slapd
 import _ldap
 import logging
 
+reusable_server = None
+def get_reusable_server():
+    global reusable_server
+    if reusable_server is None:
+        reusable_server = slapd.Slapd()
+    return reusable_server
 
 class TestLdapCExtension(unittest.TestCase):
     """Tests the LDAP C Extension module, _ldap.
        These tests apply only to the _ldap module and bypass the
        LDAPObject wrapper completely."""
 
-    reusable_server = None
     timeout = 3
 
     def _init_server(self, reuse_existing=True):
+        global reusable_server
         """Sets self.server to a test LDAP server and self.base
            to its base"""
         if reuse_existing:
-            cls = TestLdapCExtension
-            if cls.reusable_server is None:
-                server = cls.reusable_server = slapd.Slapd()
-            else:
-                server = cls.reusable_server
+            server = get_reusable_server()
         else:
             server = slapd.Slapd() # private server
         #server.set_debug()  # enables verbose messages
