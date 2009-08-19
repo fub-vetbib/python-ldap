@@ -236,6 +236,9 @@ LDAP_get_option(LDAPObject *self, int option)
     case LDAP_OPT_X_SASL_REALM:
     case LDAP_OPT_X_SASL_AUTHCID:
     case LDAP_OPT_X_SASL_AUTHZID:
+#ifdef LDAP_OPT_X_SASL_USERNAME
+    case LDAP_OPT_X_SASL_USERNAME:
+#endif
 #endif
 	    /* String-valued options */
 	    if (self) LDAP_BEGIN_ALLOW_THREADS(self);
@@ -249,22 +252,6 @@ LDAP_get_option(LDAPObject *self, int option)
 	    }
 	    v = PyString_FromString(strval);
 	    ldap_memfree(strval);
-	    return v;
-
-#ifdef LDAP_OPT_X_SASL_USERNAME
-    case LDAP_OPT_X_SASL_USERNAME:
-#endif
-	    /* String-valued options which must not be freed */
-	    if (self) LDAP_BEGIN_ALLOW_THREADS(self);
-	    res = ldap_get_option(ld, option, &strval);
-	    if (self) LDAP_END_ALLOW_THREADS(self);
-	    if (res != LDAP_OPT_SUCCESS)
-		return option_error(res, "ldap_get_option");
-	    if (strval == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	    }
-	    v = PyString_FromString(strval);
 	    return v;
 
     case LDAP_OPT_TIMEOUT:
