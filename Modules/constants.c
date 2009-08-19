@@ -193,6 +193,9 @@ LDAPinit_constants( PyObject* d )
 #ifdef LDAP_OPT_X_SASL_NOCANON
 	add_int(d,OPT_X_SASL_NOCANON);
 #endif
+#ifdef LDAP_OPT_X_SASL_USERNAME
+	add_int(d,OPT_X_SASL_USERNAME);
+#endif
 
 	add_int(d,DN_FORMAT_LDAP);
 	add_int(d,DN_FORMAT_LDAPV3);

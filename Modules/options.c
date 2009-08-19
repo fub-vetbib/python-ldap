@@ -212,6 +212,9 @@ LDAP_get_option(LDAPObject *self, int option)
 #ifdef LDAP_OPT_X_SASL_NOCANON
     case LDAP_OPT_X_SASL_NOCANON:
 #endif
+#ifdef LDAP_OPT_X_SASL_USERNAME
+    case LDAP_OPT_X_SASL_USERNAME:
+#endif
 	    /* Integer-valued options */
 	    if (self) LDAP_BEGIN_ALLOW_THREADS(self);
 	    res = ldap_get_option(ld, option, &intval);
