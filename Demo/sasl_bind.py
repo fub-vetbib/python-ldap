@@ -9,7 +9,7 @@ ldap.set_option(ldap.OPT_DEBUG_LEVEL,0)
 
 for ldap_uri,sasl_mech,sasl_cb_value_dict in [
   (
-    "ldap://localhost:1390/",
+    "ldap://nb2.stroeder.local:1390/",
     'CRAM-MD5',
     {
       ldap.sasl.CB_AUTHNAME    :'fred',
@@ -17,7 +17,7 @@ for ldap_uri,sasl_mech,sasl_cb_value_dict in [
     }
   ),
   (
-    "ldap://localhost:1390/",
+    "ldap://nb2.stroeder.local:1390/",
     'PLAIN',
     {
       ldap.sasl.CB_AUTHNAME    :'fred',
@@ -25,7 +25,7 @@ for ldap_uri,sasl_mech,sasl_cb_value_dict in [
     }
   ),
   (
-    "ldap://localhost:1390/",
+    "ldap://nb2.stroeder.local:1390/",
     'LOGIN',
     {
       ldap.sasl.CB_AUTHNAME    :'fred',
@@ -38,12 +38,12 @@ for ldap_uri,sasl_mech,sasl_cb_value_dict in [
     { }
   ),
   (
-    "ldap://localhost:1390/",
+    "ldap://nb2.stroeder.local:1390/",
     'GSSAPI',
     { }
   ),
   (
-    "ldap://localhost:1390/",
+    "ldap://nb2.stroeder.local:1390/",
     'NTLM',
     {
       ldap.sasl.CB_AUTHNAME    :'fred',
@@ -51,7 +51,7 @@ for ldap_uri,sasl_mech,sasl_cb_value_dict in [
     }
   ),
   (
-    "ldap://localhost:1390/",
+    "ldap://nb2.stroeder.local:1390/",
     'DIGEST-MD5',
     {
       ldap.sasl.CB_AUTHNAME    :'fred',
@@ -70,5 +70,15 @@ for ldap_uri,sasl_mech,sasl_cb_value_dict in [
   except ldap.LDAPError,e:
     print 'Error using SASL mechanism',sasl_auth.mech,str(e)
   else:
-    print 'Sucessfully bound using SASL mechanism',sasl_auth.mech,'as',repr(l.whoami_s())
+    print 'Sucessfully bound using SASL mechanism:',sasl_auth.mech
+    try:
+      print 'Result of Who Am I? ext. op:',repr(l.whoami_s())
+    except ldap.LDAPError,e:
+      print 'Error using SASL mechanism',sasl_auth.mech,str(e)
+    try:
+      print 'OPT_X_SASL_USERNAME',repr(l.get_option(ldap.OPT_X_SASL_USERNAME))
+    except AttributeError:
+      pass
+
   l.unbind()
+  del l
