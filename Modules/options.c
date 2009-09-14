@@ -73,9 +73,11 @@ LDAP_set_option(LDAPObject *self, int option, PyObject *value)
     case LDAP_OPT_PROTOCOL_VERSION:
     case LDAP_OPT_ERROR_NUMBER:
     case LDAP_OPT_DEBUG_LEVEL:
+#ifdef HAVE_TLS
     case LDAP_OPT_X_TLS:
     case LDAP_OPT_X_TLS_REQUIRE_CERT:
     case LDAP_OPT_X_TLS_NEWCTX:
+#endif
 #ifdef HAVE_SASL
     case LDAP_OPT_X_SASL_SSF_MIN:
     case LDAP_OPT_X_SASL_SSF_MAX:
@@ -89,12 +91,14 @@ LDAP_set_option(LDAPObject *self, int option, PyObject *value)
     case LDAP_OPT_URI:
     case LDAP_OPT_ERROR_STRING:
     case LDAP_OPT_MATCHED_DN:
+#ifdef HAVE_TLS
     case LDAP_OPT_X_TLS_CACERTFILE:
     case LDAP_OPT_X_TLS_CACERTDIR:
     case LDAP_OPT_X_TLS_CERTFILE:
     case LDAP_OPT_X_TLS_KEYFILE:
     case LDAP_OPT_X_TLS_CIPHER_SUITE:
     case LDAP_OPT_X_TLS_RANDOM_FILE:
+#endif
 #ifdef HAVE_SASL
     case LDAP_OPT_X_SASL_SECPROPS:
 #endif
@@ -204,8 +208,10 @@ LDAP_get_option(LDAPObject *self, int option)
     case LDAP_OPT_PROTOCOL_VERSION:
     case LDAP_OPT_ERROR_NUMBER:
     case LDAP_OPT_DEBUG_LEVEL:
+#ifdef HAVE_TLS
     case LDAP_OPT_X_TLS:
     case LDAP_OPT_X_TLS_REQUIRE_CERT:
+#endif
 #ifdef HAVE_SASL
     case LDAP_OPT_X_SASL_SSF_MIN:
     case LDAP_OPT_X_SASL_SSF_MAX:
@@ -225,12 +231,14 @@ LDAP_get_option(LDAPObject *self, int option)
     case LDAP_OPT_URI:
     case LDAP_OPT_ERROR_STRING:
     case LDAP_OPT_MATCHED_DN:
+#ifdef HAVE_TLS
     case LDAP_OPT_X_TLS_CACERTFILE:
     case LDAP_OPT_X_TLS_CACERTDIR:
     case LDAP_OPT_X_TLS_CERTFILE:
     case LDAP_OPT_X_TLS_KEYFILE:
     case LDAP_OPT_X_TLS_CIPHER_SUITE:
     case LDAP_OPT_X_TLS_RANDOM_FILE:
+#endif
 #ifdef HAVE_SASL
     case LDAP_OPT_X_SASL_SECPROPS:
     case LDAP_OPT_X_SASL_MECH:
