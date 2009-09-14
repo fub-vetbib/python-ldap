@@ -77,6 +77,7 @@ LDAP_set_option(LDAPObject *self, int option, PyObject *value)
     case LDAP_OPT_X_TLS:
     case LDAP_OPT_X_TLS_REQUIRE_CERT:
     case LDAP_OPT_X_TLS_NEWCTX:
+    case LDAP_OPT_X_TLS_PROTOCOL_MIN:
 #endif
 #ifdef HAVE_SASL
     case LDAP_OPT_X_SASL_SSF_MIN:
@@ -211,6 +212,7 @@ LDAP_get_option(LDAPObject *self, int option)
 #ifdef HAVE_TLS
     case LDAP_OPT_X_TLS:
     case LDAP_OPT_X_TLS_REQUIRE_CERT:
+    case LDAP_OPT_X_TLS_PROTOCOL_MIN:
 #endif
 #ifdef HAVE_SASL
     case LDAP_OPT_X_SASL_SSF_MIN:
