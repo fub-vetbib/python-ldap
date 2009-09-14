@@ -19,6 +19,8 @@ Modules/
   in LDAPObject.set_option()
 * New LDAP option constant ldap.OPT_X_TLS_PROTOCOL_MIN supported
   in LDAPObject.get/set_option()
+* New LDAP option constant ldap.OPT_CONNECT_ASYNC supported
+  in LDAPObject.get/set_option()
 
 ----------------------------------------------------------------
 Released 2.3.9 2009-07-26

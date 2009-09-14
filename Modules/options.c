@@ -63,6 +63,9 @@ LDAP_set_option(LDAPObject *self, int option, PyObject *value)
 #ifdef LDAP_OPT_X_SASL_NOCANON
     case LDAP_OPT_X_SASL_NOCANON:
 #endif
+#ifdef LDAP_OPT_CONNECT_ASYNC
+    case LDAP_OPT_CONNECT_ASYNC:
+#endif
 	    /* Truth-value options */
 	    ptr = PyObject_IsTrue(value) ? LDAP_OPT_ON : LDAP_OPT_OFF;
 	    break;
@@ -220,6 +223,9 @@ LDAP_get_option(LDAPObject *self, int option)
 #endif
 #ifdef LDAP_OPT_X_SASL_NOCANON
     case LDAP_OPT_X_SASL_NOCANON:
+#endif
+#ifdef LDAP_OPT_CONNECT_ASYNC
+    case LDAP_OPT_CONNECT_ASYNC:
 #endif
 	    /* Integer-valued options */
 	    if (self) LDAP_BEGIN_ALLOW_THREADS(self);
