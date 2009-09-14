@@ -170,6 +170,7 @@ LDAPinit_constants( PyObject* d )
 	add_int(d,OPT_X_TLS_REQUIRE_CERT);
 	add_int(d,OPT_X_TLS_CIPHER_SUITE);
 	add_int(d,OPT_X_TLS_RANDOM_FILE);
+	add_int(d,OPT_X_TLS_DHFILE);
 	add_int(d,OPT_X_TLS_NEVER);
 	add_int(d,OPT_X_TLS_HARD);
 	add_int(d,OPT_X_TLS_DEMAND);

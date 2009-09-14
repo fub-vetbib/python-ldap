@@ -102,6 +102,7 @@ LDAP_set_option(LDAPObject *self, int option, PyObject *value)
     case LDAP_OPT_X_TLS_KEYFILE:
     case LDAP_OPT_X_TLS_CIPHER_SUITE:
     case LDAP_OPT_X_TLS_RANDOM_FILE:
+    case LDAP_OPT_X_TLS_DHFILE:
 #endif
 #ifdef HAVE_SASL
     case LDAP_OPT_X_SASL_SECPROPS:
@@ -246,6 +247,7 @@ LDAP_get_option(LDAPObject *self, int option)
     case LDAP_OPT_X_TLS_KEYFILE:
     case LDAP_OPT_X_TLS_CIPHER_SUITE:
     case LDAP_OPT_X_TLS_RANDOM_FILE:
+    case LDAP_OPT_X_TLS_DHFILE:
 #endif
 #ifdef HAVE_SASL
     case LDAP_OPT_X_SASL_SECPROPS:
