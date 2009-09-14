@@ -15,6 +15,8 @@ Modules/
 * Changed internal API List_to_LDAPControls() to LDAPControls_from_object()
 * Supported was added for retrieving the SASL username during SASL bind with
   ldap_get_option(LDAP_OPT_X_SASL_USERNAME) if available in libldap.
+* New LDAP option constant ldap.OPT_X_TLS_NEWCTX supported
+  in LDAPObject.set_option()
 
 ----------------------------------------------------------------
 Released 2.3.9 2009-07-26
