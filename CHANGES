@@ -10,6 +10,7 @@ Lib/
   mapped to class attributes of LDAPUrl.
 * Fixed handling of LDAP URLs with ? being part of extensions.
 * Fixed exceptions raised by get_option/set_option (#1964993)
+* ldap.functions: Fixed import trace-related variables from base-module ldap
 
 Modules/
 * Changed internal API List_to_LDAPControls() to LDAPControls_from_object()
