@@ -3,11 +3,14 @@ base = "dc=stroeder,dc=de"
 search_flt = r'(objectClass=*)'
 page_size = 10
 
-import ldap
+import ldap,pprint
 from ldap.controls import SimplePagedResultsControl
 
+searchreq_attrlist=['cn','entryDN','entryUUID','mail','objectClass']
+
+#ldap.set_option(ldap.OPT_DEBUG_LEVEL,255)
 ldap.set_option(ldap.OPT_REFERRALS, 0)
-l = ldap.initialize(url)
+l = ldap.initialize(url,trace_level=1)
 l.protocol_version = 3
 l.simple_bind_s("", "")
 
@@ -20,6 +23,7 @@ msgid = l.search_ext(
   base,
   ldap.SCOPE_SUBTREE,
   search_flt,
+  attrlist=searchreq_attrlist,
   serverctrls=[lc]
 )
 
@@ -29,6 +33,7 @@ while True:
     print "Getting page %d" % (pages,)
     rtype, rdata, rmsgid, serverctrls = l.result3(msgid)
     print '%d results' % len(rdata)
+#    pprint.pprint(rdata)
     pctrls = [
       c
       for c in serverctrls
@@ -38,8 +43,13 @@ while True:
         est, cookie = pctrls[0].controlValue
         if cookie:
             lc.controlValue = (page_size, cookie)
-            msgid = l.search_ext(base, ldap.SCOPE_SUBTREE, search_flt,
-                                 serverctrls=[lc])
+            msgid = l.search_ext(
+              base,
+              ldap.SCOPE_SUBTREE,
+              search_flt,
+              attrlist=searchreq_attrlist,
+              serverctrls=[lc]
+            )
         else:
             break
     else:
