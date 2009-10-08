@@ -9,7 +9,7 @@ Lib/
 * Fixed handling of LDAP URL extensions with implicit value None which are
   mapped to class attributes of LDAPUrl.
 * Fixed handling of LDAP URLs with ? being part of extensions.
-* Fixed exceptions raised by get_option/set_option (#1964993)
+* Fixed exceptions raised by get_option/set_option (SF#1964993)
 * ldap.functions: Fixed import trace-related variables from base-module ldap
 
 Modules/
@@ -21,6 +21,7 @@ Modules/
 * New LDAP option constants supported in LDAPObject.get/set_option():
   ldap.OPT_X_TLS_PROTOCOL_MIN, ldap.OPT_CONNECT_ASYNC, ldap.OPT_X_TLS_DHFILE
 * Fixed setting _ldap.OPT_ON and _ldap.OPT_OFF
+* l_ldap_result3(): controls are now parsed for all response types (SF#2829057)
 
 ----------------------------------------------------------------
 Released 2.3.9 2009-07-26

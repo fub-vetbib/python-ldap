@@ -956,40 +956,34 @@ l_ldap_result3( LDAPObject* self, PyObject *args )
     if (msg)
 	    res_msgid = ldap_msgid(msg);
 
-    if (res_type == LDAP_RES_SEARCH_ENTRY
-	    || res_type == LDAP_RES_SEARCH_REFERENCE
-	)
-	pmsg = LDAPmessage_to_python( self->ldap, msg );
-    else {
-	int result;
-	char **refs = NULL;
-        LDAPControl **serverctrls = 0;
-	LDAP_BEGIN_ALLOW_THREADS( self );
-	ldap_parse_result( self->ldap, msg, &result, NULL, NULL, &refs,
-                           &serverctrls, 0 );
-	LDAP_END_ALLOW_THREADS( self );
+    int result;
+    char **refs = NULL;
+    LDAPControl **serverctrls = 0;
+    LDAP_BEGIN_ALLOW_THREADS( self );
+    ldap_parse_result( self->ldap, msg, &result, NULL, NULL, &refs,
+		       &serverctrls, 0 );
+    LDAP_END_ALLOW_THREADS( self );
 
-	if (result != LDAP_SUCCESS) {		/* result error */
-	    char *e, err[1024];
-	    if (result == LDAP_REFERRAL && refs && refs[0]) {
-		snprintf(err, sizeof(err), "Referral:\n%s", refs[0]);
-		e = err;
-	    } else
-		e = "ldap_parse_result";
-	    ldap_msgfree(msg);
-	    return LDAPerror( self->ldap, e );
-	}
-
-        if (!(pyctrls = LDAPControls_to_List(serverctrls))) {
-            int err = LDAP_NO_MEMORY;
-            ldap_set_option(self->ldap, LDAP_OPT_ERROR_NUMBER, &err);
-	    ldap_msgfree(msg);
-            return LDAPerror(self->ldap, "LDAPControls_to_List");
-        }
-        ldap_controls_free(serverctrls);
-
-	pmsg = LDAPmessage_to_python( self->ldap, msg );
+    if (result != LDAP_SUCCESS) {		/* result error */
+	char *e, err[1024];
+	if (result == LDAP_REFERRAL && refs && refs[0]) {
+	    snprintf(err, sizeof(err), "Referral:\n%s", refs[0]);
+	    e = err;
+	} else
+	    e = "ldap_parse_result";
+	ldap_msgfree(msg);
+	return LDAPerror( self->ldap, e );
     }
+
+    if (!(pyctrls = LDAPControls_to_List(serverctrls))) {
+	int err = LDAP_NO_MEMORY;
+	ldap_set_option(self->ldap, LDAP_OPT_ERROR_NUMBER, &err);
+	ldap_msgfree(msg);
+	return LDAPerror(self->ldap, "LDAPControls_to_List");
+    }
+    ldap_controls_free(serverctrls);
+
+    pmsg = LDAPmessage_to_python( self->ldap, msg );
 
     result_str = LDAPconstant( res_type );
 
