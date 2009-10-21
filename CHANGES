@@ -24,6 +24,9 @@ Modules/
 * Fixed setting _ldap.OPT_ON and _ldap.OPT_OFF
 * l_ldap_result3(): controls are now parsed for all response types (SF#2829057)
 
+Doc/
+* Added example for ldap.resiter
+
 ----------------------------------------------------------------
 Released 2.3.9 2009-07-26
 
