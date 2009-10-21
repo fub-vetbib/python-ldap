@@ -11,6 +11,7 @@ Lib/
 * Fixed handling of LDAP URLs with ? being part of extensions.
 * Fixed exceptions raised by get_option/set_option (SF#1964993)
 * ldap.functions: Fixed import trace-related variables from base-module ldap
+* Fixed ldap.resiter missing in RPMs built with python setup.py bdist_rpm
 
 Modules/
 * Changed internal API List_to_LDAPControls() to LDAPControls_from_object()

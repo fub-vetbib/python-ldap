@@ -130,6 +130,7 @@ setup(
   		'ldap.functions',
   		'ldap.ldapobject',
   		'ldap.modlist',
+  		'ldap.resiter',
   		'ldap.sasl',
   		'ldap.schema',
   		'ldap.schema.models',
