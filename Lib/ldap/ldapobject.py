@@ -250,9 +250,9 @@ class SimpleLDAPObject:
     msgid = self.compare_ext(dn,attr,value,serverctrls,clientctrls)
     try:
       self.result(msgid,all=1,timeout=self.timeout)
-    except _ldap.COMPARE_TRUE:
+    except ldap.COMPARE_TRUE:
       return 1
-    except _ldap.COMPARE_FALSE:
+    except ldap.COMPARE_FALSE:
       return 0
     return None
 
@@ -436,11 +436,11 @@ class SimpleLDAPObject:
     res_type,res_data,res_msgid = self.result2(msgid,all,timeout)
     return res_type,res_data
 
-  def result2(self,msgid=_ldap.RES_ANY,all=1,timeout=None):
+  def result2(self,msgid=ldap.RES_ANY,all=1,timeout=None):
     res_type, res_data, res_msgid, srv_ctrls = self.result3(msgid,all,timeout)
     return res_type, res_data, res_msgid
  
-  def result3(self,msgid=_ldap.RES_ANY,all=1,timeout=None):
+  def result3(self,msgid=ldap.RES_ANY,all=1,timeout=None):
     if timeout is None:
       timeout = self.timeout
     ldap_result = self._ldap_call(self._l.result3,msgid,all,timeout)
@@ -639,7 +639,7 @@ class NonblockingLDAPObject(SimpleLDAPObject):
     self._result_timeout = result_timeout
     SimpleLDAPObject.__init__(self,uri,trace_level,trace_file)
 
-  def result(self,msgid=_ldap.RES_ANY,all=1,timeout=-1):
+  def result(self,msgid=ldap.RES_ANY,all=1,timeout=-1):
     """
     """
     ldap_result = self._ldap_call(self._l.result,msgid,0,self._result_timeout)
@@ -651,7 +651,7 @@ class NonblockingLDAPObject(SimpleLDAPObject):
       while ldap_result[0] is None:
         if (timeout>=0) and (time.time()-start_time>timeout):
           self._ldap_call(self._l.abandon,msgid)
-          raise _ldap.TIMEOUT(
+          raise ldap.TIMEOUT(
             "LDAP time limit (%d secs) exceeded." % (timeout)
           )
         time.sleep(0.00001)
