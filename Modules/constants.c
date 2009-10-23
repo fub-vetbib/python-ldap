@@ -182,7 +182,9 @@ LDAPinit_constants( PyObject* d )
 	add_int(d,OPT_X_TLS_CRL_PEER);
 	add_int(d,OPT_X_TLS_CRL_ALL);
 	add_int(d,OPT_X_TLS_NEWCTX);
+#ifdef OPT_X_TLS_PROTOCOL_MIN
 	add_int(d,OPT_X_TLS_PROTOCOL_MIN);
+#endif
 #endif
 	add_int(d,OPT_X_SASL_MECH);
 	add_int(d,OPT_X_SASL_REALM);
