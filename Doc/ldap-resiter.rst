@@ -15,15 +15,15 @@
 .. _ldap.resiter-example:
 
 Examples for ldap.resiter
-------------------------
+-------------------------
 
 .. _ldap.resiter.ResultProcessor-example:
 
 Using ldap.resiter
 ^^^^^^^^^^^^^^^^^^
 
-This example demonstrates how to use class ldap.resiter.ResultProcessor for
-retrieving results and processing them in a for-loop.
+This example demonstrates how to use mix-in class ldap.resiter.ResultProcessor for
+retrieving results and processing them in a for-loop. ::
 
   import sys,ldap,ldap.resiter
 
