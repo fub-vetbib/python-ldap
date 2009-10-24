@@ -25,6 +25,7 @@ Contents
    installing.rst
    ldap.rst
    ldap-async.rst
+   ldap-resiter.rst
    ldap-controls.rst
    ldap-dn.rst
    ldap-filter.rst
