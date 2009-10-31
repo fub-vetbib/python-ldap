@@ -60,19 +60,19 @@ class SchemaElement:
   def key_attr(self,key,value,quoted=0):
     assert value is None or type(value)==StringType,TypeError("value has to be of StringType, was %s" % repr(value))
     if value:
-      if quoted:
-        return ' %s %s' % (key,repr(value))
+      if quoted:        
+        return " %s '%s'" % (key,value.replace("'","\\'"))
       else:
-        return ' %s %s' % (key,value)
+        return " %s %s" % (key,value)
     else:
-      return ''
+      return ""
 
   def key_list(self,key,values,sep=' ',quoted=0):
     assert type(values)==TupleType,TypeError("values has to be of ListType")
     if not values:
       return ''
     if quoted:
-      quoted_values = map(repr,values)
+      quoted_values = [ "'%s'" % value.replace("'","\\'") for value in values ]
     else:
       quoted_values = values
     if len(values)==1:

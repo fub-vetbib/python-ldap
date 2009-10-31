@@ -12,6 +12,9 @@ Lib/
 * Fixed exceptions raised by get_option/set_option (SF#1964993)
 * ldap.functions: Fixed import trace-related variables from base-module ldap
 * Fixed ldap.resiter missing in RPMs built with python setup.py bdist_rpm
+* Fix in class ldap.schema.models.SchemaElement:
+  repr() was liberally used in methods key_attr() and key_list() to enclose
+  values in quotes.
 
 Modules/
 * Changed internal API List_to_LDAPControls() to LDAPControls_from_object()
