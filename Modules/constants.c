@@ -162,7 +162,9 @@ LDAPinit_constants( PyObject* d )
 	add_int(d,OPT_URI);
 #ifdef HAVE_TLS
 	add_int(d,OPT_X_TLS);
+#ifdef LDAP_OPT_X_TLS_NEWCTX
 	add_int(d,OPT_X_TLS_CTX);
+#endif
 	add_int(d,OPT_X_TLS_CACERTFILE);
 	add_int(d,OPT_X_TLS_CACERTDIR);
 	add_int(d,OPT_X_TLS_CERTFILE);

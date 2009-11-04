@@ -79,7 +79,9 @@ LDAP_set_option(LDAPObject *self, int option, PyObject *value)
 #ifdef HAVE_TLS
     case LDAP_OPT_X_TLS:
     case LDAP_OPT_X_TLS_REQUIRE_CERT:
+#ifdef LDAP_OPT_X_TLS_NEWCTX
     case LDAP_OPT_X_TLS_NEWCTX:
+#endif
 #ifdef OPT_X_TLS_PROTOCOL_MIN
     case LDAP_OPT_X_TLS_PROTOCOL_MIN:
 #endif
