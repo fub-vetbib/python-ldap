@@ -11,7 +11,7 @@ This module only works with Python 2.0+ since
 2. list comprehensions are used.
 """
 
-__version__ = '2.3.10'
+__version__ = '2.3.11'
 
 __all__ = [
   # constants
@@ -385,7 +385,8 @@ class LDAPUrl:
   def __getattr__(self,name):
     if self.attr2extype.has_key(name):
       extype = self.attr2extype[name]
-      if self.extensions.has_key(extype) and \
+      if self.extensions and \
+         self.extensions.has_key(extype) and \
          not self.extensions[extype].exvalue is None:
         result = unquote(self.extensions[extype].exvalue)
       else:
@@ -413,10 +414,11 @@ class LDAPUrl:
   def __delattr__(self,name):
     if self.attr2extype.has_key(name):
       extype = self.attr2extype[name]
-      try:
-        del self.extensions[extype]
-      except KeyError:
-        pass
+      if self.extensions:
+        try:
+          del self.extensions[extype]
+        except KeyError:
+          pass
     else:
       del self.__dict__[name]
 
