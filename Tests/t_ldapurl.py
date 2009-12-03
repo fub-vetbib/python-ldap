@@ -184,6 +184,9 @@ class TestLDAPUrl(unittest.TestCase):
         self.assertEquals(u.filterstr, "(cn=*\\2a*)")
 
     def test_parse_extensions(self):
+        u = LDAPUrl("ldap:///????")
+        self.assertNone(u.extensions)
+        self.assertNone(u.who)
         u = LDAPUrl("ldap:///????bindname=cn=root")
         self.assertEquals(len(u.extensions), 1)
         self.assertEquals(u.who, "cn=root")
@@ -211,24 +214,23 @@ class TestLDAPUrl(unittest.TestCase):
 
     def test_bad_urls(self):
         for bad in ("", "ldap:", "ldap:/", ":///", "://", "///", "//", "/",
-                #"ldap:///?????",       # extension can't start with '?'
-                #"ldap:///????",        # required oid after 4th '?'
+                "ldap:///?????",       # extension can't start with '?'
                 "LDAP://", "invalid://", "ldap:///??invalid",
                 #XXX-- the following should raise exceptions!
-                #"ldap://:389/",         # [host [COLON port]]
-                #"ldap://a:/",           # [host [COLON port]]
-                #"ldap://%%%/",          # invalid URL encoding
-                #"ldap:///?,",           # attrdesc *(COMMA attrdesc)
-                #"ldap:///?a,",          # attrdesc *(COMMA attrdesc)
-                #"ldap:///?,a",          # attrdesc *(COMMA attrdesc)
-                #"ldap:///?a,,b",        # attrdesc *(COMMA attrdesc)
-                #"ldap://%00/",          # RFC4516 2.1
-                #"ldap:///%00",          # RFC4516 2.1
-                #"ldap:///?%00",         # RFC4516 2.1
-                #"ldap:///??%00",        # RFC4516 2.1
-                #"ldap:///????0=0",      # extype must start with Alpha
-                #"ldap:///????a_b=0",    # extype contains only [-a-zA-Z0-9]
-                #"ldap:///????!!a=0",    # only one exclamation allowed
+                "ldap://:389/",         # [host [COLON port]]
+                "ldap://a:/",           # [host [COLON port]]
+                "ldap://%%%/",          # invalid URL encoding
+                "ldap:///?,",           # attrdesc *(COMMA attrdesc)
+                "ldap:///?a,",          # attrdesc *(COMMA attrdesc)
+                "ldap:///?,a",          # attrdesc *(COMMA attrdesc)
+                "ldap:///?a,,b",        # attrdesc *(COMMA attrdesc)
+                "ldap://%00/",          # RFC4516 2.1
+                "ldap:///%00",          # RFC4516 2.1
+                "ldap:///?%00",         # RFC4516 2.1
+                "ldap:///??%00",        # RFC4516 2.1
+                "ldap:///????0=0",      # extype must start with Alpha
+                "ldap:///????a_b=0",    # extype contains only [-a-zA-Z0-9]
+                "ldap:///????!!a=0",    # only one exclamation allowed
         ):
             try: 
                 LDAPUrl(bad)
