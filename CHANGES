@@ -5,6 +5,8 @@ Changes since 2.3.10:
 
 Lib/
 * Fixed LDAP URL parsing with four ? but no real extensions
+* ldap.ldapobject.LDAPObject.rename_s() now also accepts arguments
+  serverctrls and clientctrls
 
 Modules/
 * Make use of LDAP_OPT_X_TLS_NEWCTX only if available in

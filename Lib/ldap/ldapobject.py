@@ -378,8 +378,8 @@ class SimpleLDAPObject:
     """
     return self._ldap_call(self._l.rename,dn,newrdn,newsuperior,delold,EncodeControlTuples(serverctrls),EncodeControlTuples(clientctrls))
 
-  def rename_s(self,dn,newrdn,newsuperior=None,delold=1):
-    msgid = self.rename(dn,newrdn,newsuperior,delold)
+  def rename_s(self,dn,newrdn,newsuperior=None,delold=1,serverctrls=None,clientctrls=None):
+    msgid = self.rename(dn,newrdn,newsuperior,delold,serverctrls,clientctrls)
     return self.result(msgid,all=1,timeout=self.timeout)
 
   def result(self,msgid=ldap.RES_ANY,all=1,timeout=None):
