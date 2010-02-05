@@ -839,7 +839,7 @@ LDAPObject instances have the following methods:
    .. %-> int
 
 
-.. method::  LDAPObject.modrdn_s(dn, newrdn [, delold=1)
+.. method::  LDAPObject.modrdn_s(dn, newrdn [, delold=1])
 
    .. % -> None
 
@@ -1256,7 +1256,7 @@ These attributes are mutable unless described as read-only.
 .. _ldap-example:
 
 Example
---------
+=======
 
 The following example demonstrates how to open a connection to an
 LDAP server using the :mod:`ldap` module and invoke a synchronous
