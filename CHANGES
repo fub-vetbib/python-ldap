@@ -1,5 +1,5 @@
 ----------------------------------------------------------------
-Released 2.3.11 2009-11-xx
+Released 2.3.11 2010-02-xx
 
 Changes since 2.3.10:
 
@@ -13,6 +13,11 @@ Modules/
 * Make use of LDAP_OPT_X_TLS_NEWCTX only if available in
   OpenLDAP libs used for the build
 * Fixed #ifdef-statements for OPT_X_TLS_PROTOCOL_MIN
+
+Doc/
+* Some updates and corrections regarding description of use of
+  LDAPv3 controls
+* Some more descriptions for constants
 
 ----------------------------------------------------------------
 Released 2.3.10 2009-10-30

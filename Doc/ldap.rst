@@ -162,6 +162,8 @@ following option identifiers are defined as constants:
 
 .. data:: OPT_DEBUG_LEVEL
 
+   Sets the debug level within the underlying LDAP C lib.
+
 .. data:: OPT_DEREF
 
    Specifies how alias derefencing is done within the underlying LDAP C lib.
@@ -177,6 +179,9 @@ following option identifiers are defined as constants:
 .. data:: OPT_NETWORK_TIMEOUT
 
 .. data:: OPT_PROTOCOL_VERSION
+
+   Sets the LDAP protocol version used for a connection. This is mapped to
+   object attribute `ldap.LDAPObject.protocol_version`
 
 .. data:: OPT_REFERRALS
 
@@ -592,6 +597,9 @@ Instances of :class:`ldap.LDAPObject` are returned by :func:`initialize()`
 and :func:`open()` (deprecated). The connection is automatically unbound
 and closed  when the LDAP object is deleted.
 
+Async vs. sync requests
+-----------------------
+
 Most methods on LDAP objects initiate an asynchronous request to the
 LDAP server and return a message id that can be used later to retrieve
 the result with :meth:`result()`.
@@ -600,8 +608,29 @@ Methods with names ending in :const:`_s` are the synchronous form
 and wait for and return with the server's result, or with
 :const:`None` if no data is expected.
 
+Arguments for LDAPv3 controls
+-----------------------------
+
 The :mod:`ldap.controls` module can be used for constructing and
-decoding LDAPv3 controls.
+decoding LDAPv3 controls. These arguments are available in the methods
+with names ending in :const:`_ext` or :const:`_ext_s`:
+
+*serverctrls*
+  is a list of :class:`LDAPControl` instances sent to the server along
+  with the LDAP request (see module :mod:`ldap.controls`). These are
+  controls which alter the behaviour of the server when processing the
+  request if the control is supported by the server. The effect of controls
+  might differ depending on the type of LDAP request or controls might not
+  be applicable with certain LDAP requests at all.
+
+*clientctrls*
+  is a list of :class:`LDAPControl` instances passed to the
+  client API and alter the behaviour of the client when processing the
+  request.
+
+
+Methods
+-------
 
 LDAPObject instances have the following methods:
 
@@ -616,6 +645,8 @@ LDAPObject instances have the following methods:
    operation as returned by the asynchronous methods :meth:`search()`, :meth:`modify()`, etc. 
    The caller can expect that the result of an abandoned operation will not be
    returned from a future call to :meth:`result()`.
+
+   *serverctrls* and *clientctrls* like described above.
 
 
 .. %%------------------------------------------------------------
@@ -645,6 +676,7 @@ LDAPObject instances have the following methods:
    The asynchronous methods :meth:`add()` and :meth:`add_ext()`
    return the message ID of the initiated request.
    
+   *serverctrls* and *clientctrls* like described above.
 
 .. %%------------------------------------------------------------
 .. %% bind
@@ -695,6 +727,8 @@ LDAPObject instances have the following methods:
    In opposite to :meth:`abandon()` this extended operation gets an result from
    the server and thus should be preferred if the server supports it.
 
+   *serverctrls* and *clientctrls* like described above.
+
    :rfc:`3909` - Lightweight Directory Access Protocol (LDAP): Cancel Operation
 
 
@@ -727,6 +761,8 @@ LDAPObject instances have the following methods:
    by raising the exception objects :exc:`ldap.COMPARE_TRUE` or
    :exc:`ldap.COMPARE_FALSE`.
 
+   *serverctrls* and *clientctrls* like described above.
+
    .. note::
    
       A design fault in the LDAP API prevents *value* 
@@ -754,6 +790,7 @@ LDAPObject instances have the following methods:
    returns the message id of the initiated request, and the result can be obtained
    from a subsequent call to :meth:`result()`.
 
+   *serverctrls* and *clientctrls* like described above.
 
 .. %%------------------------------------------------------------
 .. %% modify
@@ -785,6 +822,8 @@ LDAPObject instances have the following methods:
    *mod_vals* is either a string value or a list of string values to add, 
    delete or replace respectively.  For the delete operation, *mod_vals*
    may be :const:`None` indicating that all attributes are to be deleted.
+
+   *serverctrls* and *clientctrls* like described above.
 
    The asynchronous methods :meth:`modify()` and :meth:`modify_ext()`
    return the message ID of the initiated request.
@@ -830,6 +869,8 @@ LDAPObject instances have the following methods:
    The old password in *oldpw* is replaced with the new
    password in *newpw* by a LDAP server supporting this operation.
 
+   *serverctrls* and *clientctrls* like described above.
+
    The asynchronous version returns the initiated message id.
 
    .. seealso::
@@ -840,12 +881,11 @@ LDAPObject instances have the following methods:
 
 .. %%------------------------------------------------------------
 .. %% rename
-.. method:: LDAPObject.rename(dn, newrdn [, newsuperior=None [, delold=1]])
+.. method:: LDAPObject.rename(dn, newrdn [, newsuperior=None [, delold=1 [, serverctrls=None [, clientctrls=None]]]])
 
    ..  %-> int
 
-
-.. method:: LDAPObject.rename_s(dn, newrdn [, newsuperior=None [, delold=1]])
+.. method:: LDAPObject.rename_s(dn, newrdn [, newsuperior=None [, delold=1 [, serverctrls=None [, clientctrls=None]]]])
 
    ..  % -> None
 
@@ -858,6 +898,7 @@ LDAPObject instances have the following methods:
    The optional parameter *delold* is used to specify
    whether the old RDN should be kept as an attribute of the entry or not.
 
+   *serverctrls* and *clientctrls* like described above.
 
 .. %%------------------------------------------------------------
 .. %% result
@@ -999,9 +1040,7 @@ LDAPObject instances have the following methods:
    The retrieved attributes can be limited with the *attrlist* parameter.
    If *attrlist* is :const:`None`, all the attributes of each entry are returned.
 
-   *serverctrls* not implemented yet.
-
-   *clientctrls* not implemented yet.
+   *serverctrls* and *clientctrls* like described above.
 
    The synchronous form with timeout, :meth:`search_st()` or :meth:`search_ext_s()`,
    will block for at most *timeout* seconds (or indefinitely if *timeout*
@@ -1053,6 +1092,8 @@ LDAPObject instances have the following methods:
    current association, and free resources. Once called, the connection to the
    LDAP server is closed and the LDAP object is marked invalid.
    Further invocation of methods on the object will yield exceptions.
+
+   *serverctrls* and *clientctrls* like described above.
 
    These methods are all synchronous in nature.
 
