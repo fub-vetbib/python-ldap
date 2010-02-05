@@ -1,10 +1,4 @@
 .. % $Id$
-.. % ==== 1. ====
-.. % The section prologue.  Give the section a title and provide some
-.. % meta-information.  References to the module should use
-.. % \refbimodindex, \refstmodindex, \refexmodindex or \refmodindex, as
-.. % appropriate.
-
 
 ################################
 :mod:`ldapurl` LDAP URL handling
@@ -26,15 +20,6 @@ module has been solely tested on Python 2.x and above.
 
 
 The :mod:`ldapurl` module exports the following constants:
-
-.. % Author of the module code;
-.. % Leave at least one blank line after this, to simplify ad-hoc tools
-.. % that are sometimes used to massage these files.
-.. % ==== 2. ====
-.. % Give a short overview of what the module does.
-.. % If it is platform specific, mention this.
-.. % Mention other important restrictions or general operating principles.
-
 
 .. data:: SEARCH_SCOPE
 

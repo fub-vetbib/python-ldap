@@ -1,10 +1,4 @@
 .. % $Id$
-.. % ==== 1. ====
-.. % The section prologue.  Give the section a title and provide some
-.. % meta-information.  References to the module should use
-.. % \refbimodindex, \refstmodindex, \refexmodindex or \refmodindex, as
-.. % appropriate.
-
 
 *****************************************
 :mod:`ldap` LDAP library interface module
