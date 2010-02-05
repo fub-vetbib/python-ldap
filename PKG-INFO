@@ -1,7 +1,7 @@
 Metadata-Version: 1.1
 Name: python-ldap
-Version: 2.3.10
-Author: David Leonard, Michael Stroeder, et al.
+Version: 2.3.11
+Author: python-ldap project
 Author-email: python-ldap-dev at lists sourceforge net
 Maintainer: Michael Ströder
 Maintainer-email: python-ldap-dev at lists sourceforge net
