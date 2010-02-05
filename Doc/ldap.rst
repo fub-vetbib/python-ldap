@@ -44,21 +44,6 @@ Functions
 
 The :mod:`ldap` module defines the following functions:
 
-.. % ---- 3.1. ----
-.. % For each function, use a ``funcdesc'' block.  This has exactly two
-.. % parameters (each parameters is contained in a set of curly braces):
-.. % the first parameter is the function name (this automatically
-.. % generates an index entry); the second parameter is the function's
-.. % argument list.  If there are no arguments, use an empty pair of
-.. % curly braces.  If there is more than one argument, separate the
-.. % arguments with backslash-comma.  Optional parts of the parameter
-.. % list are contained in \optional{...} (this generates a set of square
-.. % brackets around its parameter).  Arguments are automatically set in
-.. % italics in the parameter list.  Each argument should be mentioned at
-.. % least once in the description; each usage (even inside \code{...})
-.. % should be enclosed in \var{...}.
-
-
 .. function:: initialize(uri [, trace_level=0 [, trace_file=sys.stdout [, trace_stack_limit=None]]])
 
    Opens a new connection with an LDAP server, and return an LDAP object
@@ -110,11 +95,6 @@ The :mod:`ldap` module defines the following functions:
    *invalue*.
 
    .. % -> None
-
-.. % ---- 3.2. ----
-.. % Data items are described using a ``datadesc'' block.  This has only
-.. % one parameter: the item's name.
-
 
 .. _ldap-constants:
 
@@ -293,12 +273,6 @@ sub-module :mod:`ldap.dn`.
 .. data:: DN_PEDANTIC
 
 
-
-.. % --- 3.3. ---
-.. % Exceptions are described using a ``excdesc'' block.  This has only
-.. % one parameter: the exception name.  Exceptions defined as classes in
-.. % the source code should be documented using this environment, but
-.. % constructor parameters must be ommitted.
 
 .. _ldap-exceptions:
 
@@ -568,21 +542,6 @@ The above exceptions are raised when a result code from an underlying API
 call does not indicate success.
 
 
-.. % ---- 3.4. ----
-.. % Other standard environments:
-.. %
-.. %  classdesc       - Python classes; same arguments are funcdesc
-.. %  methoddesc      - methods, like funcdesc but has an optional parameter 
-.. %            to give the type name: \begin{methoddesc}[mytype]{name}{args
-.. %            By default, the type name will be the name of the
-.. %            last class defined using classdesc.  The type name
-.. %            is required if the type is implemented in C (because 
-.. %            there's no classdesc) or if the class isn't directly 
-.. %            documented (if it's private).
-.. %  memberdesc      - data members, like datadesc, but with an optional
-.. %            type name like methoddesc.
-
-
 .. _ldap-objects:
 
 LDAPObject class
@@ -596,17 +555,6 @@ LDAPObject class
 Instances of :class:`ldap.LDAPObject` are returned by :func:`initialize()`
 and :func:`open()` (deprecated). The connection is automatically unbound
 and closed  when the LDAP object is deleted.
-
-Async vs. sync requests
------------------------
-
-Most methods on LDAP objects initiate an asynchronous request to the
-LDAP server and return a message id that can be used later to retrieve
-the result with :meth:`result()`.
-
-Methods with names ending in :const:`_s` are the synchronous form 
-and wait for and return with the server's result, or with
-:const:`None` if no data is expected.
 
 Arguments for LDAPv3 controls
 -----------------------------
@@ -629,8 +577,16 @@ with names ending in :const:`_ext` or :const:`_ext_s`:
   request.
 
 
-Methods
--------
+Sending LDAP requests
+---------------------
+
+Most methods on LDAP objects initiate an asynchronous request to the
+LDAP server and return a message id that can be used later to retrieve
+the result with :meth:`result()`.
+
+Methods with names ending in :const:`_s` are the synchronous form 
+and wait for and return with the server's result, or with
+:const:`None` if no data is expected.
 
 LDAPObject instances have the following methods:
 
@@ -1156,9 +1112,10 @@ Connection-specific LDAP options
 
    .. note::
 
-      This method is somewhat immature and might vanish in future versions
-      if full support for extended controls will be implemented. You have been
-      warned!
+      This method is deprecated and somewhat broken since full support for extended controls
+      is implemented today. You should rather pass an appropriate
+      :class:`LDAPControl` instance via argument *serverctrls* to the
+      applicable methods.
 
 
 Object attributes
@@ -1248,11 +1205,6 @@ These attributes are mutable unless described as read-only.
    This option is used in the wrapper module.
 
 
-.. % ==== 4. ====
-.. % Now is probably a good time for a complete example.  (Alternatively,
-.. % an example giving the flavor of the module may be given before the
-.. % detailed list of functions.)
-
 .. _ldap-example:
 
 Example
@@ -1271,10 +1223,4 @@ subtree search.
 >>>   print 'Processing',repr(dn)
 >>>   handle_ldap_entry(entry)
 
-
-.. % ==== 5. ====
-.. % If your module defines new object types (for a built-in module) or
-.. % classes (for a module written in Python), you should list the
-.. % methods and instance variables (if any) of each type or class in a
-.. % separate subsection.
 
