@@ -8,6 +8,7 @@ Lib/
 * ldap.ldapobject.LDAPObject.rename_s() now also accepts arguments
   serverctrls and clientctrls
 * Removed untested and undocumented class ldap.ldapobject.SmartLDAPObject
+* Removed broken method ldap.ldapobject.LDAPObject.manage_dsa_it()
 
 Modules/
 * Make use of LDAP_OPT_X_TLS_NEWCTX only if available in
