@@ -5,6 +5,8 @@ Changes since 2.3.11:
 
 Lib/
 * Removed tabs from ldif.py
+* Quick fix to ldif.is_dn() to let multi-valued RDNs pass as valid.
+  Is too liberal in some corner-cases though...
 
 Modules/
 * 

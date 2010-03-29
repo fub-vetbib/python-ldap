@@ -32,7 +32,8 @@ except ImportError:
 
 attrtype_pattern = r'[\w;.]+(;[\w_-]+)*'
 attrvalue_pattern = r'(([^,]|\\,)+|".*?")'
-rdn_pattern = attrtype_pattern + r'[ ]*=[ ]*' + attrvalue_pattern
+attrtypeandvalue_pattern = attrtype_pattern + r'[ ]*=[ ]*' + attrvalue_pattern
+rdn_pattern   = attrtypeandvalue_pattern + r'([ ]*\+[ ]*' + attrtypeandvalue_pattern + r')*[ ]*'
 dn_pattern   = rdn_pattern + r'([ ]*,[ ]*' + rdn_pattern + r')*[ ]*'
 dn_regex   = re.compile('^%s$' % dn_pattern)
 
