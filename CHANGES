@@ -4,7 +4,7 @@ Released 2.3.12 2010-xx-xx
 Changes since 2.3.11:
 
 Lib/
-* 
+* Removed tabs from ldif.py
 
 Modules/
 * 
