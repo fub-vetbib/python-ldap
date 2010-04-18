@@ -101,6 +101,8 @@ def open(host,port=389,trace_level=0,trace_file=sys.stdout,trace_stack_limit=Non
         File object where to write the trace output to.
         Default is to use stdout.
   """
+  import warnings
+  warnings.warn('ldap.open() is deprecated! Use ldap.initialize() instead.', DeprecationWarning,2)
   return initialize('ldap://%s:%d' % (host,port),trace_level,trace_file,trace_stack_limit)
 
 init = open
