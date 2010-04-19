@@ -133,17 +133,17 @@ class DSMLWriter:
           attr_value_item = base64.encodestring(attr_value_item)
         else:
           attr_value_item = replace_char(attr_value_item)
-  	self._output_file.write('%s<dsml:value%s>\n' % (
+        self._output_file.write('%s<dsml:value%s>\n' % (
             self._indent*4,
             ' encoding="base64"'*needs_base64_encoding
           )
         )
-  	self._output_file.write('%s%s\n' % (
+        self._output_file.write('%s%s\n' % (
             self._indent*5,
             attr_value_item
           )
         )
-  	self._output_file.write('%s</dsml:value>\n' % (
+        self._output_file.write('%s</dsml:value>\n' % (
             self._indent*4,
           )
         )

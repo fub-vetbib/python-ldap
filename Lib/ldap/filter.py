@@ -18,21 +18,20 @@ def escape_filter_chars(assertion_value,escape_mode=0):
   by quoted notation.
   
   escape_mode
-  	If 0 only special chars mentioned in RFC 2254
-	are escaped.
-  	If 1 all NON-ASCII chars are escaped.
-  	If 2 all chars are escaped.
+      If 0 only special chars mentioned in RFC 2254 are escaped.
+      If 1 all NON-ASCII chars are escaped.
+      If 2 all chars are escaped.
   """
   if escape_mode:
     r = []
     if escape_mode==1:
       for c in assertion_value:
-	if c < '0' or c > 'z' or c in "\\*()":
+        if c < '0' or c > 'z' or c in "\\*()":
           c = "\\%02x" % ord(c)
-	r.append(c)
+        r.append(c)
     elif escape_mode==2:
       for c in assertion_value:
-	r.append("\\%02x" % ord(c))
+        r.append("\\%02x" % ord(c))
     else:
       raise ValueError('escape_mode must be 0, 1 or 2.')
     s = ''.join(r)
