@@ -213,12 +213,12 @@ class IndexedDict(Dict):
       dn,entry = resultItem
       self.allEntries[dn] = entry
       for a in self.indexed_attrs:
-	if entry.has_key(a):
-	  for v in entry[a]:
-	    try:
-    	      self.index[a][v].append(dn)
-	    except KeyError:
-    	      self.index[a][v] = [ dn ]
+        if entry.has_key(a):
+          for v in entry[a]:
+            try:
+              self.index[a][v].append(dn)
+            except KeyError:
+              self.index[a][v] = [ dn ]
 
 
 class FileWriter(AsyncSearchHandler):
