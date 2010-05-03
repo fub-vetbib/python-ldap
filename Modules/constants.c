@@ -208,6 +208,15 @@ LDAPinit_constants( PyObject* d )
 #ifdef LDAP_OPT_CONNECT_ASYNC
 	add_int(d,OPT_CONNECT_ASYNC);
 #endif
+#ifdef LDAP_OPT_X_KEEPALIVE_IDLE
+	add_int(d,OPT_X_KEEPALIVE_IDLE);
+#endif
+#ifdef LDAP_OPT_X_KEEPALIVE_PROBES
+	add_int(d,OPT_X_KEEPALIVE_PROBES);
+#endif
+#ifdef LDAP_OPT_X_KEEPALIVE_INTERVAL
+	add_int(d,OPT_X_KEEPALIVE_INTERVAL);
+#endif
 
 	add_int(d,DN_FORMAT_LDAP);
 	add_int(d,DN_FORMAT_LDAPV3);
