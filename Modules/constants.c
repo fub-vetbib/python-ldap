@@ -178,11 +178,14 @@ LDAPinit_constants( PyObject* d )
 	add_int(d,OPT_X_TLS_DEMAND);
 	add_int(d,OPT_X_TLS_ALLOW);
 	add_int(d,OPT_X_TLS_TRY);
+#ifdef LDAP_OPT_X_TLS_CRLCHECK
   /* only available if OpenSSL supports it => might cause backward compability problems */
 	add_int(d,OPT_X_TLS_CRLCHECK);
+	add_int(d,OPT_X_TLS_CRLFILE);
 	add_int(d,OPT_X_TLS_CRL_NONE);
 	add_int(d,OPT_X_TLS_CRL_PEER);
 	add_int(d,OPT_X_TLS_CRL_ALL);
+#endif
 #ifdef LDAP_OPT_X_TLS_NEWCTX
 	add_int(d,OPT_X_TLS_NEWCTX);
 #endif

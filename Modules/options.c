@@ -79,6 +79,9 @@ LDAP_set_option(LDAPObject *self, int option, PyObject *value)
 #ifdef HAVE_TLS
     case LDAP_OPT_X_TLS:
     case LDAP_OPT_X_TLS_REQUIRE_CERT:
+#ifdef LDAP_OPT_X_TLS_CRLCHECK
+    case LDAP_OPT_X_TLS_CRLCHECK:
+#endif
 #ifdef LDAP_OPT_X_TLS_NEWCTX
     case LDAP_OPT_X_TLS_NEWCTX:
 #endif
@@ -117,6 +120,9 @@ LDAP_set_option(LDAPObject *self, int option, PyObject *value)
     case LDAP_OPT_X_TLS_CIPHER_SUITE:
     case LDAP_OPT_X_TLS_RANDOM_FILE:
     case LDAP_OPT_X_TLS_DHFILE:
+#ifdef LDAP_OPT_X_TLS_CRLFILE
+    case LDAP_OPT_X_TLS_CRLFILE:
+#endif
 #endif
 #ifdef HAVE_SASL
     case LDAP_OPT_X_SASL_SECPROPS:
@@ -230,6 +236,9 @@ LDAP_get_option(LDAPObject *self, int option)
 #ifdef HAVE_TLS
     case LDAP_OPT_X_TLS:
     case LDAP_OPT_X_TLS_REQUIRE_CERT:
+#ifdef LDAP_OPT_X_TLS_CRLCHECK
+    case LDAP_OPT_X_TLS_CRLCHECK:
+#endif
 #ifdef LDAP_OPT_X_TLS_PROTOCOL_MIN
     case LDAP_OPT_X_TLS_PROTOCOL_MIN:
 #endif
@@ -273,6 +282,9 @@ LDAP_get_option(LDAPObject *self, int option)
     case LDAP_OPT_X_TLS_CIPHER_SUITE:
     case LDAP_OPT_X_TLS_RANDOM_FILE:
     case LDAP_OPT_X_TLS_DHFILE:
+#ifdef LDAP_OPT_X_TLS_CRLFILE
+    case LDAP_OPT_X_TLS_CRLFILE:
+#endif
 #endif
 #ifdef HAVE_SASL
     case LDAP_OPT_X_SASL_SECPROPS:
