@@ -82,12 +82,12 @@ def explode_dn(dn,notypes=0,flags=0):
     if notypes:
       rdn_list.append('+'.join([
         escape_dn_chars(avalue or '')
-	for atype,avalue,dummy in rdn
+        for atype,avalue,dummy in rdn
       ]))
     else:
       rdn_list.append('+'.join([
         '='.join((atype,escape_dn_chars(avalue or '')))
-	for atype,avalue,dummy in rdn
+        for atype,avalue,dummy in rdn
       ]))
   return rdn_list
 
