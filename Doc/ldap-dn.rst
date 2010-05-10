@@ -33,7 +33,7 @@ The :mod:`ldap.dn` module defines the following functions:
    .. % -> string
 
 
-.. function:: str2dn(s [, flags=:const:`0`])
+.. function:: str2dn(s [, flags=0])
 
    This function takes *s* and breaks it up into its component parts  down to AVA
    level. The optional parameter *flags* describes the DN format of s  (see
@@ -51,7 +51,7 @@ The :mod:`ldap.dn` module defines the following functions:
    .. % -> string
 
 
-.. function:: explode_dn(dn [, notypes=:const:`0` [, flags=:const:`0`]])
+.. function:: explode_dn(dn [, notypes=0[, flags=0]])
 
    This function takes *dn* and breaks it up into its component parts.   Each part
    is known as an RDN (Relative Distinguished Name). The optional  *notypes*
@@ -64,7 +64,7 @@ The :mod:`ldap.dn` module defines the following functions:
    .. % -> list
 
 
-.. function:: explode_rdn(rdn [, notypes=:const:`0` [, flags=:const:`0`]])
+.. function:: explode_rdn(rdn [, notypes=0[, flags=0]])
 
    This function takes a (multi-valued) *rdn* and breaks it up  into a list of
    characteristic attributes. The optional  *notypes* parameter is used to specify
