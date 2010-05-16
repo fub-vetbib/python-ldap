@@ -37,7 +37,8 @@ The :mod:`ldap.dn` module defines the following functions:
 
    This function takes *s* and breaks it up into its component parts  down to AVA
    level. The optional parameter *flags* describes the DN format of s  (see
-   :ref:`ldap-dn-flags`).
+   :ref:`ldap-dn-flags`). Note that hex-encoded non-ASCII chars are decoded
+   to the raw bytes.
 
    .. % -> list
 
@@ -81,9 +82,13 @@ The :mod:`ldap.dn` module defines the following functions:
 Examples
 ^^^^^^^^^
 
-Splitting a LDAPv3 DN to AVA level:
+Splitting a LDAPv3 DN to AVA level. Note that both examples have the same result
+but in the first example the non-ASCII chars are passed as is (byte buffer string)
+whereas in the second example the hex-encoded DN representation are passed to the function.
 
 >>> ldap.dn.str2dn('cn=Michael Str\xc3\xb6der,dc=stroeder,dc=com',flags=ldap.DN_FORMAT_LDAPV3)
+[[('cn', 'Michael Str\xc3\xb6der', 4)], [('dc', 'stroeder', 1)], [('dc', 'com', 1)]]
+>>> ldap.dn.str2dn('cn=Michael Str\C3\B6der,dc=stroeder,dc=com',flags=ldap.DN_FORMAT_LDAPV3)
 [[('cn', 'Michael Str\xc3\xb6der', 4)], [('dc', 'stroeder', 1)], [('dc', 'com', 1)]]
 
 
