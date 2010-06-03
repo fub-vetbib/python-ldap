@@ -30,19 +30,49 @@ class DummyLock:
   def release(self):
     pass
 
-
 try:
   # Check if Python installation was build with thread support
   import thread
 except ImportError:
-  LDAPLock = DummyLock
+  LDAPLockBaseClass = DummyLock
 else:
   import threading
-  LDAPLock = threading.Lock
+  LDAPLockBaseClass = threading.Lock
 
-# Create module-wide lock for serializing all calls
-# into underlying LDAP lib
-_ldap_module_lock = LDAPLock()
+
+class LDAPLock:
+  """
+  Mainly a wrapper class to log all locking events.
+  Note that this cumbersome approach with _lock attribute was taken
+  since threading.Lock is not suitable for sub-classing.
+  """
+  _min_trace_level = 2
+
+  def __init__(self,lock_class=None,desc=''):
+    """
+    lock_class
+        Class compatible to threading.Lock
+    desc
+        Description shown in debug log messages
+    """
+    self._desc = desc
+    self._lock = (lock_class or LDAPLockBaseClass)()
+
+  def acquire(self):
+    if __debug__:
+      if _trace_level>=self._min_trace_level:
+        _trace_file.write('***%s %s.acquire()\n' % (self._desc,self.__class__.__name__))
+    return self._lock.acquire()
+
+  def release(self):
+    if __debug__:
+      if _trace_level>=self._min_trace_level:
+        _trace_file.write('***%s %s.release()\n' % (self._desc,self.__class__.__name__))
+    return self._lock.release()
+
+
+# Create module-wide lock for serializing all calls into underlying LDAP lib
+_ldap_module_lock = LDAPLock(desc='Module wide')
 
 from functions import open,initialize,init,get_option,set_option
 

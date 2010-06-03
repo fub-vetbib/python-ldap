@@ -50,7 +50,7 @@ def str2dn(dn,flags=0):
   """
   if not dn:
     return []
-  return ldap.functions._ldap_function_call(_ldap.str2dn,dn,flags)
+  return ldap.functions._ldap_function_call(None,_ldap.str2dn,dn,flags)
 
 
 def dn2str(dn):

@@ -38,11 +38,18 @@ if __debug__:
   # Tracing is only supported in debugging mode
   import traceback
 
-def _ldap_function_call(func,*args,**kwargs):
+
+def _ldap_function_call(lock,func,*args,**kwargs):
   """
-  Wrapper function which locks calls to func with via
-  module-wide ldap_lock
+  Wrapper function which locks and logs calls to function
+
+  lock
+      Instance of threading.Lock or compatible
+  func
+      Function to call with arguments passed in via *args and **kwargs
   """
+  if lock:
+    lock.acquire()
   if __debug__:
     if ldap._trace_level>=1:
       ldap._trace_file.write('*** %s.%s (%s,%s)\n' % (
@@ -51,12 +58,12 @@ def _ldap_function_call(func,*args,**kwargs):
       ))
       if ldap._trace_level>=3:
         traceback.print_stack(limit=ldap._trace_stack_limit,file=ldap._trace_file)
-  ldap._ldap_module_lock.acquire()
   try:
     try:
       result = func(*args,**kwargs)
     finally:
-      ldap._ldap_module_lock.release()
+      if lock:
+        ldap._ldap_module_lock.release()
   except LDAPError,e:
     if __debug__ and ldap._trace_level>=2:
       ldap._trace_file.write('=> LDAPError: %s\n' % (str(e)))
@@ -71,7 +78,7 @@ def initialize(uri,trace_level=0,trace_file=sys.stdout,trace_stack_limit=None):
   """
   Return LDAPObject instance by opening LDAP connection to
   LDAP host specified by LDAP URL
-  
+
   Parameters:
   uri
         LDAP URL containing at least connection scheme and hostport,
@@ -89,7 +96,7 @@ def open(host,port=389,trace_level=0,trace_file=sys.stdout,trace_stack_limit=Non
   """
   Return LDAPObject instance by opening LDAP connection to
   specified LDAP host
-  
+
   Parameters:
   host
         LDAP host and port, e.g. localhost
@@ -114,13 +121,13 @@ def get_option(option):
 
   Get the value of an LDAP global option.
   """
-  return _ldap_function_call(_ldap.get_option,option)
+  return _ldap_function_call(None,_ldap.get_option,option)
 
 
 def set_option(option,invalue):
   """
   set_option(name, value)
-  
+
   Set the value of an LDAP global option.
   """
-  _ldap_function_call(_ldap.set_option,option,invalue)
+  return _ldap_function_call(None,_ldap.set_option,option,invalue)
