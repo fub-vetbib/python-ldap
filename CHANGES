@@ -7,6 +7,7 @@ Lib/
 * Removed tabs from various modules to make things work with python -tt.
 * Quick fix to ldif.is_dn() to let multi-valued RDNs pass as valid.
   Is too liberal in some corner-cases though...
+* Fix to ldif.is_dn() to allow dashes in attribute type (see SF#3020292)
 * ldap.open() now outputs a deprecation warning
 * module-wide locking is now limited to calling _ldap.initialize().
   Still ldap.functions._ldap_function_call() is used to wrap all

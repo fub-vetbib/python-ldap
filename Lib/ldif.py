@@ -30,7 +30,7 @@ try:
 except ImportError:
   from StringIO import StringIO
 
-attrtype_pattern = r'[\w;.]+(;[\w_-]+)*'
+attrtype_pattern = r'[\w;.-]+(;[\w_-]+)*'
 attrvalue_pattern = r'(([^,]|\\,)+|".*?")'
 attrtypeandvalue_pattern = attrtype_pattern + r'[ ]*=[ ]*' + attrvalue_pattern
 rdn_pattern   = attrtypeandvalue_pattern + r'([ ]*\+[ ]*' + attrtypeandvalue_pattern + r')*[ ]*'
