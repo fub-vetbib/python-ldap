@@ -1,5 +1,5 @@
 ----------------------------------------------------------------
-Released 2.3.12 2010-xx-xx
+Released 2.3.12 2010-08-05
 
 Changes since 2.3.11:
 
@@ -21,7 +21,7 @@ Modules/
   ldap.OPT_X_TLS_CRLCHECK, ldap.OPT_X_TLS_CRLFILE
 
 Doc/
-* 
+* Various small updates/improvements
 
 ----------------------------------------------------------------
 Released 2.3.11 2010-02-26
