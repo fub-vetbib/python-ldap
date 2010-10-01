@@ -110,6 +110,9 @@ LDAP_set_option(LDAPObject *self, int option, PyObject *value)
 	    break;
     case LDAP_OPT_HOST_NAME:
     case LDAP_OPT_URI:
+#ifdef LDAP_OPT_DEFBASE
+    case LDAP_OPT_DEFBASE:
+#endif
     case LDAP_OPT_ERROR_STRING:
     case LDAP_OPT_MATCHED_DN:
 #ifdef HAVE_TLS
@@ -272,6 +275,9 @@ LDAP_get_option(LDAPObject *self, int option)
 
     case LDAP_OPT_HOST_NAME:
     case LDAP_OPT_URI:
+#ifdef LDAP_OPT_DEFBASE
+    case LDAP_OPT_DEFBASE:
+#endif
     case LDAP_OPT_ERROR_STRING:
     case LDAP_OPT_MATCHED_DN:
 #ifdef HAVE_TLS

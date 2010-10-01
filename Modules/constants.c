@@ -160,6 +160,9 @@ LDAPinit_constants( PyObject* d )
 	add_int(d,OPT_REFHOPLIMIT);
 	add_int(d,OPT_NETWORK_TIMEOUT);
 	add_int(d,OPT_URI);
+#ifdef LDAP_OPT_DEFBASE
+	add_int(d,OPT_DEFBASE);
+#endif
 #ifdef HAVE_TLS
 	add_int(d,OPT_X_TLS);
 #ifdef LDAP_OPT_X_TLS_NEWCTX

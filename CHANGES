@@ -9,6 +9,7 @@ Lib/
 Modules/
 * Correct #ifdef-statement for LDAP_OPT_X_TLS_CRLFILE in
   constants.c fixes build with older OpenLDAP libs
+* Support for LDAP_OPT_DEFBASE (see SF#3072016, thanks to Johannes)
 
 Doc/
 * 
