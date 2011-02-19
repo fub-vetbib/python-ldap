@@ -43,20 +43,20 @@ The following example demonstrates how to parse an LDIF file
 with :mod:`ldif` module, skip some entries and write the result to stdout. ::
 
    import sys
-   from ldif import LDIFParser, LDIFWriter
+   from ldif import LDIFParser,LDIFWriter
 
-   skip_dn = ["uid=foo,ou=People,dc=example,dc=com", 
+   SKIP_DN = ["uid=foo,ou=People,dc=example,dc=com", 
       "uid=bar,ou=People,dc=example,dc=com"]
 
    class MyLDIF(LDIFParser):
-      def __init__(self, input, output):
-         LDIFParser.__init__(self, input)
+      def __init__(self,input,output):
+         LDIFParser.__init__(self,input)
          self.writer = LDIFWriter(output)
 
-      def handle(self, dn, entry):
-         for i in skip_dn:
-            if i == dn: return
-         self.writer.unparse(dn, entry)
+      def handle(self,dn,entry):
+         if dn in SKIP_DN:
+           return
+         self.writer.unparse(dn,entry)
 
    parser = MyLDIF(open("input.ldif", 'rb'), sys.stdout)
    parser.parse()
