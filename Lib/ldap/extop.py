@@ -19,9 +19,6 @@ __all__ = [
 ]
 
 
-import _ldap,ldap
-
-
 class ExtendedRequest:
   """
   Generic base class for a LDAP extended operation request
