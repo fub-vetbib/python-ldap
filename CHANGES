@@ -1,18 +1,12 @@
 ----------------------------------------------------------------
-Released 2.3.13 2010-xx-xx
+Released 2.3.13 2011-02-19
 
 Changes since 2.3.12:
-
-Lib/
-* 
 
 Modules/
 * Correct #ifdef-statement for LDAP_OPT_X_TLS_CRLFILE in
   constants.c fixes build with older OpenLDAP libs
 * Support for LDAP_OPT_DEFBASE (see SF#3072016, thanks to Johannes)
-
-Doc/
-* 
 
 ----------------------------------------------------------------
 Released 2.3.12 2010-08-05
