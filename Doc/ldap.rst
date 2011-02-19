@@ -141,6 +141,8 @@ following option identifiers are defined as constants:
 
    Sets the debug level within the underlying LDAP C lib.
 
+.. data:: OPT_DEFBASE
+
 .. data:: OPT_DEREF
 
    Specifies how alias derefencing is done within the underlying LDAP C lib.
