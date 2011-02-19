@@ -1,13 +1,14 @@
 """
-controls.py - support classes for LDAP extended operations
+controls.py - support classes for LDAPv3 extended operations
 
 See http://www.python-ldap.org/ for details.
 
 \$Id$
 
 Description:
-The ldap.extop module provides LDAPExtendedOperation classes.
-Each class provides support for a certain extended operation.
+The ldap.extop module provides base classes for LDAPv3 extended operations.
+Each class provides support for a certain extended operation request and
+response.
 """
 
 from ldap import __version__
