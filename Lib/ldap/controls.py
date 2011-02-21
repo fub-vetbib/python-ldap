@@ -79,7 +79,7 @@ class SimplePagedResultsControl(LDAPControl):
 
   def decodeControlValue(self,encodedValue):
     size,cookie = _ldap.decode_page_control(encodedValue)
-    return size,cookie
+    return (size,cookie)
 
 
 class MatchedValuesControl(LDAPControl):
@@ -92,9 +92,6 @@ class MatchedValuesControl(LDAPControl):
   
   controlType = ldap.LDAP_CONTROL_VALUESRETURNFILTER
   
-  def __init__(self, criticality, controlValue=None):
-    LDAPControl.__init__(self, self.controlType, criticality, controlValue, None) 
-
   def encodeControlValue(self, value):
     return _ldap.encode_valuesreturnfilter_control(value)
 

@@ -8,7 +8,7 @@
 #include "lber.h"
 #include "ldap.h"
 
-extern PyObject* LDAPmessage_to_python( LDAP*ld, LDAPMessage*m );
+extern PyObject* LDAPmessage_to_python( LDAP*ld, LDAPMessage*m, int add_ctrls, int add_intermediates );
 
 #endif /* __h_message_ */
 

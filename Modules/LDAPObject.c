@@ -912,22 +912,27 @@ l_ldap_rename( LDAPObject* self, PyObject *args )
 }
 
 
-/* ldap_result3 */
+/* ldap_result4 */
 
 static PyObject *
-l_ldap_result3( LDAPObject* self, PyObject *args )
+l_ldap_result4( LDAPObject* self, PyObject *args )
 {
     int msgid = LDAP_RES_ANY;
     int all = 1;
     double timeout = -1.0;
+    int add_ctrls = 0;
+    int add_intermediates = 0;
+    int add_extop = 0;
     struct timeval tv;
     struct timeval* tvp;
     int res_type;
     LDAPMessage *msg = NULL;
     PyObject *result_str, *retval, *pmsg, *pyctrls = 0;
     int res_msgid = 0;
+    char *retoid = 0;
+    PyObject *valuestr = 0;
 
-    if (!PyArg_ParseTuple( args, "|iid", &msgid, &all, &timeout ))
+    if (!PyArg_ParseTuple( args, "|iidiii", &msgid, &all, &timeout, &add_ctrls, &add_intermediates, &add_extop ))
     	return NULL;
     if (not_valid(self)) return NULL;
     
@@ -943,12 +948,17 @@ l_ldap_result3( LDAPObject* self, PyObject *args )
     LDAP_END_ALLOW_THREADS( self );
 
     if (res_type < 0)	/* LDAP or system error */
-    	return LDAPerror( self->ldap, "ldap_result3" );
+    	return LDAPerror( self->ldap, "ldap_result4" );
 
     if (res_type == 0) {
 	/* Polls return (None, None, None, None); timeouts raise an exception */
-	if (timeout == 0)
+	if (timeout == 0) {
+	    if (add_extop) {
+		return Py_BuildValue("(OOOOOO)", Py_None, Py_None, Py_None, Py_None, Py_None, Py_None);
+	    } else {
 		return Py_BuildValue("(OOOO)", Py_None, Py_None, Py_None, Py_None);
+	    }
+	}
 	else
 		return LDAPerr(LDAP_TIMEOUT);
     }
@@ -956,12 +966,31 @@ l_ldap_result3( LDAPObject* self, PyObject *args )
     if (msg)
 	    res_msgid = ldap_msgid(msg);
 
-    int result;
+    int result = LDAP_SUCCESS;
     char **refs = NULL;
     LDAPControl **serverctrls = 0;
     LDAP_BEGIN_ALLOW_THREADS( self );
-    ldap_parse_result( self->ldap, msg, &result, NULL, NULL, &refs,
-		       &serverctrls, 0 );
+    if (res_type == LDAP_RES_SEARCH_ENTRY) {
+	/* LDAPmessage_to_python will parse entries and read the controls for each entry */
+    } else if (res_type == LDAP_RES_SEARCH_REFERENCE) {
+	/* LDAPmessage_to_python will parse refs and read the controls for each res */
+    } else if (res_type == LDAP_RES_INTERMEDIATE) {
+	/* LDAPmessage_to_python will parse intermediates and controls */
+    } else {
+	int rc;
+	if (res_type == LDAP_RES_EXTENDED) {
+	    struct berval *retdata = 0;
+	    rc = ldap_parse_extended_result( self->ldap, msg, &retoid, &retdata, 0 );
+	    /* handle error rc!=0 here? */
+	    if (rc == LDAP_SUCCESS) {
+		valuestr = LDAPberval_to_object(retdata);
+	    }
+	    ber_bvfree( retdata );
+	}
+	    
+	rc = ldap_parse_result( self->ldap, msg, &result, NULL, NULL, &refs,
+				&serverctrls, 0 );
+    }
     LDAP_END_ALLOW_THREADS( self );
 
     if (result != LDAP_SUCCESS) {		/* result error */
@@ -983,26 +1012,27 @@ l_ldap_result3( LDAPObject* self, PyObject *args )
     }
     ldap_controls_free(serverctrls);
 
-    pmsg = LDAPmessage_to_python( self->ldap, msg );
+    pmsg = LDAPmessage_to_python( self->ldap, msg, add_ctrls, add_intermediates );
 
     result_str = LDAPconstant( res_type );
 
     if (pmsg == NULL) {
 	    retval = NULL;
     } else {
-	if (pyctrls != NULL) {
-        	retval = Py_BuildValue("(OOiO)", result_str, pmsg, res_msgid,
-				       pyctrls);
-	} else { 
-		PyObject *pNewList = PyList_New(0);
-        	retval = Py_BuildValue("(OOiO)", result_str, pmsg, res_msgid,
-				       pNewList);
-		Py_DECREF(pNewList);
+	/* s handles NULL, but O does not */
+	if (add_extop) {
+	    retval = Py_BuildValue("(OOiOsO)", result_str, pmsg, res_msgid,
+				   pyctrls, retoid, valuestr ? valuestr : Py_None);
+	} else {
+	    retval = Py_BuildValue("(OOiO)", result_str, pmsg, res_msgid, pyctrls);
 	}
 
 	if (pmsg != Py_None) {
         Py_DECREF(pmsg);
+	}
     }
+    if (valuestr) {
+	Py_DECREF(valuestr);
     }
     Py_XDECREF(pyctrls);
     Py_DECREF(result_str);
@@ -1230,6 +1260,54 @@ l_ldap_passwd( LDAPObject* self, PyObject *args )
     return PyInt_FromLong( msgid );
 }
 
+
+/* ldap_extended_operation */
+
+static PyObject *
+l_ldap_extended_operation( LDAPObject* self, PyObject *args )
+{
+    char *reqoid = NULL;
+    struct berval reqvalue = {0, NULL};
+    PyObject *serverctrls = Py_None;
+    PyObject *clientctrls = Py_None;
+    LDAPControl** server_ldcs = NULL;
+    LDAPControl** client_ldcs = NULL;
+
+    int msgid;
+    int ldaperror;
+
+    if (!PyArg_ParseTuple( args, "sz#|OO", &reqoid, &reqvalue.bv_val, &reqvalue.bv_len, &serverctrls, &clientctrls ))
+    	return NULL;
+
+    if (not_valid(self)) return NULL;
+
+    if (!PyNone_Check(serverctrls)) {
+        if (!LDAPControls_from_object(serverctrls, &server_ldcs))
+            return NULL;
+    }
+
+    if (!PyNone_Check(clientctrls)) {
+        if (!LDAPControls_from_object(clientctrls, &client_ldcs))
+            return NULL;
+    }
+
+    LDAP_BEGIN_ALLOW_THREADS( self );
+    ldaperror = ldap_extended_operation( self->ldap, reqoid,
+            reqvalue.bv_val != NULL ? &reqvalue : NULL,
+            server_ldcs,
+            client_ldcs,
+            &msgid );
+    LDAP_END_ALLOW_THREADS( self );
+    
+    LDAPControl_List_DEL( server_ldcs );
+    LDAPControl_List_DEL( client_ldcs );
+
+    if ( ldaperror!=LDAP_SUCCESS )
+    	return LDAPerror( self->ldap, "ldap_extended_operation" );
+
+    return PyInt_FromLong( msgid );
+}
+
 /* methods */
 
 static PyMethodDef methods[] = {
@@ -1244,7 +1322,7 @@ static PyMethodDef methods[] = {
     {"delete_ext",	(PyCFunction)l_ldap_delete_ext,		METH_VARARGS },
     {"modify_ext",	(PyCFunction)l_ldap_modify_ext,		METH_VARARGS },
     {"rename",	        (PyCFunction)l_ldap_rename,		METH_VARARGS },
-    {"result3",		(PyCFunction)l_ldap_result3,		METH_VARARGS },
+    {"result4",		(PyCFunction)l_ldap_result4,		METH_VARARGS },
     {"search_ext",	(PyCFunction)l_ldap_search_ext,		METH_VARARGS },
 #ifdef HAVE_TLS
     {"start_tls_s",	(PyCFunction)l_ldap_start_tls_s,	METH_VARARGS },
@@ -1256,6 +1334,7 @@ static PyMethodDef methods[] = {
 #ifdef LDAP_API_FEATURE_CANCEL
     {"cancel",		(PyCFunction)l_ldap_cancel,		METH_VARARGS },
 #endif
+    {"extop",		(PyCFunction)l_ldap_extended_operation,		METH_VARARGS },
     { NULL, NULL }
 };
 

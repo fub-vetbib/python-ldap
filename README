@@ -83,6 +83,7 @@ Acknowledgements:
        Ingo Steuwer <steuwer at univention.de>
        Andreas Hasenack <ahasenack at terra.com.br>       
        Matej Vela <vela at debian.org>
+       Rich Megginson <rmeggins at redhat.com>
 
    Thanks to all the guys on the python-ldap-dev mailing list for
    their contributions and input into this package.

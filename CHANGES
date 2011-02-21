@@ -3,6 +3,13 @@ Released 2.4.0 2011-xx-xx
 
 Changes since 2.3.13:
 
+* Support for extracting LDAPv3 extended controls in
+  LDAP_RES_SEARCH_ENTRY responses
+  (see SF#2829057, thanks to Rich)
+* Generic support for LDAPv3 extended operations (thanks to Rich)
+
+Lib/
+* New method LDAPObject.result4()
 
 ----------------------------------------------------------------
 Released 2.3.13 2011-02-19

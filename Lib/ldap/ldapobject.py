@@ -37,6 +37,8 @@ import sys,time,_ldap,ldap,ldap.functions
 
 from ldap.schema import SCHEMA_ATTRS
 from ldap.controls import LDAPControl,DecodeControlTuples,EncodeControlTuples
+from ldap.extop import ExtendedRequest,ExtendedResponse
+
 from ldap import LDAPError
 
 
@@ -284,6 +286,23 @@ class SimpleLDAPObject:
   def delete_s(self,dn):
     return self.delete_ext_s(dn,None,None)
 
+  def extop(self,extreq,serverctrls=None,clientctrls=None):
+    """
+    extop(extreq[,serverctrls=None[,clientctrls=None]]]) -> int
+    extop_s(extreq[,serverctrls=None[,clientctrls=None]]]) ->
+        (ldapresultcode,msg,msgid,respctrls,respoid,respvalue)
+        Performs an LDAP extended operation. The asynchronous
+        form returns the message id of the initiated request, and the
+        result can be obtained from a subsequent call to result3().
+        The extreq is an instance of class ldap.extop.ExtendedRequest.
+    """
+    return self._ldap_call(self._l.extop,extreq.requestName,extreq.encodedRequestValue(),EncodeControlTuples(serverctrls),EncodeControlTuples(clientctrls))
+
+  def extop_s(self,extreq,serverctrls=None,clientctrls=None):
+    msgid = self.extop(extreq,serverctrls,clientctrls)
+    ldapresultcode,msg,msgid,respctrls,respoid,respvalue = self.result3(msgid,all=1,timeout=self.timeout,add_ctrls=1,add_intermediates=1,add_extop=1)
+    return ldapresultcode,msg,msgid,respctrls,respoid,respvalue
+
   def modify_ext(self,dn,modlist,serverctrls=None,clientctrls=None):
     """
     modify_ext(dn, modlist[,serverctrls=None[,clientctrls=None]]) -> int
@@ -304,13 +323,13 @@ class SimpleLDAPObject:
         dn is the DN of the entry to modify, and modlist is the list
         of modifications to make to the entry.
 
-	Each element of the list modlist should be a tuple of the form
-	(mod_op,mod_type,mod_vals), where mod_op is the operation (one of
-	MOD_ADD, MOD_DELETE, MOD_INCREMENT or MOD_REPLACE), mod_type is a
-	string indicating the attribute type name, and mod_vals is either a
-	string value or a list of string values to add, delete, increment by or
-	replace respectively.  For the delete operation, mod_vals may be None
-	indicating that all attributes are to be deleted.
+        Each element of the list modlist should be a tuple of the form
+        (mod_op,mod_type,mod_vals), where mod_op is the operation (one of
+        MOD_ADD, MOD_DELETE, MOD_INCREMENT or MOD_REPLACE), mod_type is a
+        string indicating the attribute type name, and mod_vals is either a
+        string value or a list of string values to add, delete, increment by or
+        replace respectively.  For the delete operation, mod_vals may be None
+        indicating that all attributes are to be deleted.
 
         The asynchronous modify() returns the message id of the
         initiated request.
@@ -425,17 +444,24 @@ class SimpleLDAPObject:
   def result2(self,msgid=ldap.RES_ANY,all=1,timeout=None):
     res_type, res_data, res_msgid, srv_ctrls = self.result3(msgid,all,timeout)
     return res_type, res_data, res_msgid
- 
+
   def result3(self,msgid=ldap.RES_ANY,all=1,timeout=None):
+    res_type, res_data, res_msgid, srv_ctrls, retoid, retval = self.result4(msgid,all,timeout,add_ctrls=0,add_intermediates=0,add_extop=0)
+    return res_type, res_data, res_msgid, srv_ctrls
+ 
+  def result4(self,msgid=ldap.RES_ANY,all=1,timeout=None,add_ctrls=0,add_intermediates=0,add_extop=0):
     if timeout is None:
       timeout = self.timeout
-    ldap_result = self._ldap_call(self._l.result3,msgid,all,timeout)
+    ldap_result = self._ldap_call(self._l.result4,msgid,all,timeout,add_ctrls,add_intermediates,add_extop)
     if ldap_result is None:
-      rtype, rdata, rmsgid, decoded_serverctrls = (None,None,None,None)
+        res_type, res_data, res_msgid, srv_ctrls, resp_name, resp_value = (None,None,None,None,None,None)
     else:
-      rtype, rdata, rmsgid, serverctrls = ldap_result
-      decoded_serverctrls = DecodeControlTuples(serverctrls)
-    return rtype, rdata, rmsgid, decoded_serverctrls
+      if len(ldap_result)==4:
+        res_type, res_data, res_msgid, srv_ctrls = ldap_result
+        resp_name, resp_value = None,None
+      else:
+        res_type, res_data, res_msgid, srv_ctrls, resp_name, resp_value = ldap_result
+    return res_type, res_data, res_msgid, srv_ctrls, resp_name, resp_value
  
   def search_ext(self,base,scope,filterstr='(objectClass=*)',attrlist=None,attrsonly=0,serverctrls=None,clientctrls=None,timeout=-1,sizelimit=0):
     """
