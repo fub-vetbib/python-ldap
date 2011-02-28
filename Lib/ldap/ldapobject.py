@@ -830,6 +830,9 @@ class ReconnectLDAPObject(SimpleLDAPObject):
   def delete_ext_s(self,*args,**kwargs):
     return self._apply_method_s(SimpleLDAPObject.delete_ext_s,*args,**kwargs)
 
+  def extop_s(self,*args,**kwargs):
+    return self._apply_method_s(SimpleLDAPObject.extop_s,*args,**kwargs)
+
   def modify_ext_s(self,*args,**kwargs):
     return self._apply_method_s(SimpleLDAPObject.modify_ext_s,*args,**kwargs)
 
