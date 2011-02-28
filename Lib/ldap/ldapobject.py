@@ -298,10 +298,13 @@ class SimpleLDAPObject:
     """
     return self._ldap_call(self._l.extop,extreq.requestName,extreq.encodedRequestValue(),EncodeControlTuples(serverctrls),EncodeControlTuples(clientctrls))
 
+  def extop_result(self,msgid=ldap.RES_ANY,all=1,timeout=None):
+    resulttype,msg,msgid,respctrls,respoid,respvalue = self.result4(msgid,all=1,timeout=self.timeout,add_ctrls=1,add_intermediates=1,add_extop=1)
+    return (respoid,respvalue)
+
   def extop_s(self,extreq,serverctrls=None,clientctrls=None):
     msgid = self.extop(extreq,serverctrls,clientctrls)
-    ldapresultcode,msg,msgid,respctrls,respoid,respvalue = self.result4(msgid,all=1,timeout=self.timeout,add_ctrls=1,add_intermediates=1,add_extop=1)
-    return ldapresultcode,msg,msgid,respctrls,respoid,respvalue
+    return self.extop_result(msgid,all=1,timeout=self.timeout)
 
   def modify_ext(self,dn,modlist,serverctrls=None,clientctrls=None):
     """
