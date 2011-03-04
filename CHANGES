@@ -11,6 +11,9 @@ Changes since 2.3.13:
 Lib/
 * New method LDAPObject.result4()
 
+Modules/
+* ldapcontrol.c: Fixed encode_assertion_control()
+
 ----------------------------------------------------------------
 Released 2.3.13 2011-02-19
 
