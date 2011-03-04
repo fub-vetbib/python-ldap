@@ -95,6 +95,30 @@ class MatchedValuesControl(LDAPControl):
   def encodeControlValue(self, value):
     return _ldap.encode_valuesreturnfilter_control(value)
 
+try:
+  # Check whether support for assertion control is compiled into
+  # python-ldap's C wrapper
+  _ldap.encode_assertion_control
+except AttributeError:
+  pass
+else:
+
+  class AssertionControl(LDAPControl):
+    """
+    LDAP Assertion control, as defined in 
+
+    from ldap.controls import AssertionControl
+    control = AssertionControl('1.3.6.1.1.12',criticality,filter)
+    """
+    
+    controlType = '1.3.6.1.1.12'
+    
+    def __init__(self,controlType,criticality,controlValue=None,encodedControlValue=None):
+      LDAPControl.__init__(self,self.controlType,criticality,controlValue,encodedControlValue)
+
+    def encodeControlValue(self, value):
+      return _ldap.encode_assertion_control(value)
+
 
 def EncodeControlTuples(ldapControls):
   """
