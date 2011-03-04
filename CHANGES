@@ -9,7 +9,7 @@ Changes since 2.3.13:
 * Generic support for LDAPv3 extended operations (thanks to Rich)
 
 Lib/
-* New method LDAPObject.result4()
+* New methods LDAPObject.result4() and LDAPObject.extop_result()
 
 Modules/
 * ldapcontrol.c: Fixed encode_assertion_control()
