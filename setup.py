@@ -126,6 +126,7 @@ setup(
   		'ldap.controls',
   		'ldap.cidict',
   		'ldap.dn',
+  		'ldap.extop',
   		'ldap.filter',
   		'ldap.functions',
   		'ldap.ldapobject',
