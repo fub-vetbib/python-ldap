@@ -329,7 +329,6 @@ decode_rfc2696(PyObject *self, PyObject *args)
     return res;
 }
 
-#ifdef LIBLDAP_HAS_ASSERTION_CONTROL_FUNC
 static PyObject*
 encode_assertion_control(PyObject *self, PyObject *args)
 {
@@ -358,15 +357,12 @@ encode_assertion_control(PyObject *self, PyObject *args)
 
     return res;
 }
-#endif
 
 static PyMethodDef methods[] = {
     {"encode_page_control", encode_rfc2696, METH_VARARGS },
     {"decode_page_control", decode_rfc2696, METH_VARARGS },
     {"encode_valuesreturnfilter_control", encode_rfc3876, METH_VARARGS },
-#ifdef LIBLDAP_HAS_ASSERTION_CONTROL_FUNC
     {"encode_assertion_control", encode_assertion_control, METH_VARARGS },
-#endif
     { NULL, NULL }
 };
 
