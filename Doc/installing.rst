@@ -11,7 +11,7 @@ The following software packages are required to be installed
 on the local system when building python-ldap:
 
 - Python version 2.3 or later including its development files: http://www.python.org/
-- OpenLDAP client libs version 2.3 or later: http://www.openldap.org/
+- OpenLDAP client libs version 2.4.11 or later: http://www.openldap.org/
   It is not possible and not supported to build with prior versions.
 - OpenSSL (optional): http://www.openssl.org/
 - cyrus-sasl (optional): http://asg.web.cmu.edu/sasl/sasl-library.html

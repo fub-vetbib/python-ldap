@@ -3,6 +3,7 @@ Released 2.4.0 2011-xx-xx
 
 Changes since 2.3.13:
 
+* OpenLDAP 2.4.11+ required to build
 * Support for extracting LDAPv3 extended controls in
   LDAP_RES_SEARCH_ENTRY responses
   (see SF#2829057, thanks to Rich)
