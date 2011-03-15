@@ -25,7 +25,6 @@ __all__ = [
   'SimpleLDAPObject',
   'NonblockingLDAPObject',
   'ReconnectLDAPObject',
-  'SmartLDAPObject'
 ]
 
 
