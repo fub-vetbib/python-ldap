@@ -288,12 +288,16 @@ class SimpleLDAPObject:
   def extop(self,extreq,serverctrls=None,clientctrls=None):
     """
     extop(extreq[,serverctrls=None[,clientctrls=None]]]) -> int
-    extop_s(extreq[,serverctrls=None[,clientctrls=None]]]) ->
-        (ldapresultcode,msg,msgid,respctrls,respoid,respvalue)
+    extop_s(extreq[,serverctrls=None[,clientctrls=None[,extop_resp_class=None]]]]) ->
+        (respoid,respvalue)
         Performs an LDAP extended operation. The asynchronous
         form returns the message id of the initiated request, and the
         result can be obtained from a subsequent call to result3().
         The extreq is an instance of class ldap.extop.ExtendedRequest.
+        
+        If argument extop_resp_class is set to a sub-class of
+        ldap.extop.ExtendedResponse this class is used to return an
+        object of this class instead of a raw BER value in respvalue.
     """
     return self._ldap_call(self._l.extop,extreq.requestName,extreq.encodedRequestValue(),EncodeControlTuples(serverctrls),EncodeControlTuples(clientctrls))
 
@@ -301,9 +305,16 @@ class SimpleLDAPObject:
     resulttype,msg,msgid,respctrls,respoid,respvalue = self.result4(msgid,all=1,timeout=self.timeout,add_ctrls=1,add_intermediates=1,add_extop=1)
     return (respoid,respvalue)
 
-  def extop_s(self,extreq,serverctrls=None,clientctrls=None):
+  def extop_s(self,extreq,serverctrls=None,clientctrls=None,extop_resp_class=None):
     msgid = self.extop(extreq,serverctrls,clientctrls)
-    return self.extop_result(msgid,all=1,timeout=self.timeout)
+    res = self.extop_result(msgid,all=1,timeout=self.timeout)
+    if extop_resp_class:
+      respoid,respvalue = res
+      if extop_resp_class.responseName!=respoid:
+        raise ldap.PROTOCOL_ERROR("Wrong OID in extended response! Expected %s, got %s" % (extop_resp_class.responseName,respoid))
+      return extop_resp_class(extop_resp_class.responseName,respvalue)
+    else:
+      return res
 
   def modify_ext(self,dn,modlist,serverctrls=None,clientctrls=None):
     """
