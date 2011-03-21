@@ -12,6 +12,8 @@ Changes since 2.3.13:
 Lib/
 * New methods LDAPObject.result4() and LDAPObject.extop_result()
 * New (optional) class ldap.controls.AssertionControl
+* New helper module ldap.logger contains file-like object which
+  sends trace messages to logging.log()
 
 Modules/
 * ldapcontrol.c: Fixed encode_assertion_control() and function is no longer
