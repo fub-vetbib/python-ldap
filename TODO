@@ -11,7 +11,7 @@ Modules/
   - server-side sorting control
   - Binding in DSA control mode (rewrite necessary)
   - Persistent search control
-- Support for Win32 (and other platforms?)
+- Support for other platforms?
 
 Lib/
 - Caching of search requests for each LDAPObject instance
