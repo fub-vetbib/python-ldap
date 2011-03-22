@@ -12,8 +12,6 @@ Modules/
   - Binding in DSA control mode (rewrite necessary)
   - Persistent search control
 - Support for Win32 (and other platforms?)
-- Support LDAP Extended Operations by wrapping
-  ldap_extended_operation() and ldap_parse_extended_result()
 
 Lib/
 - Caching of search requests for each LDAPObject instance
