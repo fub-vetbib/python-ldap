@@ -6,7 +6,7 @@ General:
 Modules/
 - Validating server's certificate when calling start_tls_s() or
   ldap.initialize('ldaps://..')
-- General support for controls
+- Specific support for more controls
   - VLV control
   - server-side sorting control
   - Binding in DSA control mode (rewrite necessary)
