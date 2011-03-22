@@ -2,6 +2,7 @@
 
 General:
 - Define common Python style license for all modules
+- Support Python 3.2+
 
 Modules/
 - Specific support for more controls
