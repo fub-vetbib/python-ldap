@@ -10,6 +10,7 @@ Modules/
   - Binding in DSA control mode (rewrite necessary)
   - Persistent search control
 - Support for other platforms?
+- Wrap libldif as faster drop-in replacement for module ldif?
 
 Lib/
 - Caching of search requests for each LDAPObject instance
