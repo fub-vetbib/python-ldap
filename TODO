@@ -4,8 +4,6 @@ General:
 - Define common Python style license for all modules
 
 Modules/
-- Validating server's certificate when calling start_tls_s() or
-  ldap.initialize('ldaps://..')
 - Specific support for more controls
   - VLV control
   - server-side sorting control
