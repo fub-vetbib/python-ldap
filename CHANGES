@@ -14,6 +14,7 @@ Lib/
 * New (optional) class ldap.controls.AssertionControl
 * New helper module ldap.logger contains file-like object which
   sends trace messages to logging.log()
+* Removed non-functional method LDAPObject.set_cache_options()
 
 Modules/
 * ldapcontrol.c: Fixed encode_assertion_control() and function is no longer
