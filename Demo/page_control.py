@@ -14,9 +14,11 @@ l = ldap.initialize(url,trace_level=1)
 l.protocol_version = 3
 l.simple_bind_s("", "")
 
-lc = SimplePagedResultsControl(
-  ldap.LDAP_CONTROL_PAGE_OID,True,(page_size,'')
-)
+req_ctrl = SimplePagedResultsControl(True,size=page_size,cookie='')
+
+known_ldap_resp_ctrls = {
+  SimplePagedResultsControl.controlType:SimplePagedResultsControl,
+}
 
 # Send search request
 msgid = l.search_ext(
@@ -24,34 +26,39 @@ msgid = l.search_ext(
   ldap.SCOPE_SUBTREE,
   search_flt,
   attrlist=searchreq_attrlist,
-  serverctrls=[lc]
+  serverctrls=[req_ctrl]
 )
 
 pages = 0
 while True:
     pages += 1
-    print "Getting page %d" % (pages,)
-    rtype, rdata, rmsgid, serverctrls = l.result3(msgid)
+    print "Getting page %d" % (pages)
+    rtype, rdata, rmsgid, serverctrls = l.result3(msgid,resp_ctrl_classes=known_ldap_resp_ctrls)
     print '%d results' % len(rdata)
+    print 'serverctrls=',pprint.pprint(serverctrls)
 #    pprint.pprint(rdata)
     pctrls = [
       c
       for c in serverctrls
-      if c.controlType == ldap.LDAP_CONTROL_PAGE_OID
+      if c.controlType == SimplePagedResultsControl.controlType
     ]
     if pctrls:
-        est, cookie = pctrls[0].controlValue
-        if cookie:
-            lc.controlValue = (page_size, cookie)
+        print 'pctrls[0].size',repr(pctrls[0].size)
+        print 'pctrls[0].cookie',repr(pctrls[0].cookie)
+        if pctrls[0].cookie:
+            # Copy cookie from response control to request control
+            req_ctrl.cookie = pctrls[0].cookie
             msgid = l.search_ext(
               base,
               ldap.SCOPE_SUBTREE,
               search_flt,
               attrlist=searchreq_attrlist,
-              serverctrls=[lc]
+              serverctrls=[req_ctrl]
             )
         else:
             break
     else:
         print "Warning:  Server ignores RFC 2696 control."
         break
+
+l.unbind_s()

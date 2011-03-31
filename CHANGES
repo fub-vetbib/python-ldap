@@ -10,6 +10,7 @@ Changes since 2.3.13:
 * Generic support for LDAPv3 extended operations (thanks to Rich)
 
 Lib/
+* new class API in ldap.controls, not backwards-compatible!
 * New methods LDAPObject.result4() and LDAPObject.extop_result()
 * New (optional) class ldap.controls.AssertionControl
 * New helper module ldap.logger contains file-like object which

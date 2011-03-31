@@ -13,7 +13,17 @@ Each class provides support for a certain control.
 from ldap import __version__
 
 __all__ = [
+  'RequestControl',
+  'ResponseControl',
   'LDAPControl',
+  'ValueLessRequestControl',
+  'ManageDSAITControl',
+  'RelaxRulesControl',
+  'BooleanControl',
+  'SimplePagedResultsControl',
+  'MatchedValuesControl',
+  'AssertionControl',
+  'EncodedControlTuples',
 ]
 
 
@@ -22,32 +32,68 @@ from types import ClassType
 import _ldap,ldap
 
 
-class LDAPControl:
+class RequestControl:
   """
-  Base class for all LDAP controls
+  Base class for all request controls
   """
 
-  def __init__(self,controlType,criticality,controlValue=None,encodedControlValue=None):
+  def __init__(self,controlType=None,criticality=False,encodedControlValue=None):
     self.controlType = controlType
     self.criticality = criticality
-    self.controlValue = controlValue or self.decodeControlValue(encodedControlValue)
+    self.encodedControlValue = encodedControlValue
 
-  def __repr__(self):
-    return '%s(%s,%s,%s)' % (self.__class__.__name__,self.controlType,self.criticality,self.controlValue)
+  def encodeControlValue(self):
+    return self.encodedControlValue
 
-  def encodeControlValue(self,value):
-    return value
 
-  def decodeControlValue(self,encodedValue):
-    return encodedValue
+class ResponseControl:
+  """
+  Base class for all response controls
+  """
 
-  def getEncodedTuple(self):
-    return (self.controlType,self.criticality,self.encodeControlValue(self.controlValue))
+  def __init__(self,controlType=None,criticality=False,encodedControlValue=None):
+    self.controlType = controlType
+    self.criticality = criticality
+    self.decodeControlValue(encodedControlValue)
+
+  def decodeControlValue(self,encodedControlValue):
+    self.encodedControlValue = encodedControlValue
+
+
+class LDAPControl(RequestControl,ResponseControl):
+
+  def __init__(self,controlType=None,criticality=False,controlValue=None,encodedControlValue=None):
+    self.controlType = controlType
+    self.criticality = criticality
+    self.controlValue = controlValue
+    self.encodedControlValue = encodedControlValue
+
+
+class ValueLessRequestControl(RequestControl):
+
+  def __init__(self,controlType=None,criticality=False):
+    self.controlType = controlType
+    self.criticality = criticality
+
+  def encodeControlValue(self):
+    return None
+
+
+class ManageDSAITControl(ValueLessRequestControl):
+
+  def __init__(self,criticality=False):
+    ValueLessRequestControl.__init__(self,ldap.CONTROL_MANAGEDSAIT,criticality=False)
+
+
+class RelaxRulesControl(ValueLessRequestControl):
+
+  def __init__(self,criticality=False):
+    ValueLessRequestControl.__init__(self,"1.3.6.1.4.1.4203.666.5.12",criticality=False)
 
 
 class BooleanControl(LDAPControl):
   """
-  Base class for simple controls with booelan control value
+  Base class for simple request controls with booelan control value
 
   In this base class controlValue has to be passed as
   boolean type (True/False or 1/0).
@@ -55,11 +101,16 @@ class BooleanControl(LDAPControl):
   boolean2ber = { 1:'\x01\x01\xFF', 0:'\x01\x01\x00' }
   ber2boolean = { '\x01\x01\xFF':1, '\x01\x01\x00':0 }
 
-  def encodeControlValue(self,value):
-    return self.boolean2ber[int(value)]
+  def __init__(self,controlType=None,criticality=False,booleanValue=False):
+    self.controlType = controlType
+    self.criticality = criticality
+    self.booleanValue = booleanValue
 
-  def decodeControlValue(self,encodedValue):
-    return self.ber2boolean[encodedValue]
+  def encodeControlValue(self):
+    return self.boolean2ber[int(self.booleanValue)]
+
+  def decodeControlValue(self,encodedControlValue):
+    self.booleanValue = self.ber2boolean[encodedControlValue]
 
 
 class SimplePagedResultsControl(LDAPControl):
@@ -68,32 +119,32 @@ class SimplePagedResultsControl(LDAPControl):
 
   see RFC 2696
   """
-  controlType = ldap.LDAP_CONTROL_PAGE_OID
+  controlType = ldap.CONTROL_PAGEDRESULTS
 
-  def __init__(self,controlType,criticality,controlValue=None,encodedControlValue=None):
-    LDAPControl.__init__(self,ldap.LDAP_CONTROL_PAGE_OID,criticality,controlValue,encodedControlValue)
+  def __init__(self,criticality=False,size=None,cookie=None):
+    self.criticality = criticality
+    self.size,self.cookie = size,cookie
 
-  def encodeControlValue(self,value):
-    size,cookie = value
-    return _ldap.encode_page_control(size,cookie)
+  def encodeControlValue(self):
+    return _ldap.encode_page_control(self.size,self.cookie)
 
-  def decodeControlValue(self,encodedValue):
-    size,cookie = _ldap.decode_page_control(encodedValue)
-    return (size,cookie)
+  def decodeControlValue(self,encodedControlValue):
+    self.size,self.cookie = _ldap.decode_page_control(encodedControlValue)
 
 
-class MatchedValuesControl(LDAPControl):
+class MatchedValuesControl(RequestControl):
   """
   LDAP Matched Values control, as defined in RFC 3876
-
-  from ldap.controls import MatchedValuesControl
-  control = MatchedValuesControl(criticality, filter)
   """
   
-  controlType = ldap.LDAP_CONTROL_VALUESRETURNFILTER
+  controlType = ldap.CONTROL_VALUESRETURNFILTER
   
-  def encodeControlValue(self, value):
-    return _ldap.encode_valuesreturnfilter_control(value)
+  def __init__(self,criticality=False,filterstr='(objectClass=*)'):
+    self.criticality = criticality
+    self.filterstr = filterstr
+
+  def encodeControlValue(self):
+    return _ldap.encode_valuesreturnfilter_control(self.filterstr)
 
 try:
   # Check whether support for assertion control is compiled into
@@ -105,22 +156,19 @@ else:
 
   class AssertionControl(LDAPControl):
     """
-    LDAP Assertion control, as defined in 
-
-    from ldap.controls import AssertionControl
-    control = AssertionControl('1.3.6.1.1.12',criticality,filter)
+    LDAP Assertion control, as defined in RFC 4528
     """
     
-    controlType = '1.3.6.1.1.12'
-    
-    def __init__(self,controlType,criticality,controlValue=None,encodedControlValue=None):
-      LDAPControl.__init__(self,self.controlType,criticality,controlValue,encodedControlValue)
+    controlType = ldap.CONTROL_ASSERT    
+    def __init__(self,criticality=True,filterstr='(objectClass=*)'):
+      self.criticality = criticality
+      self.filterstr = filterstr
 
-    def encodeControlValue(self, value):
-      return _ldap.encode_assertion_control(value)
+    def encodeControlValue(self):
+      return _ldap.encode_assertion_control(self.filterstr)
 
 
-def EncodeControlTuples(ldapControls):
+def RequestControlTuples(ldapControls):
   """
   Return list of readily encoded 3-tuples which can be directly
   passed to C module _ldap
@@ -129,26 +177,23 @@ def EncodeControlTuples(ldapControls):
     return None
   else:
     result = [
-      c.getEncodedTuple()
+      (c.controlType,c.criticality,c.encodeControlValue())
       for c in ldapControls
     ]
     return result
 
 
-def DecodeControlTuples(ldapControlTuples):
+def DecodeControlTuples(ldapControlTuples,knownLDAPControls):
   """
   Return list of readily encoded 3-tuples which can be directly
   passed to C module _ldap
   """
-  return [
-    knownLDAPControls.get(controlType,LDAPControl)
-      (controlType,criticality,encodedControlValue=encodedControlValue)
-    for controlType,criticality,encodedControlValue in ldapControlTuples or []
-  ]
-
-# Build a dictionary of known LDAPControls
-knownLDAPControls = {}
-for symbol_name in dir():
-  c = eval(symbol_name)
-  if type(c) is ClassType and hasattr(c,'controlType'):
-    knownLDAPControls[c.controlType] = c
+  print '***knownLDAPControls',knownLDAPControls
+  knownLDAPControls = knownLDAPControls or {}
+  result = []
+  for controlType,criticality,encodedControlValue in ldapControlTuples or []:
+    control = knownLDAPControls.get(controlType,LDAPControl)()
+    control.controlType,control.criticality = controlType,criticality
+    control.decodeControlValue(encodedControlValue)
+    result.append(control)  
+  return result
