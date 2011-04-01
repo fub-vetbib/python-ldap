@@ -484,6 +484,8 @@ class SimpleLDAPObject:
         resp_name, resp_value = None,None
       else:
         resp_type, resp_data, resp_msgid, resp_ctrls, resp_name, resp_value = ldap_result
+      if add_ctrls:
+        resp_data = [ (t,r,DecodeControlTuples(c,resp_ctrl_classes)) for t,r,c in resp_data ]
     decoded_resp_ctrls = DecodeControlTuples(resp_ctrls,resp_ctrl_classes)
     return resp_type, resp_data, resp_msgid, decoded_resp_ctrls, resp_name, resp_value
  
