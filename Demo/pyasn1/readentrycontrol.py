@@ -61,3 +61,17 @@ res = l.result3(
   resp_ctrl_classes={PreReadControl.controlType:PreReadControl}
 )
 print "res:", res
+
+pr = PostReadControl(criticality=True,attrList=['cn'])
+msg_id = l.rename(
+  "cn=Samba Unix UID Pool,ou=Testing,dc=stroeder,dc=de",
+  "cn=Samba Unix UID Pool 2",
+  serverctrls = [pr]
+)
+res = l.result3(
+  msg_id,
+  resp_ctrl_classes={PostReadControl.controlType:PostReadControl}
+)
+print "res:", res
+
+
