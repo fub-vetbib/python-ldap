@@ -190,7 +190,7 @@ def DecodeControlTuples(ldapControlTuples,knownLDAPControls):
   knownLDAPControls = knownLDAPControls or {}
   result = []
   for controlType,criticality,encodedControlValue in ldapControlTuples or []:
-    control = knownLDAPControls.get(controlType,LDAPControl)()
+    control = knownLDAPControls.get(controlType,ResponseControl)()
     control.controlType,control.criticality = controlType,criticality
     control.decodeControlValue(encodedControlValue)
     result.append(control)  
