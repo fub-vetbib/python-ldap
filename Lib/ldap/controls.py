@@ -51,10 +51,9 @@ class ResponseControl:
   Base class for all response controls
   """
 
-  def __init__(self,controlType=None,criticality=False,encodedControlValue=None):
+  def __init__(self,controlType=None,criticality=False):
     self.controlType = controlType
     self.criticality = criticality
-    self.decodeControlValue(encodedControlValue)
 
   def decodeControlValue(self,encodedControlValue):
     self.encodedControlValue = encodedControlValue
