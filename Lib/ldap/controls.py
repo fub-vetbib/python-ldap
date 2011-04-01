@@ -188,7 +188,6 @@ def DecodeControlTuples(ldapControlTuples,knownLDAPControls):
   Return list of readily encoded 3-tuples which can be directly
   passed to C module _ldap
   """
-  print '***knownLDAPControls',knownLDAPControls
   knownLDAPControls = knownLDAPControls or {}
   result = []
   for controlType,criticality,encodedControlValue in ldapControlTuples or []:
