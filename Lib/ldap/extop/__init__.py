@@ -46,8 +46,10 @@ class ExtendedResponse:
     return value
 
 
-# Optionally import sub-modules which need pyasn1
+# Optionally import sub-modules which need pyasn1 et al
 try:
-  from ldap.extop.dds import *
+  import pyasn1,pyasn1_modules.rfc2251
 except ImportError:
   pass
+else:
+  from ldap.extop.dds import *
