@@ -13,11 +13,6 @@ response.
 
 from ldap import __version__
 
-__all__ = [
-  'ExtendedRequest',
-  'ExtendedResponse',
-]
-
 
 class ExtendedRequest:
   """
@@ -49,3 +44,10 @@ class ExtendedResponse:
 
   def decodeResponseValue(self,value):
     return value
+
+
+# Optionally import sub-modules which need pyasn1
+try:
+  from ldap.extop.dds import *
+except ImportError:
+  pass
