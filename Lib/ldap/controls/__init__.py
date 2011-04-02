@@ -3,7 +3,7 @@ controls.py - support classes for LDAP controls
 
 See http://www.python-ldap.org/ for details.
 
-\$Id$
+$Id$
 
 Description:
 The ldap.controls module provides LDAPControl classes.
@@ -13,19 +13,25 @@ Each class provides support for a certain control.
 from ldap import __version__
 
 __all__ = [
+  # control OID to class registy
+  'KNOWN_CONTROLS',
+  # Classes
+  'AssertionControl',
+  'BooleanControl',
+  'LDAPControl',
+  'ManageDSAITControl',
+  'MatchedValuesControl',
+  'RelaxRulesControl',
   'RequestControl',
   'ResponseControl',
-  'LDAPControl',
-  'ValueLessRequestControl',
-  'ManageDSAITControl',
-  'RelaxRulesControl',
-  'BooleanControl',
   'SimplePagedResultsControl',
-  'MatchedValuesControl',
-  'AssertionControl',
-  'EncodedControlTuples',
+  'ValueLessRequestControl',
+  # Functions
+  'RequestControlTuples',
+  'DecodeControlTuples',
 ]
 
+KNOWN_RESPONSE_CONTROLS = {}
 
 from types import ClassType
 
@@ -83,11 +89,15 @@ class ManageDSAITControl(ValueLessRequestControl):
   def __init__(self,criticality=False):
     ValueLessRequestControl.__init__(self,ldap.CONTROL_MANAGEDSAIT,criticality=False)
 
+KNOWN_RESPONSE_CONTROLS[ldap.CONTROL_MANAGEDSAIT] = ManageDSAITControl
+
 
 class RelaxRulesControl(ValueLessRequestControl):
 
   def __init__(self,criticality=False):
-    ValueLessRequestControl.__init__(self,"1.3.6.1.4.1.4203.666.5.12",criticality=False)
+    ValueLessRequestControl.__init__(self,ldap.CONTROL_RELAX,criticality=False)
+
+KNOWN_RESPONSE_CONTROLS[ldap.CONTROL_RELAX] = RelaxRulesControl
 
 
 class BooleanControl(LDAPControl):
@@ -130,6 +140,8 @@ class SimplePagedResultsControl(LDAPControl):
   def decodeControlValue(self,encodedControlValue):
     self.size,self.cookie = _ldap.decode_page_control(encodedControlValue)
 
+KNOWN_RESPONSE_CONTROLS[ldap.CONTROL_PAGEDRESULTS] = SimplePagedResultsControl
+
 
 class MatchedValuesControl(RequestControl):
   """
@@ -145,26 +157,23 @@ class MatchedValuesControl(RequestControl):
   def encodeControlValue(self):
     return _ldap.encode_valuesreturnfilter_control(self.filterstr)
 
-try:
-  # Check whether support for assertion control is compiled into
-  # python-ldap's C wrapper
-  _ldap.encode_assertion_control
-except AttributeError:
-  pass
-else:
+KNOWN_RESPONSE_CONTROLS[ldap.CONTROL_VALUESRETURNFILTER] = MatchedValuesControl
 
-  class AssertionControl(LDAPControl):
-    """
-    LDAP Assertion control, as defined in RFC 4528
-    """
-    
-    controlType = ldap.CONTROL_ASSERT    
-    def __init__(self,criticality=True,filterstr='(objectClass=*)'):
-      self.criticality = criticality
-      self.filterstr = filterstr
 
-    def encodeControlValue(self):
-      return _ldap.encode_assertion_control(self.filterstr)
+class AssertionControl(LDAPControl):
+  """
+  LDAP Assertion control, as defined in RFC 4528
+  """
+  
+  controlType = ldap.CONTROL_ASSERT    
+  def __init__(self,criticality=True,filterstr='(objectClass=*)'):
+    self.criticality = criticality
+    self.filterstr = filterstr
+
+  def encodeControlValue(self):
+    return _ldap.encode_assertion_control(self.filterstr)
+
+KNOWN_RESPONSE_CONTROLS[ldap.CONTROL_ASSERT] = AssertionControl
 
 
 def RequestControlTuples(ldapControls):
@@ -184,8 +193,7 @@ def RequestControlTuples(ldapControls):
 
 def DecodeControlTuples(ldapControlTuples,knownLDAPControls):
   """
-  Return list of readily encoded 3-tuples which can be directly
-  passed to C module _ldap
+  Return list of readily decoded ResponseControl objects
   """
   knownLDAPControls = knownLDAPControls or {}
   result = []
