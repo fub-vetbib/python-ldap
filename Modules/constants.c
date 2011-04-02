@@ -358,4 +358,8 @@ LDAPinit_constants( PyObject* d )
 	PyDict_SetItemString( d, "CONTROL_PASSWORDPOLICYRESPONSE", obj );
 	Py_DECREF(obj);
 
+	obj = PyString_FromString(LDAP_CONTROL_RELAX);
+	PyDict_SetItemString( d, "CONTROL_RELAX", obj );
+	Py_DECREF(obj);
+
 }
