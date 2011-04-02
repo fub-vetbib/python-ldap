@@ -8,16 +8,17 @@ Prerequisites:
 
     - Python 2.3 or newer (see http://www.python.org)
 
-    - OpenLDAP libs (see http://www.openldap.org)
-      You need OpenLDAP 2.3.x client libs or newer for full
-      functionality. It is not possible and not supported
+    - OpenLDAP 2.4.11+ client libs (see http://www.openldap.org)
+      It is not possible and not supported
       by the python-ldap project to build with prior versions.
 
-  Optional:
+  Optional dependencies of OpenLDAP libs:
 
     - Cyrus SASL 2.1.x or newer (see http://asg.web.cmu.edu/sasl/sasl-library.html)
 
     - OpenSSL 0.9.7 or newer (see http://www.openssl.org)
+    
+    - MIT Kerberos or heimdal libs
 
 Quick build instructions:
     edit setup.cfg (see Build/ for platform-specific examples)
