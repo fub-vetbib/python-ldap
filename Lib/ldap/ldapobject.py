@@ -149,12 +149,12 @@ class SimpleLDAPObject:
     """
     cancel(cancelid[,serverctrls=None[,clientctrls=None]]) -> int
         Send cancels extended operation for an LDAP operation specified by cancelid.
-	The cancelid should be the message id of an outstanding LDAP operation as returned
+        The cancelid should be the message id of an outstanding LDAP operation as returned
         by the asynchronous methods search(), modify() etc.  The caller
         can expect that the result of an abandoned operation will not be
         returned from a future call to result().
-	In opposite to abandon() this extended operation gets an result from
-	the server and thus should be preferred if the server supports it.
+        In opposite to abandon() this extended operation gets an result from
+        the server and thus should be preferred if the server supports it.
     """
     return self._ldap_call(self._l.cancel,cancelid,RequestControlTuples(serverctrls),RequestControlTuples(clientctrls))
 
