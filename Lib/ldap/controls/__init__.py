@@ -103,11 +103,10 @@ def DecodeControlTuples(ldapControlTuples,knownLDAPControls=None):
     else:
       control.controlType,control.criticality = controlType,criticality
       control.decodeControlValue(encodedControlValue)
-      result.append(control)  
+      result.append(control)
   return result
 
 
 # Import the standard sub-modules
 from ldap.controls.simple import *
 from ldap.controls.libldap import *
-
