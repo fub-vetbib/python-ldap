@@ -88,11 +88,11 @@ def RequestControlTuples(ldapControls):
     return result
 
 
-def DecodeControlTuples(ldapControlTuples,knownLDAPControls):
+def DecodeControlTuples(ldapControlTuples,knownLDAPControls=None):
   """
   Return list of readily decoded ResponseControl objects
   """
-  knownLDAPControls = knownLDAPControls or {}
+  knownLDAPControls = knownLDAPControls or KNOWN_RESPONSE_CONTROLS
   result = []
   for controlType,criticality,encodedControlValue in ldapControlTuples or []:
     control = knownLDAPControls.get(controlType,ResponseControl)()
@@ -101,5 +101,8 @@ def DecodeControlTuples(ldapControlTuples,knownLDAPControls):
     result.append(control)  
   return result
 
+
+# Import the standard sub-modules
 from ldap.controls.simple import *
 from ldap.controls.libldap import *
+
