@@ -52,7 +52,7 @@ class LDAPStringResponseControl(ResponseControl):
     self.controlValue = decoder.decode(LDAPString(encodedControlValue))
 
 
-class ProxyAuthzControl(RequestControl):
+class ProxyAuthzControl(LDAPStringRequestControl):
   """
   Proxy Authorization Control (see RFC 4370)
   """
