@@ -48,9 +48,10 @@ class PersistentSearchControl(RequestControl):
 
   controlType = "2.16.840.1.113730.3.4.3"
 
-  def __init__(self,criticality,changeTypes,changesOnly,returnECs):
-    self.criticality,self.changeTypes,self.changesOnly,self.returnECs = \
-      criticality,changeTypes,changesOnly,returnECs
+  def __init__(self,criticality=True,changeTypes=None,changesOnly=False,returnECs=True):
+    self.criticality,self.changesOnly,self.returnECs = \
+      criticality,changesOnly,returnECs
+    self.changeTypes = changeTypes or CHANGE_TYPES_INT.values()
 
   def encodeControlValue(self):
     if not type(self.changeTypes)==type(0):
