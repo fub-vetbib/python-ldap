@@ -132,8 +132,8 @@ class SimpleLDAPObject:
 
   def abandon_ext(self,msgid,serverctrls=None,clientctrls=None):
     """
-    abandon_ext(msgid[,serverctrls=None[,clientctrls=None]]) -> None    
-    abandon(msgid) -> None    
+    abandon_ext(msgid[,serverctrls=None[,clientctrls=None]]) -> None
+    abandon(msgid) -> None
         Abandons or cancels an LDAP operation in progress. The msgid should
         be the message id of an outstanding LDAP operation as returned
         by the asynchronous methods search(), modify() etc.  The caller
@@ -232,9 +232,9 @@ class SimpleLDAPObject:
   def compare_ext(self,dn,attr,value,serverctrls=None,clientctrls=None):
     """
     compare_ext(dn, attr, value [,serverctrls=None[,clientctrls=None]]) -> int
-    compare_ext_s(dn, attr, value [,serverctrls=None[,clientctrls=None]]) -> int    
+    compare_ext_s(dn, attr, value [,serverctrls=None[,clientctrls=None]]) -> int
     compare(dn, attr, value) -> int
-    compare_s(dn, attr, value) -> int    
+    compare_s(dn, attr, value) -> int
         Perform an LDAP comparison between the attribute named attr of
         entry dn, and the value value. The synchronous form returns 0
         for false, or 1 for true.  The asynchronous form returns the
@@ -297,7 +297,7 @@ class SimpleLDAPObject:
         form returns the message id of the initiated request, and the
         result can be obtained from a subsequent call to result3().
         The extreq is an instance of class ldap.extop.ExtendedRequest.
-        
+
         If argument extop_resp_class is set to a sub-class of
         ldap.extop.ExtendedResponse this class is used to return an
         object of this class instead of a raw BER value in respvalue.
@@ -333,7 +333,7 @@ class SimpleLDAPObject:
   def modify(self,dn,modlist):
     """
     modify(dn, modlist) -> int
-    modify_s(dn, modlist) -> None    
+    modify_s(dn, modlist) -> None
     modify_ext(dn, modlist[,serverctrls=None[,clientctrls=None]]) -> int
     modify_ext_s(dn, modlist[,serverctrls=None[,clientctrls=None]]) -> None
         Performs an LDAP modify operation on an entry's attributes.
@@ -360,7 +360,7 @@ class SimpleLDAPObject:
   def modrdn(self,dn,newrdn,delold=1):
     """
     modrdn(dn, newrdn [,delold=1]) -> int
-    modrdn_s(dn, newrdn [,delold=1]) -> None    
+    modrdn_s(dn, newrdn [,delold=1]) -> None
         Perform a modify RDN operation. These routines take dn, the
         DN of the entry whose RDN is to be changed, and newrdn, the
         new RDN to give to the entry. The optional parameter delold
@@ -471,7 +471,7 @@ class SimpleLDAPObject:
       resp_ctrl_classes=resp_ctrl_classes
     )
     return resp_type, resp_data, resp_msgid, decoded_resp_ctrls
- 
+
   def result4(self,msgid=ldap.RES_ANY,all=1,timeout=None,add_ctrls=0,add_intermediates=0,add_extop=0,resp_ctrl_classes=None):
     if timeout is None:
       timeout = self.timeout
@@ -488,7 +488,7 @@ class SimpleLDAPObject:
         resp_data = [ (t,r,DecodeControlTuples(c,resp_ctrl_classes)) for t,r,c in resp_data ]
     decoded_resp_ctrls = DecodeControlTuples(resp_ctrls,resp_ctrl_classes)
     return resp_type, resp_data, resp_msgid, decoded_resp_ctrls, resp_name, resp_value
- 
+
   def search_ext(self,base,scope,filterstr='(objectClass=*)',attrlist=None,attrsonly=0,serverctrls=None,clientctrls=None,timeout=-1,sizelimit=0):
     """
     search(base, scope [,filterstr='(objectClass=*)' [,attrlist=None [,attrsonly=0]]]) -> int
@@ -558,25 +558,25 @@ class SimpleLDAPObject:
 
   def start_tls_s(self):
     """
-    start_tls_s() -> None    
+    start_tls_s() -> None
     Negotiate TLS with server. The `version' attribute must have been
     set to VERSION3 before calling start_tls_s.
     If TLS could not be started an exception will be raised.
     """
     return self._ldap_call(self._l.start_tls_s)
-  
+
   def unbind_ext(self,serverctrls=None,clientctrls=None):
     """
-    unbind() -> int    
+    unbind() -> int
     unbind_s() -> None
-    unbind_ext() -> int    
+    unbind_ext() -> int
     unbind_ext_s() -> None
         This call is used to unbind from the directory, terminate
         the current association, and free resources. Once called, the
         connection to the LDAP server is closed and the LDAP object
         is invalid. Further invocation of methods on the object will
         yield an exception.
-    
+
         The unbind and unbind_s methods are identical, and are
         synchronous in nature
     """
@@ -700,7 +700,7 @@ class ReconnectLDAPObject(SimpleLDAPObject):
   of all synchronous operation methods (search_s() etc.) are doing
   an automatic reconnect and rebind and will retry the very same
   operation.
-  
+
   This is very handy for broken LDAP server implementations
   (e.g. in Lotus Domino) which drop connections very often making
   it impossible to have a long-lasting control flow in the
