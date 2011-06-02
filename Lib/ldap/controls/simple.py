@@ -7,11 +7,14 @@ See http://www.python-ldap.org/ for details.
 $Id$
 """
 
-import ldap
+import struct,ldap
 from ldap.controls import RequestControl,ResponseControl,LDAPControl,KNOWN_RESPONSE_CONTROLS
 
 
 class ValueLessRequestControl(RequestControl):
+  """
+  Base class for controls without a controlValue
+  """
 
   def __init__(self,controlType=None,criticality=False):
     self.controlType = controlType
@@ -28,6 +31,23 @@ class ManageDSAITControl(ValueLessRequestControl):
 
 KNOWN_RESPONSE_CONTROLS[ldap.CONTROL_MANAGEDSAIT] = ManageDSAITControl
 
+
+class OctetStringInteger(LDAPControl):
+  """
+  Base class with controlValue being unsigend integer values
+  """
+
+  def __init__(self,controlType=None,criticality=False,integerValue=None):
+    self.controlType = controlType
+    self.criticality = criticality
+    self.integerValue = integerValue
+
+  def encodeControlValue(self):
+    return struct.pack('!Q',self.integerValue)
+
+  def decodeControlValue(self,encodedControlValue):
+    self.integerValue = self. struct.unpack('!Q',encodedControlValue)[0]
+    
 
 class RelaxRulesControl(ValueLessRequestControl):
 
@@ -81,3 +101,12 @@ class AuthorizationIdentityControl(ValueLessRequestControl,ResponseControl):
     self.authzId = encodedControlValue
 
 KNOWN_RESPONSE_CONTROLS[AuthorizationIdentityControl.controlType] = AuthorizationIdentityControl
+
+
+class GetEffectiveRightsControl(RequestControl):
+  """
+  Get Effective Rights Control
+  """
+
+  def __init__(self,criticality,authzId=None):
+    RequestControl.__init__(self,'1.3.6.1.4.1.42.2.27.9.5.2',criticality,authzId)
