@@ -12,14 +12,20 @@ with Python 1.5.2 as well.
 
 from ldap import __version__
 
-import string,ldap
+import string,ldap,ldap.cidict
 
 
-def list_dict(l):
+def list_dict(l,case_insensitive=0):
   """
   return a dictionary with all items of l being the keys of the dictionary
+
+  If argument case_insensitive is non-zero ldap.cidict.cidict will be
+  used for case-insensitive string keys
   """
-  d = {}
+  if case_insensitive:
+    d = ldap.cidict.cidict()
+  else:
+    d = {}
   for i in l:
     d[i]=None
   return d
@@ -41,7 +47,7 @@ def addModlist(entry,ignore_attr_types=None):
 
 
 def modifyModlist(
-  old_entry,new_entry,ignore_attr_types=None,ignore_oldexistent=0
+  old_entry,new_entry,ignore_attr_types=None,ignore_oldexistent=0,case_ignore_attr_types=None
 ):
   """
   Build differential modify list for calling LDAPObject.modify()/modify_s()
@@ -58,8 +64,12 @@ def modifyModlist(
       This is handy for situations where your application
       sets attribute value to '' for deleting an attribute.
       In most cases leave zero.
+  case_ignore_attr_types
+      List of attribute type names for which comparison will be made
+      case-insensitive
   """
   ignore_attr_types = list_dict(map(string.lower,(ignore_attr_types or [])))
+  case_ignore_attr_types = list_dict(map(string.lower,(case_ignore_attr_types or [])))
   modlist = []
   attrtype_lower_map = {}
   for a in old_entry.keys():
@@ -84,8 +94,9 @@ def modifyModlist(
       # Replace existing attribute
       replace_attr_value = len(old_value)!=len(new_value)
       if not replace_attr_value:
-        old_value_dict=list_dict(old_value)
-        new_value_dict=list_dict(new_value)
+        case_insensitive = case_ignore_attr_types.has_key(attrtype_lower)
+        old_value_dict=list_dict(old_value,case_insensitive)
+        new_value_dict=list_dict(new_value,case_insensitive)
         delete_values = []
         for v in old_value:
           if not new_value_dict.has_key(v):
