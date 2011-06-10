@@ -291,6 +291,9 @@ LDAP_get_option(LDAPObject *self, int option)
 #ifdef LDAP_OPT_X_TLS_CRLFILE
     case LDAP_OPT_X_TLS_CRLFILE:
 #endif
+#ifdef LDAP_OPT_X_TLS_PACKAGE
+    case LDAP_OPT_X_TLS_PACKAGE:
+#endif
 #endif
 #ifdef HAVE_SASL
     case LDAP_OPT_X_SASL_SECPROPS:
