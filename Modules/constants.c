@@ -262,7 +262,7 @@ LDAPinit_constants( PyObject* d )
 
   /* author */
 
-  author = PyString_FromString("python-ldap-dev@lists.sf.net");
+  author = PyString_FromString("python-ldap Project");
   PyDict_SetItemString(d, "__author__", author);
   Py_DECREF(author);
 
