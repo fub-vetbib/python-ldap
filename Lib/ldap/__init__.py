@@ -46,7 +46,7 @@ class LDAPLock:
   Note that this cumbersome approach with _lock attribute was taken
   since threading.Lock is not suitable for sub-classing.
   """
-  _min_trace_level = 2
+  _min_trace_level = 3
 
   def __init__(self,lock_class=None,desc=''):
     """
@@ -60,12 +60,14 @@ class LDAPLock:
 
   def acquire(self):
     if __debug__:
+      global _trace_level
       if _trace_level>=self._min_trace_level:
         _trace_file.write('***%s %s.acquire()\n' % (self._desc,self.__class__.__name__))
     return self._lock.acquire()
 
   def release(self):
     if __debug__:
+      global _trace_level
       if _trace_level>=self._min_trace_level:
         _trace_file.write('***%s %s.release()\n' % (self._desc,self.__class__.__name__))
     return self._lock.release()

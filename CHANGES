@@ -12,6 +12,8 @@ Lib/
 * ldap.modlist.modifyModlist(): New key-word argument
   case_ignore_attr_types used to define attribute types for which
   comparison of old and new values should be case-insensitive
+* Minor changes to which data is sent to debug output for various
+  trace levels
 
 ----------------------------------------------------------------
 Released 2.4.0 2011-06-02
