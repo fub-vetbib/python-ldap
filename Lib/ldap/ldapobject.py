@@ -381,8 +381,7 @@ class SimpleLDAPObject:
 
   def passwd_s(self,user,oldpw,newpw,serverctrls=None,clientctrls=None):
     msgid = self.passwd(user,oldpw,newpw,serverctrls,clientctrls)
-    resp_type, resp_data, resp_msgid, resp_ctrls = self.result3(msgid,all=1,timeout=self.timeout)
-    return resp_type, resp_data, resp_msgid, resp_ctrls
+    return self.extop_result(msgid,all=1,timeout=self.timeout)
 
   def rename(self,dn,newrdn,newsuperior=None,delold=1,serverctrls=None,clientctrls=None):
     """
