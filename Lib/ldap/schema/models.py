@@ -43,7 +43,6 @@ class SchemaElement:
     if schema_element_str:
       l = split_tokens(schema_element_str,self.token_defaults)
       self.set_id(l[1])
-      assert type(self.get_id())==StringType
       d = extract_tokens(l,self.token_defaults)
       self._set_attrs(l,d)
 
