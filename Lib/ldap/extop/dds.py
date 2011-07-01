@@ -61,7 +61,6 @@ class RefreshRequest(ExtendedRequest):
 
 
 class RefreshResponse(ExtendedResponse):
-  
   responseName = '1.3.6.1.4.1.1466.101.119.1'
 
   class RefreshResponseValue(univ.Sequence):
@@ -69,9 +68,7 @@ class RefreshResponse(ExtendedResponse):
       namedtype.NamedType(
         'responseTtl',
         univ.Integer().subtype(
-          # let us assume tag [0] here to make it work with OpenLDAP
-          # this IMHO violates RFC 2589
-          implicitTag=tag.Tag(tag.tagClassContext,tag.tagFormatSimple,0)
+          implicitTag=tag.Tag(tag.tagClassContext,tag.tagFormatSimple,1)
         )
       )
     )
