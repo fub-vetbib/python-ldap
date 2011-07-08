@@ -24,35 +24,93 @@ for _name in dir():
 SCHEMA_ATTRS = SCHEMA_CLASS_MAPPING.keys()
 
 
+class SubschemaError(ValueError):
+  pass
+
+
+class OIDNotUnique(SubschemaError):
+
+  def __init__(self,desc):
+    self.desc = desc
+
+  def __str__(self):
+    return 'OID not unique for %s' % (self.desc)
+
+
+class NameNotUnique(SubschemaError):
+
+  def __init__(self,desc):
+    self.desc = desc
+
+  def __str__(self):
+    return 'NAME not unique for %s' % (self.desc)
+
+
 class SubSchema:
 
-  def __init__(self,sub_schema_sub_entry):
-      """
-      sub_schema_sub_entry
-          Dictionary containing the sub schema sub entry
-      """
-      # Initialize all dictionaries
-      self.name2oid = {}
-      self.sed = {}
-      for c in SCHEMA_CLASS_MAPPING.values():
-        self.name2oid[c] = ldap.cidict.cidict()
-        self.sed[c] = {}
+  def __init__(self,sub_schema_sub_entry,check_uniqueness=1):
+    """
+    sub_schema_sub_entry
+        Dictionary containing the sub schema sub entry
+    check_uniqueness
+        Defines whether uniqueness of OIDs and NAME is checked.
+        0 no check
+        1 check but add schema description with work-around
+        2 check and raise exception if non-unique OID or NAME is found
+    """
 
-      e = ldap.cidict.cidict(sub_schema_sub_entry)
+    # Initialize all dictionaries
+    self.name2oid = {}
+    self.sed = {}
+    self.non_unique_oids = {}
+    self.non_unique_names = {}
+    for c in SCHEMA_CLASS_MAPPING.values():
+      self.name2oid[c] = ldap.cidict.cidict()
+      self.sed[c] = {}
+      self.non_unique_names[c] = set()
 
-      # Build the schema registry
-      for attr_type in SCHEMA_ATTRS:
-        if not e.has_key(attr_type) or \
-           not e[attr_type]:
-          continue
-        for attr_value in filter(None,e[attr_type]):
-          se_class = SCHEMA_CLASS_MAPPING[attr_type]
-          se_instance = se_class(attr_value)
-          self.sed[se_class][se_instance.get_id()] = se_instance
-          if hasattr(se_instance,'names'):
-            for name in se_instance.names:
-              self.name2oid[se_class][name] = se_instance.get_id()
-      return # subSchema.__init__()
+    # Transform entry dict to case-insensitive dict
+    e = ldap.cidict.cidict(sub_schema_sub_entry)
+
+    # Build the schema registry in dictionaries
+    for attr_type in SCHEMA_ATTRS:
+
+      for attr_value in filter(None,e.get(attr_type,[])):
+
+        se_class = SCHEMA_CLASS_MAPPING[attr_type]
+        se_instance = se_class(attr_value)
+        se_id = se_instance.get_id()
+
+        if check_uniqueness and se_id in self.sed[se_class]:
+            self.non_unique_oids[se_id] = None
+            if check_uniqueness==1:
+              # Add to subschema by adding suffix to ID
+              suffix_counter = 1
+              new_se_id = se_id
+              while new_se_id in self.sed[se_class]:
+                new_se_id = ';'.join((se_id,str(suffix_counter)))
+                suffix_counter += 1
+              else:
+                se_id = new_se_id
+            elif check_uniqueness>=2:
+              raise OIDNotUnique(attr_value)
+
+        # Store the schema element instance in the central registry
+        self.sed[se_class][se_id] = se_instance
+
+        if hasattr(se_instance,'names'):
+          for name in se_instance.names:
+            if check_uniqueness and name in self.name2oid[se_class]:
+              self.non_unique_names[se_class][se_id] = None
+              raise NameNotUnique(attr_value)
+            else:
+              self.name2oid[se_class][name] = se_id
+
+    # Turn dict into list maybe more handy for applications
+    self.non_unique_oids = self.non_unique_oids.keys()
+
+    return # subSchema.__init__()
+
 
   def ldap_entry(self):
     """

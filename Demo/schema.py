@@ -12,6 +12,10 @@ if subschemasubentry_dn is None:
   print 'No sub schema sub entry found!'
   sys.exit(1)
 
+if schema.non_unique_oids:
+  print '*** Schema errors ***'
+  print 'non-unique OIDs:\n','\r\n'.join(schema.non_unique_oids)
+
 print '*** Schema from',repr(subschemasubentry_dn)
 
 # Display schema
