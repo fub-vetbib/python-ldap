@@ -116,7 +116,7 @@ class SubSchema:
           se_oid,schema_element_class.__name__,se_obj.__class__
         )
       for s in se_obj.sup or ('_',):
-        sup_oid = self.name2oid[schema_element_class].get(s,s)
+        sup_oid = self.getoid(schema_element_class,s)
         try:
           tree[sup_oid].append(se_oid)
         except:
@@ -137,7 +137,6 @@ class SubSchema:
         result_oid = self.name2oid[se_class][nameoroid_stripped]
       except KeyError:
         if raise_keyerror:
-          print self.name2oid[se_class]
           raise KeyError('No registered %s-OID for nameoroid %s' % (se_class.__name__,repr(nameoroid_stripped)))
         else:
           result_oid = nameoroid_stripped
@@ -274,7 +273,7 @@ class SubSchema:
 
     # Map object_class_list to object_class_oids (list of OIDs)
     object_class_oids = [
-      self.name2oid[ObjectClass].get(o,o)
+      self.getoid(ObjectClass,o)
       for o in object_class_list
     ]
     # Initialize
@@ -313,7 +312,7 @@ class SubSchema:
         r_may[se_oid] = self.get_obj(AttributeType,se_oid,raise_keyerror=raise_keyerror)
 
       object_class_oids.extend([
-        self.name2oid[ObjectClass].get(o,o)
+        self.getoid(ObjectClass,o)
         for o in object_class.sup
       ])
 
