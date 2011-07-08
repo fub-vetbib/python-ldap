@@ -342,10 +342,6 @@ class SubSchema:
           for a in dit_content_rule.nots:
             a_oid = self.getoid(AttributeType,a,raise_keyerror=raise_keyerror)
             try:
-              del r_must[a_oid]
-            except KeyError:
-              pass
-            try:
               del r_may[a_oid]
             except KeyError:
               pass
