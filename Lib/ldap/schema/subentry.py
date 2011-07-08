@@ -124,12 +124,24 @@ class SubSchema:
     return tree
 
 
-  def getoid(self,se_class,nameoroid):
+  def getoid(self,se_class,nameoroid,raise_keyerror=0):
     """
     Get an OID by name or OID
     """
-    se_oid = nameoroid.split(';')[0].strip()
-    return self.name2oid[se_class].get(se_oid,se_oid)
+    nameoroid_stripped = nameoroid.split(';')[0].strip()
+    if nameoroid_stripped in self.sed[se_class]:
+      # name_or_oid is already a registered OID
+      return nameoroid_stripped
+    else:
+      try:
+        result_oid = self.name2oid[se_class][nameoroid_stripped]
+      except KeyError:
+        if raise_keyerror:
+          print self.name2oid[se_class]
+          raise KeyError('No registered %s-OID for nameoroid %s' % (se_class.__name__,repr(nameoroid_stripped)))
+        else:
+          result_oid = nameoroid_stripped
+    return result_oid
 
 
   def get_inheritedattr(self,se_class,nameoroid,name):
@@ -150,11 +162,21 @@ class SubSchema:
     return result
 
 
-  def get_obj(self,se_class,nameoroid,default=None):
+  def get_obj(self,se_class,nameoroid,default=None,raise_keyerror=0):
     """
     Get a schema element by name or OID
     """
-    return self.sed[se_class].get(self.getoid(se_class,nameoroid),default)
+    se_oid = self.getoid(se_class,nameoroid)
+    try:
+      se_obj = self.sed[se_class][se_oid]
+    except KeyError:
+      if raise_keyerror:
+        raise KeyError('No ldap.schema.%s instance with nameoroid %s and se_oid %s' % (
+          se_class.__name__,repr(nameoroid),repr(se_oid))
+        )
+      else:
+        se_obj = default
+    return se_obj
 
 
   def get_inheritedobj(self,se_class,nameoroid,inherited=None):
@@ -284,25 +306,11 @@ class SubSchema:
       assert hasattr(object_class,'must'),ValueError(object_class_oid)
       assert hasattr(object_class,'may'),ValueError(object_class_oid)
       for a in object_class.must:
-        try:
-          at_obj = self.sed[AttributeType][self.name2oid[AttributeType].get(a,a)]
-        except KeyError:
-          if raise_keyerror:
-            raise
-          else:
-            r_must[a] = None
-        else:
-          r_must[at_obj.oid] = at_obj
+        se_oid = self.getoid(AttributeType,a,raise_keyerror=raise_keyerror)
+        r_must[se_oid] = self.get_obj(AttributeType,se_oid,raise_keyerror=raise_keyerror)
       for a in object_class.may:
-        try:
-          at_obj = self.sed[AttributeType][self.name2oid[AttributeType].get(a,a)]
-        except KeyError:
-          if raise_keyerror:
-            raise
-          else:
-            r_may[a] = None
-        else:
-          r_may[at_obj.oid] = at_obj
+        se_oid = self.getoid(AttributeType,a,raise_keyerror=raise_keyerror)
+        r_may[se_oid] = self.get_obj(AttributeType,se_oid,raise_keyerror=raise_keyerror)
 
       object_class_oids.extend([
         self.name2oid[ObjectClass].get(o,o)
@@ -320,45 +328,28 @@ class SubSchema:
       structural_oc = self.get_structural_oc(object_class_list)
       if structural_oc:
         # Process applicable DIT content rule
-        dit_content_rule = self.get_obj(DITContentRule,structural_oc)
-        if dit_content_rule:
+        try:
+          dit_content_rule = self.get_obj(DITContentRule,structural_oc,raise_keyerror=1)
+        except KeyError:
+          # Not DIT content rule found for structural objectclass
+          pass
+        else:
           for a in dit_content_rule.must:
-            try:
-              at_obj = self.sed[AttributeType][self.name2oid[AttributeType].get(a,a)]
-            except KeyError:
-              if raise_keyerror:
-                raise
-              else:
-                r_must[a] = None
-            else:
-              r_must[at_obj.oid] = at_obj
+            se_oid = self.getoid(AttributeType,a,raise_keyerror=raise_keyerror)
+            r_must[se_oid] = self.get_obj(AttributeType,se_oid,raise_keyerror=raise_keyerror)
           for a in dit_content_rule.may:
-            try:
-              at_obj = self.sed[AttributeType][self.name2oid[AttributeType].get(a,a)]
-            except KeyError:
-              if raise_keyerror:
-                raise
-              else:
-                r_may[a] = None
-            else:
-              r_may[at_obj.oid] = at_obj
+            se_oid = self.getoid(AttributeType,a,raise_keyerror=raise_keyerror)
+            r_may[se_oid] = self.get_obj(AttributeType,se_oid,raise_keyerror=raise_keyerror)
           for a in dit_content_rule.nots:
-            a_oid = self.name2oid[AttributeType].get(a,a)
-            if not r_must.has_key(a_oid):
-              try:
-                at_obj = self.sed[AttributeType][a_oid]
-              except KeyError:
-                if raise_keyerror:
-                  raise
-              else:
-                try:
-                  del r_must[at_obj.oid]
-                except KeyError:
-                  pass
-                try:
-                  del r_may[at_obj.oid]
-                except KeyError:
-                  pass
+            a_oid = self.getoid(AttributeType,a,raise_keyerror=raise_keyerror)
+            try:
+              del r_must[a_oid]
+            except KeyError:
+              pass
+            try:
+              del r_may[a_oid]
+            except KeyError:
+              pass
 
     # Apply attr_type_filter to results
     if attr_type_filter:
