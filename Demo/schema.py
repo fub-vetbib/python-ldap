@@ -8,8 +8,6 @@ ldap._trace_level = 0
 
 subschemasubentry_dn,schema = ldap.schema.urlfetch(sys.argv[-1])
 
-schema_reverse = ldap.schema.SubSchema(schema.ldap_entry())
-
 if subschemasubentry_dn is None:
   print 'No sub schema sub entry found!'
   sys.exit(1)
@@ -21,10 +19,14 @@ for attr_type,schema_class in ldap.schema.SCHEMA_CLASS_MAPPING.items():
   print '*'*20,attr_type,'*'*20
   for element_id in schema.listall(schema_class):
     se_orig = schema.get_obj(schema_class,element_id)
-    se_reverse = schema_reverse.get_obj(schema_class,element_id)
-#    assert str(se_orig)==str(se_reverse)
     print attr_type,str(se_orig)
 print '*** Testing object class inetOrgPerson ***'
+
+drink = schema.get_obj(ldap.schema.AttributeType,'favouriteDrink')
+if not drink is None:
+  print '*** drink ***'
+  print 'drink.names',repr(drink.names)
+  print 'drink.collective',repr(drink.collective)
 
 inetOrgPerson = schema.get_obj(ldap.schema.ObjectClass,'inetOrgPerson')
 if not inetOrgPerson is None:
@@ -45,12 +47,6 @@ try:
 except KeyError,e:
   print '***KeyError',str(e)
 
-drink = schema.get_obj(ldap.schema.AttributeType,'favouriteDrink')
-if not drink is None:
-  print '*** drink ***'
-  print 'drink.names',repr(drink.names)
-  print 'drink.collective',repr(drink.collective)
-
 
 schema.ldap_entry()
 
@@ -59,3 +55,5 @@ print str(schema.get_obj(ldap.schema.MatchingRuleUse,'2.5.13.0'))
 
 print str(schema.get_obj(ldap.schema.AttributeType,'name'))
 print str(schema.get_inheritedobj(ldap.schema.AttributeType,'cn',['syntax','equality','substr','ordering']))
+
+must_attr,may_attr = schema.attribute_types(['person','organizationalPerson','inetOrgPerson'],raise_keyerror=0)
