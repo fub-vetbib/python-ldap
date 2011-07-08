@@ -25,7 +25,7 @@ SCHEMA_ATTRS = SCHEMA_CLASS_MAPPING.keys()
 
 
 class SubSchema:
-    
+
   def __init__(self,sub_schema_sub_entry):
       """
       sub_schema_sub_entry
@@ -90,7 +90,7 @@ class SubSchema:
     else:
       result = avail_se.keys()
     return result
-    
+
 
   def tree(self,schema_element_class,schema_element_filters=None):
     """
@@ -149,7 +149,7 @@ class SubSchema:
     Get a possibly inherited attribute specified by name
     of a schema element specified by nameoroid.
     Returns None if class attribute is not set at all.
-    
+
     Raises KeyError if no schema element is found by nameoroid.
     """
     se = self.sed[se_class][self.getoid(se_class,nameoroid)]
@@ -264,10 +264,10 @@ class SubSchema:
         which has to be matched
     raise_keyerror
         All KeyError exceptions for non-existent schema elements
-	are ignored
+        are ignored
     ignore_dit_content_rule
-	A DIT content rule governing the structural object class
-	is ignored
+        A DIT content rule governing the structural object class
+        is ignored
     """
     AttributeType = ldap.schema.AttributeType
     ObjectClass = ldap.schema.ObjectClass
@@ -376,7 +376,7 @@ class SubSchema:
 def urlfetch(uri,trace_level=0):
   """
   Fetches a parsed schema entry by uri.
-  
+
   If uri is a LDAP URL the LDAP server is queried directly.
   Otherwise uri is assumed to point to a LDIF file which
   is loaded with urllib.
