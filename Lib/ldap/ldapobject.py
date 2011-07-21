@@ -92,14 +92,13 @@ class SimpleLDAPObject:
         ))
         if self._trace_level>=9:
           traceback.print_stack(limit=self._trace_stack_limit,file=self._trace_file)
+    diagnostic_message_success = None
     try:
       try:
         result = func(*args,**kwargs)
         if __debug__ and self._trace_level>=2:
           if func.__name__!="unbind_ext":
             diagnostic_message_success = self._l.get_option(ldap.OPT_DIAGNOSTIC_MESSAGE)
-          else:
-            diagnostic_message_success = None
       finally:
         self._ldap_object_lock.release()
     except LDAPError,e:
