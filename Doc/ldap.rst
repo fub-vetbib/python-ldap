@@ -18,20 +18,6 @@ interface,   please see the (expired) draft-ietf-ldapext-ldap-c-api-04.    This
 documentation is current for the Python LDAP module, version  |release|.  Source
 and binaries are available from http://www.python-ldap.org/.
 
-.. % not standard, in C
-.. % Author of the module code;
-.. % Leave at least one blank line after this, to simplify ad-hoc tools
-.. % that are sometimes used to massage these files.
-.. % ==== 2. ====
-.. % Give a short overview of what the module does.
-.. % If it is platform specific, mention this.
-.. % Mention other important restrictions or general operating principles.
-.. % ==== 3. ====
-.. % List the public functions defined by the module.  Begin with a
-.. % standard phrase.  You may also list the exceptions and other data
-.. % items defined in the module, insofar as they are important for the
-.. % user.
-
 
 Functions
 =========
