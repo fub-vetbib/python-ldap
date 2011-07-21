@@ -32,7 +32,7 @@ if __debug__:
   # Tracing is only supported in debugging mode
   import traceback
 
-import sys,time,_ldap,ldap,ldap.functions
+import sys,time,pprint,_ldap,ldap,ldap.functions
 
 from ldap.schema import SCHEMA_ATTRS
 from ldap.controls import LDAPControl,DecodeControlTuples,RequestControlTuples
@@ -85,10 +85,10 @@ class SimpleLDAPObject:
     self._ldap_object_lock.acquire()
     if __debug__:
       if self._trace_level>=1:
-        self._trace_file.write('*** %s - %s (%s,%s)\n' % (
+        self._trace_file.write('*** %s - %s\n%s\n' % (
           self._uri,
-          self.__class__.__name__+'.'+func.__name__,
-          repr(args),repr(kwargs)
+          '.'.join((self.__class__.__name__,func.__name__)),
+          pprint.pformat((args,kwargs))
         ))
         if self._trace_level>=9:
           traceback.print_stack(limit=self._trace_stack_limit,file=self._trace_file)
@@ -109,7 +109,7 @@ class SimpleLDAPObject:
       if __debug__ and self._trace_level>=2:
         if not diagnostic_message_success is None:
           self._trace_file.write('=> diagnosticMessage: %s\n' % (repr(diagnostic_message_success)))
-        self._trace_file.write('=> result: %s\n' % (repr(result)))
+        self._trace_file.write('=> result:\n%s\n' % (pprint.pformat(result)))
     return result
 
   def __setattr__(self,name,value):
