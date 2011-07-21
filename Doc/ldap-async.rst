@@ -1,10 +1,10 @@
 .. % $Id$
 
 
-:mod:`ldap.async` Framework for stream-processing of large search results
+:py:mod:`ldap.async` Framework for stream-processing of large search results
 ==============================================================================
 
-.. module:: ldap.async
+.. py:module:: ldap.async
    :synopsis: Framework for stream-processing of large search results.
 .. moduleauthor:: python-ldap project (see http://www.python-ldap.org/)
 

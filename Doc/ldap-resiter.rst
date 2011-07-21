@@ -1,10 +1,10 @@
 .. % $Id$
 
 
-:mod:`ldap.resiter` Generator for stream-processing of large search results
+:py:mod:`ldap.resiter` Generator for stream-processing of large search results
 ==============================================================================
 
-.. module:: ldap.resiter
+.. py:module:: ldap.resiter
    :synopsis: Generator for stream-processing of large search results.
 .. moduleauthor:: python-ldap project (see http://www.python-ldap.org/)
 

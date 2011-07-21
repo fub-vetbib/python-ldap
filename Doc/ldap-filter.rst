@@ -1,10 +1,10 @@
 .. % $Id$
 
 
-:mod:`ldap.filter` LDAP filter handling
+:py:mod:`ldap.filter` LDAP filter handling
 ============================================
 
-.. module:: ldap.filter
+.. py:module:: ldap.filter
    :synopsis: LDAP filter handling.
 .. moduleauthor:: python-ldap project (see http://www.python-ldap.org/)
 

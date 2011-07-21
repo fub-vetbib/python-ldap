@@ -1,10 +1,10 @@
 .. % $Id$
 
 
-:mod:`ldap.dn` LDAP Distinguished Name handling
+:py:mod:`ldap.dn` LDAP Distinguished Name handling
 ====================================================
 
-.. module:: ldap.dn
+.. py:module:: ldap.dn
    :synopsis: LDAP Distinguished Name handling.
 .. moduleauthor:: python-ldap project (see http://www.python-ldap.org/)
 

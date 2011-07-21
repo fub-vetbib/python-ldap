@@ -1,10 +1,11 @@
 .. % $Id$
 
 
-:mod:`ldap.schema` Processing LDAPv3 sub schema sub entry
-==============================================================
+************************************************************
+:py:mod:`ldap.schema` Processing LDAPv3 sub schema sub entry
+************************************************************
 
-.. module:: ldap.schema
+.. py:module:: ldap.schema
    :synopsis: Processing LDAPv3 sub schema sub entry
 .. moduleauthor:: python-ldap project (see http://www.python-ldap.org/)
 

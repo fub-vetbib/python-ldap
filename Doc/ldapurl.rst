@@ -1,10 +1,10 @@
 .. % $Id$
 
 ################################
-:mod:`ldapurl` LDAP URL handling
+:py:mod:`ldapurl` LDAP URL handling
 ################################
 
-.. module:: ldapurl
+.. py:module:: ldapurl
    :synopsis: Parses and generates LDAP URLs
 .. moduleauthor:: python-ldap project (see http://www.python-ldap.org/)
 

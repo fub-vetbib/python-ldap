@@ -1,10 +1,10 @@
 .. % $Id$
 
 
-:mod:`ldap.modlist` Generate modify lists
+:py:mod:`ldap.modlist` Generate modify lists
 ==============================================
 
-.. module:: ldap.modlist
+.. py:module:: ldap.modlist
    :synopsis: Generate modify lists.
 .. moduleauthor:: python-ldap project (see http://www.python-ldap.org/)
 
