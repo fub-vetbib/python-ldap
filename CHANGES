@@ -1,4 +1,23 @@
 ----------------------------------------------------------------
+Released 2.4.2 2011-07-21
+
+Changes since 2.4.1:
+
+Lib/
+
+Logging:
+* pprint.pformat() is now used when writing method/function
+  arguments to the trace log
+
+ldap.schema.subentry:
+* SubSchema.__init__() now has new key-word argument check_uniqueness
+  which enables checking whether OIDs are unique in the subschema subentry
+* Code-cleaning: consequent use of method SubSchema.getoid() instead of
+  accessing SubSchema.name2oid directly.
+* SubSchema.getoid() and SubSchema.getoid() now have key-word argument
+  raise_keyerror=0 and raise KeyError with appropriate description.
+
+----------------------------------------------------------------
 Released 2.4.1 2011-07-05
 
 Changes since 2.4.0:
