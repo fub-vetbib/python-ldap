@@ -1,6 +1,6 @@
 Metadata-Version: 1.1
 Name: python-ldap
-Version: 2.4.0
+Version: 2.4.2
 Summary: Various LDAP-related Python modules
 Home-page: http://www.python-ldap.org/
 Download-url: http://pypi.python.org/pypi/python-ldap/
