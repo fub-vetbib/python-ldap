@@ -128,6 +128,7 @@ setup(
   		'ldap.controls.ppolicy',
   		'ldap.controls.psearch',
   		'ldap.controls.readentry',
+  		'ldap.controls.sessiontrack',
   		'ldap.controls.simple',
   		'ldap.cidict',
   		'ldap.dn',
