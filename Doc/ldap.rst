@@ -582,9 +582,9 @@ and wait for and return with the server's result, or with
 
 :class:`LDAPControl` instances have the following methods:
 
-.. py:method:: LDAPObject.abandon(msgid)
+.. py:method:: LDAPObject.abandon(msgid) -> None
 
-.. py:method:: LDAPObject.abandon_ext(msgid [, serverctrls=None [, clientctrls=None]])
+.. py:method:: LDAPObject.abandon_ext(msgid [, serverctrls=None [, clientctrls=None]]) -> None
 
    Abandons an LDAP operation in progress without waiting for a LDAP response.
    The *msgid* argument should be the message ID of an outstanding LDAP
