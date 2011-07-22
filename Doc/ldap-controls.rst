@@ -10,6 +10,18 @@
 .. moduleauthor:: python-ldap project (see http://www.python-ldap.org/)
 
 
+Variables
+=========
+
+.. py:data:: KNOWN_RESPONSE_CONTROLS
+
+   Dictionary mapping the OIDs of known response controls to the accompanying
+   :py:class:`ResponseControl` classes. This is used
+   by :py:func:`DecodeControlTuples` to automatically decode control values.
+   Calling application can also register their custom :py:class:`ResponseControl`
+   classes in this dictionary possibly overriding pre-registered classes.
+   
+
 Classes
 =======
 
