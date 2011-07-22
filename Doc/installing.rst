@@ -30,6 +30,12 @@ on the local system when building python-ldap:
 - cyrus-sasl (optional): http://asg.web.cmu.edu/sasl/sasl-library.html
 - Kerberos libs, MIT or heimdal (optional)
 
+Furthermore some sub-modules of :py:mod:`ldap.controls` and :py:mod:`ldap.extop`
+require :py:mod:`pyasn1` and :py:mod:`pyasn1_modules` to be installed.
+
+  http://pyasn1.sf.net
+
+
 setup.cfg
 =========
 
