@@ -10,18 +10,9 @@ Python compability note:
 Tested with Python 2.0+.
 """
 
-__version__ = '2.4.2'
+__version__ = '2.4.3'
 
 import string,base64
-
-def list_dict(l):
-  """
-  return a dictionary with all items of l being the keys of the dictionary
-  """
-  d = {}
-  for i in l:
-    d[i]=None
-  return d
 
 
 special_entities = (
@@ -31,29 +22,33 @@ special_entities = (
   ("'",'&apos;'),
 )
 
+
 def replace_char(s):
   for char,entity in special_entities:
     s = string.replace(s,char,entity)
   return s
 
+
 class DSMLWriter:
+  """
+  Class for writing LDAP entry records to a DSMLv1 file.
+  """
 
   def __init__(
     self,f,base64_attrs=[],dsml_comment='',indent='    '
   ):
     """
-    Parameters:
     f
-          File object for output.
+        File object for output.
     base64_attrs
-          Attribute types to be base64-encoded.
+        Attribute types to be base64-encoded.
     dsml_comment
-          Text placed in comment lines behind <dsml:dsml>.
+        Text placed in comment lines behind <dsml:dsml>.
     indent
-          String used for indentiation of next nested level.
+        String used for indentiation of next nested level.
     """
     self._output_file = f
-    self._base64_attrs = list_dict(map(string.lower,base64_attrs))
+    self._base64_attrs = {}.fromkeys(map(string.lower,base64_attrs))
     self._dsml_comment = dsml_comment
     self._indent = indent
 
@@ -90,7 +85,7 @@ class DSMLWriter:
     """
     self._output_file.write('%s</dsml:directory-entries>\n' % (self._indent))
     self._output_file.write('</dsml:dsml>\n')
-    
+
   def unparse(self,dn,entry):
     return self.writeRecord(dn,entry)
 
@@ -251,8 +246,9 @@ else:
     class and override method handle() to implement something meaningful.
 
     Public class attributes:
+
     records_read
-          Counter for records processed so far
+        Counter for records processed so far
     """
 
     def __init__(
@@ -263,7 +259,6 @@ else:
       max_entries=0,
     ):
       """
-      Parameters:
       input_file
           File-object to read the DSMLv1 input from
       ignored_attr_types
@@ -276,7 +271,7 @@ else:
       """
       self._input_file = input_file
       self._max_entries = max_entries
-      self._ignored_attr_types = list_dict(map(string.lower,(ignored_attr_types or [])))
+      self._ignored_attr_types = {}.fromkeys(map(string.lower,(ignored_attr_types or [])))
       self._current_record = None,None
       self.records_read = 0
       self._parser = xml.sax.make_parser()
@@ -286,7 +281,7 @@ else:
 
     def handle(self,*args,**kwargs):
       """
-      Process a single content DSMLv1 record. This method should be
+      Process a single DSMLv1 entry record. This method should be
       implemented by applications using DSMLParser.
       """
       import pprint
@@ -298,4 +293,3 @@ else:
       Continously read and parse DSML records
       """
       self._parser.parse(self._input_file)
-
