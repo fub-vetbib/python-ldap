@@ -27,6 +27,8 @@ This module defines the following classes:
 .. py:module:: ldap.extop.dds
    :synopsis: Classes for Dynamic Entries extended operations
 
+This requires :py:mod:`pyasn1` and :py:mod:`pyasn1_modules` to be installed.
+
 .. seealso::
 
    :rfc:`2589` - Lightweight Directory Access Protocol (v3): Extensions for Dynamic Directory Services
