@@ -87,17 +87,37 @@ class SchemaElement:
 
 class ObjectClass(SchemaElement):
   """
-  ObjectClassDescription = "(" whsp
-      numericoid whsp      ; ObjectClass identifier
-      [ "NAME" qdescrs ]
-      [ "DESC" qdstring ]
-      [ "OBSOLETE" whsp ]
-      [ "SUP" oids ]       ; Superior ObjectClasses
-      [ ( "ABSTRACT" / "STRUCTURAL" / "AUXILIARY" ) whsp ]
-                           ; default structural
-      [ "MUST" oids ]      ; AttributeTypes
-      [ "MAY" oids ]       ; AttributeTypes
-  whsp ")"
+  Arguments:
+  
+  schema_element_str
+    String containing an ObjectClassDescription
+
+  Class attributes:
+
+  names
+    This list of strings contains all NAMEs of the object class
+  desc
+    This string contains description text (DESC) of the object class
+  obsolete
+    Integer flag (0 or 1) indicating whether the object class is marked
+    as OBSOLETE in the schema
+  must
+    This list of strings contains NAMEs or OIDs of all attributes
+    an entry of the object class must have
+  may
+    This list of strings contains NAMEs or OIDs of additional attributes
+    an entry of the object class may have
+  kind
+    Kind of an object class:
+    0
+      ABSTRACT
+    1
+      STRUCTURAL
+    2
+      AUXILIARY
+  sup
+    This list of strings contains NAMEs or OIDs of object classes
+    this object class is derived from
   """
   schema_attribute = 'objectClasses'
   token_defaults = {
@@ -161,28 +181,48 @@ AttributeUsage = ldap.cidict.cidict({
 
 class AttributeType(SchemaElement):
   """
-      AttributeTypeDescription = "(" whsp
-            numericoid whsp              ; AttributeType identifier
-          [ "NAME" qdescrs ]             ; name used in AttributeType
-          [ "DESC" qdstring ]            ; description
-          [ "OBSOLETE" whsp ]
-          [ "SUP" woid ]                 ; derived from this other
-                                         ; AttributeType
-          [ "EQUALITY" woid              ; Matching Rule name
-          [ "ORDERING" woid              ; Matching Rule name
-          [ "SUBSTR" woid ]              ; Matching Rule name
-          [ "SYNTAX" whsp noidlen whsp ] ; see section 4.3
-          [ "SINGLE-VALUE" whsp ]        ; default multi-valued
-          [ "COLLECTIVE" whsp ]          ; default not collective
-          [ "NO-USER-MODIFICATION" whsp ]; default user modifiable
-          [ "USAGE" whsp AttributeUsage ]; default userApplications
-          whsp ")"
+  Arguments:
+  
+  schema_element_str
+    String containing an AttributeTypeDescription
 
-      AttributeUsage =
-          "userApplications"     /
-          "directoryOperation"   /
-          "distributedOperation" / ; DSA-shared
-          "dSAOperation"          ; DSA-specific, value depends on server
+  Class attributes:
+
+  names
+    This list of strings contains all NAMEs of the attribute type
+  desc
+    This string contains description text (DESC) of the attribute type
+  obsolete
+    Integer flag (0 or 1) indicating whether the attribute type is marked
+    as OBSOLETE in the schema
+  single_value
+    Integer flag (0 or 1) indicating whether the attribute must
+    have only one value
+  syntax
+    String OID of the LDAP syntax assigned to the attribute type
+  no_user_mod
+    Integer flag (0 or 1) indicating whether the attribute is modifiable
+    by a client application
+  equality
+    String contains NAME or OID of the matching rule used for
+    checking whether attribute values are equal
+  substr
+    String contains NAME or OID of the matching rule used for
+    checking whether an attribute value contains another value
+  ordering
+    String contains NAME or OID of the matching rule used for
+    checking whether attribute values are lesser-equal than
+  usage
+    USAGE of an attribute type:
+    1
+      directoryOperation
+    2
+      distributedOperation
+    3
+      dSAOperation
+  sup
+    This list of strings contains NAMEs or OIDs of attribute types
+    this attribute type is derived from
   """
   schema_attribute = 'attributeTypes'
   token_defaults = {
