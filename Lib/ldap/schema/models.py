@@ -94,6 +94,8 @@ class ObjectClass(SchemaElement):
 
   Class attributes:
 
+  oid
+    OID assigned to the object class
   names
     This list of strings contains all NAMEs of the object class
   desc
@@ -185,6 +187,8 @@ class AttributeType(SchemaElement):
 
   Class attributes:
 
+  oid
+    OID assigned to the attribute type
   names
     This list of strings contains all NAMEs of the attribute type
   desc
@@ -196,7 +200,7 @@ class AttributeType(SchemaElement):
     Integer flag (0 or 1) indicating whether the attribute must
     have only one value
   syntax
-    String OID of the LDAP syntax assigned to the attribute type
+    String contains OID of the LDAP syntax assigned to the attribute type
   no_user_mod
     Integer flag (0 or 1) indicating whether the attribute is modifiable
     by a client application
@@ -308,10 +312,15 @@ class AttributeType(SchemaElement):
 
 class LDAPSyntax(SchemaElement):
   """
-  SyntaxDescription = "(" whsp
-      numericoid whsp
-      [ "DESC" qdstring ]
-      whsp ")"
+  SyntaxDescription
+
+  oid
+    OID assigned to the LDAP syntax
+  desc
+    This string contains description text (DESC) of the LDAP syntax
+  not_human_readable
+    Integer flag (0 or 1) indicating whether the attribute type is marked
+    as not human-readable (X-NOT-HUMAN-READABLE)  
   """
   schema_attribute = 'ldapSyntaxes'
   token_defaults = {
@@ -338,13 +347,24 @@ class LDAPSyntax(SchemaElement):
 
 class MatchingRule(SchemaElement):
   """
-  MatchingRuleDescription = "(" whsp
-      numericoid whsp  ; MatchingRule identifier
-      [ "NAME" qdescrs ]
-      [ "DESC" qdstring ]
-      [ "OBSOLETE" whsp ]
-      "SYNTAX" numericoid
-  whsp ")"
+  Arguments:
+  
+  schema_element_str
+    String containing an MatchingRuleDescription
+
+  Class attributes:
+
+  oid
+    OID assigned to the matching rule
+  names
+    This list of strings contains all NAMEs of the matching rule
+  desc
+    This string contains description text (DESC) of the matching rule
+  obsolete
+    Integer flag (0 or 1) indicating whether the matching rule is marked
+    as OBSOLETE in the schema
+  syntax
+    String contains OID of the LDAP syntax this matching rule is usable with
   """
   schema_attribute = 'matchingRules'
   token_defaults = {
@@ -376,14 +396,25 @@ class MatchingRule(SchemaElement):
 
 class MatchingRuleUse(SchemaElement):
   """
-  MatchingRuleUseDescription = "(" whsp
-     numericoid 
-     [ space "NAME" space qdescrs ]
-     [ space "DESC" space qdstring ]
-     [ space "OBSOLETE" ]
-     space "APPLIES" space oids    ;  AttributeType identifiers
-     extensions
-     whsp ")" 
+  Arguments:
+  
+  schema_element_str
+    String containing an MatchingRuleUseDescription
+
+  Class attributes:
+
+  oid
+    OID of the accompanying matching rule
+  names
+    This list of strings contains all NAMEs of the matching rule
+  desc
+    This string contains description text (DESC) of the matching rule
+  obsolete
+    Integer flag (0 or 1) indicating whether the matching rule is marked
+    as OBSOLETE in the schema
+  applies
+    This list of strings contains NAMEs or OIDs of attribute types
+    for which this matching rule is used
   """
   schema_attribute = 'matchingRuleUse'
   token_defaults = {
@@ -415,16 +446,36 @@ class MatchingRuleUse(SchemaElement):
 
 class DITContentRule(SchemaElement):
   """
-  DITContentRuleDescription = LPAREN WSP
-      numericoid                 ; object identifer
-      [ SP "NAME" SP qdescrs ]   ; short names
-      [ SP "DESC" SP qdstring ]  ; description
-      [ SP "OBSOLETE" ]          ; not active
-      [ SP "AUX" SP oids ]       ; auxiliary object classes
-      [ SP "MUST" SP oids ]      ; attribute types
-      [ SP "MAY" SP oids ]       ; attribute types
-      [ SP "NOT" SP oids ]       ; attribute types
-      extensions WSP RPAREN      ; extensions
+  Arguments:
+  
+  schema_element_str
+    String containing an DITContentRuleDescription
+
+  Class attributes:
+
+  oid
+    OID of the accompanying structural object class
+  names
+    This list of strings contains all NAMEs of the DIT content rule
+  desc
+    This string contains description text (DESC) of the DIT content rule
+  obsolete
+    Integer flag (0 or 1) indicating whether the DIT content rule is marked
+    as OBSOLETE in the schema
+  aux
+    This list of strings contains NAMEs or OIDs of all auxiliary
+    object classes usable in an entry of the object class
+  must
+    This list of strings contains NAMEs or OIDs of all attributes
+    an entry of the object class must have which may extend the
+    list of required attributes of the object classes of an entry
+  may
+    This list of strings contains NAMEs or OIDs of additional attributes
+    an entry of the object class may have which may extend the
+    list of optional attributes of the object classes of an entry
+  nots
+    This list of strings contains NAMEs or OIDs of attributes which
+    may not be present in an entry of the object class
   """
   schema_attribute = 'dITContentRules'
   token_defaults = {

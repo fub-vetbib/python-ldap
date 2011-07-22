@@ -47,17 +47,38 @@ class NameNotUnique(SubschemaError):
 
 
 class SubSchema:
+  """
+  Arguments:
+
+  sub_schema_sub_entry
+      Dictionary usually returned by LDAP search or the LDIF parser
+      containing the sub schema sub entry
+
+  check_uniqueness
+      Defines whether uniqueness of OIDs and NAME is checked.
+
+      0
+        no check
+      1
+        check but add schema description with work-around
+      2
+        check and raise exception if non-unique OID or NAME is found
+
+  Class attributes:
+
+  sed
+    Dictionary holding the subschema information as pre-parsed
+    SchemaElement objects (do not access directly!)
+  name2oid
+    Dictionary holding the mapping from NAMEs to OIDs
+    (do not access directly!)
+  non_unique_oids
+    List of OIDs used at least twice in the subschema
+  non_unique_names
+    List of NAMEs used at least twice in the subschema for the same schema element 
+  """
 
   def __init__(self,sub_schema_sub_entry,check_uniqueness=1):
-    """
-    sub_schema_sub_entry
-        Dictionary containing the sub schema sub entry
-    check_uniqueness
-        Defines whether uniqueness of OIDs and NAME is checked.
-        0 no check
-        1 check but add schema description with work-around
-        2 check and raise exception if non-unique OID or NAME is found
-    """
 
     # Initialize all dictionaries
     self.name2oid = {}
@@ -265,7 +286,7 @@ class SubSchema:
 
   def get_structural_oc(self,oc_list):
     """
-    Returns OID of structural object class in object_class_list
+    Returns OID of structural object class in oc_list
     if any is present. Returns None else.
     """
     # Get tree of all STRUCTURAL object classes
