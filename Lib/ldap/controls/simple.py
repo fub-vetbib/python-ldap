@@ -13,7 +13,9 @@ from ldap.controls import RequestControl,ResponseControl,LDAPControl,KNOWN_RESPO
 
 class ValueLessRequestControl(RequestControl):
   """
-  Base class for controls without a controlValue
+  Base class for controls without a controlValue.
+  The presence of the control in a LDAPv3 request changes the
+  server's behaviour when processing the request.
   """
 
   def __init__(self,controlType=None,criticality=False):
@@ -25,6 +27,9 @@ class ValueLessRequestControl(RequestControl):
 
 
 class ManageDSAITControl(ValueLessRequestControl):
+  """
+  Manage DSA IT Control (see RFC 3296)
+  """
 
   def __init__(self,criticality=False):
     ValueLessRequestControl.__init__(self,ldap.CONTROL_MANAGEDSAIT,criticality=False)
@@ -50,6 +55,9 @@ class OctetStringInteger(LDAPControl):
     
 
 class RelaxRulesControl(ValueLessRequestControl):
+  """
+  Relax Rules Control (see draft-zeilenga-ldap-relax)
+  """
 
   def __init__(self,criticality=False):
     ValueLessRequestControl.__init__(self,ldap.CONTROL_RELAX,criticality=False)
@@ -59,10 +67,12 @@ KNOWN_RESPONSE_CONTROLS[ldap.CONTROL_RELAX] = RelaxRulesControl
 
 class BooleanControl(LDAPControl):
   """
-  Base class for simple request controls with booelan control value
+  Base class for simple request controls with boolean control value.
 
-  In this base class controlValue has to be passed as
-  boolean type (True/False or 1/0).
+  Constructor argument and class attribute:
+
+  booleanValue
+    Boolean (True/False or 1/0) which is the boolean controlValue.
   """
   boolean2ber = { 1:'\x01\x01\xFF', 0:'\x01\x01\x00' }
   ber2boolean = { '\x01\x01\xFF':1, '\x01\x01\x00':0 }
@@ -82,6 +92,10 @@ class BooleanControl(LDAPControl):
 class ProxyAuthzControl(RequestControl):
   """
   Proxy Authorization Control (see RFC 4370)
+  
+  authzId
+    string containing the authorization ID indicating the identity
+    on behalf which the server should process the request
   """
 
   def __init__(self,criticality,authzId):

@@ -25,6 +25,15 @@ SESSION_TRACKING_FORMAT_OID_USERNAME = SESSION_TRACKING_CONTROL_OID+".3"
 class SessionTrackingControl(RequestControl):
   """
   Class for Session Tracking Control (see draft-wahl-ldap-session)
+
+  sessionSourceIp
+    IP address of the request source as string
+  sessionSourceName
+    Name of the request source as string
+  formatOID
+    OID as string specifying the format
+  sessionTrackingIdentifier
+    String containing a specific tracking ID
   """
 
   class SessionIdentifierControlValue(univ.Sequence):

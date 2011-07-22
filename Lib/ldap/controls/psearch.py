@@ -38,6 +38,18 @@ CHANGE_TYPES_STR = dict([(v,k) for k,v in CHANGE_TYPES_INT.items()])
 
 
 class PersistentSearchControl(RequestControl):
+  """
+  Implements the request control for persistent search.
+
+  changeTypes
+    List of strings specifiying the types of changes returned by the server.
+    Setting to None requests all changes.
+  changesOnly
+    Boolean which indicates whether only changes are returned by the server.
+  returnECs
+    Boolean which indicates whether the server should return an
+    Entry Change Notication response control
+  """
 
   class PersistentSearchControlValue(univ.Sequence):
     componentType = namedtype.NamedTypes(
@@ -86,6 +98,19 @@ class EntryChangeNotificationValue(univ.Sequence):
 
 
 class EntryChangeNotificationControl(ResponseControl):
+  """
+  Implements the response control for persistent search.
+
+  Class attributes with values extracted from the response control:
+
+  changeType
+    String indicating the type of change causing this result to be
+    returned by the server
+  previousDN
+    Old DN of the entry in case of a modrdn change
+  changeNumber
+    A change serial number returned by the server (optional).
+  """
 
   controlType = "2.16.840.1.113730.3.4.7"
 
