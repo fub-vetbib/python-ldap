@@ -41,21 +41,78 @@ Sub-modules
 ===========
 
 Various sub-modules implement specific LDAPv3 extended controls. The classes
-therein are derived from the base-classes :py:class:`ldap.controls.RequestControl`
-and :py:class:`ldap.controls.ResponseControl`.
+therein are derived from the base-classes :py:class:`ldap.controls.RequestControl`,
+:py:class:`ldap.controls.ResponseControl` or :py:class:`ldap.controls.LDAPControl`.
 
 Some of them need :py:mod:`pyasn1` and :py:mod:`pyasn1_modules` to be installed.
 
 
-.. automodule:: ldap.controls.psearch
-   :members:
+:py:mod:`ldap.controls.simple` Very simple controls
+===================================================
 
 .. automodule:: ldap.controls.simple
    :members:
 
-.. automodule:: ldap.controls.libldap
-   :members:
+
+:py:mod:`ldap.controls.sessiontrack` Session tracking control
+=============================================================
 
 .. automodule:: ldap.controls.sessiontrack
+   :members:
+
+
+:py:mod:`ldap.controls.libldap` Various controls implemented in OpenLDAP libs
+=============================================================================
+
+.. py:module:: ldap.controls.libldap
+   :synopsis: request and response controls implemented by OpenLDAP libs
+
+This module wraps C functions in OpenLDAP client libs which implement various
+request and response controls into Python classes.
+
+
+.. autoclass:: ldap.controls.libldap.AssertionControl
+   :members:
+
+.. seealso::
+
+   :rfc:`4528` - Lightweight Directory Access Protocol (LDAP) Assertion Control
+
+
+.. autoclass:: ldap.controls.libldap.MatchedValuesControl
+   :members:
+
+.. seealso::
+
+   :rfc:`3876` - Returning Matched Values with the Lightweight Directory Access Protocol version 3 (LDAPv3)
+
+
+.. autoclass:: ldap.controls.libldap.SimplePagedResultsControl 
+   :members:
+
+.. seealso::
+
+   :rfc:`2696` - LDAP Control Extension for Simple Paged Results Manipulation
+
+
+:py:mod:`ldap.controls.psearch` LDAP Persistent Search
+======================================================
+
+.. py:module:: ldap.controls.psearch
+   :synopsis: request and response controls for LDAP persistent
+              search
+
+This module implements request and response controls for LDAP persistent
+search.
+
+.. seealso::
+
+   http://tools.ietf.org/html/draft-ietf-ldapext-psearch
+
+
+.. autoclass:: ldap.controls.psearch.PersistentSearchControl
+   :members:
+
+.. autoclass:: ldap.controls.psearch.EntryChangeNotificationControl
    :members:
 
