@@ -109,12 +109,9 @@ class ObjectClass(SchemaElement):
     an entry of the object class may have
   kind
     Kind of an object class:
-    0
-      ABSTRACT
-    1
-      STRUCTURAL
-    2
-      AUXILIARY
+    0 = ABSTRACT,
+    1 = STRUCTURAL,
+    2 = AUXILIARY
   sup
     This list of strings contains NAMEs or OIDs of object classes
     this object class is derived from
@@ -214,12 +211,9 @@ class AttributeType(SchemaElement):
     checking whether attribute values are lesser-equal than
   usage
     USAGE of an attribute type:
-    1
-      directoryOperation
-    2
-      distributedOperation
-    3
-      dSAOperation
+    1 = directoryOperation,
+    2 = distributedOperation,
+    3 = dSAOperation
   sup
     This list of strings contains NAMEs or OIDs of attribute types
     this attribute type is derived from
