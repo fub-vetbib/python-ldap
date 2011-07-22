@@ -17,7 +17,10 @@
    For LDAPv3 DN syntax see:
 
    :rfc:`4514` - Lightweight Directory Access Protocol (LDAP): String Representation of Distinguished Names
-   For LDAPv2 DN syntax (obsoleted by LDAPv3) see:
+
+.. seealso::
+
+   For deprecated LDAPv2 DN syntax (obsoleted by LDAPv3) see:
 
    :rfc:`1779` - A String Representation of Distinguished Names
 
