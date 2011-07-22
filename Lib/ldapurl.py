@@ -203,7 +203,7 @@ class LDAPUrl:
         integer search scope for ldap-module
     filterstr
         String representation of LDAP Search Filters
-        (see RFC 2254)
+        (see RFC 4515)
     extensions
         Dictionary used as extensions store
     who

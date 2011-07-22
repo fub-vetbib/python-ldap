@@ -501,7 +501,7 @@ class SimpleLDAPObject:
         (to search the object and all its descendants).
 
         filter is a string representation of the filter to
-        apply in the search (see RFC 2254).
+        apply in the search (see RFC 4515).
 
         Each result tuple is of the form (dn,entry), where dn is a
         string containing the DN (distinguished name) of the entry, and

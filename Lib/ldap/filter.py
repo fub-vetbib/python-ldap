@@ -18,7 +18,7 @@ def escape_filter_chars(assertion_value,escape_mode=0):
   by quoted notation.
   
   escape_mode
-      If 0 only special chars mentioned in RFC 2254 are escaped.
+      If 0 only special chars mentioned in RFC 4515 are escaped.
       If 1 all NON-ASCII chars are escaped.
       If 2 all chars are escaped.
   """
