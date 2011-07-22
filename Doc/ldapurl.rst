@@ -68,8 +68,6 @@ A :py:class:`LDAPUrl` object represents a complete LDAP URL.
 .. autoclass:: ldapurl.LDAPUrl 
 
 
-.. _ldapurl-ldapurlextension:
-
 LDAP URL extensions
 ^^^^^^^^^^^^^^^^^^^
 
@@ -77,9 +75,11 @@ A :py:class:`LDAPUrlExtension` object represents a single LDAP URL extension
 whereas :py:class:`LDAPUrlExtensions` represents a list of LDAP URL extensions.
 
 
+.. _ldapurl-ldapurlextension:
+
 .. autoclass:: ldapurl.LDAPUrlExtension
 
-.. _ldapurl-ldapurlextension:
+.. _ldapurl-ldapurlextensions:
 
 .. autoclass:: ldapurl.LDAPUrlExtensions
 

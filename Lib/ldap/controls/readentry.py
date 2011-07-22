@@ -18,7 +18,12 @@ from pyasn1_modules.rfc2251 import AttributeDescriptionList,SearchResultEntry
 
 class ReadEntryControl(LDAPControl):
   """
-  Base class for control described in RFC 4527
+  Base class for read entry control described in RFC 4527
+
+  criticality
+      sets the criticality of the control (boolean)
+  attrList
+      list of attribute type names requested
   """
 
   def __init__(self,criticality=False,attrList=None):
@@ -39,12 +44,28 @@ class ReadEntryControl(LDAPControl):
 
 
 class PreReadControl(ReadEntryControl):
+  """
+  Class for pre-read control described in RFC 4527
+
+  criticality
+      sets the criticality of the control (boolean)
+  attrList
+      list of attribute type names requested
+  """
   controlType = ldap.CONTROL_PRE_READ
 
 KNOWN_RESPONSE_CONTROLS[PreReadControl.controlType] = PreReadControl
 
 
 class PostReadControl(ReadEntryControl):
+  """
+  Class for post-read control described in RFC 4527
+
+  criticality
+      sets the criticality of the control (boolean)
+  attrList
+      list of attribute type names requested
+  """
   controlType = ldap.CONTROL_POST_READ
 
 KNOWN_RESPONSE_CONTROLS[PostReadControl.controlType] = PostReadControl

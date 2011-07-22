@@ -40,6 +40,14 @@ import _ldap,ldap
 class RequestControl:
   """
   Base class for all request controls
+  
+  controlType
+      OID as string of the LDAPv3 extended request control
+  criticality
+      sets the criticality of the control (boolean)
+  encodedControlValue
+      control value of the LDAPv3 extended request control
+      (here it is the BER-encoded ASN.1 control value)
   """
 
   def __init__(self,controlType=None,criticality=False,encodedControlValue=None):
@@ -48,12 +56,21 @@ class RequestControl:
     self.encodedControlValue = encodedControlValue
 
   def encodeControlValue(self):
+    """
+    sets class attribute encodedControlValue to the BER-encoded ASN.1
+    control value composed by class attributes set before
+    """
     return self.encodedControlValue
 
 
 class ResponseControl:
   """
   Base class for all response controls
+
+  controlType
+      OID as string of the LDAPv3 extended response control
+  criticality
+      sets the criticality of the received control (boolean)
   """
 
   def __init__(self,controlType=None,criticality=False):
@@ -61,10 +78,18 @@ class ResponseControl:
     self.criticality = criticality
 
   def decodeControlValue(self,encodedControlValue):
+    """
+    decodes the BER-encoded ASN.1 control value and sets the appropriate
+    class attributes
+    """
     self.encodedControlValue = encodedControlValue
 
 
 class LDAPControl(RequestControl,ResponseControl):
+  """
+  Base class for combined request/response controls mainly
+  for backward-compability to python-ldap 2.3.x
+  """
 
   def __init__(self,controlType=None,criticality=False,controlValue=None,encodedControlValue=None):
     self.controlType = controlType
@@ -77,6 +102,9 @@ def RequestControlTuples(ldapControls):
   """
   Return list of readily encoded 3-tuples which can be directly
   passed to C module _ldap
+
+  ldapControls
+      sequence-type of RequestControl objects
   """
   if ldapControls is None:
     return None
@@ -90,7 +118,15 @@ def RequestControlTuples(ldapControls):
 
 def DecodeControlTuples(ldapControlTuples,knownLDAPControls=None):
   """
-  Return list of readily decoded ResponseControl objects
+  Returns list of readily decoded ResponseControl objects
+
+  ldapControlTuples
+      Sequence-type of 3-tuples returned by _ldap.result4() containing
+      the encoded ASN.1 control values of response controls.
+  knownLDAPControls
+      Dictionary mapping extended control's OID to ResponseControl class
+      of response controls known by the application. If None
+      ldap.controls.KNOWN_RESPONSE_CONTROLS is used here.
   """
   knownLDAPControls = knownLDAPControls or KNOWN_RESPONSE_CONTROLS
   result = []
