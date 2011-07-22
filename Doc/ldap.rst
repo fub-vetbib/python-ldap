@@ -693,6 +693,28 @@ and wait for and return with the server's result, or with
 
    *serverctrls* and *clientctrls* like described above.
 
+
+.. py:method:: extop(extreq[,serverctrls=None[,clientctrls=None]]]) -> int
+
+.. py:method:: extop_s(extreq[,serverctrls=None[,clientctrls=None[,extop_resp_class=None]]]]) -> (respoid,respvalue)
+
+   Performs an LDAP extended operation. The asynchronous
+   form returns the message id of the initiated request, and the
+   result can be obtained from a subsequent call to :py:meth:`extop_result()`.
+
+   The *extreq* is an instance of class :py:class:`ldap.extop.ExtendedRequest`
+   containing the parameters for the extended operation request.
+   
+   If argument *extop_resp_classÜ is set to a sub-class of
+   :py:class:`ldap.extop.ExtendedResponse` this class is used to return an
+   object of this class instead of a raw BER value in respvalue.
+
+.. py:method:: extop_result(self,msgid=ldap.RES_ANY,all=1,timeout=None) -> (respoid,respvalue)
+
+   Wrapper method around :py:meth:`result4()` just for retrieving
+   the result of an extended operation sent before.
+
+
 .. py:method:: LDAPObject.modify(dn, modlist) -> int
 
 .. py:method:: LDAPObject.modify_s(dn, modlist) -> None
@@ -773,7 +795,7 @@ and wait for and return with the server's result, or with
 
    *serverctrls* and *clientctrls* like described above.
 
-.. py:method:: LDAPObject.result([msgid=RES_ANY [, all=1 [, timeout=-1]]]) -> 2-tuple
+.. py:method:: LDAPObject.result([msgid=RES_ANY [, all=1 [, timeout=None]]]) -> 2-tuple
 
    This method is used to wait for and return the result of an operation
    previously initiated by one of the LDAP *asynchronous* operations
@@ -835,7 +857,7 @@ and wait for and return with the server's result, or with
 
 
 
-.. py:method:: LDAPObject.result2([msgid=RES_ANY [, all=1 [, timeout=-1]]]) -> 3-tuple
+.. py:method:: LDAPObject.result2([msgid=RES_ANY [, all=1 [, timeout=None]]]) -> 3-tuple
 
    This method behaves almost exactly like :py:meth:`result()`. But
    it returns a 3-tuple also containing the message id of the
@@ -845,11 +867,33 @@ and wait for and return with the server's result, or with
    threads which invoked a particular LDAP operation.
 
 
-.. py:method:: LDAPObject.result3([msgid=RES_ANY [, all=1 [, timeout=-1]]]) -> 4-tuple
+.. py:method:: LDAPObject.result3([msgid=RES_ANY [, all=1 [, timeout=None]]]) -> 4-tuple
 
    This method behaves almost exactly like :py:meth:`result2()`. But it
    returns an extra item in the tuple, the decoded server controls.
 
+.. py:method:: LDAPObject.result4([msgid=RES_ANY [, all=1 [, timeout=None [, add_ctrls=0 [, add_intermediates=0 [, add_extop=0 [, resp_ctrl_classes=None]]]]]]]) -> 6-tuple
+
+   This method behaves almost exactly like :py:meth:`result3()`. But it
+   returns an extra items in the tuple, the decoded results of an extended response.
+
+   The additional arguments are:
+
+   *add_ctrls* (integer flag) specifies whether response controls are returned.
+   
+   add_intermediates (integer flag) specifies whether response controls of
+   intermediate search results are returned.
+
+   *add_extop* (integer flag) specifies whether the response of an
+   extended operation is returned. If using extended operations you should
+   consider using the method :py:meth:`extop_result()` or
+   :py:meth:`extop_s()` instead.
+
+   *resp_ctrl_classes* is a dictionary mapping the OID of a response controls to a
+   :py:class:`ldap.controls.ResponseControl` class of response controls known by the
+   application. So the response control value will be automatically decoded.
+   If :py:const:`None` the global dictionary :py:data:`ldap.controls.KNOWN_RESPONSE_CONTROLS`
+   is used instead.
 
 .. py:method:: LDAPObject.search(base, scope [,filterstr='(objectClass=*)' [, attrlist=None [, attrsonly=0]]]) ->int
 
