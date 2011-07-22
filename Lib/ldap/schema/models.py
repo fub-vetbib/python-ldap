@@ -34,6 +34,19 @@ NOT_HUMAN_READABLE_LDAP_SYNTAXES = {
 class SchemaElement:
   """
   Base class for all schema element classes. Not used directly!
+
+  Arguments:
+  
+  schema_element_str
+    String which contains the schema element description to be parsed.
+
+  Class attributes:
+
+  schema_attribute
+    LDAP attribute type containing a certain schema element description
+  token_defaults
+    Dictionary internally used by the schema element parser
+    containing the defaults for certain schema description key-words
   """
   token_defaults = {
     'DESC':(None,),
@@ -519,14 +532,27 @@ class DITContentRule(SchemaElement):
 
 class DITStructureRule(SchemaElement):
   """
-  DITStructureRuleDescription = LPAREN WSP
-      ruleid                     ; rule identifier
-      [ SP "NAME" SP qdescrs ]   ; short names
-      [ SP "DESC" SP qdstring ]  ; description
-      [ SP "OBSOLETE" ]          ; not active
-      SP "FORM" SP oid           ; NameForm
-      [ SP "SUP" ruleids ]       ; superior rules
-      extensions WSP RPAREN      ; extensions
+  Arguments:
+  
+  schema_element_str
+    String containing an DITStructureRuleDescription
+
+  Class attributes:
+
+  ruleid
+    rule ID of the DIT structure rule (only locally unique)
+  names
+    This list of strings contains all NAMEs of the DIT structure rule
+  desc
+    This string contains description text (DESC) of the DIT structure rule
+  obsolete
+    Integer flag (0 or 1) indicating whether the DIT content rule is marked
+    as OBSOLETE in the schema
+  form
+    List of strings with NAMEs or OIDs of associated name forms
+  sup
+    List of strings with NAMEs or OIDs of allowed structural object classes
+    of superior entries in the DIT
   """
   schema_attribute = 'dITStructureRules'
 
@@ -569,15 +595,33 @@ class DITStructureRule(SchemaElement):
 
 class NameForm(SchemaElement):
   """
-  NameFormDescription = LPAREN WSP
-      numericoid                 ; object identifer
-      [ SP "NAME" SP qdescrs ]   ; short names
-      [ SP "DESC" SP qdstring ]  ; description
-      [ SP "OBSOLETE" ]          ; not active
-      SP "OC" SP oid             ; structural object class
-      SP "MUST" SP oids          ; attribute types
-      [ SP "MAY" SP oids ]       ; attribute types
-      extensions WSP RPAREN      ; extensions
+  Arguments:
+  
+  schema_element_str
+    String containing an NameFormDescription
+
+  Class attributes:
+
+  oid
+    OID of the name form
+  names
+    This list of strings contains all NAMEs of the name form
+  desc
+    This string contains description text (DESC) of the name form
+  obsolete
+    Integer flag (0 or 1) indicating whether the name form is marked
+    as OBSOLETE in the schema
+  form
+    List of strings with NAMEs or OIDs of associated name forms
+  oc
+    String with NAME or OID of structural object classes this name form
+    is usable with
+  must
+    This list of strings contains NAMEs or OIDs of all attributes
+    an RDN must contain
+  may
+    This list of strings contains NAMEs or OIDs of additional attributes
+    an RDN may contain
   """
   schema_attribute = 'nameForms'
   token_defaults = {
