@@ -1,4 +1,16 @@
 ----------------------------------------------------------------
+Released 2.4.3 2011-08-xx
+
+Changes since 2.4.2:
+
+Lib/
+* Mostly corrected/updated __doc__ strings
+
+Doc:
+* Corrected rst files
+* Added missing modules, functions, classes, parameters...
+
+----------------------------------------------------------------
 Released 2.4.2 2011-07-21
 
 Changes since 2.4.1:
