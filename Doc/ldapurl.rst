@@ -1,8 +1,8 @@
 .. % $Id$
 
-################################
+###################################
 :py:mod:`ldapurl` LDAP URL handling
-################################
+###################################
 
 .. py:module:: ldapurl
    :synopsis: Parses and generates LDAP URLs
@@ -21,26 +21,26 @@ module has been solely tested on Python 2.x and above.
 
 The :mod:`ldapurl` module exports the following constants:
 
-.. data:: SEARCH_SCOPE
+.. py:data:: SEARCH_SCOPE
 
    This dictionary maps a search scope string identifier  to the corresponding
    integer value used with search operations  in :mod:`ldap`.
 
 
-.. data:: SEARCH_SCOPE_STR
+.. py:data:: SEARCH_SCOPE_STR
 
    This dictionary is the inverse to :const:`SEARCH_SCOPE`. It  maps a search scope
    integer value to the corresponding string identifier  used in a LDAP URL string
    representation.
 
 
-.. data:: LDAP_SCOPE_BASE
+.. py:data:: LDAP_SCOPE_BASE
 
 
-.. data:: LDAP_SCOPE_ONELEVEL
+.. py:data:: LDAP_SCOPE_ONELEVEL
 
 
-.. data:: LDAP_SCOPE_SUBTREE
+.. py:data:: LDAP_SCOPE_SUBTREE
 
 
 
@@ -49,15 +49,8 @@ The :mod:`ldapurl` module exports the following constants:
 LDAPUrl Objects
 ^^^^^^^^^^^^^^^^
 
-A :class:`LDAPUrl` object represents a complete LDAP URL.
+A :py:class:`LDAPUrl` object represents a complete LDAP URL.
 
-All class methods:
-
-Class attributes:
-
-Instance attributes:
-
-.. Here the actual docstring could be used provided it is fixed according rst rules
 .. autoclass:: ldapurl.LDAPUrl 
 
 
@@ -66,15 +59,8 @@ Instance attributes:
 LDAPUrlExtension Objects
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-A :class:`LDAPUrlExtension` object represents a single LDAP URL extension.
+A :py:class:`LDAPUrlExtension` object represents a single LDAP URL extension.
 
-All class methods:
-
-Class attributes:
-
-Instance attributes:
-
-.. Here the actual docstring could be used provided it is fixed according rst rules
 .. autoclass:: ldapurl.LDAPUrlExtension
 
 

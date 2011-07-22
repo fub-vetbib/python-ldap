@@ -27,9 +27,10 @@ Contents
    ldap-modlist.rst
    ldap-resiter.rst
    ldap-schema.rst
-   dsml.rst
    ldif.rst
    ldapurl.rst
+   dsml.rst
+
 
 ******************
 Indices and tables
