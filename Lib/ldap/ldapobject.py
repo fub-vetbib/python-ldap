@@ -293,7 +293,7 @@ class SimpleLDAPObject:
         (respoid,respvalue)
         Performs an LDAP extended operation. The asynchronous
         form returns the message id of the initiated request, and the
-        result can be obtained from a subsequent call to result3().
+        result can be obtained from a subsequent call to extop_result().
         The extreq is an instance of class ldap.extop.ExtendedRequest.
 
         If argument extop_resp_class is set to a sub-class of
