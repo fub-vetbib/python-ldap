@@ -357,7 +357,16 @@ class LDAPUrl:
     return ldap_url
   
   def htmlHREF(self,urlPrefix='',hrefText=None,hrefTarget=None):
-    """Complete """
+    """
+    Returns a string with HTML link for this LDAP URL.
+    
+    urlPrefix
+        Prefix before LDAP URL (e.g. for addressing another web-based client)
+    hrefText
+        link text/description
+    hrefTarget
+        string added as link target attribute
+    """
     assert type(urlPrefix)==StringType, "urlPrefix must be StringType"
     if hrefText is None:
       hrefText = self.unparse()
