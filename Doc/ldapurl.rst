@@ -19,6 +19,9 @@ module has been solely tested on Python 2.x and above.
    :rfc:`4516` - The LDAP URL Format
 
 
+Constants
+=========
+
 The :mod:`ldapurl` module exports the following constants:
 
 .. py:data:: SEARCH_SCOPE
@@ -43,11 +46,22 @@ The :mod:`ldapurl` module exports the following constants:
 .. py:data:: LDAP_SCOPE_SUBTREE
 
 
+Functions
+=========
+
+.. autofunction:: ldapurl.isLDAPUrl
+
+
+.. autofunction:: ldapurl.ldapUrlEscape
+
+
+Classes
+=======
 
 .. _ldapurl-ldapurl:
 
-LDAPUrl Objects
-^^^^^^^^^^^^^^^^
+LDAP URLs
+^^^^^^^^^
 
 A :py:class:`LDAPUrl` object represents a complete LDAP URL.
 
@@ -56,18 +70,24 @@ A :py:class:`LDAPUrl` object represents a complete LDAP URL.
 
 .. _ldapurl-ldapurlextension:
 
-LDAPUrlExtension Objects
-^^^^^^^^^^^^^^^^^^^^^^^^
+LDAP URL extensions
+^^^^^^^^^^^^^^^^^^^
 
-A :py:class:`LDAPUrlExtension` object represents a single LDAP URL extension.
+A :py:class:`LDAPUrlExtension` object represents a single LDAP URL extension
+whereas :py:class:`LDAPUrlExtensions` represents a list of LDAP URL extensions.
+
 
 .. autoclass:: ldapurl.LDAPUrlExtension
+
+.. _ldapurl-ldapurlextension:
+
+.. autoclass:: ldapurl.LDAPUrlExtensions
 
 
 .. _ldapurl-example:
 
 Example
-^^^^^^^^
+^^^^^^^
 
 Important security advice:
 For security reasons you shouldn't specify passwords in LDAP URLs
