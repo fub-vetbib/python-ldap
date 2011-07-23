@@ -66,6 +66,10 @@ RFC or Internet-Draft is very helpful to understand the API.
 :py:mod:`ldap.controls.simple` Very simple controls
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+.. py:module:: ldap.controls.simple
+   :synopsis: simple request and response controls implemented in pure Python
+
+
 .. autoclass:: ldap.controls.simple.ValueLessRequestControl
    :members:
 
@@ -147,8 +151,7 @@ request and response controls into Python classes.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. py:module:: ldap.controls.psearch
-   :synopsis: request and response controls for LDAP persistent
-              search
+   :synopsis: request and response controls for LDAP persistent search
 
 This module implements request and response controls for LDAP persistent
 search.
@@ -167,6 +170,9 @@ search.
 
 :py:mod:`ldap.controls.sessiontrack` Session tracking control
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. py:module:: ldap.controls.sessiontrack
+   :synopsis: request control for session tracking
 
 .. seealso::
 
