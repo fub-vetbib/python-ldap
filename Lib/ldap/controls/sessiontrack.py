@@ -24,7 +24,10 @@ SESSION_TRACKING_FORMAT_OID_USERNAME = SESSION_TRACKING_CONTROL_OID+".3"
 
 class SessionTrackingControl(RequestControl):
   """
-  Class for Session Tracking Control (see draft-wahl-ldap-session)
+  Class for Session Tracking Control
+
+  Because criticality MUST be false for this control it cannot be set
+  from the application.
 
   sessionSourceIp
     IP address of the request source as string

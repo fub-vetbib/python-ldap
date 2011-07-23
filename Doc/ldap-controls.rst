@@ -20,7 +20,7 @@ Variables
    by :py:func:`DecodeControlTuples` to automatically decode control values.
    Calling application can also register their custom :py:class:`ResponseControl`
    classes in this dictionary possibly overriding pre-registered classes.
-   
+
 
 Classes
 =======
@@ -56,25 +56,61 @@ Various sub-modules implement specific LDAPv3 extended controls. The classes
 therein are derived from the base-classes :py:class:`ldap.controls.RequestControl`,
 :py:class:`ldap.controls.ResponseControl` or :py:class:`ldap.controls.LDAPControl`.
 
-Some of them require :py:mod:`pyasn1` and :py:mod:`pyasn1_modules` to be installed.
+Some of them require :py:mod:`pyasn1` and :py:mod:`pyasn1_modules` to be installed:
+
+Usually the names of the method arguments and the class attributes match
+the ASN.1 identifiers used in the specification. So looking at the referenced
+RFC or Internet-Draft is very helpful to understand the API.
 
 
 :py:mod:`ldap.controls.simple` Very simple controls
-===================================================
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. automodule:: ldap.controls.simple
+.. autoclass:: ldap.controls.simple.ValueLessRequestControl
    :members:
 
-
-:py:mod:`ldap.controls.sessiontrack` Session tracking control
-=============================================================
-
-.. automodule:: ldap.controls.sessiontrack
+.. autoclass:: ldap.controls.simple.OctetStringInteger
    :members:
+
+.. autoclass:: ldap.controls.simple.BooleanControl
+   :members:
+
+.. autoclass:: ldap.controls.simple.ManageDSAITControl
+   :members:
+
+   .. seealso::
+
+      :rfc:`3296` - Named Subordinate References in Lightweight Directory Access Protocol (LDAP) Directories
+
+.. autoclass:: ldap.controls.simple.RelaxRulesControl
+   :members:
+
+   .. seealso::
+
+      http://tools.ietf.org/draft/draft-zeilenga-ldap-relax/
+
+.. autoclass:: ldap.controls.simple.ProxyAuthzControl
+   :members:
+
+   .. seealso::
+
+      :rfc:`4370` - Lightweight Directory Access Protocol (LDAP): Proxied Authorization Control
+
+.. autoclass:: ldap.controls.simple.AuthorizationIdentityControl
+   :members:
+
+   .. seealso::
+
+      :rfc:`3829` - Lightweight Directory Access Protocol (LDAP): Authorization Identity Request and Response Controls
+
+.. autoclass:: ldap.controls.simple.GetEffectiveRightsControl
+   :members:
+
 
 
 :py:mod:`ldap.controls.libldap` Various controls implemented in OpenLDAP libs
-=============================================================================
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 
 .. py:module:: ldap.controls.libldap
    :synopsis: request and response controls implemented by OpenLDAP libs
@@ -86,29 +122,29 @@ request and response controls into Python classes.
 .. autoclass:: ldap.controls.libldap.AssertionControl
    :members:
 
-.. seealso::
+   .. seealso::
 
-   :rfc:`4528` - Lightweight Directory Access Protocol (LDAP) Assertion Control
+      :rfc:`4528` - Lightweight Directory Access Protocol (LDAP) Assertion Control
 
 
 .. autoclass:: ldap.controls.libldap.MatchedValuesControl
    :members:
 
-.. seealso::
+   .. seealso::
 
-   :rfc:`3876` - Returning Matched Values with the Lightweight Directory Access Protocol version 3 (LDAPv3)
+      :rfc:`3876` - Returning Matched Values with the Lightweight Directory Access Protocol version 3 (LDAPv3)
 
 
-.. autoclass:: ldap.controls.libldap.SimplePagedResultsControl 
+.. autoclass:: ldap.controls.libldap.SimplePagedResultsControl
    :members:
 
-.. seealso::
+   .. seealso::
 
-   :rfc:`2696` - LDAP Control Extension for Simple Paged Results Manipulation
+      :rfc:`2696` - LDAP Control Extension for Simple Paged Results Manipulation
 
 
 :py:mod:`ldap.controls.psearch` LDAP Persistent Search
-======================================================
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. py:module:: ldap.controls.psearch
    :synopsis: request and response controls for LDAP persistent
@@ -126,5 +162,17 @@ search.
    :members:
 
 .. autoclass:: ldap.controls.psearch.EntryChangeNotificationControl
+   :members:
+
+
+:py:mod:`ldap.controls.sessiontrack` Session tracking control
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. seealso::
+
+   http://tools.ietf.org/html/draft-wahl-ldap-session
+
+
+.. autoclass:: ldap.controls.sessiontrack.SessionTrackingControl
    :members:
 

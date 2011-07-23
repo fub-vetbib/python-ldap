@@ -14,8 +14,13 @@ from ldap.controls import RequestControl,ResponseControl,LDAPControl,KNOWN_RESPO
 class ValueLessRequestControl(RequestControl):
   """
   Base class for controls without a controlValue.
-  The presence of the control in a LDAPv3 request changes the
-  server's behaviour when processing the request.
+  The presence of the control in a LDAPv3 request changes the server's
+  behaviour when processing the request simply based on the controlType.
+
+  controlType
+    OID of the request control
+  criticality
+    criticality request control
   """
 
   def __init__(self,controlType=None,criticality=False):
@@ -26,20 +31,12 @@ class ValueLessRequestControl(RequestControl):
     return None
 
 
-class ManageDSAITControl(ValueLessRequestControl):
-  """
-  Manage DSA IT Control (see RFC 3296)
-  """
-
-  def __init__(self,criticality=False):
-    ValueLessRequestControl.__init__(self,ldap.CONTROL_MANAGEDSAIT,criticality=False)
-
-KNOWN_RESPONSE_CONTROLS[ldap.CONTROL_MANAGEDSAIT] = ManageDSAITControl
-
-
 class OctetStringInteger(LDAPControl):
   """
   Base class with controlValue being unsigend integer values
+  
+  integerValue
+    Integer to be sent as OctetString
   """
 
   def __init__(self,controlType=None,criticality=False,integerValue=None):
@@ -53,17 +50,6 @@ class OctetStringInteger(LDAPControl):
   def decodeControlValue(self,encodedControlValue):
     self.integerValue = self. struct.unpack('!Q',encodedControlValue)[0]
     
-
-class RelaxRulesControl(ValueLessRequestControl):
-  """
-  Relax Rules Control (see draft-zeilenga-ldap-relax)
-  """
-
-  def __init__(self,criticality=False):
-    ValueLessRequestControl.__init__(self,ldap.CONTROL_RELAX,criticality=False)
-
-KNOWN_RESPONSE_CONTROLS[ldap.CONTROL_RELAX] = RelaxRulesControl
-
 
 class BooleanControl(LDAPControl):
   """
@@ -89,9 +75,31 @@ class BooleanControl(LDAPControl):
     self.booleanValue = self.ber2boolean[encodedControlValue]
 
 
+class ManageDSAITControl(ValueLessRequestControl):
+  """
+  Manage DSA IT Control
+  """
+
+  def __init__(self,criticality=False):
+    ValueLessRequestControl.__init__(self,ldap.CONTROL_MANAGEDSAIT,criticality=False)
+
+KNOWN_RESPONSE_CONTROLS[ldap.CONTROL_MANAGEDSAIT] = ManageDSAITControl
+
+
+class RelaxRulesControl(ValueLessRequestControl):
+  """
+  Relax Rules Control
+  """
+
+  def __init__(self,criticality=False):
+    ValueLessRequestControl.__init__(self,ldap.CONTROL_RELAX,criticality=False)
+
+KNOWN_RESPONSE_CONTROLS[ldap.CONTROL_RELAX] = RelaxRulesControl
+
+
 class ProxyAuthzControl(RequestControl):
   """
-  Proxy Authorization Control (see RFC 4370)
+  Proxy Authorization Control
   
   authzId
     string containing the authorization ID indicating the identity
@@ -104,7 +112,12 @@ class ProxyAuthzControl(RequestControl):
 
 class AuthorizationIdentityControl(ValueLessRequestControl,ResponseControl):
   """
-  Authorization Identity Request and Response Controls (RFC 3829)
+  Authorization Identity Request and Response Controls
+  
+  Class attributes:
+  
+  authzId
+    decoded authorization identity
   """
   controlType = '2.16.840.1.113730.3.4.16'
 
