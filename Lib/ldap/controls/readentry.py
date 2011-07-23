@@ -20,8 +20,6 @@ class ReadEntryControl(LDAPControl):
   """
   Base class for read entry control described in RFC 4527
 
-  criticality
-      sets the criticality of the control (boolean)
   attrList
       list of attribute type names requested
   """
@@ -47,8 +45,6 @@ class PreReadControl(ReadEntryControl):
   """
   Class for pre-read control described in RFC 4527
 
-  criticality
-      sets the criticality of the control (boolean)
   attrList
       list of attribute type names requested
   """
@@ -61,8 +57,6 @@ class PostReadControl(ReadEntryControl):
   """
   Class for post-read control described in RFC 4527
 
-  criticality
-      sets the criticality of the control (boolean)
   attrList
       list of attribute type names requested
   """
