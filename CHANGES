@@ -1,5 +1,5 @@
 ----------------------------------------------------------------
-Released 2.4.3 2011-08-xx
+Released 2.4.3 2011-07-23
 
 Changes since 2.4.2:
 
@@ -8,7 +8,8 @@ Lib/
 
 Doc:
 * Corrected rst files
-* Added missing modules, functions, classes, parameters...
+* Added missing modules, functions, classes, methods, parameters etc.
+  at least as auto-generated doc
 
 ----------------------------------------------------------------
 Released 2.4.2 2011-07-21
