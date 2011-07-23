@@ -15,6 +15,10 @@ from ldap.controls import RequestControl,LDAPControl,KNOWN_RESPONSE_CONTROLS
 class AssertionControl(RequestControl):
   """
   LDAP Assertion control, as defined in RFC 4528
+
+  filterstr
+    LDAP filter string specifying which assertions have to match
+    so that the server processes the operation
   """
   
   controlType = ldap.CONTROL_ASSERT    
@@ -31,6 +35,10 @@ KNOWN_RESPONSE_CONTROLS[ldap.CONTROL_ASSERT] = AssertionControl
 class MatchedValuesControl(RequestControl):
   """
   LDAP Matched Values control, as defined in RFC 3876
+
+  filterstr
+    LDAP filter string specifying which attribute values
+    should be returned
   """
   
   controlType = ldap.CONTROL_VALUESRETURNFILTER
@@ -49,7 +57,10 @@ class SimplePagedResultsControl(LDAPControl):
   """
   LDAP Control Extension for Simple Paged Results Manipulation
 
-  see RFC 2696
+  size
+    Page size requested (number of entries to be returned)
+  cookie
+    Cookie string received with last page
   """
   controlType = ldap.CONTROL_PAGEDRESULTS
 
