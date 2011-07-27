@@ -4,6 +4,9 @@ Released 2.4.4 2011-08-xx
 Changes since 2.4.3:
 
 Modules/
+* Format intermediate messages as 3-tuples instead of
+  4-tuples to match the format of other response messages.
+  (thanks to Chris Mikkelson)
 
 Lib:
 

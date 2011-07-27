@@ -216,7 +216,6 @@ LDAPmessage_to_python(LDAP *ld, LDAPMessage *m, int add_ctrls, int add_intermedi
 	      if ( LDAP_RES_INTERMEDIATE == ldap_msgtype( entry ) ) {
 		 PyObject* valtuple = PyList_New(0);
 		 PyObject *valuestr;
-		 PyObject *msgtype;
 		 char *retoid = 0;
 		 struct berval *retdata = 0;
 
@@ -245,11 +244,9 @@ LDAPmessage_to_python(LDAP *ld, LDAPMessage *m, int add_ctrls, int add_intermedi
 
 		 valuestr = LDAPberval_to_object(retdata);
 		 ber_bvfree( retdata );
-		 msgtype = LDAPconstant(LDAP_RES_INTERMEDIATE);
-		 valtuple = Py_BuildValue("(OsOO)", msgtype, retoid,
+		 valtuple = Py_BuildValue("(sOO)", retoid,
 					  valuestr ? valuestr : Py_None,
 					  pyctrls);
-		 Py_DECREF( msgtype );
 		 ldap_memfree( retoid );
 		 Py_DECREF(valuestr);
 		 Py_XDECREF(pyctrls);
