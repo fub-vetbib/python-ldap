@@ -9,10 +9,6 @@ Python compability note:
 Requires Python 2.3+
 """
 
-import ldap
-
-from ldap import __version__
-
 
 class ResultProcessor:
   """
