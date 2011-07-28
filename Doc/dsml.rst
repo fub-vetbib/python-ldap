@@ -15,11 +15,9 @@ Therefore it can be used stand-alone without the rest of the python-ldap
 package.
 
 
-.. :py:class:`DSMLWriter`
 .. autoclass:: dsml.DSMLWriter 
 
 
-.. :py:class:`DSMLParser`
 .. autoclass:: dsml.DSMLParser
 
 
