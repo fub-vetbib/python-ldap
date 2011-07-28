@@ -256,19 +256,16 @@ class FileWriter(AsyncSearchHandler):
 class LDIFWriter(FileWriter):
   """
   Class for writing a stream LDAP search results to a LDIF file
+
+  Arguments:
+  l
+      LDAPObject instance
+  writer_obj
+      Either a file-like object or a ldif.LDIFWriter instance
+      used for output
   """
 
   def __init__(self,l,writer_obj,headerStr='',footerStr=''):
-    """
-    Initialize a StreamResultHandler
-    
-    Parameters:
-    l
-        LDAPObject instance
-    writer_obj
-        Either a file-like object or a ldif.LDIFWriter instance
-        used for output
-    """
     import ldif
     if isinstance(writer_obj,ldif.LDIFWriter):
       self._ldif_writer = writer_obj
@@ -282,22 +279,20 @@ class LDIFWriter(FileWriter):
       dn,entry = resultItem
       self._ldif_writer.unparse(dn,entry)
 
+
 class DSMLWriter(FileWriter):
   """
   Class for writing a stream LDAP search results to a DSML file
+
+  Arguments:
+  l
+      LDAPObject instance
+  writer_obj
+      Either a file-like object or a ldif.DSMLWriter instance
+      used for output
   """
 
   def __init__(self,l,writer_obj,headerStr='',footerStr=''):
-    """
-    Initialize a StreamResultHandler
-
-    Parameters:
-    l
-        LDAPObject instance
-    writer_obj
-        Either a file-like object or a ldif.DSMLWriter instance
-        used for output
-    """
     import dsml
     if isinstance(writer_obj,dsml.DSMLWriter):
       self._dsml_writer = writer_obj
