@@ -543,31 +543,31 @@ LDAPObject classes
 
 .. py:class:: LDAPObject
 
-Instances of :py:class:`LDAPObject` are returned by :py:func:`initialize()`
-and :py:func:`open()` (deprecated). The connection is automatically unbound
-and closed when the LDAP object is deleted. Internally :py:class:`LDAPObject`
-is set to :py:class:`SimpleLDAPObject` by default.
+   Instances of :py:class:`LDAPObject` are returned by :py:func:`initialize()`
+   and :py:func:`open()` (deprecated). The connection is automatically unbound
+   and closed when the LDAP object is deleted. Internally :py:class:`LDAPObject`
+   is set to :py:class:`SimpleLDAPObject` by default.
 
 
 .. py:class:: SimpleLDAPObject(uri [, trace_level=0 [, trace_file=sys.stdout [, trace_stack_limit=5]]])
 
-Instances of :py:class:`LDAPObject` are returned by :py:func:`initialize()`
-and :py:func:`open()` (deprecated). The connection is automatically unbound
-and closed  when the LDAP object is deleted.
+   Instances of :py:class:`LDAPObject` are returned by :py:func:`initialize()`
+   and :py:func:`open()` (deprecated). The connection is automatically unbound
+   and closed  when the LDAP object is deleted.
 
 
 .. py:class:: ReconnectLDAPObject(uri [, trace_level=0 [, trace_file=sys.stdout [, trace_stack_limit=5] [, retry_max=1 [, retry_delay=60.0]]]])
 
-This class is derived from :py:class:`SimpleLDAPObject` and used for automatic
-reconnects when using the synchronous request methods (see below). This class
-also implements the pickle protocol.
+   This class is derived from :py:class:`SimpleLDAPObject` and used for automatic
+   reconnects when using the synchronous request methods (see below). This class
+   also implements the pickle protocol.
 
-For automatic reconnects it has additional arguments:
+   For automatic reconnects it has additional arguments:
 
-*retry_max* specifies the number of reconnect attempts before
-re-raising the :py:exc:`ldap.SERVER_DOWN` exception.
+   *retry_max* specifies the number of reconnect attempts before
+   re-raising the :py:exc:`ldap.SERVER_DOWN` exception.
 
-*retry_delay* specifies the time in seconds between reconnect attempts.
+   *retry_delay* specifies the time in seconds between reconnect attempts.
 
 
 Arguments for LDAPv3 controls
