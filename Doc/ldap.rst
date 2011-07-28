@@ -538,14 +538,36 @@ call does not indicate success.
 
 .. _ldap-objects:
 
-LDAPObject class
-================
+LDAPObject classes
+==================
 
-.. py:class:: LDAPObject[(uri [, trace_level=0 [, trace_file=sys.stdout [, trace_stack_limit=None]]])]
+.. py:class:: LDAPObject
 
-Instances of :class:`LDAPObject` are returned by :py:func:`initialize()`
+Instances of :py:class:`LDAPObject` are returned by :py:func:`initialize()`
+and :py:func:`open()` (deprecated). The connection is automatically unbound
+and closed when the LDAP object is deleted. Internally :py:class:`LDAPObject`
+is set to :py:class:`SimpleLDAPObject` by default.
+
+
+.. py:class:: SimpleLDAPObject(uri [, trace_level=0 [, trace_file=sys.stdout [, trace_stack_limit=5]]])
+
+Instances of :py:class:`LDAPObject` are returned by :py:func:`initialize()`
 and :py:func:`open()` (deprecated). The connection is automatically unbound
 and closed  when the LDAP object is deleted.
+
+
+.. py:class:: ReconnectLDAPObject(uri [, trace_level=0 [, trace_file=sys.stdout [, trace_stack_limit=5] [, retry_max=1 [, retry_delay=60.0]]]])
+
+This class is derived from :py:class:`SimpleLDAPObject` and used for automatic
+reconnects when using the synchronous request methods (see below). This class
+also implements the pickle protocol.
+
+For automatic reconnects it has additional arguments:
+
+*retry_max* specifies the number of reconnect attempts before
+re-raising the :py:exc:`ldap.SERVER_DOWN` exception.
+
+*retry_delay* specifies the time in seconds between reconnect attempts.
 
 
 Arguments for LDAPv3 controls
@@ -556,7 +578,7 @@ decoding LDAPv3 controls. These arguments are available in the methods
 with names ending in :py:const:`_ext` or :py:const:`_ext_s`:
 
 *serverctrls*
-  is a list of :class:`LDAPControl` instances sent to the server along
+  is a list of :py:class:`ldap.controls.LDAPControl` instances sent to the server along
   with the LDAP request (see module :py:mod:`ldap.controls`). These are
   controls which alter the behaviour of the server when processing the
   request if the control is supported by the server. The effect of controls
@@ -564,7 +586,7 @@ with names ending in :py:const:`_ext` or :py:const:`_ext_s`:
   be applicable with certain LDAP requests at all.
 
 *clientctrls*
-  is a list of :class:`LDAPControl` instances passed to the
+  is a list of :py:class:`ldap.controls.LDAPControl` instances passed to the
   client API and alter the behaviour of the client when processing the
   request.
 
@@ -580,7 +602,8 @@ Methods with names ending in :py:const:`_s` are the synchronous form
 and wait for and return with the server's result, or with
 :py:const:`None` if no data is expected.
 
-:class:`LDAPControl` instances have the following methods:
+
+:class:`LDAPObject` instances have the following methods:
 
 .. py:method:: LDAPObject.abandon(msgid) -> None
 
@@ -676,7 +699,7 @@ and wait for and return with the server's result, or with
    .. note::
 
       A design fault in the LDAP API prevents *value*
-      from containing :const:`NULL` characters.
+      from containing *NULL* characters.
 
 
 .. py:method:: LDAPObject.delete(dn) -> int
@@ -705,7 +728,7 @@ and wait for and return with the server's result, or with
    The *extreq* is an instance of class :py:class:`ldap.extop.ExtendedRequest`
    containing the parameters for the extended operation request.
    
-   If argument *extop_resp_classÜ is set to a sub-class of
+   If argument *extop_resp_class* is set to a sub-class of
    :py:class:`ldap.extop.ExtendedResponse` this class is used to return an
    object of this class instead of a raw BER value in respvalue.
 
@@ -1017,10 +1040,10 @@ These attributes are mutable unless described as read-only.
 .. py:attribute:: LDAPObject.deref -> int
 
    Controls whether aliases are automatically dereferenced.
-   This must be one of :py:const:`DEREF_NEVER`, :py:const:`DEREF_SEARCHING`, :py:const:`DEREF_FINDING`,
-   or :py:const:`DEREF_ALWAYS`.
+   This must be one of :py:const:`DEREF_NEVER`, :py:const:`DEREF_SEARCHING`,
+   :py:const:`DEREF_FINDING` or :py:const:`DEREF_ALWAYS`.
    This option is mapped to option constant :py:const:`OPT_DEREF`
-   and used in the underlying OpenLDAP lib.
+   and used in the underlying OpenLDAP client lib.
 
 
 .. py:attribute:: LDAPObject.network_timeout -> int
@@ -1028,7 +1051,7 @@ These attributes are mutable unless described as read-only.
    Limit on waiting for a network response, in seconds.
    Defaults to :py:const:`NO_LIMIT`.
    This option is mapped to option constant :py:const:`OPT_NETWORK_TIMEOUT`
-   and used in the underlying OpenLDAP lib.
+   and used in the underlying OpenLDAP client lib.
 
 
 .. py:attribute:: LDAPObject.protocol_version -> int
@@ -1036,7 +1059,7 @@ These attributes are mutable unless described as read-only.
    Version of LDAP in use (either :py:const:`VERSION2` for LDAPv2
    or :py:const:`VERSION3` for LDAPv3).
    This option is mapped to option constant :py:const:`OPT_PROTOCOL_VERSION`
-   and used in the underlying OpenLDAP lib.
+   and used in the underlying OpenLDAP client lib.
 
    .. note::
 
@@ -1050,7 +1073,7 @@ These attributes are mutable unless described as read-only.
    Limit on size of message to receive from server.
    Defaults to :py:const:`NO_LIMIT`.
    This option is mapped to option constant :py:const:`OPT_SIZELIMIT`
-   and used in the underlying OpenLDAP lib. Its use is deprecated
+   and used in the underlying OpenLDAP client lib. Its use is deprecated
    in favour of *sizelimit* parameter when using :py:meth:`search_ext()`.
 
 
@@ -1059,8 +1082,8 @@ These attributes are mutable unless described as read-only.
    Limit on waiting for any response, in seconds.
    Defaults to :py:const:`NO_LIMIT`.
    This option is mapped to option constant :py:const:`OPT_TIMELIMIT`
-   and used in the underlying OpenLDAP lib. Its use is deprecated
-   in favour of using *timeout*.
+   and used in the underlying OpenLDAP client lib. Its use is deprecated
+   in favour of using :py:attr:`timeout`.
 
 
 .. py:attribute:: LDAPObject.timeout -> int
