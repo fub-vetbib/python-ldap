@@ -1,26 +1,47 @@
 .. % $Id$
 
 
-:py:mod:`ldap.async` Framework for stream-processing of large search results
-==============================================================================
+**************************************************************
+:py:mod:`ldap.async` Stream-processing of large search results
+**************************************************************
 
 .. py:module:: ldap.async
    :synopsis: Framework for stream-processing of large search results.
-.. moduleauthor:: python-ldap project (see http://www.python-ldap.org/)
+
+With newer Python versions one might want to consider using
+:py:mod:`ldap.resiter` instead.
 
 
-.. % Author of the module code;
+Classes
+=======
 
+.. autoclass:: ldap.async.AsyncSearchHandler
+   :members:
+
+.. autoclass:: ldap.async.List
+   :members:
+
+.. autoclass:: ldap.async.Dict
+   :members:
+
+.. autoclass:: ldap.async.IndexedDict
+   :members:
+
+.. autoclass:: ldap.async.LDIFWriter
+   :members:
+
+.. autoclass:: ldap.async.DSMLWriter
+   :members:
 
 .. _ldap.async-example:
 
-Examples for ldap.async
-------------------------
+Examples
+========
 
 .. _ldap.async-example.List:
 
 Using ldap.async.List
-^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^
 
 This example demonstrates how to use class ldap.async.List for
 retrieving partial search results even though the exception
