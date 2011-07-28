@@ -1,8 +1,8 @@
 .. % $Id$
 
-#######################################
+***************************************
 :mod:`dsml` DSMLv1 parser and generator
-#######################################
+***************************************
 
 .. :py:module:: dsml
    :synopsis: Parses and generates DSMLv1 files
@@ -26,5 +26,4 @@ package.
 .. _dsml-example:
 
 Example
-^^^^^^^
-
+=======
