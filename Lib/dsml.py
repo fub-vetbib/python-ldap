@@ -32,21 +32,22 @@ def replace_char(s):
 class DSMLWriter:
   """
   Class for writing LDAP entry records to a DSMLv1 file.
+
+  Arguments:
+
+  f
+      File object for output.
+  base64_attrs
+      Attribute types to be base64-encoded.
+  dsml_comment
+      Text placed in comment lines behind <dsml:dsml>.
+  indent
+      String used for indentiation of next nested level.
   """
 
   def __init__(
     self,f,base64_attrs=[],dsml_comment='',indent='    '
   ):
-    """
-    f
-        File object for output.
-    base64_attrs
-        Attribute types to be base64-encoded.
-    dsml_comment
-        Text placed in comment lines behind <dsml:dsml>.
-    indent
-        String used for indentiation of next nested level.
-    """
     self._output_file = f
     self._base64_attrs = {}.fromkeys(map(string.lower,base64_attrs))
     self._dsml_comment = dsml_comment
@@ -249,6 +250,18 @@ else:
 
     records_read
         Counter for records processed so far
+
+    Arguments:
+
+    input_file
+        File-object to read the DSMLv1 input from
+    ignored_attr_types
+        Attributes with these attribute type names will be ignored.
+    max_entries
+        If non-zero specifies the maximum number of entries to be
+        read from f.
+    line_sep
+        String used as line separator
     """
 
     def __init__(
@@ -258,17 +271,6 @@ else:
       ignored_attr_types=None,
       max_entries=0,
     ):
-      """
-      input_file
-          File-object to read the DSMLv1 input from
-      ignored_attr_types
-          Attributes with these attribute type names will be ignored.
-      max_entries
-          If non-zero specifies the maximum number of entries to be
-          read from f.
-      line_sep
-          String used as line separator
-      """
       self._input_file = input_file
       self._max_entries = max_entries
       self._ignored_attr_types = {}.fromkeys(map(string.lower,(ignored_attr_types or [])))
