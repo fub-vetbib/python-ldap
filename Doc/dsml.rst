@@ -15,10 +15,11 @@ Therefore it can be used stand-alone without the rest of the python-ldap
 package.
 
 
-.. autoclass:: dsml.DSMLWriter 
-
+.. autoclass:: dsml.DSMLWriter
+   :members:
 
 .. autoclass:: dsml.DSMLParser
+   :members:
 
 
 .. _dsml-example:
