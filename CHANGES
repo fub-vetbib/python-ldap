@@ -8,7 +8,11 @@ Modules/
   4-tuples to match the format of other response messages.
   (thanks to Chris Mikkelson)
 
-Lib:
+Lib/
+
+Doc/
+* Cleaned up rst files
+* Added missing classes
 
 ----------------------------------------------------------------
 Released 2.4.3 2011-07-23
@@ -18,7 +22,7 @@ Changes since 2.4.2:
 Lib/
 * Mostly corrected/updated __doc__ strings
 
-Doc:
+Doc/
 * Corrected rst files
 * Added missing modules, functions, classes, methods, parameters etc.
   at least as auto-generated doc
