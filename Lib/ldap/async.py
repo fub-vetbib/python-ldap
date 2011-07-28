@@ -43,16 +43,13 @@ class WrongResultType(Exception):
 class AsyncSearchHandler:
   """
   Class for stream-processsing LDAP search results
+
+  Arguments:
+  l
+      LDAPObject instance
   """
 
   def __init__(self,l):
-    """
-    Initialize a StreamResultHandler
-    
-    Parameters:
-    l
-        LDAPObject instance
-    """
     self._l = l
     self._msgId = None
 
