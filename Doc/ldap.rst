@@ -26,13 +26,21 @@ This module defines the following functions:
 
 .. py:function:: initialize(uri [, trace_level=0 [, trace_file=sys.stdout [, trace_stack_limit=None]]]) -> LDAPObject object
 
-   Opens a new connection with an LDAP server, and return an LDAP object
-   (see :ref:`ldap-objects`) used to perform operations on that server.  Parameter
-   *uri* has to be a valid LDAP URL.
+   Initializes a new connection object for accessing the given LDAP server,
+   and return an LDAP object (see :ref:`ldap-objects`) used to perform operations
+   on that server.  Parameter *uri* has to be a valid LDAP URL.
+
+   Note that the C wrapper function :py:func:_ldap.initialize() is called which calls
+   the OpenLDAP funtion ldap_initialize(). Calling this function just initializes
+   the LDAP connection struct in the C API - nothing else. The first call to
+   an operation method (bind, search etc.) then really opens the connection.
+   Before that nothing is sent on the wire.
+
    The optional arguments are for generating debug log information:
    *trace_level* specifies the amount of information being logged,
    *trace_file* specifies a file-like object as target of the debug log and
    *trace_stack_limit* specifies the stack limit of tracebacks in debug log.
+
    Possible values for *trace_level* are
    :py:const:`0` for no logging,
    :py:const:`1` for only logging the method calls with arguments,
