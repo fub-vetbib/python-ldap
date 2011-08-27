@@ -21,6 +21,7 @@ derived classes which has these methods:
 
 .. _ldap.resiter-example:
 
+
 Examples
 ========
 
@@ -45,7 +46,7 @@ processing them in a for-loop.
   # Asynchronous search method
   msg_id = l.search('dc=stroeder,dc=com',ldap.SCOPE_SUBTREE,'(objectClass=*)')
 
-  for res_type,res_data,res_msgid,res_controls in self.source.allresults(msg_id):
+  for res_type,res_data,res_msgid,res_controls in l.allresults(msg_id):
     for dn,entry in res_data:
       # process dn and entry
       print dn,entry['objectClass']
