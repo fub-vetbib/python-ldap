@@ -19,6 +19,26 @@ package.
    :rfc:`2849` - The LDAP Data Interchange Format (LDIF) - Technical Specification
 
 
+Functions
+^^^^^^^^^
+
+.. autofunction:: ldif.CreateLDIF
+
+.. autofunction:: ldif.ParseLDIF
+
+
+Classes
+^^^^^^^
+
+.. autoclass:: ldif.LDIFWriter
+
+.. autoclass:: ldif.LDIFParser
+
+.. autoclass:: LDIFRecordList
+
+.. autoclass:: LDIFCopy
+
+
 .. _ldif-example:
 
 Example
