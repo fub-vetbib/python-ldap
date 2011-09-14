@@ -801,6 +801,10 @@ and wait for and return with the server's result, or with
    The old password in *oldpw* is replaced with the new
    password in *newpw* by a LDAP server supporting this operation.
 
+   If *oldpw* is not :py:const:`None` it has to match the old password
+   of the specified *user* which is sometimes used when a user changes
+   his own password.
+
    *serverctrls* and *clientctrls* like described above.
 
    The asynchronous version returns the initiated message id.
