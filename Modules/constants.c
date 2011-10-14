@@ -110,6 +110,8 @@ LDAPinit_constants( PyObject* d )
   add_int(d,RES_EXTENDED);
   add_int(d,RES_UNSOLICITED);
 
+  add_int(d,RES_INTERMEDIATE);
+
   /* non-reversibles */
 
   add_int(d,AUTH_NONE);
