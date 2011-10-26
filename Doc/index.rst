@@ -29,6 +29,7 @@ Contents
    ldap-modlist.rst
    ldap-resiter.rst
    ldap-schema.rst
+   ldap-syncrepl.rst
    ldif.rst
    ldapurl.rst
    dsml.rst

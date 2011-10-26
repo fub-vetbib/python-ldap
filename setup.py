@@ -171,6 +171,7 @@ setup(
     'ldap.schema.models',
     'ldap.schema.subentry',
     'ldap.schema.tokenizer',
+    'ldap.syncrepl',
   ],
   package_dir = {'': 'Lib',},
   data_files = LDAP_CLASS.extra_files,
