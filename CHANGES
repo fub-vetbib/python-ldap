@@ -1,5 +1,5 @@
 ----------------------------------------------------------------
-Released 2.4.4 2011-08-xx
+Released 2.4.4 2011-10-26
 
 Changes since 2.4.3:
 
@@ -7,8 +7,11 @@ Modules/
 * Format intermediate messages as 3-tuples instead of
   4-tuples to match the format of other response messages.
   (thanks to Chris Mikkelson)
+* Fixes for memory leaks (thanks to Chris Mikkelson)
 
 Lib/
+* New experimental(!) sub-module ldap.syncrepl implementing syncrepl
+  consumer (see RFC 4533, thanks to Chris Mikkelson)
 
 Doc/
 * Cleaned up rst files
