@@ -152,11 +152,13 @@ LDAPControls_from_object(PyObject* list, LDAPControl ***controls_ret)
 
       ldc = Tuple_to_LDAPControl(item);
       if (ldc == NULL) {
+          Py_DECREF(item);
           PyMem_DEL(ldcs);
           return 0;
       }
 
       ldcs[i] = ldc;
+      Py_DECREF(item);
     }
 
     ldcs[len] = NULL;
