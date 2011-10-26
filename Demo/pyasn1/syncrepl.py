@@ -4,7 +4,7 @@ import sys,anydbm,getpass
 import ldap,ldapurl,ldap.syncrepl
 
 
-class DNSync(ldap.ldapobject.LDAPObject,ldap.syncrepl.LDAPSyncObject):
+class DNSync(ldap.ldapobject.LDAPObject,ldap.syncrepl.SyncreplConsumer):
 
     def __init__(self, filename, *args, **kwargs):
         ldap.ldapobject.LDAPObject.__init__(self, *args, **kwargs)

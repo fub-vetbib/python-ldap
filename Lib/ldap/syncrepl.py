@@ -22,7 +22,7 @@ from ldap.controls import RequestControl,ResponseControl,KNOWN_RESPONSE_CONTROLS
 from pyasn1.type import tag,namedtype,namedval,univ,constraint
 from pyasn1.codec.ber import encoder,decoder
 
-__all__ = [ 'LDAPSyncObject' ]
+__all__ = [ 'SyncreplConsumer' ]
 
 # RFC 4533:
 #
@@ -292,9 +292,9 @@ class SyncInfoMessage:
                 return
 
 
-class LDAPSyncObject:
+class SyncreplConsumer:
     """
-    LDAPSyncObject - LDAP Sync session object.
+    SyncreplConsumer - LDAP syncrepl consumer object.
 
     """
 
