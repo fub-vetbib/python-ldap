@@ -73,6 +73,8 @@ Acknowledgements:
 
    Thanks to Peter Gietz, DAASI for funding some control modules.
 
+   Thanks to Chris Mikkelson for various fixes and ldap.syncrepl.
+
    These very kind people have supplied patches or suggested changes:
 
        Federico Di Gregorio <fog at mixadlive.com>
