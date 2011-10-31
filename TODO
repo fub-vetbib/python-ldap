@@ -8,8 +8,6 @@ Modules/
 - Specific support for more controls
   - VLV control
   - server-side sorting control
-  - Binding in DSA control mode (rewrite necessary)
-- Support for other platforms?
 - Wrap libldif as faster drop-in replacement for module ldif?
 
 Lib/
