@@ -67,9 +67,10 @@ class MyLDAPObject(LDAPObject,PagedResultsSearchObject):
 
 #ldap.set_option(ldap.OPT_DEBUG_LEVEL,255)
 ldap.set_option(ldap.OPT_REFERRALS, 0)
-l = MyLDAPObject(url,trace_level=1)
+l = MyLDAPObject(url,trace_level=2)
 l.protocol_version = 3
 l.simple_bind_s("", "")
+l.page_size=10
 
 # Send search request
 result_pages,all_results = l.paged_search_ext_s(
