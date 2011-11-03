@@ -54,7 +54,7 @@ class PagedResultsSearchObject:
               ldap.SCOPE_SUBTREE,
               search_flt,
               attrlist=searchreq_attrlist,
-              serverctrls=[req_ctrl]
+              serverctrls=(serverctrls or [])+[req_ctrl]
             )
         else:
             break
