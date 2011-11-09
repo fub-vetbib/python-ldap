@@ -26,10 +26,14 @@ class PagedResultsSearchObject:
     # Send first search request
     msgid = self.search_ext(
       base,
-      ldap.SCOPE_SUBTREE,
-      search_flt,
-      attrlist=searchreq_attrlist,
-      serverctrls=(serverctrls or [])+[req_ctrl]
+      scope,
+      filterstr=filterstr,
+      attrlist=attrlist,
+      attrsonly=attrsonly,
+      serverctrls=(serverctrls or [])+[req_ctrl],
+      clientctrls=clientctrls,
+      timeout=timeout,
+      sizelimit=sizelimit
     )
 
     result_pages = 0
@@ -51,10 +55,14 @@ class PagedResultsSearchObject:
             req_ctrl.cookie = pctrls[0].cookie
             msgid = self.search_ext(
               base,
-              ldap.SCOPE_SUBTREE,
-              search_flt,
-              attrlist=searchreq_attrlist,
-              serverctrls=(serverctrls or [])+[req_ctrl]
+              scope,
+              filterstr=filterstr,
+              attrlist=attrlist,
+              attrsonly=attrsonly,
+              serverctrls=(serverctrls or [])+[req_ctrl],
+              clientctrls=clientctrls,
+              timeout=timeout,
+              sizelimit=sizelimit
             )
         else:
             break
