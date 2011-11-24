@@ -1,4 +1,22 @@
 ----------------------------------------------------------------
+Released 2.4.5 2011-11-xx
+
+Changes since 2.4.4:
+
+Installation:
+* defines for SASL and SSL in setup.cfg to be more friendly to
+  Python setup tools (easy_install)
+  
+Lib/
+* Fixed typo in ldap.functions._ldap_function_call() which
+  always released ldap._ldap_module_lock instead of local lock
+* ldap.controls.ppolicy:
+  Fixed decoding the password policy response control
+
+Demo/
+* Demo script for ldap.controls.ppolicy
+
+----------------------------------------------------------------
 Released 2.4.4 2011-10-26
 
 Changes since 2.4.3:
