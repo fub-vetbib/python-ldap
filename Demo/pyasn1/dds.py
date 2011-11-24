@@ -36,7 +36,7 @@ if ldap_url.cred is None:
   ldap_url.cred = getpass.getpass()
 
 try:
-  ldap_conn.simple_bind_s(ldap_url.who,ldap_url.cred)
+  ldap_conn.simple_bind_s(ldap_url.who or '',ldap_url.cred or '')
 
 except ldap.INVALID_CREDENTIALS,e:
   print 'Simple bind failed:',str(e)
