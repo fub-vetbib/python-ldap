@@ -21,7 +21,8 @@ class PagedResultsSearchObject:
     This is non-sense for really large results sets which you would like
     to process one-by-one
     """
-    while True:
+
+    while True: # loop for reconnecting if necessary
 
       req_ctrl = SimplePagedResultsControl(True,size=self.page_size,cookie='')
 
@@ -69,8 +70,7 @@ class PagedResultsSearchObject:
                   sizelimit=sizelimit
                 )
             else:
-                break
-        return result_pages,all_results
+              break # no more pages available
 
       except ldap.SERVER_DOWN,e:
         try:
@@ -79,7 +79,8 @@ class PagedResultsSearchObject:
           raise e
 
       else:
-        break
+        return result_pages,all_results
+
 
 
 
