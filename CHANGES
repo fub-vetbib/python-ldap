@@ -1,4 +1,13 @@
 ----------------------------------------------------------------
+Released 2.4.6 2011-11-27
+
+Changes since 2.4.5:
+
+Lib/
+* ldap.controls.ppolicy:
+  Another fix for decoding the password policy response control
+
+----------------------------------------------------------------
 Released 2.4.5 2011-11-25
 
 Changes since 2.4.4:
