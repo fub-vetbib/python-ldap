@@ -110,7 +110,7 @@ class ProxyAuthzControl(RequestControl):
     RequestControl.__init__(self,ldap.CONTROL_PROXY_AUTHZ,criticality,authzId)
 
 
-class AuthorizationIdentityControl(ValueLessRequestControl,ResponseControl):
+class AuthorizationIdentityRequestControl(ValueLessRequestControl):
   """
   Authorization Identity Request and Response Controls
   
@@ -127,7 +127,23 @@ class AuthorizationIdentityControl(ValueLessRequestControl,ResponseControl):
   def decodeControlValue(self,encodedControlValue):
     self.authzId = encodedControlValue
 
-KNOWN_RESPONSE_CONTROLS[AuthorizationIdentityControl.controlType] = AuthorizationIdentityControl
+
+class AuthorizationIdentityResponseControl(ResponseControl):
+  """
+  Authorization Identity Request and Response Controls
+  
+  Class attributes:
+  
+  authzId
+    decoded authorization identity
+  """
+  controlType = '2.16.840.1.113730.3.4.15'
+
+  def decodeControlValue(self,encodedControlValue):
+    self.authzId = encodedControlValue
+
+
+KNOWN_RESPONSE_CONTROLS[AuthorizationIdentityResponseControl.controlType] = AuthorizationIdentityResponseControl
 
 
 class GetEffectiveRightsControl(RequestControl):

@@ -4,7 +4,7 @@ Released 2.4.7 2011-12-xx
 Changes since 2.4.6:
 
 Lib/
-* 
+* Separate classes for request/response controls for RFC 3829
 
 ----------------------------------------------------------------
 Released 2.4.6 2011-11-27
