@@ -202,7 +202,7 @@ class SimpleLDAPObject:
 
   def simple_bind_s(self,who='',cred='',serverctrls=None,clientctrls=None):
     """
-    simple_bind_s([who='' [,cred='']]) -> None
+    simple_bind_s([who='' [,cred='']]) -> 4-tuple
     """
     msgid = self.simple_bind(who,cred,serverctrls,clientctrls)
     resp_type, resp_data, resp_msgid, resp_ctrls = self.result3(msgid,all=1,timeout=self.timeout)
