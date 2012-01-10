@@ -760,8 +760,8 @@ and wait for and return with the server's result, or with
 
    Each element in the list *modlist* should be a tuple of the form
    *(mod_op,mod_type,mod_vals)*,
-   where *mod_op* indicates the operation (one of :py:const:`MOD_ADD`,
-   :py:const:`MOD_DELETE`, or :py:const:`MOD_REPLACE`),
+   where *mod_op* indicates the operation (one of :py:const:`ldap.MOD_ADD`,
+   :py:const:`ldap.MOD_DELETE`, or :py:const:`ldap.MOD_REPLACE`),
    *mod_type* is a string indicating the attribute type name, and
    *mod_vals* is either a string value or a list of string values to add,
    delete or replace respectively.  For the delete operation, *mod_vals*
