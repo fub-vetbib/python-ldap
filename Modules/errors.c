@@ -126,7 +126,6 @@ LDAPinit_errors( PyObject*d ) {
 
   /* XXX - backward compatibility with pre-1.8 */
   PyDict_SetItemString( d, "error", LDAPexception_class );
-  Py_DECREF( LDAPexception_class );
 
   /* create each LDAP error object */
 

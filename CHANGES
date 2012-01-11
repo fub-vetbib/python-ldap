@@ -6,6 +6,9 @@ Changes since 2.4.6:
 Lib/
 * Separate classes for request/response controls for RFC 3829
 
+Modules/
+* Fixed memory leak (thanks to David Malcolm)
+
 ----------------------------------------------------------------
 Released 2.4.6 2011-11-27
 
