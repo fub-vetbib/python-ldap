@@ -124,9 +124,6 @@ class AuthorizationIdentityRequestControl(ValueLessRequestControl):
   def __init__(self,criticality):
     ValueLessRequestControl.__init__(self,self.controlType,criticality)
 
-  def decodeControlValue(self,encodedControlValue):
-    self.authzId = encodedControlValue
-
 
 class AuthorizationIdentityResponseControl(ResponseControl):
   """
