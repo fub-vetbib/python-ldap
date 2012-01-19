@@ -395,12 +395,6 @@ class SubSchema:
         for o in object_class.sup
       ])
 
-    # Removed all mandantory attribute types from
-    # optional attribute type list
-    for a in r_may.keys():
-      if r_must.has_key(a):
-        del r_may[a]
-
     # Process DIT content rules
     if not ignore_dit_content_rule:
       structural_oc = self.get_structural_oc(object_class_list)
@@ -424,6 +418,12 @@ class SubSchema:
               del r_may[a_oid]
             except KeyError:
               pass
+
+    # Remove all mandantory attribute types from
+    # optional attribute type list
+    for a in r_may.keys():
+      if r_must.has_key(a):
+        del r_may[a]
 
     # Apply attr_type_filter to results
     if attr_type_filter:
