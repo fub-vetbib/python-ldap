@@ -11,6 +11,8 @@ Modules/
 - Wrap libldif as faster drop-in replacement for module ldif?
 - Attach response controls to LDAPError instances to deliver the
   controls to the calling application in case of an error
+- Attach more useful information to LDAPError instances, e.g. the filter used
+  when doing a search in case of ldap.FILTER_ERROR etc.
 
 Lib/
 - Unicode support for DNs, filter strings, etc. but not entry attributes!
