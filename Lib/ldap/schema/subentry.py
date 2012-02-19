@@ -88,7 +88,7 @@ class SubSchema:
     for c in SCHEMA_CLASS_MAPPING.values():
       self.name2oid[c] = ldap.cidict.cidict()
       self.sed[c] = {}
-      self.non_unique_names[c] = set()
+      self.non_unique_names[c] = ldap.cidict.cidict()
 
     # Transform entry dict to case-insensitive dict
     e = ldap.cidict.cidict(sub_schema_sub_entry)
@@ -120,7 +120,7 @@ class SubSchema:
         self.sed[se_class][se_id] = se_instance
 
         if hasattr(se_instance,'names'):
-          for name in se_instance.names:
+          for name in ldap.cidict.cidict({}.fromkeys(se_instance.names)).keys():
             if check_uniqueness and name in self.name2oid[se_class]:
               self.non_unique_names[se_class][se_id] = None
               raise NameNotUnique(attr_value)
