@@ -48,7 +48,7 @@ class OctetStringInteger(LDAPControl):
     return struct.pack('!Q',self.integerValue)
 
   def decodeControlValue(self,encodedControlValue):
-    self.integerValue = self. struct.unpack('!Q',encodedControlValue)[0]
+    self.integerValue = struct.unpack('!Q',encodedControlValue)[0]
     
 
 class BooleanControl(LDAPControl):
