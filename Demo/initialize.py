@@ -33,12 +33,13 @@ l = ldap.initialize('ldap://localhost:1390',trace_level=ldapmodule_trace_level,t
 
 # Set LDAP protocol version used
 l.protocol_version=ldap.VERSION3
+
 # Force cert validation
 l.set_option(ldap.OPT_X_TLS_REQUIRE_CERT,ldap.OPT_X_TLS_DEMAND)
 # Set path name of file containing all trusted CA certificates
 l.set_option(ldap.OPT_X_TLS_CACERTDIR,CACERTDIR)
 # Force libldap to create a new SSL context
-l.set_option(ldap.OPT_X_TLS_NEWCTX,ldap.OPT_OFF)
+l.set_option(ldap.OPT_X_TLS_NEWCTX,ldap.OPT_ON)
 
 # Now try StartTLS extended operation
 l.start_tls_s()
@@ -65,7 +66,7 @@ l.set_option(ldap.OPT_X_TLS_REQUIRE_CERT,ldap.OPT_X_TLS_DEMAND)
 # Set path name of file containing all trusted CA certificates
 l.set_option(ldap.OPT_X_TLS_CACERTDIR,CACERTDIR)
 # Force libldap to create a new SSL context
-l.set_option(ldap.OPT_X_TLS_NEWCTX,ldap.OPT_OFF)
+l.set_option(ldap.OPT_X_TLS_NEWCTX,ldap.OPT_ON)
 
 # Try an explicit anon bind to provoke failure
 l.simple_bind_s('','')
