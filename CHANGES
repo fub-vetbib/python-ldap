@@ -4,6 +4,9 @@ Released 2.4.9 2012-03-xx
 Changes since 2.4.8:
 
 Lib/
+* ldapobject.ReconnectLDAPObject.reconnect() now does kind of
+  an internal locking to pause other threads while reconnecting
+  is pending. Needs testing!)
 
 ----------------------------------------------------------------
 Released 2.4.8 2012-02-21
