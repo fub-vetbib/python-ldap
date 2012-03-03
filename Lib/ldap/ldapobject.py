@@ -800,7 +800,7 @@ class ReconnectLDAPObject(SimpleLDAPObject):
 
   def _apply_method_s(self,func,*args,**kwargs):
     if not self.__dict__.has_key('_l'):
-       self.reconnect(self._uri)
+      self.reconnect(self._uri)
     try:
       return func(self,*args,**kwargs)
     except ldap.SERVER_DOWN:
