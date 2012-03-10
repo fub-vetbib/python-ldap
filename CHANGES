@@ -7,6 +7,8 @@ Lib/
 * ldapobject.ReconnectLDAPObject.reconnect() now does kind of
   an internal locking to pause other threads while reconnecting
   is pending. Needs testing!)
+* New constant ldap.OPT_NAMES_DICT contains mapping from
+  integer to variable name for all option-related constants.
 
 ----------------------------------------------------------------
 Released 2.4.8 2012-02-21

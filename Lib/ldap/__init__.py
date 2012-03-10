@@ -19,7 +19,13 @@ if __debug__:
   _trace_file = sys.stderr
   _trace_stack_limit = None
 
+import _ldap
 from _ldap import *
+
+OPT_NAMES_DICT = {}
+for k,v in vars(_ldap).items():
+  if k.startswith('OPT_'):
+    OPT_NAMES_DICT[v]=k
 
 class DummyLock:
   """Define dummy class with methods compatible to threading.Lock"""
