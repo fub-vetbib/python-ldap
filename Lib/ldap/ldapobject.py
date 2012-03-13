@@ -820,14 +820,20 @@ class ReconnectLDAPObject(SimpleLDAPObject):
 
   def set_option(self,option,invalue):
     self._options[option] = invalue
-    SimpleLDAPObject.set_option(self,option,invalue)
+    return SimpleLDAPObject.set_option(self,option,invalue)
+
+  def bind_s(self,*args,**kwargs):
+    res = self._apply_method_s(SimpleLDAPObject.bind_s,*args,**kwargs)
+    self._last_bind = (self.bind_s,args,kwargs)
+    return res
 
   def simple_bind_s(self,*args,**kwargs):
+    res = self._apply_method_s(SimpleLDAPObject.simple_bind_s,*args,**kwargs)
     self._last_bind = (self.simple_bind_s,args,kwargs)
-    return SimpleLDAPObject.simple_bind_s(self,*args,**kwargs)
+    return res
 
-  def start_tls_s(self):
-    res = SimpleLDAPObject.start_tls_s(self)
+  def start_tls_s(self,*args,**kwargs):
+    res = self._apply_method_s(SimpleLDAPObject.start_tls_s,*args,**kwargs)
     self._start_tls = 1
     return res
 
@@ -835,8 +841,9 @@ class ReconnectLDAPObject(SimpleLDAPObject):
     """
     sasl_interactive_bind_s(who, auth) -> None
     """
+    res = self._apply_method_s(SimpleLDAPObject.sasl_interactive_bind_s,*args,**kwargs)
     self._last_bind = (self.sasl_interactive_bind_s,args,kwargs)
-    return SimpleLDAPObject.sasl_interactive_bind_s(self,*args,**kwargs)
+    return res
 
   def add_ext_s(self,*args,**kwargs):
     return self._apply_method_s(SimpleLDAPObject.add_ext_s,*args,**kwargs)

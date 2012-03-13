@@ -6,7 +6,9 @@ Changes since 2.4.8:
 Lib/
 * ldapobject.ReconnectLDAPObject.reconnect() now does kind of
   an internal locking to pause other threads while reconnecting
-  is pending. Needs testing!)
+  is pending.
+* Changes to bind- and startTLS-related operation methods of
+  class ReconnectLDAPObject for more robustness
 * New constant ldap.OPT_NAMES_DICT contains mapping from
   integer to variable name for all option-related constants.
 
