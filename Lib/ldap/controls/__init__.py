@@ -14,8 +14,7 @@ Each class provides support for a certain control.
 from ldap import __version__
 
 __all__ = [
-  # control OID to class registy
-  'KNOWN_CONTROLS',
+  'KNOWN_RESPONSE_CONTROLS',
   # Classes
   'AssertionControl',
   'BooleanControl',
@@ -32,6 +31,7 @@ __all__ = [
   'DecodeControlTuples',
 ]
 
+# response control OID to class registry
 KNOWN_RESPONSE_CONTROLS = {}
 
 import _ldap,ldap
