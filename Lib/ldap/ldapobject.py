@@ -726,7 +726,7 @@ class ReconnectLDAPObject(SimpleLDAPObject):
         Time span to wait between two reconnect trials
     """
     self._uri = uri
-    self._options = {}
+    self._options = []
     self._last_bind = None
     self._pending_reconnect = 0
     SimpleLDAPObject.__init__(self,uri,trace_level,trace_file,trace_stack_limit)
@@ -757,7 +757,7 @@ class ReconnectLDAPObject(SimpleLDAPObject):
 
   def _restore_options(self):
     """Restore all recorded options"""
-    for k,v in self._options.items():
+    for k,v in self._options:
       SimpleLDAPObject.set_option(self,k,v)
 
   def reconnect(self,uri):
@@ -819,7 +819,7 @@ class ReconnectLDAPObject(SimpleLDAPObject):
       return func(self,*args,**kwargs)
 
   def set_option(self,option,invalue):
-    self._options[option] = invalue
+    self._options.append((option,invalue))
     return SimpleLDAPObject.set_option(self,option,invalue)
 
   def bind_s(self,*args,**kwargs):

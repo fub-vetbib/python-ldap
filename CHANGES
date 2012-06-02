@@ -1,4 +1,17 @@
 ----------------------------------------------------------------
+Released 2.4.10 2012-06-xx
+
+Changes since 2.4.9:
+
+Lib/
+* ldapobject.ReconnectLDAPObject.reconnect() now preserves
+  order of options set with LDAPObject.set_option before.
+  This is needed e.g. for setting connection-specific TLS options.
+
+Demo/
+*
+
+----------------------------------------------------------------
 Released 2.4.9 2012-03-14
 
 Changes since 2.4.8:
@@ -55,7 +68,7 @@ Changes since 2.4.4:
 Installation:
 * defines for SASL and SSL in setup.cfg to be more friendly to
   Python setup tools (easy_install)
-  
+
 Lib/
 * Fixed typo in ldap.functions._ldap_function_call() which
   always released ldap._ldap_module_lock instead of local lock
@@ -136,7 +149,7 @@ Lib/
   compliance with RFC 2589 (fix available for OpenLDAP ITS#6886)
 * New sub-module ldap.controls.sessiontrack implements request control
   as described in draft-wahl-ldap-session (needs pyasn1_modules)
-  
+
 ----------------------------------------------------------------
 Released 2.4.0 2011-06-02
 
@@ -490,7 +503,7 @@ Lib/
 * Switched back to old implementation of
   ldap.schema.tokenizer.split_tokens() since the new one
   had a bug which deletes the spaces from DESC
-* ldap.INSUFFICIENT_ACCESS is now ignored in 
+* ldap.INSUFFICIENT_ACCESS is now ignored in
   ldap.ldapobject.LDAPObject.search_subschemasubentry_s()
 
 ----------------------------------------------------------------
