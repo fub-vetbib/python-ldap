@@ -9,7 +9,8 @@ Lib/
   This is needed e.g. for setting connection-specific TLS options.
 
 Demo/
-*
+* Better version of Demo/pyasn1/syncrepl.py
+  (thanks to Ben Cooksley)
 
 ----------------------------------------------------------------
 Released 2.4.9 2012-03-14
