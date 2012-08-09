@@ -113,11 +113,6 @@ class ProxyAuthzControl(RequestControl):
 class AuthorizationIdentityRequestControl(ValueLessRequestControl):
   """
   Authorization Identity Request and Response Controls
-  
-  Class attributes:
-  
-  authzId
-    decoded authorization identity
   """
   controlType = '2.16.840.1.113730.3.4.16'
 
