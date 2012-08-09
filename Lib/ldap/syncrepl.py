@@ -295,14 +295,13 @@ class SyncInfoMessage:
 class SyncreplConsumer:
     """
     SyncreplConsumer - LDAP syncrepl consumer object.
-
     """
 
     def syncrepl_search(self, base, scope, mode='refreshOnly', cookie=None, **search_args):
         """
         Starts syncrepl search operation.
 
-        base, scope, and **search_args are passed along to
+        base, scope, and search_args are passed along to
         self.search_ext unmodified (aside from adding a Sync
         Request control to any serverctrls provided).
 

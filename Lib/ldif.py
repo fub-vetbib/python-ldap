@@ -238,6 +238,7 @@ class LDIFParser:
   class and override method handle() to implement something meaningful.
 
   Public class attributes:
+
   records_read
         Counter for records processed so far
   """
