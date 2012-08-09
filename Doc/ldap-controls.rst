@@ -100,7 +100,14 @@ RFC or Internet-Draft is very helpful to understand the API.
 
       :rfc:`4370` - Lightweight Directory Access Protocol (LDAP): Proxied Authorization Control
 
-.. autoclass:: ldap.controls.simple.AuthorizationIdentityControl
+.. autoclass:: ldap.controls.simple.AuthorizationIdentityRequestControl
+   :members:
+
+   .. seealso::
+
+      :rfc:`3829` - Lightweight Directory Access Protocol (LDAP): Authorization Identity Request and Response Controls
+
+.. autoclass:: ldap.controls.simple.AuthorizationIdentityResponseControl
    :members:
 
    .. seealso::
