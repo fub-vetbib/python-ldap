@@ -7,6 +7,8 @@ Lib/
 * ldap.controls.DecodeControlTuples() now simply ignores
   PyAsn1Error exception raised during decoding malformed
   response control values in case of non-critical controls.
+* ldif.LDIFWriter.unparse() does not simply skip empty
+  records anymore.
 
 Demo/
 * 

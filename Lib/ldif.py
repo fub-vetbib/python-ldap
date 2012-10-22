@@ -189,9 +189,6 @@ class LDIFWriter:
           Either a dictionary holding the LDAP entry {attrtype:record}
           or a list with a modify list like for LDAPObject.modify().
     """
-    if not record:
-      # Simply ignore empty records
-      return
     # Start with line containing the distinguished name
     self._unparseAttrTypeandValue('dn',dn)
     # Dispatch to record type specific writers
