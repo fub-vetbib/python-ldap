@@ -35,7 +35,11 @@ __all__ = [
 KNOWN_RESPONSE_CONTROLS = {}
 
 import _ldap,ldap
-from pyasn1.error import PyAsn1Error
+
+try:
+  from pyasn1.error import PyAsn1Error
+except ImportError:
+  PyAsn1Error = None
 
 
 class RequestControl:
