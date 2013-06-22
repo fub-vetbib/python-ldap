@@ -4,7 +4,11 @@ Released 2.4.13 2013-06-xx
 Changes since 2.4.12:
 
 Lib/
-* 
+* ldapobject.ReconnectLDAPObject._apply_last_bind() now sends
+  anonymous simple bind request even if the calling application
+  did not to provoke ldap.SERVER_DOWN in method reconnect()
+* ldapobject.ReconnectLDAPObject.reconnect() now also catches
+  ldap.TIMEOUT exception after reconnection attempt
 
 ----------------------------------------------------------------
 Released 2.4.12 2013-06-01

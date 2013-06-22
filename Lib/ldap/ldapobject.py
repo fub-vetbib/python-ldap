@@ -754,6 +754,9 @@ class ReconnectLDAPObject(SimpleLDAPObject):
     if self._last_bind!=None:
       func,args,kwargs = self._last_bind
       func(*args,**kwargs)
+    else:
+      # Send explicit anon simple bind request to provoke ldap.SERVER_DOWN in method reconnect()
+      SimpleLDAPObject.simple_bind_s('','')
 
   def _restore_options(self):
     """Restore all recorded options"""
@@ -782,7 +785,7 @@ class ReconnectLDAPObject(SimpleLDAPObject):
           self.start_tls_s()
         # Repeat last simple or SASL bind
         self._apply_last_bind()
-      except ldap.SERVER_DOWN,e:
+      except (ldap.SERVER_DOWN,ldap.TIMEOUT),e:
         SimpleLDAPObject.unbind_s(self)
         del self._l
         if __debug__ and self._trace_level>=1:
