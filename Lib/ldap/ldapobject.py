@@ -753,10 +753,10 @@ class ReconnectLDAPObject(SimpleLDAPObject):
   def _apply_last_bind(self):
     if self._last_bind!=None:
       func,args,kwargs = self._last_bind
-      func(*args,**kwargs)
+      func(self,*args,**kwargs)
     else:
       # Send explicit anon simple bind request to provoke ldap.SERVER_DOWN in method reconnect()
-      SimpleLDAPObject.simple_bind_s('','')
+      SimpleLDAPObject.simple_bind_s(self,'','')
 
   def _restore_options(self):
     """Restore all recorded options"""
@@ -786,8 +786,6 @@ class ReconnectLDAPObject(SimpleLDAPObject):
         # Repeat last simple or SASL bind
         self._apply_last_bind()
       except (ldap.SERVER_DOWN,ldap.TIMEOUT),e:
-        SimpleLDAPObject.unbind_s(self)
-        del self._l
         if __debug__ and self._trace_level>=1:
           self._trace_file.write('*** %d. reconnect to %s failed\n' % (
             self._retry_max-reconnect_counter+1,uri
@@ -798,6 +796,8 @@ class ReconnectLDAPObject(SimpleLDAPObject):
         if __debug__ and self._trace_level>=1:
           self._trace_file.write('=> delay %s...\n' % (self._retry_delay))
         time.sleep(self._retry_delay)
+        SimpleLDAPObject.unbind_s(self)
+        del self._l
       else:
         if __debug__ and self._trace_level>=1:
           self._trace_file.write('*** %d. reconnect to %s successful, last operation will be repeated\n' % (
@@ -832,7 +832,7 @@ class ReconnectLDAPObject(SimpleLDAPObject):
 
   def simple_bind_s(self,*args,**kwargs):
     res = self._apply_method_s(SimpleLDAPObject.simple_bind_s,*args,**kwargs)
-    self._last_bind = (self.simple_bind_s,args,kwargs)
+    self._last_bind = (SimpleLDAPObject.simple_bind_s,args,kwargs)
     return res
 
   def start_tls_s(self,*args,**kwargs):
@@ -845,7 +845,7 @@ class ReconnectLDAPObject(SimpleLDAPObject):
     sasl_interactive_bind_s(who, auth) -> None
     """
     res = self._apply_method_s(SimpleLDAPObject.sasl_interactive_bind_s,*args,**kwargs)
-    self._last_bind = (self.sasl_interactive_bind_s,args,kwargs)
+    self._last_bind = (SimpleLDAPObject.sasl_interactive_bind_s,args,kwargs)
     return res
 
   def add_ext_s(self,*args,**kwargs):

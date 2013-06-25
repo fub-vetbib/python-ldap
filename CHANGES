@@ -9,6 +9,8 @@ Lib/
   did not to provoke ldap.SERVER_DOWN in method reconnect()
 * ldapobject.ReconnectLDAPObject.reconnect() now also catches
   ldap.TIMEOUT exception after reconnection attempt
+* Several other fixes for ldapobject.ReconnectLDAPObject
+  (thanks to Jonathan Giannuzzi)
 
 ----------------------------------------------------------------
 Released 2.4.12 2013-06-01
