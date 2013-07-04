@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 ldap.controls.sessiontrack - class for session tracking control
 (see draft-wahl-ldap-session)
