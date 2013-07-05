@@ -4,6 +4,7 @@ Released 2.4.14 2013-xx-xx
 Changes since 2.4.13:
 
 Lib/
+* Added ldap.controls.openldap.SearchNoOpControl
 
 ----------------------------------------------------------------
 Released 2.4.13 2013-06-27
