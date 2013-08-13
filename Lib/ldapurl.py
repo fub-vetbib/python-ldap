@@ -35,7 +35,7 @@ SEARCH_SCOPE_STR = {None:'',0:'base',1:'one',2:'sub'}
 
 SEARCH_SCOPE = {
   '':None,
-  # the search scope strings defined in RFC2255
+  # the search scope strings defined in RFC 4516
   'base':LDAP_SCOPE_BASE,
   'one':LDAP_SCOPE_ONELEVEL,
   'sub':LDAP_SCOPE_SUBTREE,
