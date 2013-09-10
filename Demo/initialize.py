@@ -21,7 +21,7 @@ ldapmodule_trace_file = sys.stderr
 ldap._trace_level = ldapmodule_trace_level
 
 # Complete path name of the file containing all trusted CA certs
-CACERTDIR='/etc/ssl/certs'
+CACERTFILE='/etc/ssl/ca-bundle.pem'
 
 print """##################################################################
 # LDAPv3 connection with StartTLS ext. op.
@@ -37,12 +37,14 @@ l.protocol_version=ldap.VERSION3
 # Force cert validation
 l.set_option(ldap.OPT_X_TLS_REQUIRE_CERT,ldap.OPT_X_TLS_DEMAND)
 # Set path name of file containing all trusted CA certificates
-l.set_option(ldap.OPT_X_TLS_CACERTDIR,CACERTDIR)
+l.set_option(ldap.OPT_X_TLS_CACERTFILE,CACERTFILE)
 # Force libldap to create a new SSL context (must be last TLS option!)
 l.set_option(ldap.OPT_X_TLS_NEWCTX,0)
 
 # Now try StartTLS extended operation
 l.start_tls_s()
+
+print '***ldap.OPT_X_TLS_CIPHER',l.get_option(ldap.OPT_X_TLS_CIPHER)
 
 # Try an explicit anon bind to provoke failure
 l.simple_bind_s('','')
@@ -64,12 +66,14 @@ l.protocol_version=ldap.VERSION3
 # Force cert validation
 l.set_option(ldap.OPT_X_TLS_REQUIRE_CERT,ldap.OPT_X_TLS_DEMAND)
 # Set path name of file containing all trusted CA certificates
-l.set_option(ldap.OPT_X_TLS_CACERTDIR,CACERTDIR)
+l.set_option(ldap.OPT_X_TLS_CACERTFILE,CACERTFILE)
 # Force libldap to create a new SSL context (must be last TLS option!)
 l.set_option(ldap.OPT_X_TLS_NEWCTX,0)
 
 # Try an explicit anon bind to provoke failure
 l.simple_bind_s('','')
+
+print '***ldap.OPT_X_TLS_CIPHER',l.get_option(ldap.OPT_X_TLS_CIPHER)
 
 # Close connection
 l.unbind_s()

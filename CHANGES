@@ -6,6 +6,11 @@ Changes since 2.4.13:
 Lib/
 * Added ldap.controls.openldap.SearchNoOpControl
 
+Modules/
+* Added support for retrieving negotiated TLS cipher
+  with LDAPObject.get_option(ldap.OPT_X_TLS_CIPHER)
+  with the help of upcoming OpenLDAP libs
+
 ----------------------------------------------------------------
 Released 2.4.13 2013-06-27
 
