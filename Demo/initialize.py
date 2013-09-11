@@ -44,6 +44,7 @@ l.set_option(ldap.OPT_X_TLS_NEWCTX,0)
 # Now try StartTLS extended operation
 l.start_tls_s()
 
+print '***ldap.OPT_X_TLS_VERSION',l.get_option(ldap.OPT_X_TLS_VERSION)
 print '***ldap.OPT_X_TLS_CIPHER',l.get_option(ldap.OPT_X_TLS_CIPHER)
 
 # Try an explicit anon bind to provoke failure
@@ -73,6 +74,7 @@ l.set_option(ldap.OPT_X_TLS_NEWCTX,0)
 # Try an explicit anon bind to provoke failure
 l.simple_bind_s('','')
 
+print '***ldap.OPT_X_TLS_VERSION',l.get_option(ldap.OPT_X_TLS_VERSION)
 print '***ldap.OPT_X_TLS_CIPHER',l.get_option(ldap.OPT_X_TLS_CIPHER)
 
 # Close connection

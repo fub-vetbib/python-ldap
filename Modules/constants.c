@@ -182,6 +182,12 @@ LDAPinit_constants( PyObject* d )
   add_int(d,OPT_X_TLS_DEMAND);
   add_int(d,OPT_X_TLS_ALLOW);
   add_int(d,OPT_X_TLS_TRY);
+#ifdef LDAP_OPT_X_TLS_PEERCERT
+  add_int(d,OPT_X_TLS_PEERCERT);
+#endif
+#ifdef LDAP_OPT_X_TLS_VERSION
+  add_int(d,OPT_X_TLS_VERSION);
+#endif
 #ifdef LDAP_OPT_X_TLS_CIPHER
   add_int(d,OPT_X_TLS_CIPHER);
 #endif
