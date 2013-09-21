@@ -53,6 +53,7 @@ class AsyncSearchHandler:
   def __init__(self,l):
     self._l = l
     self._msgId = None
+    self._afterFirstResult = 1
 
   def startSearch(
     self,
@@ -91,6 +92,7 @@ class AsyncSearchHandler:
       searchRoot,searchScope,filterStr,
       attrList,attrsOnly,serverctrls,clientctrls,timeout,sizelimit
     )
+    self._afterFirstResult = 1
     return # startSearch()
 
   def preProcessing(self):
@@ -99,9 +101,15 @@ class AsyncSearchHandler:
     before receiving and processing results
     """
 
+  def afterFirstResult(self):
+    """
+    Do anything you want right after successfully receiving but before 
+    processing first result
+    """
+
   def postProcessing(self):
     """
-    Do anything you want after receiving and processing results
+    Do anything you want after receiving and processing all results
     """
 
   def processResults(self,ignoreResultsNumber=0,processResultsCount=0,timeout=-1):
@@ -126,6 +134,9 @@ class AsyncSearchHandler:
       while go_ahead:
         while result_type is None and not result_list:
           result_type,result_list,result_msgid,result_serverctrls = self._l.result3(self._msgId,0,timeout)
+          if self._afterFirstResult:
+            self.afterFirstResult()
+            self._afterFirstResult = 0
         if not result_list:
           break
         if not _searchResultTypes.has_key(result_type):

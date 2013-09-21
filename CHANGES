@@ -5,6 +5,9 @@ Changes since 2.4.13:
 
 Lib/
 * Added ldap.controls.openldap.SearchNoOpControl
+* New method ldap.async.AsyncSearchHandler.afterFirstResult()
+  for doing something right after successfully receiving but before 
+  processing first result
 
 Modules/
 * Added support for retrieving negotiated TLS version/cipher
