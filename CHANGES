@@ -10,6 +10,10 @@ Lib/
   processing first result
 * Better log data written when invoking ldap.LDAPLock.acquire() and
   ldap.LDAPLock.release()
+* LDAPObject and friends now pass `desc' to ldap.LDAPLock() which
+  results in better logging
+* ldapobject.ReconnectLDAPObject now uses internal class-wide
+  lock for serializing reconnects
 
 Modules/
 * Added support for retrieving negotiated TLS version/cipher
