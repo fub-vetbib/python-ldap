@@ -8,6 +8,8 @@ Lib/
 * New method ldap.async.AsyncSearchHandler.afterFirstResult()
   for doing something right after successfully receiving but before 
   processing first result
+* Better log data written when invoking ldap.LDAPLock.acquire() and
+  ldap.LDAPLock.release()
 
 Modules/
 * Added support for retrieving negotiated TLS version/cipher
