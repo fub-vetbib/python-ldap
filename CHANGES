@@ -14,6 +14,8 @@ Lib/
   results in better logging
 * ldapobject.ReconnectLDAPObject now uses internal class-wide
   lock for serializing reconnects
+* Method signature of ReconnectLDAPObject.reconnect() changed to be able
+  to call it with separate retry_max and retry_delay values
 
 Modules/
 * Added support for retrieving negotiated TLS version/cipher
