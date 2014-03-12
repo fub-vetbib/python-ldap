@@ -6,6 +6,7 @@ Changes since 2.4.14:
 Lib/
 * Added missing modules ldap.controls.openldap and 
   ldap.controls.pwdpolicy to setup.py
+* Added missing imports to ldap.controls.pwdpolicy
 
 Modules/
 
