@@ -12,15 +12,12 @@ __all__ = [
   'ExpirationWarningControl'
 ]
 
-import struct
-
 # Imports from python-ldap 2.4+
 import ldap.controls
 from ldap.controls import RequestControl,ResponseControl,ValueLessRequestControl,KNOWN_RESPONSE_CONTROLS
-from ldap.controls.simple import OctetStringInteger
 
 
-class PasswordExpiringControl(OctetStringInteger):
+class PasswordExpiringControl(ResponseControl):
   """
   Indicates time in seconds when password will expire
   """
