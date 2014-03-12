@@ -27,7 +27,7 @@ class PasswordExpiringControl(OctetStringInteger):
   controlType = '2.16.840.1.113730.3.4.5'
 
   def decodeControlValue(self,encodedControlValue):
-    self.gracePeriod = struct.unpack('!Q',encodedControlValue)[0]
+    self.gracePeriod = int(encodedControlValue)
 
 KNOWN_RESPONSE_CONTROLS[PasswordExpiringControl.controlType] = PasswordExpiringControl
 
