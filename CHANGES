@@ -11,8 +11,12 @@ Lib/
   string of digits
 * Support for X-SUBST in schema element class LDAPSyntax
 * Support for X-ORDERED and X-ORIGIN in schema element class AttributeType
+* ldapurl: New scope 'subordinates' defined in 
+  draft-sermersheim-ldap-subordinate-scope
 
 Modules/
+* New constant ldap.SCOPE_SUBORDINATE derived from ldap.h for 
+  draft-sermersheim-ldap-subordinate-scope
 
 ----------------------------------------------------------------
 Released 2.4.14 2014-01-31
