@@ -17,6 +17,7 @@ Lib/
 Modules/
 * New constant ldap.SCOPE_SUBORDINATE derived from ldap.h for 
   draft-sermersheim-ldap-subordinate-scope
+* Fixed constant ldap.sasl.CB_GETREALM (thanks to Martin Pfeifer)
 
 ----------------------------------------------------------------
 Released 2.4.14 2014-01-31

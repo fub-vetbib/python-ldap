@@ -31,7 +31,7 @@ CB_LANGUAGE    = 0x4003
 CB_PASS        = 0x4004
 CB_ECHOPROMPT  = 0x4005
 CB_NOECHOPROMPT= 0x4006
-CB_GETREALM    = 0x4007
+CB_GETREALM    = 0x4008
 
 class sasl:
     """This class handles SASL interactions for authentication.
