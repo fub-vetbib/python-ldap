@@ -2,7 +2,7 @@
 Demo for using ldap.resiter.ResultProcessor
 written by Michael Stroeder <michael@stroeder.com>
 
-See http://python-ldap.sourceforge.net for details.
+See http://www.python-ldap.org for details.
 
 \$Id$
 
