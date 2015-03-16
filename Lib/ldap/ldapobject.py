@@ -235,6 +235,12 @@ class SimpleLDAPObject:
     """
     return self._ldap_call(self._l.sasl_interactive_bind_s,who,auth,RequestControlTuples(serverctrls),RequestControlTuples(clientctrls),sasl_flags)
 
+  def sasl_bind_s(self,dn,mechanism,cred,serverctrls=None,clientctrls=None):
+    """
+    sasl_interactive_bind_s(dn, mechanism, cred [,serverctrls=None[,clientctrls=None]]) -> int|str
+    """
+    return self._ldap_call(self._l.sasl_bind_s,dn,mechanism,cred,RequestControlTuples(serverctrls),RequestControlTuples(clientctrls))
+
   def compare_ext(self,dn,attr,value,serverctrls=None,clientctrls=None):
     """
     compare_ext(dn, attr, value [,serverctrls=None[,clientctrls=None]]) -> int
